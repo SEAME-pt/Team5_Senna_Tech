@@ -1,6 +1,6 @@
 # 🏎️ WarmUp - Team5_Senna_Tech  🏎️
 
-## 📑 Índice
+## 📑 Index
 - [About the Project](#-about-the-project)
 - [First Sprint Goals (2 weeks)](#-first-sprint-goals-2-weeks)
 - [Organization and Workflow](#-organization-and-workflow)
