@@ -2,7 +2,12 @@
 
 This guide explains how to **move your Raspberry Pi OS (Raspberry Pi OS with Desktop)** from the microSD card to an **SSD NVMe**, providing better performance and reliability.
 
----
+
+## Index
+1. [Requirements](#-requirements)
+2. [Steps for Copy the Operating System to the NVMe (Cloning)](#️-step-1--copy-the-operating-system-to-the-nvme-cloning)
+3. [Result](#-result)
+4. [Credits](#-credits)
 
 ## 🧰 Requirements
 
@@ -13,7 +18,7 @@ This guide explains how to **move your Raspberry Pi OS (Raspberry Pi OS with Des
 
 🔗 [Download Raspberry Pi OS](https://www.raspberrypi.com/software/operating-systems/)
 
----
+----
 
 ## ⚙️ Step 1 — Copy the Operating System to the NVMe (Cloning)
 
