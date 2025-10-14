@@ -1,11 +1,10 @@
 ---
-name: "[TYPE] Issue Title (describe an action)"
-about: Clearly describe what needs to be done.
-title: ''
-labels: ''
-assignees: ''
-
+name: "TEAM_05 Issue Template"
+about: "Use this template to create issues of the following types: [BUG], [FEATURE], [TASK], [RESEARCH]"
+title: "[TYPE] Issue Title"
 ---
+### DESCRIPTION 
+Clearly describe what needs to be done. 
 
 ### OBJECTIVE  
 Explain why this task is necessary.  
