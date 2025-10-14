@@ -7,7 +7,6 @@
 - [Repository Structure](#️-repository-structure)
 - [How to Execute](#️-how-to-execute)
 - [Documentation](#-documentation)
-- [Contribution](#-contribution)
 - [Team](#-team)
 - [Sprint Status](#️-sprint-status)
 
