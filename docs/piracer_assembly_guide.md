@@ -12,7 +12,7 @@ Below is the complete list of items included in the PiRacer kit and what you’l
 
 ### 🔩 Components
 
-![materials](docs/pictures/material.jpeg)
+![materials](pictures/material.jpeg)
 
 - Metal chassis  
 - 2× DC gear motors  
@@ -38,21 +38,21 @@ Below is the complete list of items included in the PiRacer kit and what you’l
 
 ### 1. Mount the Motors
 
-![motors](docs/pictures/motors.jpeg)
+![motors](pictures/motors.jpeg)
 
 - Fasten the motors to the metal chassis using **M3×6** screws.  
 - Ensure they are properly aligned and firmly secured.  
 
 ### 2. Assemble the Wheels
 
-![wheels](docs/pictures/back_wheels.jpeg)
+![wheels](pictures/back_wheels.jpeg)
 
 - Attach the couplers to the wheels and secure them with **M4×8** screws.  
 - Mount the wheels onto the shafts and tighten the screws until they spin freely.  
 
 ### 3. Install the Servo and Linkage Bars
 
-![servo](docs/pictures/servo_bars.jpeg)
+![servo](pictures/servo_bars.jpeg)
 
 - Mount the servo bracket onto the chassis.  
 - Fix the servo onto the bracket and align it correctly.  
@@ -61,21 +61,21 @@ Below is the complete list of items included in the PiRacer kit and what you’l
 
 ### 4. Mount the Front Wheels
 
-![front_wheels](docs/pictures/front_wheels.jpeg)
+![front_wheels](pictures/front_wheels.jpeg)
 
 - Install the wheels onto the knuckles using **M4 screws** and **locknuts**.  
 - Check that the wheels spin freely.  
 
 ### 5. Build the Front Structure and Pads for Protection
 
-![EVA](docs/pictures/EVA.jpeg)
+![EVA](pictures/EVA.jpeg)
 
 - Add the **standoffs (M3×22)** and the front wheel support.  
 - Attach the **EVA pads** for vibration damping.  
 
 ### 6. Connect the Motors and Servo Wires
 
-![HAT Connection](docs/pictures/HAT_connection.jpeg)
+![HAT Connection](pictures/HAT_connection.jpeg)
 
 - Identify the connectors on the **Expansion Board (HAT)** for the **left and right motors** and the **servo**.  
 - Connect each wire according to its label and **ensure correct polarity**:
@@ -86,20 +86,20 @@ Below is the complete list of items included in the PiRacer kit and what you’l
 
 ### 7. Mount the Expansion Board (HAT)
 
-![HAT Assemble](docs/pictures/HAT_assemble.jpeg)
+![HAT Assemble](pictures/HAT_assemble.jpeg)
 
 - Place the expansion board onto the **M3×26 standoffs** and secure it with **copper screws**.  
 - Ensure that all connectors (motors, servo, power input) are accessible and the board is firmly attached to the chassis. 
 
 ### 8. Install the Raspberry Pi
 
-![Raspberry](docs/pictures/raspberry_assemble.jpeg)
+![Raspberry](pictures/raspberry_assemble.jpeg)
 
 - Mount the Raspberry Pi on top of the expansion board using screws.  
 - Connect the **6-pin cable** between the Pi and the expansion board.
 #### 🧠 Understanding the I²C Connection
 
-![Raspberry](docs/pictures/raspberry_connection.jpeg)
+![Raspberry](pictures/raspberry_connection.jpeg)
 
 - The **I²C (Inter-Integrated Circuit)** protocol allows the Raspberry Pi to communicate with the HAT using only **two data lines**:
   - **SDA (Data)** → Transmits and receives data.  
@@ -110,7 +110,7 @@ Below is the complete list of items included in the PiRacer kit and what you’l
 
 ### 9. Final Assembly
 
-![final](docs/pictures/final_assembly.jpeg)
+![final](pictures/final_assembly.jpeg)
 
 - Organize all wiring neatly and install the motor cover.  
 - Place the battery into its compartment and connect it (make sure it’s charged before use).  
