@@ -1,0 +1,29 @@
+---
+name: team_05_issue_template
+about: '"Use this template to create issues of the following types: [BUG], [FEATURE],
+  [TASK], [RESEARCH]"'
+title: '"[TYPE] Issue Title"'
+labels: ''
+assignees: ''
+
+---
+
+### DESCRIPTION  
+Clearly describe what needs to be done.  
+
+### OBJECTIVE  
+Explain why this task is necessary.  
+
+### DEPENDENCIES  
+List other tasks or requirements needed (if any).  
+
+### DETAILS  
+Include relevant information, requirements, or technical considerations.  
+
+### ACCEPTANCE CRITERIA  
+- [ ] Condition 1  
+- [ ] Condition 2  
+- [ ] Condition 3  
+
+### NOTES  
+Additional information, links, or useful annotations.
