@@ -18,7 +18,7 @@ python3 main.py
 
 ### 📦 Dependencies
 
-`jetracer` (Nvidia official library)
+`jetracer` (Nvidia official library.)
 
 `pygame` (pygame is a Python library primarily used for creating games, in this script is useful to respond the joystick). [Check Pygame Documentation here!](https://www.pygame.org/docs/) 
 
