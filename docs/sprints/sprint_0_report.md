@@ -1,4 +1,3 @@
----
 # 🚀 Sprint 0 Report – Team5: Senna Tech
 
 **Duration:**  [13/10/2025] → [26/10/2025]
