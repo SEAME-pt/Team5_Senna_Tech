@@ -13,7 +13,6 @@
 | Vinicius        | Software Engineer    |
 | Yasmine         | Scrum Master         |
 
----
 
 ## 🎯 Objectives for this Sprint
 
@@ -22,13 +21,19 @@
 - Implement basic Git workflow and CI
 - Establish Scrum board and roles
 
----
 
 ## 📋 Backlog Overview
 
 See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
----
+## 🗣️ Daily Standup Logs
+
+| Data | Progress Summary and Plan | Obstacles? |
+| :--- | :--- | :--- |
+| **13/10** | Monitoring what has already been studied, reviewing the proposal for sprint 0 | There is no information on how GitHub will be structured(our rules or from the organization?) |
+| **14/10** | There was no daily meeting, the entire team met to approve work rules and develop an organizational standard for the repository | - |
+| **15/10** | Documentation and work monitoring, survey of what remains to be done to complete the sprint 0 | - |
+| **...** | [-----------] | |
 
 ## 🧠 Key Achievements
 
