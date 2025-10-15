@@ -99,7 +99,7 @@ Below is the complete list of items included in the PiRacer kit and what you’l
 - Connect the **6-pin cable** between the Pi and the expansion board.
 #### 🧠 Understanding the I²C Connection
 
-![Raspberry](pictures/raspberry_connection.jpeg)
+![Raspberry](pictures/raspberry_connected.jpeg)
 
 - The **I²C (Inter-Integrated Circuit)** protocol allows the Raspberry Pi to communicate with the HAT using only **two data lines**:
   - **SDA (Data)** → Transmits and receives data.  
