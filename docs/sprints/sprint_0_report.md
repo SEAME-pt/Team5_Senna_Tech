@@ -33,7 +33,8 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | **13/10** | Monitoring what has already been studied, reviewing the proposal for sprint 0 | There is no information on how GitHub will be structured(our rules or from the organization?) |
 | **14/10** | There was no daily meeting, the entire team met to approve work rules and develop an organizational standard for the repository | - |
 | **15/10** | Documentation and work monitoring, survey of what remains to be done to complete the sprint 0 | - |
-| **...** | [-----------] | |
+| **16/10** | Stand-up meeting update. Definition of Scrum Master rotation for each sprint (in addition to the activities already assigned). Work definition: Nicole QT, Hellom SO, Yasmine and Marcelo TSF, Vinícius code in C++. | - |
+| **...** | ... | |
 
 ## 🧠 Key Achievements
 
