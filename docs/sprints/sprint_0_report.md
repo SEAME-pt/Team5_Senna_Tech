@@ -34,6 +34,7 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | **14/10** | There was no daily meeting, the entire team met to approve work rules and develop an organizational standard for the repository | - |
 | **15/10** | Documentation and work monitoring, survey of what remains to be done to complete the sprint 0 | - |
 | **16/10** | Stand-up meeting update. Definition of Scrum Master rotation for each sprint (in addition to the activities already assigned). Work definition: Nicole QT, Hellom SO, Yasmine and Marcelo TSF, Vinícius code in C++. | - |
+| **17/10** | Evolution update. Yasmine, Marcelo, Nicole and Hellom continue in the same roles. Vinicius resolves Pi4/Pi5 library compatibility in C++.| - |
 | **...** | ... | |
 
 ## 🧠 Key Achievements
