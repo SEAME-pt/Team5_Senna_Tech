@@ -156,7 +156,7 @@ The duration of the HIGH pulse within this cycle determines the servo’s positi
 
 - Longer pulses → servo rotates to a larger position
 
-#  🏎️  Using C++ to control the motors
+# Using C++ to control the motors
 
 This code implements a `PiRacer` class responsible for controlling the **steering (servo motor)** and **throttle (DC motors)**.
 Communication with the control modules (**PCA9685** and **INA219**) is done through the **I²C bus**, a widely used protocol for communication between microcontrollers and peripheral devices.
