@@ -54,7 +54,7 @@ The purpose of this document is to explain, in a technical yet accessible way, h
 ```
 
 
-## PCA9685 (expansion board)
+## PCA9685 and expansion board
 
 The PCA9685 is a PWM controller chip integrated in our Expansion Board that is conected whit the motors. In simple terms:
 
