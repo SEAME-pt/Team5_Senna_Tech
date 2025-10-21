@@ -31,13 +31,16 @@ jobs:
         cd trustable
         poetry install
 
-    - name: Run Trustable Analysis
+    - name: Build and install Trustable package
+      working-directory: trustable
       run: |
-        cd trustable
         poetry build
-        eval $(poetry env activate)
-        pip install dist/trustable-2025.9.16.tar.gz
-        poetry run python -m trudag.cli \
+        poetry run pip install dist/trustable-2025.9.16.tar.gz
+
+    - name: Run Trustable Analysis
+      working-directory: trustable
+      run: |
+        poetry run python -m trudag.manage \
           --config ../trustable-config/pipelines/github-pipeline.yaml
 
     - name: Upload Results
