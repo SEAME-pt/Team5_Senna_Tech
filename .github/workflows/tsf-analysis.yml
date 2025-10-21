@@ -1,0 +1,45 @@
+name: TSF Analysis
+on:
+  push:
+    branches: [ main, develop, test-TSF ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  trustable-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repositório
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # pega todo o historico de commits 
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11' # tem que ser a partir do .10 para o python
+
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Clone Trustable
+      run: |
+        git clone https://gitlab.com/CodethinkLabs/trustable/trustable.git
+        cd trustable
+        poetry install
+
+    - name: Run Trustable Analysis
+      run: |
+        cd trustable
+        poetry run python -m trustable.trudag.cli \
+          --config ../trustable-config/pipelines/github-pipeline.yaml
+
+    - name: Upload Results
+      uses: actions/upload-artifact@v4
+      with:
+        name: trustable-report
+        path: |
+          trustable-config/results/

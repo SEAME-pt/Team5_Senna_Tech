@@ -1,0 +1,21 @@
+name: "TSF Pipeline"
+description: "Automatic analysis at Github Actions"
+
+# Usa o código atual do repositório
+repositorio_local: "."
+
+steps:
+  - nome: "analise_estrutura"
+    tipo: "structure_analysis"
+    config:
+      linguagens: ["python", "javascript", "java"]
+
+  - nome: "verificar_seguranca"
+    tipo: "security_scan"
+
+  - nome: "gerar_relatorio"
+    tipo: "report"
+    depende_de: ["analise_estrutura", "verificar_seguranca"]
+    config:
+      formato: "html"
+      saida: "./trustable-config/results/relatorio.html"
