@@ -10,9 +10,20 @@ steps:
     config:
       languages: ["python"]
 
+  - name: "custom_script"
+    type: "custom"
+    config:
+      # Script pode ser um comando shell ou caminho para script Python
+      command: |
+        echo "Running custom debug script..."
+        pwd
+        ls -la
+        # Exemplo: rodar um script Python
+        # python ../../scripts/my_custom_script.py
+
   - name: "generate_report"
     type: "report"
-    depends_on: ["structure_analysis"]
+    depends_on: ["structure_analysis", "custom_script"]
     output:
       type: html
       dir: ../trustable-config/results
