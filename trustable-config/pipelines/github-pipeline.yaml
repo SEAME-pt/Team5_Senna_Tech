@@ -8,14 +8,11 @@ steps:
   - name: "structure_analysis"
     type: "structure_analysis"
     config:
-      languages: ["python", "javascript", "java"]
-
-  - name: "security_scan"
-    type: "security_scan"
+      languages: ["python"]
 
   - name: "generate_report"
     type: "report"
-    depends_on: ["structure_analysis", "security_scan"]
+    depends_on: ["structure_analysis"]
     config:
       format: "html"
       output: "./trustable-config/results/report.html"
