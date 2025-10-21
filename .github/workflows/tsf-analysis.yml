@@ -24,22 +24,21 @@ jobs:
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
         echo "$HOME/.local/bin" >> $GITHUB_PATH
-
     - name: Clone Trustable
       run: |
         git clone https://gitlab.com/CodethinkLabs/trustable/trustable.git
         cd trustable
         poetry install
-
-    - name: Run Trustable Analysis
+    - name: Build and install Trustable package
+      working-directory: trustable
       run: |
-        cd trustable
         poetry build
-        eval $(poetry env activate)
-        pip install dist/trustable-2025.9.16.tar.gz
-        poetry run python -m trudag.cli \
+        poetry run pip install dist/trustable-2025.9.16.tar.gz
+    - name: Run Trustable Analysis
+      working-directory: trustable
+      run: |
+        poetry run python -m trudag.manage run \
           --config ../trustable-config/pipelines/github-pipeline.yaml
-
     - name: Upload Results
       uses: actions/upload-artifact@v4
       with:
