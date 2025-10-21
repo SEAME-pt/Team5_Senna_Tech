@@ -34,9 +34,12 @@ jobs:
     - name: Run Trustable Analysis
       run: |
         cd trustable
-        poetry run python -m trustable.trustable.trudag.cli \
+        poetry build
+        eval $(poetry env activate)
+        pip install dist/trustable-2025.9.16.tar.gz
+        poetry run python -m trudag.cli \
           --config ../trustable-config/pipelines/github-pipeline.yaml
-          
+
     - name: Upload Results
       uses: actions/upload-artifact@v4
       with:
