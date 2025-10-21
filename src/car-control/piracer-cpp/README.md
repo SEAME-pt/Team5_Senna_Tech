@@ -3,17 +3,16 @@ The goal of this project is to implement PiRacer-py project in cpp so that no py
 
 # Install
 Tested device:
-- Raspberry Pi 4 Model B
+- Raspberry Pi 5
 - Waveshare PiRacer AI Kit
 
 Tested distribution:
-- Raspberry Pi OS "Bullseye" (64-Bit)
+- Raspberry Pi OS 
 
 ### Install dependencies
 ```
 sudo apt update
 sudo apt install \
-	pigpio \
 	build-essentials \
 	cmake
 ```
@@ -121,12 +120,7 @@ cmake ..
 make
 ```
 
-pigpio library requires root permission to control gpio pins. So run example programs with `sudo`
-```
-sudo ./forward_backward_left_right
-```
 
-> Keep in mind that to use gpio `gpioInitialise()` must be called in your program before using piracer instance. And when terminating the program, call `gpioTerminate()`
 
 # References
 [Raspberry Pi OS](https://www.raspberrypi.com/software/operating-systems/)
