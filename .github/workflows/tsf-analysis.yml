@@ -35,10 +35,11 @@ jobs:
       run: |
         cd trustable
         poetry build
-        pip install dist/trustable-2025.9.16.tar.gz
-        poetry run python -m trustable.trudag.cli \
-          --config ../trustable-config/pipelines/github-pipeline.yaml
-
+        pip install dist/trustable-*.tar.gz
+        # Verificar qual módulo funciona
+        python -c "import trudag.cli; print('Success', trudag.cli)"
+        # Agora executar a análise
+        python -m trudag.cli --config ../trustable-config/pipelines/github-pipeline.yaml
     - name: Upload Results
       uses: actions/upload-artifact@v4
       with:
