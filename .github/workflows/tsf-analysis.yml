@@ -34,12 +34,9 @@ jobs:
     - name: Run Trustable Analysis
       run: |
         cd trustable
-        poetry build
-        pip install dist/trustable-*.tar.gz
-        # Verificar qual módulo funciona
-        python -c "import trudag.cli; print('Success', trudag.cli)"
-        # Agora executar a análise
-        python -m trudag.cli --config ../trustable-config/pipelines/github-pipeline.yaml
+        poetry run python -m trustable.trustable.trudag.cli \
+          --config ../trustable-config/pipelines/github-pipeline.yaml
+          
     - name: Upload Results
       uses: actions/upload-artifact@v4
       with:
