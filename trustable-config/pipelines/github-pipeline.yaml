@@ -16,6 +16,6 @@ steps:
   - name: "generate_report"
     type: "report"
     depends_on: ["structure_analysis", "security_scan"]
-    config:
-      format: "html"
-      output: "./trustable-config/results/report.html"
+    output:
+      type: html
+      dir: ../trustable-config/results
