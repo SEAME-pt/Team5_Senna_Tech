@@ -2,7 +2,7 @@ name: "TSF Pipeline"
 description: "Automatic analysis in GitHub Actions"
 
 # Uses the current repository code
-local_repository: "."
+local_repository: "../"
 
 steps:
   - name: "structure_analysis"
