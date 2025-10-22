@@ -2,7 +2,7 @@ name: "TSF Pipeline"
 description: "Automatic analysis in GitHub Actions"
 
 # Uses the current repository code
-local_repository: "."
+local_repository: "../"
 
 steps:
   - name: "structure_analysis"
@@ -10,9 +10,19 @@ steps:
     config:
       languages: ["python"]
 
+  - name: "custom_script"
+    type: "custom"
+    config:
+      # Script pode ser um comando shell ou caminho para script Python
+      command: |
+        echo "Running custom debug script..."
+        pwd
+        ls -la
+        python ../src/test_tsf.py
+
   - name: "generate_report"
     type: "report"
-    depends_on: ["structure_analysis", "security_scan"]
+    depends_on: ["structure_analysis", "custom_script"]
     output:
       type: html
-      dir: ../trustable-config/results
+      dir: ../trustable-config/results-test

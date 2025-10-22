@@ -24,38 +24,36 @@ jobs:
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
         echo "$HOME/.local/bin" >> $GITHUB_PATH
+
     - name: Clone Trustable
       run: |
         git clone https://gitlab.com/CodethinkLabs/trustable/trustable.git
         cd trustable
         poetry install
+
+    - name: Prepare results directory
+      run: mkdir -p trustable-config/results-test
+
+    - name: Check pipeline accessibility
+      run: |
+        echo "Verificando acesso à pipeline e ao código..."
+        ls -R trustable-config/pipelines
+        cat trustable-config/pipelines/github-pipeline.yaml
+
     - name: Build and install Trustable package
       working-directory: trustable
       run: |
         poetry build
         poetry run pip install dist/trustable-2025.9.16.tar.gz
+   
     - name: Run Trustable Analysis
       working-directory: trustable
       run: |
         poetry run python -m trudag.manage run \
           --config ../trustable-config/pipelines/github-pipeline.yaml
-
-    - name: Diagnostic check (debug Trustable results)
-      run: |
-        echo "=== CURRENT DIRECTORY ==="
-        pwd
-        echo "=== LISTING FILES IN CURRENT DIRECTORY ==="
-        ls -R
-        echo "=== LISTING FILES IN ../trustable-config ==="
-        ls -R ../trustable-config || echo "No trustable-config folder found"
-        echo "=== RUNNING TRUSTABLE PIPELINE ==="
-        poetry run python trudag/manage.py run \
-          --config ../trustable-config/pipelines/github-pipeline.yaml
-        echo "=== AFTER EXECUTION ==="
-        ls -R ../trustable-config
         
     - name: Upload Results
       uses: actions/upload-artifact@v4
       with:
         name: trustable-report
-        path: trustable-config/results/
+        path: trustable-config/results-test/
