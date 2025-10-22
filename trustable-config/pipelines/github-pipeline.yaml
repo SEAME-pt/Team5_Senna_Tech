@@ -1,28 +1,80 @@
-name: "TSF Pipeline"
-description: "Automatic analysis in GitHub Actions"
+name: TSF Analysis
+on:
+  push:
+    branches: [ main, develop, test-TSF ]
+  pull_request:
+    branches: [ main ]
 
-# Uses the current repository code
-local_repository: "../"
+jobs:
+  trustable-analysis:
+    runs-on: ubuntu-latest
 
-steps:
-  - name: "structure_analysis"
-    type: "structure_analysis"
-    config:
-      languages: ["python"]
+    steps:
+      - name: Checkout repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  - name: "custom_script"
-    type: "custom"
-    config:
-      # Script pode ser um comando shell ou caminho para script Python
-      command: |
-        echo "Running custom debug script..."
-        pwd
-        ls -la
-        python ../src/test_tsf.py
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-  - name: "generate_report"
-    type: "report"
-    depends_on: ["structure_analysis", "custom_script"]
-    output:
-      type: html
-      dir: ../trustable-config/results
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Clone Trustable
+        run: |
+          git clone https://gitlab.com/CodethinkLabs/trustable/trustable.git
+          cd trustable
+          poetry install
+
+      - name: Prepare results directory
+        run: mkdir -p trustable-config/results
+
+      - name: Check pipeline accessibility
+        run: |
+          echo "Verificando acesso à pipeline e ao código..."
+          ls -R trustable-config/pipelines
+          cat trustable-config/pipelines/github-pipeline.yaml
+
+      - name: Build and install Trustable package
+        working-directory: trustable
+        run: |
+          poetry build
+          poetry run pip install dist/trustable-2025.9.16.tar.gz
+
+      - name: Run Trustable Analysis (debug)
+        working-directory: trustable
+        run: |
+          echo "=== Debug: pipeline atual ==="
+          cat ../trustable-config/pipelines/github-pipeline.yaml
+          echo "=== Conteúdo do repositório alvo ==="
+          ls -R ../src || echo "src não encontrado"
+          echo "=== Executando TSF ==="
+          poetry run python -m trudag.manage run --config ../trustable-config/pipelines/github-pipeline.yaml || echo "Falha na execução do TSF"
+          echo "=== Listagem de resultados ==="
+          ls -R ../trustable-config/results || echo "Sem resultados"
+
+      - name: Debug results folder
+        run: |
+          echo "=== Conteúdo final da pasta results ==="
+          ls -R trustable-config/results || echo "Nenhum resultado gerado"
+
+      - name: Upload TSF logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trustable-logs
+          path: |
+            trustable/trustable.log
+            trustable/.trudag/logs/
+
+      - name: Upload Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trustable-report
+          path: trustable-config/results/

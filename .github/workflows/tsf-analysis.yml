@@ -58,16 +58,7 @@ jobs:
         echo "=== Listagem de resultados ==="
         ls -R ../trustable-config/results || echo "Sem resultados"
         
-    - name: "generate_report"
-      type: "report"
-      depends_on: ["structure_analysis", "custom_script"]
-      output:
-        type: html
-        dir: ../trustable-config/results
-      config:
-        title: "TSF Test Report"
-        author: "GitHub Actions"
-        description: "Pipeline de teste automático"
+
 
     - name: Debug results folder
       run: |
