@@ -25,4 +25,4 @@ steps:
     depends_on: ["structure_analysis", "custom_script"]
     output:
       type: html
-      dir: ../trustable-config/results-test
+      dir: ../trustable-config/results

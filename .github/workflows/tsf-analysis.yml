@@ -32,7 +32,7 @@ jobs:
         poetry install
 
     - name: Prepare results directory
-      run: mkdir -p trustable-config/results-test
+      run: mkdir -p trustable-config/results
 
     - name: Check pipeline accessibility
       run: |
@@ -56,4 +56,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: trustable-report
-        path: trustable-config/results-test/
+        path: trustable-config/results/
