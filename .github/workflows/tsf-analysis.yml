@@ -46,14 +46,39 @@ jobs:
         poetry build
         poetry run pip install dist/trustable-2025.9.16.tar.gz
    
-    - name: Run Trustable Analysis
+    - name: Run Trustable Analysis (debug)
       working-directory: trustable
       run: |
-        poetry run python -m trudag.manage run \
-          --config ../trustable-config/pipelines/github-pipeline.yaml
+        echo "=== Debug: pipeline atual ==="
+        cat ../trustable-config/pipelines/github-pipeline.yaml
+        echo "=== Conteúdo do repositório alvo ==="
+        ls -R ../src || echo "src não encontrado"
+        echo "=== Executando TSF ==="
+        poetry run python -m trudag.manage run --config ../trustable-config/pipelines/github-pipeline.yaml || echo "Falha na execução do TSF"
+        echo "=== Listagem de resultados ==="
+        ls -R ../trustable-config/results || echo "Sem resultados"
         
-    - name: Upload Results
+    - name: "generate_report"
+      type: "report"
+      depends_on: ["structure_analysis", "custom_script"]
+      output:
+        type: html
+        dir: ../trustable-config/results
+      config:
+        title: "TSF Test Report"
+        author: "GitHub Actions"
+        description: "Pipeline de teste automático"
+
+    - name: Debug results folder
+      run: |
+        echo "=== Conteúdo final da pasta results ==="
+        ls -R trustable-config/results || echo "Nenhum resultado gerado"
+
+    - name: Upload TSF logs
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: trustable-report
-        path: trustable-config/results/
+        name: trustable-logs
+        path: |
+          trustable/trustable.log
+          trustable/.trudag/logs/
