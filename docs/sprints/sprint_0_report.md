@@ -33,7 +33,12 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | **13/10** | Monitoring what has already been studied, reviewing the proposal for sprint 0 | There is no information on how GitHub will be structured(our rules or from the organization?) |
 | **14/10** | There was no daily meeting, the entire team met to approve work rules and develop an organizational standard for the repository | - |
 | **15/10** | Documentation and work monitoring, survey of what remains to be done to complete the sprint 0 | - |
-| **16/10** | Stand-up meeting update. Definition of Scrum Master rotation for each sprint (in addition to the activities already assigned). Work definition: Nicole QT, Hellom SO, Yasmine and Marcelo TSF, Vinícius code in C++. | - |
+| **16/10** | Stand-up meeting update. Definition of Scrum Master rotation for each sprint (in addition to the activities already assigned). Work definition: Nicole QT study; Hellom SO study; Yasmine and Marcelo TSF study; Vinícius pass the code from python to C++. | - |
+| **17/10** | Evolution update. Yasmine, Marcelo, Nicole and Hellom continue in the same roles. Vinicius resolves Pi4/Pi5 library compatibility in C++.| - |
+| **20/10** | Vinicius c++ documentation; Hellom screen support, VPN and notion page;  Marcelo and Yasmine TSF research; Nicole QT implamentation| - |
+| **21/10** | Yasmine and Marcelo will put the TSF prototype on GitHub Actions and generate a graph for understanding; Nicole will test the first version of the QT on the screen; Hellom, survey of car problems, VPN; Vinicius study on how to quantify battery usage.| - |
+| **22/10** | Marcelo GitHub Actions documentation; Yasmine TSF documentation; Nicole QT code transfer to screen; Vinicius battery communication study; Hello VPN documentation | We can't get the code to run reliably, we'll just define theoretical guidelines for TSF. |
+| **23/10** |Marcelo, study of battery supplementation for the servo, creation of hyperlinks in the documentation readme; Nicole, study of cross-compilation, uploading the folder hierarchy to GitHub; Yasmine, prepare presentation for Sprint Reviewer and Sprint 1, TSF template; Hellom, finalize VPN documentation and gather requirements for the next sprint; Vinicius, study of battery charge.| - |
 | **...** | ... | |
 
 ## 🧠 Key Achievements
