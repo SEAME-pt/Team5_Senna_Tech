@@ -36,14 +36,6 @@ Combining **ISO 26262** and **TSF** enables:
 
 ---
 
-## 🧭 Navigation Index
-
-- [ISO 26262 – Structure and Concepts](./ISO26262-structure-and-concepts.md)  
-- [TSF – Learning Concepts](./TSF-learning.md)  
-- [TSF – Applying in Practice](./TSF-applying.md)
-
----
-
 ## 📚 References
 
 - **ISO 26262:2018** – *Road Vehicles – Functional Safety*  
