@@ -3,17 +3,13 @@
 
 int main()
 {
-	// Ensure GPIO is initialized
-/* 	if (gpioInitialise() < 0)
-	{
-		std::cerr << "pigpio initialization failed" << std::endl;
-		return 1;
-	} */
-
-	// Create PiRacer Instance
+	// BATTERY READER TESTS
 	PiRacer racer;
 
-	std::cout << "Powertrain off" << std::endl;
+	std::cout << "Battery Percentage: " << racer.getBatteryPercentage() << "%" << std::endl;
+	std::cout << "Battery Reloading: " << racer.isCharging() << std::endl;
+	racer.printEnergyReport();
+/* 	std::cout << "Powertrain off" << std::endl;
 	racer.printEnergyReport();
 	sleep(1);
 
@@ -30,8 +26,7 @@ int main()
 	std::cout << "Powertrain off" << std::endl;
 	racer.setThrottlePercent(0.0);
 	sleep(3);
-	racer.printEnergyReport();
+	racer.printEnergyReport(); */
 
-	// gpioTerminate();
 	return 0;
 }

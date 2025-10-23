@@ -1,1 +1,0 @@
-/usr/bin/c++  -std=c++17 CMakeFiles/forward_backward_left_right.dir/examples/forward_backward_left_right.cpp.o CMakeFiles/forward_backward_left_right.dir/Adafruit_INA219/Adafruit_INA219.cpp.o CMakeFiles/forward_backward_left_right.dir/Adafruit_PCA9685/Adafruit_PCA9685.cpp.o CMakeFiles/forward_backward_left_right.dir/PiRacer/PiRacer.cpp.o -o forward_backward_left_right 
