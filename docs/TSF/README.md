@@ -10,7 +10,7 @@ It is designed for engineers, researchers, and practitioners working with **func
 | File | Description |
 |------|--------------|
 |[ISO 26262 – Structure and Concepts](./ISO26262-structure-and-concepts.md)  | Conceptual and structural overview of ISO 26262:2018 (Functional Safety for Road Vehicles). Includes ASIL classification, lifecycle, documentation, and core philosophy. |
-| [TSF – Learning Concepts](./TSF-learning.md)  | Conceptual explanation of the Trustable Software Framework (TSF): core principles, trustable tenets, trustable assertions, and statement classifications. |
+| [TSF – Learning Concepts](./TSF-concepts.md)  | Conceptual explanation of the Trustable Software Framework (TSF): core principles, trustable tenets, trustable assertions, and statement classifications. |
 | [TSF – Applying in Practice](./TSF-applying.md)| Practical guidance for applying TSF in automotive software projects. Includes examples of traceability matrices, expectations, assertions, and CI evidence mapping. |
 
 ---
