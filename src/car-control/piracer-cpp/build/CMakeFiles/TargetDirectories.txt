@@ -1,0 +1,5 @@
+/home/vivaccar/piracer-cpp/build/CMakeFiles/forward_backward_left_right.dir
+/home/vivaccar/piracer-cpp/build/CMakeFiles/gamepad_control.dir
+/home/vivaccar/piracer-cpp/build/CMakeFiles/read_battery.dir
+/home/vivaccar/piracer-cpp/build/CMakeFiles/edit_cache.dir
+/home/vivaccar/piracer-cpp/build/CMakeFiles/rebuild_cache.dir
