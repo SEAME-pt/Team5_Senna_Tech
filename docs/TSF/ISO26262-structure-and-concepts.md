@@ -1,4 +1,4 @@
-ac# ISO 26262:2018 — Functional Safety for Road Vehicles
+# ISO 26262:2018 — Functional Safety for Road Vehicles
 
 ## 🧾 Index
 1. [Overview](#1-overview)
