@@ -110,10 +110,10 @@ python src/main.py
 | Name            | Responsibilities     |
 |-----------------| ---------------------|
 | Hellom          | Hardware Engineer    |
-| Marcelo         | Software Engineer    |
-| Nicole          | Qt Developer         |
-| Vinicius        | Software Engineer    |
-| Yasmine         | Scrum Master         |
+| Marcelo         | QT Developer    |
+| Nicole          | Software Engineer         |
+| Vinicius        | Scrum Master    |
+| Yasmine         | Software Engineer        |
 
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 

@@ -7,7 +7,7 @@
 **Team Roles:**
 | Name            | Responsibilities     |
 |-----------------| ---------------------|
-| Hellom        | Software Engineer |
+| Hellom        | Hardware Engineer |
 | Marcelo       | QT Developer |
 | Nicole          | Software Engineer |
 | Vinicius       | Scrum Master  |
