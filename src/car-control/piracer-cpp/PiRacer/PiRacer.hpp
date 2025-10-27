@@ -35,6 +35,8 @@ public:
 	void		setSteeringPercent(float percent);
 	void		setThrottlePercent(float percent);
 	void		printEnergyReport();
+	int			getBatteryPercentage();
+	bool		isCharging();
 };
 
 #endif

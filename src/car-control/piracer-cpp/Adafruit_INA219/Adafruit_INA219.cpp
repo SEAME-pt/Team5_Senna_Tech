@@ -40,25 +40,25 @@ void INA219::setCalibration32V2A()
 
 float INA219::getBusVoltage()
 {
-    int rawBusVoltage = readRegister(REG_BUSVOLTAGE);
+    int16_t rawBusVoltage = readRegister(REG_BUSVOLTAGE);
     return (rawBusVoltage >> 3) * 0.004;
 }
 
 float INA219::getShuntVoltage()
 {
-    int rawShuntVoltage = readRegister(REG_SHUNTVOLTAGE);
+    int16_t rawShuntVoltage = readRegister(REG_SHUNTVOLTAGE);
     return rawShuntVoltage * 0.00001;
 }
 
 float INA219::getCurrent()
 {
-    int rawCurrent = readRegister(REG_CURRENT);
+    int16_t rawCurrent = readRegister(REG_CURRENT);
     return rawCurrent * currentLSB;
 }
 
 float INA219::getPower()
 {
-    int rawPower = readRegister(REG_POWER);
+    int16_t rawPower = readRegister(REG_POWER);
     return rawPower * powerLSB;
 }
 

@@ -3,15 +3,6 @@
 
 int main()
 {
-	// Ensure GPIO is initialized
-/* 	if (gpioInitialise() < 0)
-	{
-		std::cerr << "pigpio initialization failed" << std::endl;
-		return 1;
-	}
-	atexit(gpioTerminate); */
-
-	// Create instances
 	PiRacer racer;
 	ShanWanGamepad gamepad;
 
@@ -25,10 +16,7 @@ int main()
 		std::cout << "Throttle: " << throttle
 				<< ", Steering: " << steering
 				<< std::endl;
-		racer.printEnergyReport();
-
-
-		
+		// racer.printEnergyReport();
 		racer.setSteeringPercent(steering);
 		racer.setThrottlePercent(throttle);
 	}

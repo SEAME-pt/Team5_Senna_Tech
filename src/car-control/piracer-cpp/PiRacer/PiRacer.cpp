@@ -79,3 +79,35 @@ void	PiRacer::printEnergyReport() {
 				<< ", Power: " << power
 				<< std::endl;
 }
+
+int		PiRacer::getBatteryPercentage() {
+	const int N = 20;           
+    const float FULL = 12.6; 
+    const float EMPTY = 9.3;
+
+    static float filteredVoltage = 0.0;
+
+    // 1. Read voltage N times to calculate the average voltage
+    float sum = 0.0;
+    for (int i = 0; i < N; i++) {
+        sum += this->getBatteryVoltage();
+        usleep(2000);
+    }
+    float averageVoltage = sum / N;
+	std::cout << "average voltage" << averageVoltage << std::endl;
+
+    // 3. Converte to percentage
+    float percent = ((averageVoltage - EMPTY) / (FULL - EMPTY)) * 100.0;
+
+    // 4. Limit between 0 and 100
+    if (percent > 100.0) percent = 100.0;
+    if (percent < 0.0) percent = 0.0;
+    return percent;
+}
+
+// IF THE BATTERY IS CHARGING RETURNS TRUE IF NOT RETURN FALSE
+bool	PiRacer::isCharging() {
+	if (this->getBatteryCurrent() > 0)
+		return true;
+	return false;
+}
