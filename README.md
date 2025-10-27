@@ -70,7 +70,7 @@ All guidelines were developed by the entire team to ensure the best standard for
   - Code structure and adopted standards
 
 ####  Table of Contents
-- [Rules and Best Practices for Git](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/docs/git_guidelines.md)
+- [Rules and Best Practices for Git](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_guidelines.md)
 - [Git Workflow Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_workflow_guide.md)
 - [PiRacer Assembly Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/piracer_assembly_guide.md)
 - [Raspberry Pi OS Installation in SSD NVMe](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/raspberry_Pi_system.md)
