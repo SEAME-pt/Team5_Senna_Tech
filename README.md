@@ -56,7 +56,7 @@ Building a miniature autonomous vehicle (PiRacer) powered by Raspberry Pi 5 and 
 │   ├── feature_[feature-name]/        # Specifc feature code
 └── README.md                          # This file
 ```
-See detals in [git_workflow_guide.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/git_workflow_guide.md)
+See detals in [git_workflow_guide.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_workflow_guide.md)
 
 ## 🧭 Guidelines
 All guidelines were developed by the entire team to ensure the best standard for work efficiency. All information can be found at [git_guidelines.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/git_guidelines.md)
@@ -70,23 +70,23 @@ All guidelines were developed by the entire team to ensure the best standard for
   - Code structure and adopted standards
 
 ####  Table of Contents
-- [Rules and Best Practices for Git](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/git_guidelines.md)
-- [Git Workflow Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/git_workflow_guide.md)
-- [PiRacer Assembly Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/piracer_assembly_guide.md)
-- [Raspberry Pi OS Installation in SSD NVMe](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/raspberry_Pi_system.md)
-- [Initial Program Installation](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/install_initial_program.md)
-- [Joystick Car Control - Python](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/joystick_control_python.md)
-- [Joystick Car Control - C++](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/piracer-cpp.md)
-- [GitHub Actions Overview](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/git_actions_overview.md)
-- [VPN and Remote Server Access Guide via NetBird + TigerVNC](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/vpn_install_usage.md)
-- [Sprints](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/sprints/README.md)
-  - [Sprint Goals](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/sprints/Sprint_Goals.md)
-  - [Sprint 0 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/sprints/sprint_0_report.md)
-  - [Sprint Template](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/sprints/sprint_template.md)
-- [TSF (Trustable Software Framework)](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/TSF/README.md)
-  - [ISO 26262:2018 — Functional Safety for Road Vehicles](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/TSF/ISO26262-structure-and-concepts.md)
-  - [Applying TSF to Automotive Projects](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/TSF/TSF-applying.md)
-  - [TSF Learning Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/TSF/TSF-concepts.md)
+- [Rules and Best Practices for Git](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/docs/git_guidelines.md)
+- [Git Workflow Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_workflow_guide.md)
+- [PiRacer Assembly Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/piracer_assembly_guide.md)
+- [Raspberry Pi OS Installation in SSD NVMe](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/raspberry_Pi_system.md)
+- [Initial Program Installation](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/install_initial_program.md)
+- [Joystick Car Control - Python](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/joystick_control_python.md)
+- [Joystick Car Control - C++](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/piracer-cpp.md)
+- [GitHub Actions Overview](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_actions_overview.md)
+- [VPN and Remote Server Access Guide via NetBird + TigerVNC](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/vpn_install_usage.md)
+- [Sprints](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/README.md)
+  - [Sprint Goals](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/Sprint_Goals.md)
+  - [Sprint 0 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_0_report.md)
+  - [Sprint Template](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_template.md)
+- [TSF (Trustable Software Framework)](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/README.md)
+  - [ISO 26262:2018 — Functional Safety for Road Vehicles](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/ISO26262-structure-and-concepts.md)
+  - [Applying TSF to Automotive Projects](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/TSF-applying.md)
+  - [TSF Learning Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/TSF-concepts.md)
 ## 🧱 Agile & Scrum Workflow
 - **Methodology:** Scrum  
 - **Sprints:** 2-week sprints  
