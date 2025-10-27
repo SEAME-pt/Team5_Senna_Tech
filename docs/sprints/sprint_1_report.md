@@ -1,8 +1,10 @@
 # 🚀 Sprint 1 Report – Team5: Senna Tech
 
 **Duration:** [27/10/2025] → [07/11/2025]
-**Sprint Goal:** [Battery solution & speed sensor]  
-**Team Roles:** :
+
+**Sprint Goal:** [Battery solution & speed sensor] 
+
+**Team Roles:**
 | Name            | Responsibilities     |
 |-----------------| ---------------------|
 | Hellom        | Software Engineer |
