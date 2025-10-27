@@ -61,20 +61,6 @@ See detals in [git_workflow_guide.md](https://github.com/SEAME-pt/Team5_Senna_Te
 ## 🧭 Guidelines
 All guidelines were developed by the entire team to ensure the best standard for work efficiency. All information can be found at [git_guidelines.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/git_guidelines.md)
 
-## ⚙️ How to Execute
-```bash
-# Clone the repository
-git clone git@github.com:SEAME-pt/Team5_Senna_Tech.git
-
-# Enter the folder
-cd Team5_Senna_Tech
-
-# (Optional) Set up the environment
-# Example: install dependencies, activate venv, etc.
-
-# Run the main code
-python src/main.py
-```
 
 ## 🧾 Documentation
 - All documentation will be kept inside the docs/ folder.
@@ -110,15 +96,15 @@ python src/main.py
 | Name            | Responsibilities     |
 |-----------------| ---------------------|
 | Hellom          | Hardware Engineer    |
-| Marcelo         | Software Engineer    |
-| Nicole          | Qt Developer         |
-| Vinicius        | Software Engineer    |
-| Yasmine         | Scrum Master         |
+| Marcelo         | QT Developer    |
+| Nicole          | Software Engineer         |
+| Vinicius        | Scrum Master    |
+| Yasmine         | Software Engineer        |
 
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 ## 🗓️ Sprint Status
-- **Current sprint**: Sprint 0
-- **Period**: October 14 to October 28, 2025
+- **Current sprint**: Sprint 1
+- **Period**: October 27 to November 07, 2025
 - **Current Status**: 🟡 In Progress
-- **Goal**: Car moving + basic documentation completed
+- **Goals**: Battery Solution, introduce microcontroller, Qt application.
