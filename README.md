@@ -104,7 +104,7 @@ All guidelines were developed by the entire team to ensure the best standard for
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 ## 🗓️ Sprint Status
-- **Current sprint**: Sprint 0
-- **Period**: October 14 to October 28, 2025
+- **Current sprint**: Sprint 1
+- **Period**: October 27 to November 07, 2025
 - **Current Status**: 🟡 In Progress
-- **Goal**: Car moving + basic documentation completed
+- **Goals**: Battery Solution, introduce microcontroller, Qt application.
