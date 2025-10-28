@@ -85,8 +85,6 @@ int		PiRacer::getBatteryPercentage() {
     const float FULL = 12.6; 
     const float EMPTY = 9.3;
 
-    static float filteredVoltage = 0.0;
-
     // 1. Read voltage N times to calculate the average voltage
     float sum = 0.0;
     for (int i = 0; i < N; i++) {
