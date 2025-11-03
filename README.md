@@ -59,7 +59,7 @@ Building a miniature autonomous vehicle (PiRacer) powered by Raspberry Pi 5 and 
 See detals in [git_workflow_guide.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_workflow_guide.md)
 
 ## 🧭 Guidelines
-All guidelines were developed by the entire team to ensure the best standard for work efficiency. All information can be found at [git_guidelines.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/git_guidelines.md)
+All guidelines were developed by the entire team to ensure the best standard for work efficiency. All information can be found at [git_guidelines.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_guidelines.md)
 
 
 ## 🧾 Documentation
@@ -107,4 +107,4 @@ All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects
 - **Current sprint**: Sprint 1
 - **Period**: October 27 to November 07, 2025
 - **Current Status**: 🟡 In Progress
-- **Goals**: Battery Solution, introduce microcontroller, Qt application.
+- **Goals**: Battery Solution, introduce microcontroller, Qt application integration
