@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>Main.qml</file>
-    </qresource>
-    <qresource prefix="/images">
-        <file>ayrton.png</file>
-    </qresource>
-</RCC>
