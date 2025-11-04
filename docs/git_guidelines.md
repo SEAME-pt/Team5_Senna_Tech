@@ -56,12 +56,39 @@ git commit -m "+ | added 2FA implementation from SMS"
 ---
 
 ## 3️⃣ Documentation
+All documentation must be **clear, self-contained, and reproducible**, allowing any team member to understand, continue, or rebuild the work without external guidance.
 
-All documentation should be written clearly enough for **any team member** to understand and reproduce or continue work from there. Whenever many topics are covered, include an index to facilitate the search for specific subjects.
+### Feature Documentation
 
-Features documentation should be saved in the docs directory, and the name should match the name of the feature it describes.
+* Each feature must include its own main documentation file, named README.md, located in the same directory as its code.
 
-Code documentation should be in the same directory as the code.
+* This file should explain:
+
+    * The purpose of the feature.
+
+    * How it works (architecture, logic, data flow, etc.).
+
+    * How to build, test, or run it.
+
+* Any relevant dependencies or configurations.
+
+* The goal is for anyone reading the feature folder to immediately understand and execute it without referring elsewhere.
+
+### General Documentation
+
+The /docs directory (in the project root) is reserved for global or non-feature-specific documentation, such as:
+
+* Project overview and architecture.
+
+* Setup and environment configuration.
+
+* Contribution guidelines.
+
+* Design documents, research, or technical notes.
+
+### Indexing
+
+When multiple topics are covered in a single document, include an index or table of contents at the top to make navigation easier.
 
 ## 4️⃣ Issues
 
