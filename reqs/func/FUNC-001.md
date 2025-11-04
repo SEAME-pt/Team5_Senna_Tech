@@ -1,11 +1,14 @@
 ---
-id: FUNC-001
+id: FUNC-001 
 title: PiRacer shall be controled by JoyStick
 normative: true
 level: 1.0
 type: expectation
-status: draft
-linked_expectations: []
+ASIL: A
+reviewers:
+    - name: "namedoreviewer"
+    - email: "email@reviewr.com"
+reviewed: ''
 owner: Vinicius Vaccari
 date: 2025-10-30
 ---

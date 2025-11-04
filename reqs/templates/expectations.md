@@ -4,8 +4,11 @@ title: add title
 normative: true
 level: 1.0
 type: expectation
-status: draft
-linked_expectations: []
+ASIL: A, B, C, D or QM
+reviewers:
+    - name: "namedoreviewer"
+    - email: "email@reviewr.com"
+reviewed: ''
 owner: Vinicius Vaccari
 date: 2025-10-30
 ---

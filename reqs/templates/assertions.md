@@ -1,14 +1,18 @@
 ---
-id: ASS-xxx
+id: ASS-001
 title: Joystick inputs are correctly mapped
 normative: true
 level: 2.0
 type: assertion
-status: draft
+ASIL: A
 linked_expectations:
-  - FUNC-xxx
-owner: name
-date: YYYY-MM-DD
+  - FUNC-001
+reviewers:
+    - name: "namedoreviewer"
+    - email: "email@reviewr.com"
+reviewed: ''
+owner: Vinicius Vaccari
+date: 2025-10-30
 ---
 
 ## Description
