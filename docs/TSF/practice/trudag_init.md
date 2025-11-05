@@ -15,13 +15,19 @@ Run the following command to give execution permission to the setup script:
 chmod +x scripts/trudag/trudag_env.sh
 ```
 
-### Step 2 — Make the script executable
+### Step 3 — Run the script
+
+```bash
+./scripts/trudag/trudag_env.sh
+```
+
+### Step 3 — Make the script executable
 
 ```bash
 source venv/bin/activate
 ```
 
-### Step 3 — Trudag init
+### Step 4 — Trudag init
 
 ```bash
 trudag init
@@ -29,4 +35,4 @@ trudag init
 
 ### Congratulations! 
 
-### Now you're able to start working with trudag.
+### It creates the .dotstop.dot and now you're able to start working with trudag.
