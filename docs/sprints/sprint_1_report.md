@@ -43,6 +43,8 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | **30/10** | The team still working in the same points as yeaterday. | - |
 | **31/10** | Hellom is finishing the documentation about possible OS, Marcelo improved our Qt application and is making final adjustments, Nicole still studying the microcontroller integration, Yasmine will try again to use the STM32 IDE to flash and start to develop code to read speed sensor, and Vinicius focus in the creation of STF requirements and trudag. | Problems to run STM32 IDE |
 | **03/11** | Hellom will start helping with the implementation and studies on TSF. Marcelo will begin studying and implementing the cross-compilation of Qt on the Raspberry Pi. Nicole and Yasmine will team up to solve the blocker related to using the STM32 IDE, and Vinicius will continue working on TSF to implement the first requirements and create traceability with assertions. | Use of STM32 and TSF implementation |
+| **04/11** | Hellom and Vinicius studying and trying to implement first requirements using trudag. Marcelo keeps the sutidies about cross compilation. Nicole and Yasmine used de STM32 and we are able to test the speedmeter with the STM32. | CAN Protocol |
+| **05/11** | Hellom will start to practice and install trudag while Vinicius will try to solute the raspberryPi drops unexpectedly problem and serch how to link and reference artifacts/evidence/premises on TSF. Marcelo will try to implement cross compilation. Nicole and Yasmine started to studie about the CAN protocol and comunicate STM - Raspberry | Can Protocol, raspberryPi turning off unexpectedly |
 
 ---
 
