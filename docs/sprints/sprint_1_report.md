@@ -45,16 +45,23 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | **03/11** | Hellom will start helping with the implementation and studies on TSF. Marcelo will begin studying and implementing the cross-compilation of Qt on the Raspberry Pi. Nicole and Yasmine will team up to solve the blocker related to using the STM32 IDE, and Vinicius will continue working on TSF to implement the first requirements and create traceability with assertions. | Use of STM32 and TSF implementation |
 | **04/11** | Hellom and Vinicius studying and trying to implement first requirements using trudag. Marcelo keeps the sutidies about cross compilation. Nicole and Yasmine used de STM32 and we are able to test the speedmeter with the STM32. | CAN Protocol |
 | **05/11** | Hellom will start to practice and install trudag while Vinicius will try to solute the raspberryPi drops unexpectedly problem and serch how to link and reference artifacts/evidence/premises on TSF. Marcelo will try to implement cross compilation. Nicole and Yasmine started to studie about the CAN protocol and comunicate STM - Raspberry | Can Protocol, raspberryPi turning off unexpectedly |
+| **06/11** | Marcelo will finish to document QT application. Hellom studie and provide more documentation about ISO26262, Vinicius will create a basic workflow to the understand how install and use trudag. Nicole start to studie Threadx and Yasmine focus on the CAN protocol | |
 
 ---
 
 ## 🧠 Key Achievements
 
-- 
+- Voltage reading to quantify the battery percentage
+- Interacted with the microcontroller and its IDE.
+- Connected the speed sensor to the STM32 to measure speed.
+- Improved the level of our Qt application.
+- The second expansion board solved the Raspberry Pi’s power drop issue.
+- TSF e Functional safety - We thought about initial requirements and got familiar with trudag.
 
 ---
 
 ## ⚙️ Pending for next sprint
 
-- 
+- STM32 connectivity with Raspberry PI
+- Cross compilation of our QT cluster.
 
