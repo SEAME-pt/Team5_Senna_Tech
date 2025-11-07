@@ -59,7 +59,7 @@ Building a miniature autonomous vehicle (PiRacer) powered by Raspberry Pi 5 and 
 See detals in [git_workflow_guide.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_workflow_guide.md)
 
 ## 🧭 Guidelines
-All guidelines were developed by the entire team to ensure the best standard for work efficiency. All information can be found at [git_guidelines.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/git_guidelines.md)
+All guidelines were developed by the entire team to ensure the best standard for work efficiency. All information can be found at [git_guidelines.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_guidelines.md)
 
 
 ## 🧾 Documentation
@@ -82,6 +82,7 @@ All guidelines were developed by the entire team to ensure the best standard for
 - [Sprints](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/README.md)
   - [Sprint Goals](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/Sprint_Goals.md)
   - [Sprint 0 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_0_report.md)
+  - [Sprint 1 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_1_report.md)
   - [Sprint Template](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_template.md)
 - [TSF (Trustable Software Framework)](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/README.md)
   - [ISO 26262:2018 — Functional Safety for Road Vehicles](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/ISO26262-structure-and-concepts.md)
@@ -107,4 +108,4 @@ All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects
 - **Current sprint**: Sprint 1
 - **Period**: October 27 to November 07, 2025
 - **Current Status**: 🟡 In Progress
-- **Goals**: Battery Solution, introduce microcontroller, Qt application.
+- **Goals**: Battery Solution, introduce microcontroller, Qt application integration

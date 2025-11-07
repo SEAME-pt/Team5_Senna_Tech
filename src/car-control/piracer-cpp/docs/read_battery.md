@@ -105,4 +105,31 @@ printf("Battery Power: %.2f W\n", power);
 
 ## Getting battery percentage
 
-# in progress
+
+### ⚙️ Logic
+
+1. **Read the battery voltage multiple times** to reduce noise and get a stable average.
+2. **Apply a smoothing filter** to reduce sudden changes between measurements.
+3. **Map the voltage range** (from empty to full) to a 0–100% scale.
+4. **Clamp the result** to stay within 0% and 100%.
+5. **Return the percentage** as an integer.
+
+
+### Voltage to Percentage calculation
+
+```text
+percentage = ((V_measured - V_empty) / (V_full - V_empty)) * 100
+Where:
+
+V_measured → current battery voltage
+
+V_full → voltage when battery is fully charged
+
+V_empty → voltage when battery is completely discharged
+
+Typical values for a 3S Li-ion battery pack:
+
+State	Voltage
+Full (100%)	12.6 V
+Empty (0%)	9.3 V
+```
