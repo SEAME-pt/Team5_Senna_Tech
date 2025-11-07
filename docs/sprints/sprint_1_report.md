@@ -2,8 +2,7 @@
 
 **Duration:** [27/10/2025] → [07/11/2025]
 
-**Sprint Goal:** [Implementation of the monitoring system and
-integrated graphical interface in PiRacer.] 
+**Sprint Goal:** [Implementation of the sensor data monitoring system and integration with Piracer.] 
 
 **Team Roles:**
 | Name            | Responsibilities     |
