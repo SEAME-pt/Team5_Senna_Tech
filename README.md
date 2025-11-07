@@ -82,6 +82,7 @@ All guidelines were developed by the entire team to ensure the best standard for
 - [Sprints](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/README.md)
   - [Sprint Goals](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/Sprint_Goals.md)
   - [Sprint 0 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_0_report.md)
+  - [Sprint 1 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_1_report.md)
   - [Sprint Template](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_template.md)
 - [TSF (Trustable Software Framework)](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/README.md)
   - [ISO 26262:2018 — Functional Safety for Road Vehicles](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/ISO26262-structure-and-concepts.md)
