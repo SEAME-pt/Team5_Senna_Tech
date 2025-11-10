@@ -98,14 +98,14 @@ All guidelines were developed by the entire team to ensure the best standard for
 |-----------------| ---------------------|
 | Hellom          | Hardware Engineer    |
 | Marcelo         | QT Developer    |
-| Nicole          | Software Engineer         |
-| Vinicius        | Scrum Master    |
+| Nicole          | Scrum Master         |
+| Vinicius        |  Software Engineer  |
 | Yasmine         | Software Engineer        |
 
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 ## 🗓️ Sprint Status
-- **Current sprint**: Sprint 1
-- **Period**: October 27 to November 07, 2025
+- **Current sprint**: Sprint 2
+- **Period**: November 10 to November 23, 2025
 - **Current Status**: 🟡 In Progress
-- **Goals**: Battery Solution, introduce microcontroller, Qt application integration
+- **Goals**: Installation of AGL, migration the existing project
