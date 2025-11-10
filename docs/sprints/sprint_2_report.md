@@ -2,7 +2,7 @@
 
 **Duration:** [10/11/2025] → [23/11/2025]
 
-**Sprint Goal:** Complete the installation and migration process to AGL, ensuring full integration of the existing project components.
+**Sprint Goal:** Complete the installation and migration to AGL, ensuring full integration of all existing project components.
 
 **Team Roles:**
 | Name            | Responsibilities     |
@@ -38,7 +38,7 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 | Data | Progress Summary and Plan | Obstacles? |
 | :--- | :--- | :--- |
-| **10/11** | | - |
+| **10/11** | Helom will assemble the hardware setup to mount and fix the microcontroller. Vinicius will begin the implementation of AGL using Yocto and start building the image to test deployment on the Raspberry Pi. Marcelo will implement the battery level reading feature in Qt. Nicole will study the initial steps for implementing ThreadX. Yasmine will assemble the CAN protocol setup to put the theoretical concepts into practice. | - |
 
 ---
 
