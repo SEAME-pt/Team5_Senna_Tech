@@ -8,6 +8,8 @@
 - [Joystick Car Control - C++](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/piracer-cpp.md)
 - [GitHub Actions Overview](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_actions_overview.md)
 - [VPN and Remote Server Access Guide via NetBird + TigerVNC](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/vpn_install_usage.md)
+- [Energy Management](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/issue-75-spreadsheet-guide/docs/energy/README.md)
+  - [Power Calculation Spreadsheet Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/issue-75-spreadsheet-guide/docs/energy/spreadsheet_guide.md)
 - [Sprints](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/README.md)
   - [Sprint Goals](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/Sprint_Goals.md)
   - [Sprint 0 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_0_report.md)
