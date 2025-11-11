@@ -17,14 +17,13 @@
 
 ## 🎯 Objectives for this Sprint
 
-- Solve the battery drops problem.
 - Install and configure AGL.
 - Migrate the existing project to the AGL environment.
-- Adapt and migrate the Qt environment.
-- Integrate and validate the car control module within AGL.
+- Solve the battery drops problem.
 - Implement Cross Compilation.
-- Improve QT application.
-- Implement TSF.
+- Set up ThreadX.
+- Implement CAN protocol for microcontroller communication.
+- Continue the implementation of TSF.
 
 ---
 
@@ -39,6 +38,7 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | Data | Progress Summary and Plan | Obstacles? |
 | :--- | :--- | :--- |
 | **10/11** | Helom will assemble the hardware setup to mount and fix the microcontroller. Vinicius will begin the implementation of AGL using Yocto and start building the image to test deployment on the Raspberry Pi. Marcelo will implement the battery level reading feature in Qt. Nicole will study the initial steps for implementing ThreadX. Yasmine will assemble the CAN protocol setup to put the theoretical concepts into practice. | - |
+| **11/11** | Helom will create an Excel table to calculate the available and required power levels and will document the process. Nicole will finish installing the IDE and start the ThreadX test project. Vinicius completed the image build of AGL and will transfer it to the Raspberry Pi. Marcelo managed to read the battery level, but the data is unstable, so he will work on fixing this issue. Yasmine will finish the pinout with the STM and check if the information is being transmitted. | - |
 
 ---
 
