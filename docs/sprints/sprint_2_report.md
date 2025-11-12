@@ -39,6 +39,7 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | :--- | :--- | :--- |
 | **10/11** | Helom will assemble the hardware setup to mount and fix the microcontroller. Vinicius will begin the implementation of AGL using Yocto and start building the image to test deployment on the Raspberry Pi. Marcelo will implement the battery level reading feature in Qt. Nicole will study the initial steps for implementing ThreadX. Yasmine will assemble the CAN protocol setup to put the theoretical concepts into practice. | - |
 | **11/11** | Helom will create an Excel table to calculate the available and required power levels and will document the process. Nicole will finish installing the IDE and start the ThreadX test project. Vinicius completed the image build of AGL and will transfer it to the Raspberry Pi. Marcelo managed to read the battery level, but the data is unstable, so he will work on fixing this issue. Yasmine will finish the pinout with the STM and check if the information is being transmitted. | - |
+| **12/11** | Helom finished issue #75 and submitted a pull request, now will start the power assessment of all components. Nicole will continue learning to use the IDE and will try to create a small test program already using ThreadX. Vinicius will make a new AGL image build to deploy on the Raspberry Pi, since there were issues with the previous one. Yasmine will continue working on the CAN protocol connection and check if there is already a response. | - |
 
 ---
 
