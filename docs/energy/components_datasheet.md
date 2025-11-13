@@ -63,7 +63,7 @@ This document provides detailed information and specifications for each electron
 
 ### STM32 Development Board (B-U585I-IOT02A)
 
-![STM32 Microcontroller](https://www.st.com/bin/ecommerce/api/image.PF271412.en.feature-description-include-personalized-no-cpn-large.jpg)
+![STM32 Microcontroller](../pictures/microcontroler.webp)
 
 - **Component:** STM32 Dev Board (B-U585I-IOT02A)
 - **Voltage (V):** 5
