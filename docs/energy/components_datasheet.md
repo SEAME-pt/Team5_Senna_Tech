@@ -95,12 +95,14 @@ This document provides detailed information and specifications for each electron
 ![Hailo-8L AI Accelerator HAT](../pictures/hailo_hat.webp)
 
 - **Component:** Hailo-8L AI Accelerator HAT
-- **Voltage (V):** 3.3
-- **Max Current (A):** 2.0
+- **Voltage (V):** 5
+- **Max Current (A):** 1.0
 - **Peak Factor:** 1.0
 - **Margin (%):** 20
-- **Source/Datasheet:** [Raspberry Pi AI HAT+ Product Brief](https://datasheets.raspberrypi.com/ai-hat-plus/raspberry-pi-ai-hat-plus-product-brief.pdf)
-- **Notes:** This AI accelerator module connects via the PCIe interface. The official product brief does not specify power consumption. The values are based on the 6.6W TDP of the onboard Hailo-8L chip at 3.3V.
+- **Source/Datasheet:**
+    - [Raspberry Pi AI HAT+ Product Brief](https://datasheets.raspberrypi.com/ai-hat-plus/raspberry-pi-ai-hat-plus-product-brief.pdf)
+    - [Raspberry Pi 5 PCIe FPC Connector Specification](https://www.raspberrypi.com/documentation/computers/raspberry-pi-5.html#pcie-fpc-connector)
+- **Notes:** The HAT receives 5V from the Raspberry Pi's PCIe interface and converts it internally to 3.3V. The HAT's maximum power consumption is 5W, which requires 1.0A from the 5V line. **CRITICAL:** The RPi 5's PCIe interface is limited to exactly 1A. Powering the HAT directly from the RPi will cause it to operate at the absolute limit of the interface, with no safety margin. This can lead to system instability and HAT shutdowns under load. For stable operation, an external 3.3V power source is strongly recommended.
 
 ---
 
@@ -109,9 +111,9 @@ This document provides detailed information and specifications for each electron
 ![mSATA SSD via USB 3.0 Adapter](../pictures/msata_ssd_adapter.webp)
 
 - **Component:** mSATA SSD via USB 3.0 Adapter
-- **Voltage (V):** 3.3
-- **Max Current (A):** 1.6
+- **Voltage (V):** 5
+- **Max Current (A):** 1.1
 - **Peak Factor:** 1.0
 - **Margin (%):** 20
 - **Source/Datasheet:** [iABC mSATA SSD Adapter To USB 3.0](https://iabcssd.com/product/iabc-msata-ssd-adapter-to-usb-3-0-50mm-mini-pcie-solid-state-drive-reader-converter/)
-- **Notes:** Power is supplied by the Raspberry Pi 5's USB 3.0 port. With a sufficient PD power supply, the RPi5 can deliver up to 1.6A to its USB ports. This value is used as the maximum current for the combined adapter and mSATA SSD. Actual consumption depends heavily on the specific mSATA drive used. Insufficient power can lead to reduced performance, I/O errors, the drive not being detected, or general system instability.
+- **Notes:** Power is supplied by the Raspberry Pi 5's USB 3.0 port. The adapter converts the 5V from the USB port to 3.3V for the mSATA SSD. The combined maximum consumption is ~1.1A from the 5V USB line (including regulator inefficiency). **CRITICAL:** The RPi 5's USB ports can deliver up to 1.6A *only if* the RPi is powered by a 5V/5A USB-C PD supply. If a non-PD or insufficient power supply is used, the USB current is limited to 600mA, which will lead to the SSD not being detected, I/O errors, data corruption, or general system instability.
