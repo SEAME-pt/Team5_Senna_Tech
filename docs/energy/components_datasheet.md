@@ -109,7 +109,7 @@ This document provides detailed information and specifications for each electron
 ![mSATA SSD via USB 3.0 Adapter](../pictures/msata_ssd_adapter.webp)
 
 - **Component:** mSATA SSD via USB 3.0 Adapter
-- **Voltage (V):** 5
+- **Voltage (V):** 3.3
 - **Max Current (A):** 1.6
 - **Peak Factor:** 1.0
 - **Margin (%):** 20
