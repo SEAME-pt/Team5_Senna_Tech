@@ -117,3 +117,18 @@ This document provides detailed information and specifications for each electron
 - **Margin (%):** 20
 - **Source/Datasheet:** [iABC mSATA SSD Adapter To USB 3.0](https://iabcssd.com/product/iabc-msata-ssd-adapter-to-usb-3-0-50mm-mini-pcie-solid-state-drive-reader-converter/)
 - **Notes:** Power is supplied by the Raspberry Pi 5's USB 3.0 port. The adapter converts the 5V from the USB port to 3.3V for the mSATA SSD. The combined maximum consumption is ~1.1A from the 5V USB line (including regulator inefficiency). **CRITICAL:** The RPi 5's USB ports can deliver up to 1.6A *only if* the RPi is powered by a 5V/5A USB-C PD supply. If a non-PD or insufficient power supply is used, the USB current is limited to 600mA, which will lead to the SSD not being detected, I/O errors, data corruption, or general system instability.
+
+---
+
+### Waveshare 7.9inch DSI LCD
+
+![Waveshare 7.9inch DSI LCD](../pictures/waveshare_dsi_lcd.jpg)
+
+- **Component:** Waveshare 7.9inch DSI LCD
+- **Voltage (V):** 5
+- **Max Current (A):** 0.6
+- **Peak Factor:** 1.0
+- **Margin (%):** 20
+- **Source/Datasheet:**
+    - [Waveshare Wiki](https://www.waveshare.com/wiki/7.9inch_DSI_LCD)
+- **Notes:** This is a capacitive touch screen with a resolution of 400x1280. It connects to the Raspberry Pi's DSI port. It is a non-inductive load, so a peak factor is not applied. A standard safety margin of 20% is recommended.
