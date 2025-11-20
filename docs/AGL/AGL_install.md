@@ -13,7 +13,7 @@ This documentation describes the complete process for installing and running **A
 - [3️⃣ Build for RaspBerryPi 5](#3️⃣-build-for-raspberrypi-5)
 - [4️⃣ Flash to microSD](#4️⃣-flash-to-microsd)
 - [5️⃣ Common Errors and Recommendations](#5️⃣-common-errors-and-recommendations)
-- [📚 References](#-referências)
+- [📚 References](#📚-references)
 
 ## Requisites
 
@@ -185,7 +185,7 @@ To fix the issue, open the ```boot/config.txt``` file located in the boot partit
 
 Yocto builds require significant CPU, RAM, and disk space, so it is very common for the computer to kill Yocto processes due to excessive RAM usage. Therefore, set `BB_NUMBER_THREADS` and `PARALLEL_MAKE` in  `local.conf`according to your machine's specifications.
 
-## References
+## 📚 References
 
 - https://docs.automotivelinux.org
 - https://lists.automotivelinux.org/g/agl-dev-community/topic/support_for_agl_in_raspberry/106649597
