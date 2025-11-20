@@ -80,21 +80,27 @@ The physical connection between the two nodes.
 The implementation uses the **Polling** method (checks for messages in every loop cycle).
 
 **File: `mcp2515.h` (Configuration)** 
-[mcp2515.h](link para o codigo)
+
+[mcp2515.h](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/CAN/src/CAN_communication/mcp2515.h)
+
 Defines registers and Chip Select pins.
 
 **File: `mcp2515.c` (Driver)**
-[mcp2515.c](link para o codigo)
-Implements SPI communication logic. Key points:
-Reset: Sends command 0xC0.
-Bitrate: Configures registers CNF1, CNF2, CNF3.
-For 500kbps @ 8MHz: CNF1=0x00, CNF2=0x90, CNF3=0x02.
-Normal Mode: Writes 0x00 to CANCTRL.
-TX (Send): Loads ID and Data into TXB0... registers and sends RTS command.
-RX (Receive): Reads CANINTF. If bit 0 is 1, reads RXB0... registers and clears the flag.
+
+[mcp2515.c](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/CAN/src/CAN_communication/mcp2515.c)
+
+Implements SPI communication logic.
+
+**Key points:**
+- **Reset:** Sends command 0xC0
+- **Bitrate:** Configures registers CNF1, CNF2, CNF3
+  - For 500kbps @ 8MHz: CNF1=0x00, CNF2=0x90, CNF3=0x02
+- **Normal Mode:** Writes 0x00 to CANCTRL
+- **TX (Send):** Loads ID and Data into TXB0... registers and sends RTS command
+- **RX (Receive):** Reads CANINTF. If bit 0 is 1, reads RXB0... registers and clears the flag
 
 **File: `main.c` (Application)**
-[main.c](link para o codigo)
+[main.c](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/CAN/src/CAN_communication/main.c)
 
 ---
 
