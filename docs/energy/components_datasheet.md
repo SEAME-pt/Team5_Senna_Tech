@@ -132,3 +132,16 @@ This document provides detailed information and specifications for each electron
 - **Source/Datasheet:**
     - [Waveshare Wiki](https://www.waveshare.com/wiki/7.9inch_DSI_LCD)
 - **Notes:** This is a capacitive touch screen with a resolution of 400x1280. It connects to the Raspberry Pi's DSI port. It is a non-inductive load, so a peak factor is not applied. A standard safety margin of 20% is recommended.
+
+---
+
+### Li-Ion 18650 Battery (Botnroll 3200mAh)
+
+![Li-Ion 18650 Battery](../pictures/li-ion-18650-battery.jpg)
+
+- **Component:** Li-Ion 18650 Battery
+- **Voltage (V):** 3.6
+- **Max Current (A):** 10.4
+- **Capacity (mAh):** 3200
+- **Source/Datasheet:** [Botnroll Product Page](https://www.botnroll.com/pt/18650/3166-bateria-18650-3-7v-3200mah-10a-li-ion-recarreg-vel.html)
+- **Notes:** This is the primary power source. Nominal voltage is 3.6V. The specified Max Current (10.4A) is the maximum pulse discharge current the battery can provide.
