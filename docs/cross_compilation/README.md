@@ -3,10 +3,10 @@
 ## 📘 **Table of Contents**
 1. [Introduction](#introduction)
 2. [Preparing the AGL SDK Environment](#preparing-the-agl-sdk-environment)
-3. [Cross Compiling the Car Control Program(C++)](#cross-compiling-the-car-control-program-c)
-4. [Cross Compiling the Instrument Cluster (Qt)](#cross-compiling-the-instrument-cluster-qt)
-5. [Transferring the Binaries to the Raspberry Pi](#transferring-the-binaries-to-the-raspberry-pi)
-6. [Important Notes](#important-notes)
+3. [Cross Compiling the Car Control Program(C++)](#cross-compiling-the-car-control-programc)
+6. [Cross Compiling the Instrument Cluster (Qt)](#cross-compiling-the-instrument-cluster-qt)
+7. [Transferring the Binaries to the Raspberry Pi](#transferring-the-binaries-to-the-raspberry-pi)
+8. [Important Notes](#important-notes)
 
 ---
 
@@ -62,7 +62,7 @@ The car_control project is a simple C++ application, and its cross-compilation p
 
 ### ✅ Step 1: Activate the SDK environment
 ```bash
-source .<path_to_SDK>/environment-setup-aarch64-agl-linux
+source <SDK>/environment-setup-aarch64-agl-linux
 ```
 
 ### ✅ Step 2: Compile using the cross-compiler
@@ -127,7 +127,7 @@ This ensures that:
 
 match the exact system that will run on the Raspberry Pi.
 
-#### 4. Qt Version
+#### 4. Qt Version
 
 Point Qt Creator to the **Qt version built inside the AGL SDK**.
 
