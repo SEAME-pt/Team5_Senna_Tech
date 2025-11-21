@@ -43,11 +43,22 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | **13/11** | Nicole will try to implement the LED using ThreadX. Yasmine is working on the CAN response and needs the logic converter to proceed. Vinicius will explore AGL, which is already running on the Raspberry Pi. Marcelo will start working on cross-compilation in AGL. Helom will continue the power assessment. | - |
 | **14/11** | Vinicius will try to display AGL on the screen, reassemble the car, and document the process. Marcelo successfully performed cross-compilation of a test file. He will now generate the AGL development kit and configure the Qt IDE for cross-compilation. Yasmine successfully established CAN communication using SPI and confirmed that CAN is working. She will now try connecting all CAN components to the Raspberry Pi. Nicole will study TSF. Helom will continue the power assessment. | - |
 | **17/11** | Nicole will continue studying TSF. Marcelo will finish installing the IDE, configure the cross-compilation kit, and integrate Qt into AGL. Vinicius has installed the display configuration on AGL and will complete the remaining setup today. Yasmine will work on establishing the connection between the CAN system and AGL. Helom will continue the power requirements assessment. | - |
+| **18/11** | Vinicius will put the car control code in AGL. Marcelo will continue the configuration of cross-compilation. Nicole will implement the LED program using ThreadX. Helom will search for a solution regarding the battery problem. Yasmine will finish the CAN system connection. | - |
+| **19/11** | Marcelo successfully completed the cross-compilation and will test it on the Raspberry Pi. Vinicius will assist Marcelo and continue transferring the C++ code to the Raspberry Pi running AGL. Yasmine will continue working on establishing the CAN connection. Nicole will document the LED program implemented with ThreadX. Helom will prepare a presentation on the battery issue and possible solutions. | - |
+| **20/11** | Nicole will finalize the documentation and prepare the presentation for the retrospective. Marcelo will work on documenting the cross-compilation process. Vinicius will document the AGL installation procedure. Yasmine will document the CAN connection setup. Helom will continue working on the presentation regarding the battery issue. | - |
 
 ---
 
 ## 🧠 Key Achievements
+- AGL deployed on Raspberry Pi.
 
+- Cross-compilation of the car cluster for AGL validated and documented.
+
+- CAN communication tested successfully.
+
+- ThreadX LED test implemented and documented.
+
+- Power assessment and battery analysis advanced.
 
 ---
 
