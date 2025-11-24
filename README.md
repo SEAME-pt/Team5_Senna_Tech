@@ -97,15 +97,15 @@ All guidelines were developed by the entire team to ensure the best standard for
 | Name            | Responsibilities     |
 |-----------------| ---------------------|
 | Hellom          | Hardware Engineer    |
-| Marcelo         | QT Developer    |
-| Nicole          | Scrum Master         |
+| Marcelo         | Scrum Master    |
+| Nicole          |  Software Engineer        |
 | Vinicius        |  Software Engineer  |
 | Yasmine         | Software Engineer        |
 
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 ## 🗓️ Sprint Status
-- **Current sprint**: Sprint 2
-- **Period**: November 10 to November 23, 2025
+- **Current sprint**: Sprint 3
+- **Period**: November 24 to December 07, 2025
 - **Current Status**: 🟡 In Progress
-- **Goals**: Installation of AGL, migration the existing project
+- **Goals**: Integrate speedometer with hardware, processing data through ThreadX
