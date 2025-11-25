@@ -35,6 +35,7 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | Date | Progress Summary and Plan | Obstacles? |
 | :--- | :--- | :--- |
 | **24/11** | Helom and Yasmine will assemble the hardware, integrating microcontroller, speedometer and CAN transceivers. Vinicius will continue the study and development to automate tasks in AG. Marcelo will study how to implement linter and understand its use inside GitHub Actions. Nicole will study the integration between speedometer and microcontroller. | - |
+| **25/11** | Hellom will study how to implement the solution for the battery issues. Vinicius will develop scripts to automate tasks for AGL such as setup wifi and SSH services, and run the control car and instrument cluster programs as the raspberry starts. Nicole will continue the studies to integrate the speed detection code to ThreadX. Marcelo will study about linters and its implementation on CI/CD. | - |
 
 ## 🧠 Key Achievements
 
