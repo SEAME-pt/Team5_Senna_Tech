@@ -8,7 +8,7 @@ This documentation is being updated regularly as we progress with the necessary 
 
 ## 🧭 Summary
 - [1️⃣ Enable Wifi](#1️⃣-enable-wifi)
-- [2️⃣ Enable Wifi](#2️⃣-autostart-qt)
+- [2️⃣ Autostart QT](#2️⃣-autostart-qt)
 
 ## 1️⃣ Enable Wifi
 
