@@ -26,6 +26,8 @@ The main purpose of this documentation is to provide a centralized location for 
 
 -   [**energy_consumption_analysis.md**](energy_consumption_analysis.md): A technical report detailing the comprehensive analysis of the system's power budget, critical component limitations, and the overall conclusion regarding the power architecture.
 
+-   [**power_architecture_solution.md**](power_architecture_solution.md): The proposed new energy architecture, detailing the chosen components, power flow, and safety measures to resolve the identified power deficiencies.
+
 ## 3. How to Use
 
 To effectively use the information in this directory, it is recommended to:
