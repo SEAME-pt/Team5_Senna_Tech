@@ -1,0 +1,24 @@
+# Base ARM64 image
+FROM --platform=linux/arm64 ubuntu:22.04
+
+# Install common dependencies for AGL SDK
+RUN apt-get update && apt-get install -y \
+    bash python3 python3-pip git \
+    build-essential ninja-build \
+    qemu-user-static \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create SDK directory
+WORKDIR /opt/agl-sdk
+
+# Copy entire AGL SDK from host into container
+COPY /opt/agl-sdk/20.0.2-aarch64 .
+
+# Expose environment setup
+RUN echo "source /opt/agl-sdk/environment-setup-aarch64-agl-linux" >> /etc/bash.bashrc
+
+# Optional: add a default directory for builds
+WORKDIR /workspace
+
+CMD ["/bin/bash"]
+

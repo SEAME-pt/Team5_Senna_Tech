@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
      engine.rootContext()->setContextProperty("vehicle", vehicle);
 
-    const QUrl url(QStringLiteral("qrc:/instrument_cluster/Main.qml"));
+    const QUrl url(QStringLiteral("qrc:/car_cluster/Main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
                          if (!obj && url == objUrl)
