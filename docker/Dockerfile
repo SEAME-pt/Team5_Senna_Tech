@@ -12,19 +12,18 @@ RUN apt update && apt install -y \
     file \
     g++ \
     git \
-    cmake \
+    wget \
+    tar \
     python3 \
-    qemu-user-static \
-    qt6-base-dev \      
-    qt6-declarative-dev \     
-    ## qt6-quickcontrols2-dev \
-    qt6-tools-dev \ 
+    qemu-user-static \ 
     locales \
     && locale-gen en_US.UTF-8 
 
-ENV LANG=UTF-8
-ENV LC_ALL=C.UTF-8
-ENV QT_QPA_PLUGIN=wayland
+#install qt 6.8.3 and its depedencies
+RUN wget https://download.qt.io/archive/qt/6.8/6.8.3/single/qt-everywhere-src-6.8.3.tar.xz 
+RUN tar -xf qt-everywhere-src-6.8.3.tar.xz
+RUN cd qt-everywhere-src-6.8.3
+COPY docker/toolchain-agl-aarch64.cmake qt-everywhere-src-6.8.3
 
 # create sdk directory
 RUN mkdir -p /opt/agl-sdk
