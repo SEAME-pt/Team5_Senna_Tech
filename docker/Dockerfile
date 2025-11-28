@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM --platform=linux/amd64 ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -15,8 +15,12 @@ RUN apt update && apt install -y \
     cmake \
     python3 \
     qemu-user-static \
+    qt6-base-dev \      
+    qt6-declarative-dev \     
+    ## qt6-quickcontrols2-dev \
+    qt6-tools-dev \ 
     locales \
-    && locale-gen en_US.UTF-8
+    && locale-gen en_US.UTF-8 
 
 ENV LANG=UTF-8
 ENV LC_ALL=C.UTF-8
@@ -27,8 +31,10 @@ RUN mkdir -p /opt/agl-sdk
 WORKDIR /opt/agl-sdk
 
 # Copy sdk scrip to the docker
-COPY agl-sdk.sh /opt/agl-sdk/sdk-install.sh
-COPY appcar_cluster /home/app
+COPY docker/agl-sdk.sh /opt/agl-sdk/sdk-install.sh
+
+RUN mkdir -p /root/car_cluster
+COPY src/car_cluster /root/car_cluster/
 
 # make script executable
 RUN chmod +x sdk-install.sh
