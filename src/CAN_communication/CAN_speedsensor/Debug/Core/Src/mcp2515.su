@@ -1,0 +1,7 @@
+../Core/Src/mcp2515.c:8:9:MCP2515_ReadByte	24	static
+../Core/Src/mcp2515.c:22:6:MCP2515_WriteByte	16	static
+../Core/Src/mcp2515.c:35:19:MCP2515_Reset	8	static
+../Core/Src/mcp2515.c:48:19:MCP2515_SetBitrate	24	static
+../Core/Src/mcp2515.c:85:19:MCP2515_SetNormalMode	8	static
+../Core/Src/mcp2515.c:98:19:MCP2515_SendMessage	24	static
+../Core/Src/mcp2515.c:126:19:MCP2515_ReceiveMessage	24	static
