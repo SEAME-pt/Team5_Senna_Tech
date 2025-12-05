@@ -1,0 +1,5 @@
+/home/team5/Team5_Senna_Tech/src/car-control/piracer-cpp/build/CMakeFiles/forward_backward_left_right.dir
+/home/team5/Team5_Senna_Tech/src/car-control/piracer-cpp/build/CMakeFiles/gamepad_control.dir
+/home/team5/Team5_Senna_Tech/src/car-control/piracer-cpp/build/CMakeFiles/read_battery.dir
+/home/team5/Team5_Senna_Tech/src/car-control/piracer-cpp/build/CMakeFiles/edit_cache.dir
+/home/team5/Team5_Senna_Tech/src/car-control/piracer-cpp/build/CMakeFiles/rebuild_cache.dir

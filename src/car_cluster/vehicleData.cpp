@@ -7,7 +7,7 @@ vehicleData *vehicleData::instance() {
 }
 
 //Private constructor
-vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), isCharging(false) {}
+vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), isCharging(false) {(void) parent;}
 
 // Getters
 double vehicleData::getSpeed() const{ return speed;}
