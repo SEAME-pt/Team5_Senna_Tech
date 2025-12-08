@@ -71,7 +71,7 @@ Building a miniature autonomous vehicle (PiRacer) powered by Raspberry Pi 5 and 
 ```
 
 ## 🧭 Guidelines
-All guidelines were developed by the entire team to ensure the best standard for work efficiency. All information can be found at [git_guidelines.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_guidelines.md)
+All guidelines were developed by the entire team to ensure the best standard for work efficiency. All information can be found at [git_guidelines.md](docs/git_guidelines.md)
 
 
 ## 🧾 Documentation
