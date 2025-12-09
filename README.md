@@ -1,13 +1,13 @@
 # 🏎️ Team5_Senna_Tech  🏎️
 
 ## 📑 Index
-- [Context](#-Context)
-- [Work Overview](#-Work-Overview)
+- [Context](#-context)
+- [Work Overview](#-work-overview)
+- [System Objectives](#-system-objectives)
 - [Repository Structure](#️-repository-structure)
-- [Guidelines]( #-Guidelines)
-- [How to Execute](#️-how-to-execute)
+- [Guidelines](#-guidelines)
 - [Documentation](#-documentation)
-- [Agile & Scrum Workflow](#-Agile-&-Scrum-Workflow)
+- [Agile & Scrum Workflow](#-agile--scrum-workflow)
 - [Sprint Status](#️-sprint-status)
 
 ## 🌐 Context
@@ -23,89 +23,77 @@ Building a miniature autonomous vehicle (PiRacer) powered by Raspberry Pi 5 and 
 
 ### 🧩 Learning Goals
 1. **Hardware Familiarization**
-   - Raspberry Pi 5 setup  
-   - HAILO AI Hat assembly  
-   - Servo and DC motor configuration  
-   - Display integration  
+   - Raspberry Pi 5 setup
+   - HAILO AI Hat assembly
+   - Servo and DC motor configuration
+   - Display integration
 2. **Qt GUI Development**
-   - Design and implementation of an embedded graphical interface  
+   - Design and implementation of an embedded graphical interface
 3. **Agile (Scrum) Practices**
-   - Sprints, backlogs, retrospectives  
-   - GitHub Projects as Scrum board  
+   - Sprints, backlogs, retrospectives
+   - GitHub Projects as Scrum board
 4. **Version Control (Git & GitHub)**
-   - Branching strategy  
-   - Code review & CI/CD  
+   - Branching strategy
+   - Code review & CI/CD
 5. **Trustable Software Framework (TSF)**
-   - Requirement definition  
-   - Traceability between requirements, design, and tests  
+   - Requirement definition
+   - Traceability between requirements, design, and tests
 6. **GenAI Pair Programming**
-   - Use of generative AI tools for pair programming and code assistance  
+   - Use of generative AI tools for pair programming and code assistance
 
 ## 📈 System Objectives
-- Assemble and configure the PiRacer hardware  
-- Display a functional Qt GUI on the onboard screen  
-- Enable remote control of the PiRacer (motors, steering)  
-- Maintain traceable and documented software requirements  
-- Follow Scrum principles with documented sprints  
+- Assemble and configure the PiRacer hardware
+- Display a functional Qt GUI on the onboard screen
+- Configure autonomous driving (motors, steering)
+- Maintain traceable and documented software requirements
+- Follow Scrum principles with documented sprints
 
 ## 🗂️ Repository Structure
 ```
-├── .github/                           # templates
+├── .github/                           # Templates for issues and other GitHub configs
+├── docker/                            # Docker configuration for cross-compilation
 ├── docs/                              # Project documentation
-├── src/                               # Main source code
-│   ├── feature_[feature-name]/        # Specifc feature code
-└── README.md                          # This file
+│   ├── AGL/                           # AGL documentation
+│   ├── cross_compilation/             # Cross-compilation documentation
+│   ├── energy/                        # Energy consumption analysis and datasheets
+│   ├── pictures/                      # Project images and diagrams
+│   ├── sprints/                       # Sprint reports and goals
+│   ├── ThreadX/                       # ThreadX related documentation
+│   └── TSF/                           # Trustable Software Framework documentation
+├── reqs/                              # Requirements and specifications
+│   └── templates/
+├── scripts/                           # Utility and environment scripts
+│   └── trudag/
+└── src/                               # Main source code
+    ├── car_cluster/                   # Qt-based car cluster GUI
+    ├── car-control/                   # C++ source for car control (PiRacer)
+    └── threadx/                       # ThreadX examples and source code
 ```
-See detals in [git_workflow_guide.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_workflow_guide.md)
 
 ## 🧭 Guidelines
-All guidelines were developed by the entire team to ensure the best standard for work efficiency. All information can be found at [git_guidelines.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_guidelines.md)
+All guidelines were developed by the entire team to ensure the best standard for work efficiency. All information can be found at [git_guidelines.md](docs/git_guidelines.md)
 
 
 ## 🧾 Documentation
-- All documentation will be kept inside the docs/ folder.
-- During this sprint, files will be created explaining:
-  - How car control was implemented
-  - How to set up the development environment
-  - Code structure and adopted standards
-
-####  Table of Contents
-- [Rules and Best Practices for Git](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_guidelines.md)
-- [Git Workflow Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_workflow_guide.md)
-- [PiRacer Assembly Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/piracer_assembly_guide.md)
-- [Raspberry Pi OS Installation in SSD NVMe](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/raspberry_Pi_system.md)
-- [Initial Program Installation](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/install_initial_program.md)
-- [Joystick Car Control - Python](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/joystick_control_python.md)
-- [Joystick Car Control - C++](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/piracer-cpp.md)
-- [GitHub Actions Overview](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_actions_overview.md)
-- [VPN and Remote Server Access Guide via NetBird + TigerVNC](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/vpn_install_usage.md)
-- [Sprints](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/README.md)
-  - [Sprint Goals](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/Sprint_Goals.md)
-  - [Sprint 0 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_0_report.md)
-  - [Sprint 1 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_1_report.md)
-  - [Sprint Template](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_template.md)
-- [TSF (Trustable Software Framework)](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/README.md)
-  - [ISO 26262:2018 — Functional Safety for Road Vehicles](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/ISO26262-structure-and-concepts.md)
-  - [Applying TSF to Automotive Projects](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/TSF-applying.md)
-  - [TSF Learning Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/TSF-concepts.md)
+All documentation is kept inside the [docs/](docs/) folder.
 ## 🧱 Agile & Scrum Workflow
-- **Methodology:** Scrum  
-- **Sprints:** 2-week sprints  
-- **Tools:** GitHub Projects + Issues  
+- **Methodology:** Scrum
+- **Sprints:** 2-week sprints
+- **Tools:** GitHub Projects + Issues
 
 👥 Team
-| Name            | Responsibilities     |
-|-----------------| ---------------------|
-| Hellom          | Hardware Engineer    |
-| Marcelo         | Scrum Master    |
-| Nicole          |  Software Engineer        |
-| Vinicius        |  Software Engineer  |
-| Yasmine         | Software Engineer        |
+| Name            | Responsibilities               |
+|-----------------| ------------------------------ |
+| Hellom          | Scrum Master                   |
+| Marcelo         | CI/CD                          |
+| Nicole          | TSF                            |
+| Vinicius        | OTA                            |
+| Yasmine         | COVESA & uProtocol Researcher  |
 
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 ## 🗓️ Sprint Status
-- **Current sprint**: Sprint 3
-- **Period**: November 24 to December 07, 2025
+- **Current sprint**: Sprint 4
+- **Period**: December 09 to December 19, 2025
 - **Current Status**: 🟡 In Progress
-- **Goals**: Integrate speedometer with hardware, processing data through ThreadX
+- **Goals**: Implement OTA (Over-The-Air) Update
