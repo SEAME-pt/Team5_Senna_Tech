@@ -1,22 +1,39 @@
+# 📄 Project Documentation
+
+This directory contains all the technical and process-related documentation for the project. Below is a table of contents to help you navigate through the different documents.
+
+---
+
 ####  Table of Contents
-- [Rules and Best Practices for Git](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/docs/git_guidelines.md)
-- [Git Workflow Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_workflow_guide.md)
-- [PiRacer Assembly Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/piracer_assembly_guide.md)
-- [Raspberry Pi OS Installation in SSD NVMe](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/raspberry_Pi_system.md)
-- [Initial Program Installation](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/install_initial_program.md)
-- [Joystick Car Control - Python](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/joystick_control_python.md)
-- [Joystick Car Control - C++](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/piracer-cpp.md)
-- [GitHub Actions Overview](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/git_actions_overview.md)
-- [VPN and Remote Server Access Guide via NetBird + TigerVNC](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/vpn_install_usage.md)
-- [Energy Management](./energy/README.md)
-  - [Component Datasheets](./energy/components_datasheet.md)
-  - [Energy Consumption Analysis](./energy/energy_consumption_analysis.md)
-  - [Power Architecture Solution](./energy/power_architecture_solution.md)
-- [Sprints](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/README.md)
-  - [Sprint Goals](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/Sprint_Goals.md)
-  - [Sprint 0 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_0_report.md)
-  - [Sprint Template](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_template.md)
-- [TSF (Trustable Software Framework)](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/README.md)
-  - [ISO 26262:2018 — Functional Safety for Road Vehicles](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/ISO26262-structure-and-concepts.md)
-  - [Applying TSF to Automotive Projects](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/TSF-applying.md)
-  - [TSF Learning Guide](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/TSF/TSF-concepts.md)
+
+**Git & Workflow**
+- [Rules and Best Practices for Git](git_guidelines.md) - Our standards for commit messages, pull requests, and branching.
+- [Git Workflow Guide](git_workflow_guide.md) - A detailed guide on our feature branching and release process.
+- [GitHub Actions Overview](git_actions_overview.md) - An overview of our CI/CD pipelines.
+
+**Hardware & Setup**
+- [PiRacer Assembly Guide](piracer_assembly_guide.md) - Step-by-step instructions for assembling the PiRacer car.
+- [Raspberry Pi OS Installation in SSD NVMe](raspberry_Pi_system.md) - Guide for setting up the Raspberry Pi with an NVMe SSD.
+- [Initial Program Installation](install_initial_program.md) - Instructions for installing the necessary software to get started.
+- [VPN and Remote Server Access Guide via NetBird + TigerVNC](vpn_install_usage.md) - How to use NetBird and TigerVNC for remote access.
+
+**Car Control**
+- [Joystick Car Control - Python](joystick_control_python.md) - A Python-based implementation for joystick control.
+- [Joystick Car Control - C++](piracer-cpp.md) - A C++-based implementation for joystick control.
+
+**Software Architecture & Frameworks**
+- [AGL](./AGL/README.md) - Documentation related to Automotive Grade Linux.
+- [Cross Compilation](./cross_compilation/README.md) - Guides and tools for cross-compiling code.
+- [Energy Management](./energy/README.md) - Analysis of energy consumption and power solutions.
+- [ThreadX](./ThreadX/README.md) - Documentation on using the ThreadX RTOS.
+- [TSF (Trustable Software Framework)](./TSF/README.md) - Our approach to implementing a trustable software framework.
+
+**Sprints & Process**
+- [Sprints](./sprints/README.md) - Contains all sprint reports and goals.
+  - [Sprint Goals](./sprints/Sprint_Goals.md)
+  - [Sprint 0 Report](./sprints/sprint_0_report.md)
+  - [Sprint 1 Report](./sprints/sprint_1_report.md)
+  - [Sprint 2 Report](./sprints/sprint_2_report.md)
+  - [Sprint 3 Report](./sprints/sprint_3_report.md)
+  - [Sprint 4 Report](./sprints/sprint_4_report.md)
+  - [Sprint Template](./sprints/sprint_template.md)
