@@ -34,9 +34,9 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 | Date | Progress Summary and Plan | Obstacles? |
 | :--- | :--- | :--- |
-| **09/12** | | |
-| **10/12** | Nicole: TSF update. Vini: OTA study. Yasmine: uProtocol and COVESA investigation. Marcelo: AGL compilation automation in docker via github action. Hellom: battery energy presentation and TeamViewer viability check. | |
-| **11/12** | Nicole: Continues TSF update. Yasmine: Continues uProtocol and COVESA investigation. Marcelo: Continues AGL compilation automation in docker via github action. Hellom: Continues battery energy presentation and TeamViewer viability check. Vini: Study CI/CD implementation in GitHub. | |
+| **09/12** | Nicole: TSF update. Vini: OTA study. Yasmine: uProtocol and COVESA investigation. Marcelo: AGL compilation automation in docker via github action. Hellom: battery energy presentation and TeamViewer viability check. | |
+| **10/12** | Nicole: Continues TSF update. Yasmine: Continues uProtocol and COVESA investigation. Marcelo: Continues AGL compilation automation in docker via github action. Hellom: Continues battery energy presentation and TeamViewer viability check. Vini: Study CI/CD implementation in GitHub. | |
+| **11/12** | Yasmine will upload her documentation on uProtocol's functioning and start studying COVESA. Marcelo continues his mission to automate docker compilation in GitHub Actions. Vinicius has already implemented a small test on GitHub and plans to do further study to upload documentation on it. Hellom continues studying and creating a presentation on SEAME's electronics and configuring TeamViewer on the school PC. | |
 | **12/12** | | |
 | **15/12** | | |
 | **16/12** | | |
