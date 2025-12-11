@@ -20,6 +20,6 @@ jobs:
 
       - name: Run cppcheck
         run: |
-          chmod +x -/scripts/cppcheck.sh
+          chmod +x /scripts/cppcheck.sh
           ./scripts/cppcheck.sh
 
