@@ -9,7 +9,6 @@ cppcheck --enable=all \
         --suppress=unknownMacro \
          -isrc/CAN_communication \
          -isrc/threadx \
-         -isrc/threadx \
          -isrc/car_cluster/build \
          src/
 
