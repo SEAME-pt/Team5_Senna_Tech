@@ -5,11 +5,12 @@
 set -e
 
 # Rodar cppcheck
-cppcheck --enable=all \
+cppcheck --enable=style \
         --suppress=unknownMacro \
          -isrc/CAN_communication \
          -isrc/threadx \
          -isrc/car_cluster/build \
+         --error-exitcode=1 \
          src/
 
 echo "Cppcheck lint success."
