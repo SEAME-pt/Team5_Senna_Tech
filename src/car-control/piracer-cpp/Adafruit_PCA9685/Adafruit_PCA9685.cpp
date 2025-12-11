@@ -61,9 +61,6 @@ void PCA9685::setPWM(int channel, int on, int off)
 
 void PCA9685::setAllPWM(int on, int off)
 {
-    int x = 1;
-    if (x == 1)
-        std::cout << "oi";
     writeByte(ALL_LED_ON_L, on & 0xFF);
     writeByte(ALL_LED_ON_H, on >> 8);
     writeByte(ALL_LED_OFF_L, off & 0xFF);
