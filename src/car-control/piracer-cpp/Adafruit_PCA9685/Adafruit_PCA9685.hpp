@@ -38,7 +38,7 @@
 class PCA9685 
 {
 public:
-    PCA9685(int i2c_bus, int address = PCA9685_ADDRESS);
+    explicit PCA9685(int i2c_bus = 1, int address = PCA9685_ADDRESS);
     ~PCA9685();
 
     void setPWMFreq(float freqHz);

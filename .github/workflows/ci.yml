@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - feature/ci
+
+jobs:
+  linting-cpp:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt update
+          sudo apt install -y cppcheck
+
+      - name: Run cppcheck
+        run: |
+          chmod +x ./scripts/run_cppcheck.sh
+          ./scripts/run_cppcheck.sh
+
