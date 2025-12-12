@@ -69,5 +69,91 @@ void vehicleData::startBatterySimulation() {
     timer->start(1000); // 1000 ms por tick -> 1 Hz
 }
 
+/* void vehicleData::startReadCan() {
+    int sock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+
+    struct ifreq ifr;
+    strcpy(ifr.ifr_name, "can0");
+    ioctl(sock, SIOCGIFINDEX, &ifr);
+
+    struct sockaddr_can addr{};
+    addr.can_family = AF_CAN;
+    addr.can_ifindex = ifr.ifr_ifindex;
+
+    speed = 1;
+    std::cout << "antes" << std::endl;
+
+    if (bind(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+        speed = -1;
+        std::cout << "bind fail" << std::endl;
+        emit speedChanged();
+        return;
+    }
+    else {
+        emit speedChanged();
+    }
+
+    QSocketNotifier* notifier = new QSocketNotifier(sock, QSocketNotifier::Read, this);
+
+    connect(notifier, &QSocketNotifier::activated, this, [&](int){
+        struct can_frame frame;
+        int nbytes = read(sock, &frame, sizeof(frame));
+        std::cout << "bytesread: " << nbytes << std::endl;
+        std::cout << "read: " << frame.data[0] << std::endl;
+        if (nbytes > 0) {
+            std::cout << "leu algo" << std::endl;
+            speed = (int)frame.data[0];
+            emit speedChanged();
+        }
+    });
+} */
+
+void vehicleData::startReadCan() {
+    this->speed = 0;
+
+    QTimer* timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [this]() {
+        int sock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+        if (sock < 0) {
+            speed = -1;
+            emit speedChanged();
+        }
+
+        // 2️⃣ Configura interface can0
+        struct ifreq ifr;
+        std::strcpy(ifr.ifr_name, "can0");
+        ioctl(sock, SIOCGIFINDEX, &ifr);
+
+        struct sockaddr_can addr{};
+        addr.can_family = AF_CAN;
+        addr.can_ifindex = ifr.ifr_ifindex;
+
+        if (bind(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+            speed = -1;
+            emit speedChanged();
+        }
+
+        std::cout << "Waiting messages CAN...\n";
+
+        // 3️⃣ Loop de leitura
+        struct can_frame frame;
+        int nbytes = read(sock, &frame, sizeof(frame));
+        if (nbytes > 0) {
+            std::cout << "ID: 0x" << std::hex << frame.can_id
+            << " DLC: " << std::dec << (int)frame.can_dlc
+            << " DATA: ";
+            for (int i = 0; i < frame.can_dlc; i++)
+            std::cout << (int)frame.data[0] << " ";
+            std::cout << "\n";
+            speed = (int)frame.data[0];
+            emit speedChanged();
+        }
+        close(sock);
+    });
+    timer->start(1000); // 1000 ms por tick -> 1 Hz
+}
+
 
 
