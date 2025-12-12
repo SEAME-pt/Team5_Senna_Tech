@@ -33,6 +33,8 @@ Debug/
 Release/
 build/
 out/
+tests/car-control/build
+src/car-control/build
 
 # =============================
 # Compiled objects
