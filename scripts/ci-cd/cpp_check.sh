@@ -1,16 +1,16 @@
 #!/bin/bash
-# run_cppcheck.sh
+# run cpp_check.sh
 
-# Sai se qualquer comando falhar
+# Exit if any command fail
 set -e
 
-# Rodar cppcheck
-cppcheck --enable=style \
+cppcheck --enable=style,warning \
         --suppress=unknownMacro \
-         -isrc/CAN_communication \
+         -isrc/CAN_communication/CAN_speedsensor \
          -isrc/threadx \
          -isrc/car_cluster/build \
          --error-exitcode=1 \
          src/
 
 echo "Cppcheck lint success."
+
