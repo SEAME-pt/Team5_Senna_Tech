@@ -1,4 +1,4 @@
-## How Integrate your C/C++ unit tests with our CI/CD Pipeline
+## How Integrate your C/C++ Googletests with our CI/CD Pipeline
 
 ### 1. Create the test directory for your feature inside ```tests/```
   ```

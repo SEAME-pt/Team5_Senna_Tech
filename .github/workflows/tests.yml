@@ -1,4 +1,4 @@
-name: CI/UnitTests
+name: CI/Tests
 
 on:
   pull_request:
@@ -7,8 +7,8 @@ on:
       - main
 
 jobs:
-  # UNIT-TESTS
-  unit-tests:
+  # TESTS
+  tests:
     runs-on: ubuntu-latest
 
     steps:
