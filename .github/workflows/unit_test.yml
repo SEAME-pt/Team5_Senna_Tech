@@ -1,9 +1,10 @@
-name: CI
+name: CI/UnitTests
 
 on:
-  push:
+  pull_request:
     branches:
-      - feature/ci
+      - develop
+      - main
 
 jobs:
   # UNIT-TESTS
