@@ -6,7 +6,7 @@ set -e
 
 cppcheck --enable=style,warning \
         --suppress=unknownMacro \
-         -isrc/CAN_communication/CAN_speedsensor \
+         -isrc/CAN_communication/ \
          -isrc/threadx \
          -isrc/car_cluster/build \
          --error-exitcode=1 \
