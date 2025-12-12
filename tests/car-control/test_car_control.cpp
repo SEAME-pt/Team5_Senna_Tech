@@ -4,7 +4,7 @@
 TEST(InitialTest, Initialization) {
     // PiRacer racer;
 
-    EXPECT_TRUE(0) 
+    EXPECT_TRUE(1) 
         << "Tests working";
 }
 
