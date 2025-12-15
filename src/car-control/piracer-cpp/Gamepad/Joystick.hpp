@@ -36,7 +36,7 @@ public:
 	~Joystick();
 
 	bool init();
-	void show_map();
+	//void show_map();
 	std::tuple<std::string, int, int, std::string, int, float>poll();
 };
 

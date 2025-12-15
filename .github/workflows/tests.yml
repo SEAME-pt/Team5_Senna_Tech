@@ -1,0 +1,29 @@
+name: CI/Tests
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  # TESTS
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt update
+          sudo apt install -y cmake g++ git
+
+      - name: Build and run Car Control tests
+        run: |
+          mkdir -p tests/car-control/build
+          cd tests/car-control/build
+          cmake ..
+          cmake --build .
+          ctest --output-on-failure
