@@ -7,3 +7,77 @@ issue_75
 issue_76
 issue_76_resolution_report.md
 issue_77
+
+# =============================
+# STM32CubeIDE / Eclipse files
+# =============================
+
+# Project metadata (IDE-specific)
+.settings/
+.metadata/
+RemoteSystemsTempFiles/
+
+# Eclipse/CubeIDE project files
+*.launch
+*.project
+*.cproject
+
+# CubeMX internal file (optional to ignore)
+*.mxproject
+
+# =============================
+# Build folders
+# =============================
+Debug/
+Release/
+build/
+out/
+tests/car-control/build
+src/car-control/build
+
+# =============================
+# Compiled objects
+# =============================
+*.o
+*.d
+*.su
+*.elf
+*.bin
+*.hex
+*.map
+*.srec
+*.list
+*.log
+
+# =============================
+# Temporary & Backup files
+# =============================
+*.tmp
+*.bak
+*.swp
+*.swm
+*.swo
+*.swn
+*.orig
+
+# =============================
+# OS-specific
+# =============================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Linux
+*~
+
+# =============================
+# Tools / misc cache
+# =============================
+.cache/
+

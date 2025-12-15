@@ -33,7 +33,7 @@ public:
 	ShanWanGamepadInput gamepad_input;
 
 	ShanWanGamepad();
-	ShanWanGamepad(const std::string& dev_fn);
+	explicit ShanWanGamepad(const std::string& dev_fn);
 	ShanWanGamepad(const std::string& dev_fn, bool non_block);
 	ShanWanGamepadInput read_data();
 };

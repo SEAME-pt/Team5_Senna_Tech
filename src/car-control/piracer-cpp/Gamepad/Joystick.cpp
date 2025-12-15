@@ -50,20 +50,20 @@ bool Joystick::init()
 	ioctl(jsdev, JSIOCGAXES, &num_axes);
 	ioctl(jsdev, JSIOCGBUTTONS, &num_buttons);
 
-	__u8 axis_map[ABS_MAX + 1];
-	ioctl(jsdev, JSIOCGAXMAP, axis_map);
+	__u8 local_axis_map[ABS_MAX + 1];
+	ioctl(jsdev, JSIOCGAXMAP, local_axis_map);
 	for (int i = 0; i < num_axes; ++i)
 	{
-		std::string axis_name = axis_names[axis_map[i]];
+		std::string axis_name = axis_names[local_axis_map[i]];
 		this->axis_map.push_back(axis_name);
 		axis_states[axis_name] = 0.0f;
 	}
 
-	__u16 button_map[KEY_MAX - BTN_MISC + 1];
-	ioctl(jsdev, JSIOCGBTNMAP, button_map);
+	__u16 local_button_map[KEY_MAX - BTN_MISC + 1];
+	ioctl(jsdev, JSIOCGBTNMAP, local_button_map);
 	for (int i = 0; i < num_buttons; ++i)
 	{
-		std::string button_name = button_names[button_map[i]];
+		std::string button_name = button_names[local_button_map[i]];
 		this->button_map.push_back(button_name);
 		button_states[button_name] = 0;
 	}
@@ -91,7 +91,7 @@ bool Joystick::init()
 	return true;
 }
 
-void Joystick::show_map() 
+/*void Joystick::show_map() 
 {
 	std::cout << num_axes << " axes found: ";
 	for (const auto& axis : axis_map)
@@ -102,7 +102,7 @@ void Joystick::show_map()
 	for (const auto& button : button_map)
 		std::cout << button << " ";
 	std::cout << std::endl;
-}
+}*/
 
 std::tuple<std::string, int, int, std::string, int, float> Joystick::poll() 
 {
