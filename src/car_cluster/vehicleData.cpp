@@ -20,6 +20,10 @@ bool vehicleData::getIsCharging() const{ return isCharging;}
 
 //Slots
 void    vehicleData::setSpeed(double newSpeed) {
+    if (newSpeed < 0) {
+        throw::std::invalid_argument("Speed cannot be negative");
+        return ;
+    }
     if (this->speed == newSpeed)
         return ;
     this->speed = newSpeed;
@@ -27,6 +31,9 @@ void    vehicleData::setSpeed(double newSpeed) {
 }
 
 void    vehicleData::setBattery(int newBattery){
+    if (newBattery < 0 || newBattery > 100) {
+        throw(std::out_of_range("Battery level must in a range of 0 to 100"));
+    }
     if (this->battery == newBattery)
         return ;
     this->battery = newBattery;
@@ -147,8 +154,7 @@ void vehicleData::startReadCan() {
             for (int i = 0; i < frame.can_dlc; i++)
             std::cout << (int)frame.data[0] << " ";
             std::cout << "\n";
-            speed = (int)frame.data[0];
-            emit speedChanged();
+            setSpeed((int)frame.data[0]);
         }
         close(sock);
     });

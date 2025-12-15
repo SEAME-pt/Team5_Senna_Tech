@@ -33,7 +33,9 @@ Release/
 build/
 out/
 tests/car-control/build
-src/car-control/build
+tests/car_cluster/build
+src/piracer-cpp/car-control/build
+src/car_cluster/build
 
 # =============================
 # Compiled objects
