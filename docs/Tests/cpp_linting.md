@@ -129,10 +129,6 @@ void check_value(int val) {
 }
 ```
 
-Aqui está o bloco de código formatado em Markdown puro, incluindo um título descritivo para o erro:
-
-Markdown
-
 #### 6. Boolean Increment (`booleanIncrement`)
 
 ```cpp
