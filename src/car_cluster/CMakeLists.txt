@@ -17,7 +17,7 @@ qt_add_executable(appcar_cluster
 )
 
 qt_add_qml_module(appcar_cluster
-    URI instrument_cluster
+    URI car_cluster
     VERSION 1.0
     QML_FILES
         Main.qml

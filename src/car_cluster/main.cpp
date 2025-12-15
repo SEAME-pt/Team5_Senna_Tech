@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    vehicle->startSpeedSimulation();
+    vehicle->startReadCan();
     vehicle->startBatterySimulation();
 
     return app.exec();
