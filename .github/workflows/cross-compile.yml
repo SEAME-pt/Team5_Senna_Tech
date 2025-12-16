@@ -1,0 +1,19 @@
+name: CD/Cross-Compile
+
+on:
+  push:
+    branches:
+      - feature/cd
+
+jobs:
+  cross-compile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          cd docker
+          docker build -t cross-compile .
