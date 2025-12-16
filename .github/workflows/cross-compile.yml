@@ -1,4 +1,4 @@
-name: CD/Cross Compile
+name: CD/Build
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - feature/cd
 
 jobs:
-  cross-compile:
+  build:
     runs-on: [self-hosted, Linux, X64, Docker]
 
     steps:
