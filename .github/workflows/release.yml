@@ -1,0 +1,37 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'clusterqt-v*'
+
+jobs:
+  build:
+    runs-on: [self-hosted, Linux, X64, Docker]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Build Docker image
+        run: |
+          docker build -f docker/Dockerfile -t cross-compile .
+        
+      - name: Extract ClusterQT
+        run: |
+          CONTAINER_ID=$(docker create cross-compile)
+          docker cp $CONTAINER_ID:/root/appcar_cluster ./appcar_cluster
+          docker rm $CONTAINER_ID
+          chmod +x ./appcar_cluster
+
+      - name: Create GitHub Release and upload asset
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ClusterQT ${{ github.ref_name }}
+          files: appcar_cluster
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
