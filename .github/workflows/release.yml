@@ -22,7 +22,7 @@ jobs:
       - name: Extract ClusterQT
         run: |
           CONTAINER_ID=$(docker create cross-compile)
-          docker cp $CONTAINER_ID:/root/appcar_cluster ./appcar_cluster
+          docker cp $CONTAINER_ID:/appcar_cluster ./appcar_cluster
           docker rm $CONTAINER_ID
           chmod +x ./appcar_cluster
 
