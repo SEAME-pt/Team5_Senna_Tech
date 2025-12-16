@@ -28,6 +28,7 @@ jobs:
           docker cp $CONTAINER_ID:/root/outputs/appcar_cluster ./appcar_cluster
           docker rm $CONTAINER_ID
           chmod +x ./appcar_cluster
+          file appcar_cluster
 
       - name: Create GitHub Release and upload asset
         uses: softprops/action-gh-release@v1
