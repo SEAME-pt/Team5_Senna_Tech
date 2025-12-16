@@ -12,8 +12,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Build Docker image
         run: |
-          cd docker
-          docker build -t cross-compile .
+          docker build -f docker/Dockerfile -t cross-compile .
