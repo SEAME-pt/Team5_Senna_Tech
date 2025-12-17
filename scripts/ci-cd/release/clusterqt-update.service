@@ -1,0 +1,12 @@
+[Unit]
+Description=Check ClusterQT updates
+#After=network-online.target
+#Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sleep 30
+ExecStart=/usr/bin/clusterqt-update.sh
+
+[Install]
+WantedBy=multi-user.target
