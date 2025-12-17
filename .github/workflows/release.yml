@@ -29,13 +29,23 @@ jobs:
           docker rm $CONTAINER_ID
           chmod +x ./appcar_cluster
           file appcar_cluster
+            
+      - name: Package binary
+        run: |
+          tar -czf appcar_cluster.tar.gz appcar_cluster
+
+      - name: Generate SHA256
+        run: |
+          sha256sum appcar_cluster.tar.gz > appcar_cluster.tar.gz.sha256
 
       - name: Create GitHub Release and upload asset
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
           name: ClusterQT ${{ github.ref_name }}
-          files: appcar_cluster
+          files: |
+            appcar_cluster.tar.gz
+            appcar_cluster.tar.gz.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
