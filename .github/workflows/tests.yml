@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  # TESTS
+  # UNIT TESTS
   tests:
     runs-on: ubuntu-latest
 
@@ -27,3 +27,17 @@ jobs:
           cmake ..
           cmake --build .
           ctest --output-on-failure
+
+  # BUILD TEST
+  build:
+      runs-on: [self-hosted, Linux, X64, Docker]
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+          with:
+            lfs: true
+
+        - name: Build Docker image
+          run: |
+            docker build -f docker/Dockerfile -t cross-compile .
