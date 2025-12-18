@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # -----------------------------------
 # Qt
 # -----------------------------------
-find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core Test)
 
 # -----------------------------------
 # GoogleTest via FetchContent
@@ -38,6 +38,7 @@ target_include_directories(car_cluster_lib
 target_link_libraries(car_cluster_lib
     PUBLIC
         Qt6::Core
+        Qt6::Test
 )
 
 set_target_properties(car_cluster_lib PROPERTIES
@@ -55,6 +56,7 @@ target_link_libraries(test_car_cluster
     PRIVATE
         car_cluster_lib
         Qt6::Core
+        Qt6::Test
         gtest
         gtest_main
 )
