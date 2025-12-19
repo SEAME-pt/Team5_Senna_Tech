@@ -20,8 +20,8 @@ ApplicationWindow {
     Rectangle {
            anchors.fill: parent
            gradient: Gradient {
-               GradientStop { position: 0.0; color: "#0a0a0a" }
-               GradientStop { position: 1.0; color: "#1a1a2e" }
+               GradientStop { position: 0.0; color: "#ff9800" }
+               GradientStop { position: 1.0; color: "#e65100"  }
            }
 
     // Main Dashboard Layout
