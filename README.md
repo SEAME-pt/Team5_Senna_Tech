@@ -96,4 +96,4 @@ All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects
 - **Current sprint**: Sprint 4
 - **Period**: December 09 to December 19, 2025
 - **Current Status**: 🟡 In Progress
-- **Goals**: Implement OTA (Over-The-Air) Update
+- **Goals**: Investigation for OTA update implementation
