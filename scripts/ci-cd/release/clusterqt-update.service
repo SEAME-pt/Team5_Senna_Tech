@@ -6,7 +6,7 @@ Description=Check ClusterQT updates
 [Service]
 Type=oneshot
 ExecStartPre=/bin/sleep 30
-ExecStart=/usr/bin/clusterqt-update.sh
+ExecStart=/usr/bin/cluster_release.sh
 
 [Install]
 WantedBy=multi-user.target
