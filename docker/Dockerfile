@@ -75,7 +75,10 @@ COPY src/car-control/piracer-cpp /root/car_control
 
 # Compilaçao car_cluster
 RUN rm -rf /root/car_cluster/build
-RUN mkdir /root/car_cluster/build && cd /root/car_cluster/build && cmake .. -GNinja  -DQT_HOST_PATH=/opt/qt-host-build/ && ninja
+RUN mkdir /root/car_cluster/build
+WORKDIR /root/car_cluster/build
+RUN /opt/agl-sdk/env.sh cmake .. -GNinja  -DQT_HOST_PATH=/opt/qt-host-build/ && ninja
+
 
 # Compilacao car_control
 RUN rm -rf /root/car_control/build
