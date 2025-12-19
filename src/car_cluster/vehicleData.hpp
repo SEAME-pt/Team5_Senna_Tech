@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QDebug>
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -59,7 +60,6 @@ class vehicleData : public QObject
         int     battery;
         int     temperature;
         bool    isCharging;
-
 
 };
 
