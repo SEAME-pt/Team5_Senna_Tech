@@ -1,3 +1,5 @@
+
+
 # AGL Cross-Compilation Development Environment 
 
 ## Table of Contents
@@ -151,11 +153,12 @@ The resulting Qt installation is suitable for running natively on AGL, and is in
 ```bash
 /opt/qt-cross-build
 ```
-### 3.7 Copying the Qt or C++ Project into the Container
+### 3.7 Copying the ``car_cluster`` and ``car_control`` software into the Container
 
-The project directory is copied into:
+The projects directories is copied into:
 ```bash 
-/workspace/project
+/root/car_cluster 
+/root/car_control
 ```
 
 This allows:
@@ -174,15 +177,24 @@ source /opt/agl-sdk/environment-setup-aarch64-agl-linux
 
 This auto-activates the AGL environment through SDK when the container starts.
 
-### 3.9 Build Instructions Inside the Container
+### 3.9 Cross compilation inside the Container
 
-Once inside the container:
-```bash
-cmake .. -GNinja -DQT_HOST_PATH=/opt/qt-host-build/
-ninja
+```dockerfile
+RUN mkdir /root/car_cluster/build && cd /root/car_cluster/build && cmake .. -GNinja  -DQT_HOST_PATH=/opt/qt-host-build/ && ninja
 ```
 
-This produces ARM64 executable using the AGL sysroot.
+This step is replicated for `car_cluster` and `car_control` projects and: 
+- Creates a build directory
+- Configure the project for `CMake` build system
+- Compiles the code with `Ninja` using AGL sysroot
+- Generates executable files compatible with the Raspberry Pi (ARM64)
+
+### 3.10 Binaries location
+
+The final cross-compiled binaries will be located in:
+```bash 
+/root/outputs
+```
 
 ## 4. CMake toolchain file - detailed explanation
 
@@ -266,7 +278,10 @@ This prevents accidental linkage to host libraries.
  ├── agl-sdk/               # AGL cross compiler + sysroots
  ├── qt-host-build/         # Qt tools built for x86_64
  └── qt-cross-build/        # Qt libraries built for ARM64
-/workspace/project          # Your C++, Qt/QML application
+/root
+ ├── car_control/           # Car control program (C++)
+ ├── car_cluster/           # Car cluster project (Qt/QML)
+ ├── outputs/               # Cross-compiled binaries
 ```
 
 ## 6. Recommended Workflow
@@ -283,23 +298,12 @@ docker build -t agl-sdk-container -f docker/Dockerfile .
 docker run -it agl-sdk-container
 ```
 
-### 6.3 Navigate to your project
+### 6.3 Navigate to the outputs directory
 ```bash
-cd /workspace/project
+cd /root/outputs
 ```
 
-### 6.4 Configure the build
-```bash
-mkdir build && cd build
-cmake .. -GNinja -DCMAKE_TOOLCHAIN_FILE=opt/qt-everywhere-src-6.7.3/toolchain-agl-aarch64.cmake
-```
-
-### 6.5 Compile
-```bash
-ninja
-```
-
-### 6.6 Deploy to Raspberry Pi
+### 6.4 Deploy to Raspberry Pi
 
 ```bash
 scp your_app root@raspberrypi:/path_to_executable

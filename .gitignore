@@ -6,7 +6,6 @@ extract_pdfBoard
 issue_75
 issue_76
 issue_76_resolution_report.md
-docker/agl-sdk.sh
 issue_77
 
 # =============================
@@ -33,6 +32,10 @@ Debug/
 Release/
 build/
 out/
+tests/car-control/build
+tests/car_cluster/build
+src/piracer-cpp/car-control/build
+src/car_cluster/build
 
 # =============================
 # Compiled objects
