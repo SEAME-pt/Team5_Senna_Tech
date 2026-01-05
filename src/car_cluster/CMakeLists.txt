@@ -4,7 +4,8 @@ project(car_cluster VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_PREFIX_PATH "/opt/qt-host-build")
+#set(CMAKE_PREFIX_PATH "/opt/qt-host-build")
+# para compilar no pc do seame, utilizar: "cmake.. -DCMAKE_PREFIX_PATH=/home/team5/qt-everywhere-src-6.8.3/qt-host-build/qtbase/lib/cmake/Qt6/"
 
 find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2)
 find_package(Qt6 REQUIRED COMPONENTS Core)
@@ -17,7 +18,7 @@ qt_add_executable(appcar_cluster
 )
 
 qt_add_qml_module(appcar_cluster
-    URI instrument_cluster
+    URI car_cluster
     VERSION 1.0
     QML_FILES
         Main.qml

@@ -28,7 +28,7 @@
 class INA219
 {
 public:
-    INA219(int i2c_bus, int addr = INA219_DEFAULT_ADDRESS);
+    explicit INA219(int i2c_bus = 1, int addr = INA219_DEFAULT_ADDRESS);
     ~INA219();
 
     void setCalibration32V2A();

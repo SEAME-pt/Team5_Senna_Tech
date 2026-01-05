@@ -63,22 +63,36 @@ RUN /opt/agl-sdk/env.sh cmake /opt/qt-everywhere-src-6.7.3 -GNinja \
 
 RUN /opt/agl-sdk/env.sh ninja -j $(nproc) && ninja install
 
-
-# ------------------------------
-# Copia seu projeto Qt para dentro do container
-# ------------------------------
-WORKDIR /root/car_cluster
-COPY src/car_cluster/ /root/car_cluster/
-
 # Fonte do ambiente do SDK AGL
 RUN echo "source /opt/agl-sdk/environment-setup-aarch64-agl-linux" >> /etc/bash.bashrc
 
 # Alias para usar qemu facilmente
 RUN echo "alias qemu='qemu-aarch64-static -L /opt/agl-sdk/sysroots/aarch64-agl-linux'" >> /etc/bash.bashrc
 
+# Copia car_cluster e car_control para dentro do container
+COPY src/car_cluster/ /root/car_cluster/
+COPY src/car-control/piracer-cpp /root/car_control
+
+# Compilaçao car_cluster
+RUN rm -rf /root/car_cluster/build
+RUN mkdir /root/car_cluster/build
+WORKDIR /root/car_cluster/build
+RUN /opt/agl-sdk/env.sh cmake .. -GNinja  -DQT_HOST_PATH=/opt/qt-host-build/ && ninja
+
+
+# Compilacao car_control
+RUN rm -rf /root/car_control/build
+RUN mkdir /root/car_control/build && cd /root/car_control/build/ && cmake .. && make
+
+#Cria diretorio para os outputs
+RUN mkdir /root/outputs
+
+# Envio dos binarios para a pasta output
+RUN mv /root/car_cluster/build/appcar_cluster /root/outputs
+
+WORKDIR /root/car_control/build/
+RUN mv forward_backward_left_right gamepad_control read_battery /root/outputs
+
 CMD ["/bin/bash"]
 
 
-#PARA COMPILAR O PROJETO QT
-#cmake .. -GNinja  -DQT_HOST_PATH=/opt/qt-host-build/
-#ninja

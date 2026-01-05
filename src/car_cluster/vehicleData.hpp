@@ -3,6 +3,18 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QDebug>
+#include <iostream>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <linux/can.h>
+#include <linux/can/raw.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <cstring>
+#include <QSocketNotifier>
+#include <fcntl.h>
+
 
 class vehicleData : public QObject
 {
@@ -37,6 +49,7 @@ class vehicleData : public QObject
         //SIMULATION
         void startSpeedSimulation();
         void startBatterySimulation();
+        void startReadCan();
 
 
 
@@ -47,7 +60,6 @@ class vehicleData : public QObject
         int     battery;
         int     temperature;
         bool    isCharging;
-
 
 };
 

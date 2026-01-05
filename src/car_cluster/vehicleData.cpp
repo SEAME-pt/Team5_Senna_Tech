@@ -20,6 +20,10 @@ bool vehicleData::getIsCharging() const{ return isCharging;}
 
 //Slots
 void    vehicleData::setSpeed(double newSpeed) {
+    if (newSpeed < 0) {
+        throw::std::invalid_argument("Speed cannot be negative");
+        return ;
+    }
     if (this->speed == newSpeed)
         return ;
     this->speed = newSpeed;
@@ -27,6 +31,9 @@ void    vehicleData::setSpeed(double newSpeed) {
 }
 
 void    vehicleData::setBattery(int newBattery){
+    if (newBattery < 0 || newBattery > 100) {
+        throw(std::out_of_range("Battery level must in a range of 0 to 100"));
+    }
     if (this->battery == newBattery)
         return ;
     this->battery = newBattery;
@@ -34,6 +41,8 @@ void    vehicleData::setBattery(int newBattery){
 }
 
 void    vehicleData::setTemperature(int newTemperature){
+    if (newTemperature < 0 || newTemperature > 80)
+        throw(std::out_of_range("Temperature level is considered risky to the system"));
     if (this->temperature == newTemperature)
         return ;
     this->temperature = newTemperature;
@@ -65,6 +74,48 @@ void vehicleData::startBatterySimulation() {
         battery -= 0.1;
         if (battery <= 0) battery = 100;
         emit batteryChanged();
+    });
+    timer->start(1000); // 1000 ms por tick -> 1 Hz
+}
+
+void vehicleData::startReadCan() {
+    this->speed = 0;
+
+    QTimer* timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [this]() {
+        int sock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+        if (sock < 0)
+            qWarning() << "Socket initialization error:" << strerror(errno);
+        // 2️⃣ Configura interface can0
+        struct ifreq ifr;
+        std::strcpy(ifr.ifr_name, "can0");
+        ioctl(sock, SIOCGIFINDEX, &ifr);
+
+        struct sockaddr_can addr{};
+        addr.can_family = AF_CAN;
+        addr.can_ifindex = ifr.ifr_ifindex;
+
+        if (bind(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0){
+            qWarning() << "Bind error:" << strerror(errno);
+            close(sock);
+            return;
+        }
+
+        std::cout << "Waiting messages CAN...\n";
+
+        // 3️⃣ Loop de leitura
+        struct can_frame frame;
+        int nbytes = read(sock, &frame, sizeof(frame));
+        if (nbytes > 0) {
+            std::cout << "ID: 0x" << std::hex << frame.can_id
+            << " DLC: " << std::dec << (int)frame.can_dlc
+            << " DATA: ";
+            for (int i = 0; i < frame.can_dlc; i++)
+            std::cout << (int)frame.data[0] << " ";
+            std::cout << "\n";
+            setSpeed((int)frame.data[0]);
+        }
+        close(sock);
     });
     timer->start(1000); // 1000 ms por tick -> 1 Hz
 }
