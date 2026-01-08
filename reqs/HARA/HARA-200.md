@@ -26,7 +26,7 @@
 
 | ID | Failure Mode | Autonomous Scenario Consequence | Criticality | Decision Support |
 | :--- | :--- | :--- | :---: | :--- |
-| **H1-200** | **I²C Communication Failure (e.g., NACK, Timeout)** | System reads 0 km/h and applies maximum motor power to compensate. | **C4** | [DS-HR200-2](./Decision_support/DS-HR200-2_I2C-Communication-Failure-Evidence.md) |
+| **H1-200** | **I²C Communication Failure (e.g., NACK, Timeout)** | System reads 0 km/h and applies maximum motor power to compensate. | **C4** | [DS-HR200-2](../../docs/Decision_support/DS-HR200-2_I2C-Communication-Failure-Evidence.md) |
 | **H2-200** | **Corrupted I²C Data (e.g., CRC/Checksum Mismatch) leading to Erratic High Value** | System reads excessive speed and performs emergency braking unexpectedly. | **C4** |
 | **H3-200** | **Corrupted I²C Data (e.g., CRC/Checksum Mismatch) leading to Erratic Low Value** | Robot operates above the actual allowed speed limit for the environment. | **C4** |
 | **H4-200** | **Stale I²C Data / Latency (e.g., Read Timeout)** | Old data causes oscillations in path tracking (instability). | **C2** |
@@ -53,7 +53,7 @@
 
 **Degraded Mode (for C2 Hazard: H4):**
 *   **Action:** Reduce maximum speed to a safe level (e.g., 20% of normal) and continue attempting to acquire fresh data.
-*   **Escalation:** If stale data persists for more than [200ms](./Decision_support/DS-HR200-1_Degraded-Mode-Timeout.md), escalate to Fail-Safe State.
+*   **Escalation:** If stale data persists for more than [200ms](../../docs/Decision_support/DS-HR200-1_Degraded-Mode-Timeout.md), escalate to Fail-Safe State.
 *   **Signaling:** Activation of specific warning (e.g., Yellow LED) or warning log in the console.
 
 ---

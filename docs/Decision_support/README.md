@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This directory contains all documents that provide evidence, justification, and rationale for the decisions made in the corresponding HARA document (`HARA-200.md`).
+This directory contains all documents that provide evidence, justification, and rationale for decisions made during the requirements and safety analysis process.
 
-The goal is to ensure that every requirement, value, and strategic choice is traceable to a well-reasoned analysis, in accordance with the principles of the Trustable Software Framework (TSF).
+The goal is to ensure that every requirement, value, and strategic choice is traceable to a well-reasoned analysis, in accordance with the principles of the Trustable Software Framework (TSF). Each document is linked from the specific requirement or analysis document it supports.
 
 ## File Naming Convention
 

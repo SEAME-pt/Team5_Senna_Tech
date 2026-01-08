@@ -11,13 +11,11 @@ The subdirectories are organized to reflect a logical workflow for requirements 
 **Typical Workflow:**
 `Templates` -> `HARA` -> `Expectations` -> `Assertions` / `Assumptions` -> `Tests` -> `Evidences`
 
+-   **[`/templates/`](./templates/)**: Provides standardized templates for creating new requirement and analysis documents.
 
+-   **[`/HARA/`](./HARA/)**: Contains all Hazard Analysis and Risk Assessment (HARA) documents for the project.
 
--   **[`/templates/`](./templates/)**: Provides standardized templates for creating new requirement and analysis documents, ensuring consistency across the project.
-
--   **[`/HARA/`](./HARA/)**: The process often begins here with a Hazard Analysis and Risk Assessment to understand the system's safety constraints.
-
--   **[`/expectations/`](./expectations/)**: Describes high-level expectations of the system's behavior, often derived from initial stakeholder needs and the HARA.
+-   **[`/expectations/`](./expectations/)**: Describes high-level expectations of the system's behavior from a user or stakeholder perspective.
 
 -   **[`/assertions/`](./assertions/)**: Contains formal, verifiable assertions about the system's properties, which are derived from the higher-level expectations.
 
@@ -25,7 +23,11 @@ The subdirectories are organized to reflect a logical workflow for requirements 
 
 -   **[`/test/`](./test/)**: Contains requirement-level test cases designed to verify that the defined assertions and expectations are met.
 
--   **[`/evidences/`](./evidences/)**: Holds the output evidence (e.g., test results, logs) that proves the system complies with its requirements. This closes the verification loop.
+-   **[`/evidences/`](./evidences/)**: Holds formal evidence artifacts (e.g., final test reports, validation documents) that prove high-level requirements are met. This closes the verification loop.
 
 ---
 -   **[`statements-viewer.md`](./statements-viewer.md)**: A document likely related to viewing or interpreting the various requirement statements.
+
+### Related Documentation
+
+-   **`docs/Decision_support/`**: While formal evidence resides here in `/evidences`, the `docs/Decision_support/` directory holds detailed engineering-level justifications, research, and rationale for specific design decisions made during analysis (e.g., justifying a specific HARA failure mode).
