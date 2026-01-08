@@ -6,8 +6,6 @@ description:
   and why it is required. # Define o que o sistema deve cumprir em termos de comportamento, segurança, desempenho ou conformidade normativa.
 normative: true            # true = obrigatório, false = informativo
 type: expectation
-ASIL: QM | A | B | C | D
-domain: safety | functional | performance | usability
 owner: Senna Tech member
 source: ISO 26262 | TSF | Stakeholder | Internal
 date: 2025-10-30

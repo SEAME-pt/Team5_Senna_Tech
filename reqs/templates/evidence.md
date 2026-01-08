@@ -6,7 +6,6 @@ evidence_type: test_report | log | code | diagram | screenshot | video
 location: path/to/artifact
 date: 2025-10-30
 author: Senna Tech member
-reviewer: reviewer name 
 score: 0-1 (filled by reviewer)
 result: pass | fail
 ---
