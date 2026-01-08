@@ -24,12 +24,12 @@
 ## 2. Hazard Analysis
 *Technical evaluation of sensor failure modes.*
 
-| ID | Failure Mode | Autonomous Scenario Consequence | Criticality | Decision Support |
-| :--- | :--- | :--- | :---: | :--- |
-| **H1-XXX** | **Loss of Function (M1)** | System reads 0 km/h and applies maximum motor power to compensate. | **C4** | [DS-HRXXX-1](./Decision_support/DS-HRXXX-1_...) |
-| **H2-XXX** | **Erratic High Value (M2)** | System reads excessive speed and performs emergency braking unexpectedly. | **C4** | [DS-HRXXX-2](./Decision_support/DS-HRXXX-2_...) |
-| **H3-XXX** | **Erratic Low Value (M3)** | Robot operates above the actual allowed speed limit for the environment. | **C3** | [DS-HRXXX-3](./Decision_support/DS-HRXXX-3_...) |
-| **H4-XXX** | **Stale Data / Latency (M4)** | Old data causes oscillations in path tracking (instability). | **C2** | [DS-HRXXX-4](./Decision_support/DS-HRXXX-4_...) |
+| ID | Failure Mode | Autonomous Scenario Consequence | Criticality |
+| :--- | :--- | :--- | :---: |
+| **H1-XXX** | **Loss of Function (M1)** | System reads 0 km/h and applies maximum motor power to compensate. | **C4** |
+| **H2-XXX** | **Erratic High Value (M2)** | System reads excessive speed and performs emergency braking unexpectedly. | **C4** |
+| **H3-XXX** | **Erratic Low Value (M3)** | Robot operates above the actual allowed speed limit for the environment. | **C3** |
+| **H4-XXX** | **Stale Data / Latency (M4)** | Old data causes oscillations in path tracking (instability). | **C2** |
 
 ---
 
