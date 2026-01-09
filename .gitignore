@@ -1,6 +1,7 @@
 CMakeLists.txt.user
 Links
 issue_136
+issue_141
 
 # =============================
 # STM32CubeIDE / Eclipse files
@@ -77,3 +78,6 @@ desktop.ini
 # =============================
 .cache/
 
+
+# Local Review Checklist
+REVIEW_CHECKLIST_ISSUE_141.md
