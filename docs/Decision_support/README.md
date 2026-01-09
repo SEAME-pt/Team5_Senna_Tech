@@ -17,7 +17,8 @@ Files in this directory follow a standardized naming convention to ensure clarit
 ### Components
 
 -   **`[TYPE]`**: A prefix indicating the type of support document. Examples:
-    -   `DS`: Decision Support (a record of a decision and its justification).
+    -   `DS`: Decision Support (a record of a decision and its justification, e.g., why a hazard is considered credible).
+    -   `DM`: Decision Mitigation (a record of a decision on *how* a hazard will be mitigated, supporting a Safety Goal).
     -   `TEST`: Test Report (results of a verification activity).
     -   `ANLS`: Analysis (a detailed technical analysis of a component or problem).
 
