@@ -1,0 +1,11 @@
+---
+id: AST-704
+related_expectation_id: EXP-701
+title: OTA logs
+statement: 
+  Every OTA update shall be logged with timestamp, version and result (success or fail)
+type: assertion
+criticity: C1
+owner: Vinícius Vaccari
+date: 2026-01-08
+---
