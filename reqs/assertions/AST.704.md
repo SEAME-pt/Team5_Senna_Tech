@@ -1,5 +1,6 @@
 ---
 id: AST-704
+normative: true
 related_expectation_id: EXP-701
 title: OTA logs
 statement: 

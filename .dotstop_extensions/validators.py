@@ -37,7 +37,7 @@ def test_log_validator(configuration: dict[str, yaml]) -> tuple[float, list[Exce
     return (0.0, issues)
 
 
-def test_validator(configuration: dict[str, yaml]) -> tuple[float, list[Exception | Warning]]:
+def reviewer_score(configuration: dict[str, yaml]) -> tuple[float, list[Exception | Warning]]:
     """
     Validator that scores test evidence logs.
 
@@ -49,6 +49,7 @@ def test_validator(configuration: dict[str, yaml]) -> tuple[float, list[Exceptio
     issues: list[Exception | Warning] = []
 
     log_path = configuration.get("url")
+    result = configuration.get("result")
     review_score = configuration.get("score")
 
     if not log_path:
@@ -57,5 +58,9 @@ def test_validator(configuration: dict[str, yaml]) -> tuple[float, list[Exceptio
     
     if not review_score:
         issues.append(ValueError("Missing 'score' in validator configuration"))
+        return (0.0, issues)
+    
+    if (result != "PASS"):
+        issues.append(ValueError("This evidence is not good"))
         return (0.0, issues)
     return (review_score, issues)

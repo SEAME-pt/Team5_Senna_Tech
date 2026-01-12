@@ -25,22 +25,24 @@ The contribution to the score of a parent item by a suspiciously linked child is
 
 | Item {style="width:15%"} | Summary {style="width:55%"} | Score {style="width:0%"} | Score Origin {style="width:5%"} | Status {style="width:25%"} |
 | --- | --- | --- | --- | --- |
-| [AST-600](AST.md#ast-600) {class="tsf-score" style="background-color:hsl(60.0, 100%, 47%)"} |  | 0.50 | Derived from supporting Statements | ✔ Item Reviewed<br>✔ All Children Linked |
-| [AST-604](AST.md#ast-604) {class="tsf-score" style="background-color:hsl(96.0, 100%, 37%)"} |  | 0.80 | Derived from supporting Statements | ✔ Item Reviewed<br>✔ All Children Linked |
+| [AST-600](AST.md#ast-600) {class="tsf-score" style="background-color:hsl(84.0, 100%, 40%)"} |  | 0.70 | Derived from supporting Statements | ✔ Item Reviewed<br>✔ All Children Linked |
+| [AST-604](AST.md#ast-604) {class="tsf-score" style="background-color:hsl(108.0, 100%, 33%)"} |  | 0.90 | Derived from supporting Statements | ✔ Item Reviewed<br>✔ All Children Linked |
+| [AST-605](AST.md#ast-605) {class="tsf-score" style="background-color:hsl(96.0, 100%, 37%)"} |  | 0.80 | Derived from supporting Statements | ✔ Item Reviewed<br>✔ All Children Linked |
 
 ## Compliance for EVD ## {: data-toc-label="EVD"}
 
 | Item {style="width:15%"} | Summary {style="width:55%"} | Score {style="width:0%"} | Score Origin {style="width:5%"} | Status {style="width:25%"} |
 | --- | --- | --- | --- | --- |
-| [EVD-600](EVD.md#evd-600) {class="tsf-score" style="background-color:hsl(60.0, 100%, 47%)"} |  | 0.50 | Validator | ✔ Item Reviewed<br>✔ All Children Linked |
-| [EVD-604](EVD.md#evd-604) {class="tsf-score" style="background-color:hsl(96.0, 100%, 37%)"} |  | 0.80 | Validator | ✔ Item Reviewed<br>✔ All Children Linked |
+| [EVD-600](EVD.md#evd-600) {class="tsf-score" style="background-color:hsl(84.0, 100%, 40%)"} |  | 0.70 | Validator | ✔ Item Reviewed<br>✔ All Children Linked |
+| [EVD-604](EVD.md#evd-604) {class="tsf-score" style="background-color:hsl(108.0, 100%, 33%)"} |  | 0.90 | Validator | ✔ Item Reviewed<br>✔ All Children Linked |
+| [EVD-605](EVD.md#evd-605) {class="tsf-score" style="background-color:hsl(96.0, 100%, 37%)"} |  | 0.80 | Validator | ✔ Item Reviewed<br>✔ All Children Linked |
 
 ## Compliance for EXP ## {: data-toc-label="EXP"}
 
 | Item {style="width:15%"} | Summary {style="width:55%"} | Score {style="width:0%"} | Score Origin {style="width:5%"} | Status {style="width:25%"} |
 | --- | --- | --- | --- | --- |
-| [EXP-600](EXP.md#exp-600) {class="tsf-score" style="background-color:hsl(60.0, 100%, 47%)"} |  | 0.50 | Derived from supporting Statements | ✔ Item Reviewed<br>✔ All Children Linked |
-| [EXP-602](EXP.md#exp-602) {class="tsf-score" style="background-color:hsl(96.0, 100%, 37%)"} |  | 0.80 | Derived from supporting Statements | ✔ Item Reviewed<br>✔ All Children Linked |
+| [EXP-600](EXP.md#exp-600) {class="tsf-score" style="background-color:hsl(84.0, 100%, 40%)"} |  | 0.70 | Derived from supporting Statements | ✔ Item Reviewed<br>✔ All Children Linked |
+| [EXP-602](EXP.md#exp-602) {class="tsf-score" style="background-color:hsl(102.0, 100%, 35%)"} |  | 0.85 | Derived from supporting Statements | ✔ Item Reviewed<br>✔ All Children Linked |
 
 
 ---
@@ -48,6 +50,6 @@ The contribution to the score of a parent item by a suspiciously linked child is
 _Generated for: Software_
 
 * _Repository root: /home/vivaccar/Team5_Senna_Tech_
-* _Commit SHA: 2b10aba4331f80f17f640b15666e9317e6c28ddb_
-* _Commit date/time: 2026-01-12 14:29:19 UTC_
-* _Commit tag: clusterqt-v0.1.1-test-44-g2b10aba_
+* _Commit SHA: c996ab979c04cafeced28a82043fe43a56f7bf70_
+* _Commit date/time: 2026-01-12 15:02:57 UTC_
+* _Commit tag: clusterqt-v0.1.1-test-45-gc996ab9_
