@@ -49,8 +49,13 @@ def test_validator(configuration: dict[str, yaml]) -> tuple[float, list[Exceptio
     issues: list[Exception | Warning] = []
 
     log_path = configuration.get("url")
+    review_score = configuration.get("score")
 
     if not log_path:
-        issues.append(ValueError("Missing 'path' in validator configuration"))
+        issues.append(ValueError("Missing 'url' in validator configuration"))
         return (0.0, issues)
-    return (1.0, issues)
+    
+    if not review_score:
+        issues.append(ValueError("Missing 'score' in validator configuration"))
+        return (0.0, issues)
+    return (review_score, issues)
