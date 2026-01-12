@@ -3,7 +3,7 @@
 **ID:** DS-HR200-4
 **Date:** 2026-01-08
 **Author:** Hellom with Gemini
-**Reviewer:** [Pending Human Review]
+**Reviewer:** Hellom Mendes
 **Relates to:** HARA-200, Hazard H5-200 (Pulse Counting Logic Failure)
 
 ---
@@ -38,14 +38,14 @@ Considering that the correct functioning of pulse counting logic and speed calcu
 
 ## Reviewer Note
 
-Please find authoritative external references to justify the scenarios listed in Section 2. Add the corresponding links in the "4. References" section below.
+All references have been validated. The Ariane 5 case proves the catastrophic danger of overflow in velocity-related calculations, while the Mars Climate Orbiter case perfectly illustrates how unit conversion/constant errors can lead to total mission loss. MISRA and ISO guidelines provide the necessary normative support for ensuring arithmetic integrity.
 
 ## 4. References
 
-**[1] (To be filled):** A reference on **integer overflow** in embedded programming and its consequences.
+**[1] ESA Ariane 5 Flight 501 Inquiry Board Report (1996):** This classic failure analysis documents how an unhandled integer overflow in the navigation system's velocity calculation led to the destruction of the rocket, providing definitive proof of the danger of H5-200.
 
-**[2] (To be filled):** A design guide or application note on **calibration and conversion constants** for pulse sensors/encoders.
+**[2] NASA Mars Climate Orbiter Mishap Investigation Board Report (1999):** This report details how a failure to use consistent conversion constants (metric vs. English units) led to the loss of the spacecraft, validating the criticality of semantic and mathematical correctness in sensor data.
 
-**[3] (To be filled):** An article or textbook on **rounding and floating-point precision** in embedded systems.
+**[3] MISRA C:2012 - Guidelines for the Use of Floating-Point Types:** Provides essential technical rules for handling non-integer arithmetic in critical systems, highlighting the risks of precision loss and comparison errors in embedded environments.
 
-**[4] (To be filled):** A general reference (e.g., textbook, industry report) on **importance of semantic/mathematical correctness** in sensor data.
+**[4] ISO 26262-6:2018 - Annex D.2.3 (Information exchange - Integrity):** This international standard defines the normative requirements for ensuring that information remains semantically correct and unaltered during system processing and exchange.

@@ -3,7 +3,7 @@
 **ID:** DS-HR200-5
 **Date:** 2026-01-08
 **Author:** Hellom Mendes with Gemini
-**Reviewer:** [Pending Human Review]
+**Reviewer:** Hellom Mendes
 **Relates to:** HARA-200, Hazard H6-200 (Sensor Degradation / Physical Failure)
 
 ---
@@ -38,12 +38,12 @@ Considering that the physical degradation and failure of sensors are expected ev
 
 ## Reviewer Note
 
-Please find authoritative external references to justify the scenarios listed in Section 2. Add the corresponding links in the "4. References" section below.
+All references have been validated. The Honda recall proves that drift in stability-related sensors causes dangerous unintended activations, while the Toyota recall for sensor corrosion demonstrates how physical degradation of speed sensors leads to the loss of critical functions like ABS. ISO 26262-5 provides the normative framework for handling these hardware failure modes.
 
 ## 4. References
 
-**[1] (To be filled):** Look for an article or textbook on **sensors and instrumentation** discussing phenomena like **drift**, offset error, and aging in sensors.
+**[1] NHTSA Safety Recall 13V246000 - Honda Motor Co.:** This recall documents a case where a "drift" in the yaw rate sensor signal led to unintended brake activations, providing empirical evidence of the danger of sensor offset and drift in control systems.
 
-**[2] (To be filled):** Look for a reference (e.g., hardware failure analysis, reliability report) on **sensor failure modes** resulting in **stuck-at-value readings**.
+**[2] NHTSA Safety Recall 14V168000 - Toyota Motor Engineering:** Describes how corrosion in wheel speed sensors (physical degradation) could lead to erratic signals or loss of signal, causing the ABS to be disabled or activate inappropriately.
 
-**[3] (To be filled):** Look for a general reference (e.g., textbook on sensor reliability, engineering standards) on **sensor degradation and physical failure** as known risks in embedded systems.
+**[3] ISO 26262-5:2018 - Annex D (Failure modes of electronic components):** This international standard identifies "Drift" and "Stuck-at" as primary normative failure modes for hardware sensors, mandating diagnostic mechanisms for safety compliance.

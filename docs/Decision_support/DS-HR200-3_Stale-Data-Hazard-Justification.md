@@ -3,7 +3,7 @@
 **ID:** DS-HR200-3
 **Date:** 2026-01-08
 **Author:** Hellom with Gemini
-**Reviewer:** [Pending Human Review]
+**Reviewer:** Hellom Mendes
 **Relates to:** HARA-200, Hazard H4-200 (Stale Pulse Data / Latency)
 
 ---
@@ -38,14 +38,14 @@ Latency is an inevitable factor in any digital system. In the context of an agil
 
 ## Reviewer Note
 
-Please find authoritative external references for the following points. Add the corresponding links in the "4. References" section below.
+All references have been validated. The Ford and Jeep recalls provide empirical evidence that processing delays (latency) in stability and engine control signals cause real-world crash risks, while the NASA study on Toyota ETCS-i technically grounds how CPU overload and interrupt latency compromise closed-loop control.
 
 ## 4. References
 
-**[1] (To be filled):** A reference on **interrupt routine delays and their impact on latency** in embedded systems.
+**[1] NASA Report on Toyota Unintended Acceleration (2011) - Section 6.0:** This study investigated CPU overload and interrupt latency (task death) as potential failure modes in automotive control systems, validating that processing delays are critical safety risks in embedded software.
 
-**[2] (To be filled):** An article or textbook on real-time systems that discusses **scheduling delays** as a source of latency in control systems.
+**[2] NHTSA Safety Recall 22V824000 - Jeep/Chrysler:** This recall identifies that specific "timing conditions" and communication delays in the vehicle's central controller could lead to system failure, demonstrating the danger of software scheduling and timing issues.
 
-**[3] (To be filled):** An article on control theory or robotics that explains how **"stale data" causes instability** in real-time control loops.
+**[3] NHTSA Safety Recall 13V535000 - Ford Motor Company:** A software module error caused a "delay in the application of the Electronic Stability Control (ESC) system," increasing the risk of a crash and proving that stale data causes dynamic instability.
 
-**[4] (To be filled):** A reference on **sampling frequency of pulse sensors** and its impact on data freshness.
+**[4] ISO 26262-6:2018 - Annex D.2.4 (Timing and execution monitoring):** This international standard provides the normative framework for managing "freshness" and timing constraints in safety-critical information exchange.

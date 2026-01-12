@@ -3,7 +3,7 @@
 **ID:** DS-HR200-1
 **Date:** 2026-01-08
 **Author:** Hellom with Gemini
-**Reviewer:** [Pending Human Review]
+**Reviewer:** Hellom Mendes
 **Relates to:** HARA-200, Hazard H1-200 (Sensor Connection Failure)
 
 ---
@@ -39,10 +39,10 @@ Considering that physical connection failures and electrical problems are docume
 
 ## Reviewer Note
 
-Please find authoritative external references to justify physical connection failure and electrical problems as known risks for pulse sensors. Add the corresponding links in the "4. References" section below.
+The references have been validated. ISO 26262 theoretically confirms that the loss of control data is critical, while the GM Recall (NHTSA) proves that this specific failure (speed sensor) has already caused real-world accidents due to involuntary braking, justifying the C4 criticality classification for this hazard.
 
 ## 4. References
 
-**[1] (To be filled):** A general reference (e.g., textbook, industry standard) on **sensor failure modes related to physical connections and wiring**.
+**[1] ISO 26262-6:2018 - Annex D.2.3 (Freedom from interference by information exchange):** Identifies **"Loss of information"** and **"Blocking of information"** as critical failure modes in the exchange between system elements (e.g., Sensor to Microcontroller). The standard states that the loss of safety-critical feedback, such as vehicle speed, compromises the system's ability to maintain a safe state (e.g., closed-loop control), leading to hazardous behaviors unless detected by specific mechanisms like timeouts or E2E protection.
 
-**[2] (To be filled):** A reference discussing **electrical noise and signal integrity issues** in pulse counting applications.
+**[2] NHTSA Safety Recall 19V649000 - General Motors:** This official safety recall documents how wheel speed sensor signal failures (intermittent signal loss or corruption) led to unintended braking activations in over 600,000 vehicles, providing empirical evidence of the hazardous behaviors described in this document.

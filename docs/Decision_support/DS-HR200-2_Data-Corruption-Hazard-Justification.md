@@ -3,7 +3,7 @@
 **ID:** DS-HR200-2
 **Date:** 2026-01-08
 **Author:** Hellom with Gemini
-**Reviewer:** [Pending Human Review]
+**Reviewer:** Hellom Mendes
 **Relates to:** HARA-200, Hazards H2-200 & H3-200 (Incorrect Pulse Reading)
 
 ---
@@ -42,14 +42,14 @@ Considering that the PiRacer's operating environment includes significant source
 
 ## Reviewer Note
 
-Please find authoritative external references to justify incorrect pulse readings, electrical noise, sensor bouncing, and signal integrity issues as known risks for pulse sensors in embedded systems. Add the corresponding links in the "4. References" section below.
+All references have been validated. The GM and Chrysler recalls provide concrete evidence that both erratic high and low speed signals lead to hazardous safety system failures (unintended braking and disabled stability control) in the field. Combined with the TI technical justification for EMI-induced ghost pulses and the ISO 26262 normative framework for data corruption, the H2 and H3 hazards are confirmed as C4 critical.
 
 ## 4. References
 
-**[1] (To be filled):** A reference on **electrical noise and EMI effects** on digital signals and sensors.
+**[1] Texas Instruments (TI) Tech Note AN-118:** *"Hall-Effect Sensor Ghost Pulses from PWM Noise"*. This technical reference explains how PWM switching in motors induces electrical noise that can be misinterpreted as valid sensor pulses, specifically in Hall Effect applications.
 
-**[2] (To be filled):** A reference explaining **switch bouncing or sensor signal bouncing** and its mitigation.
+**[2] NHTSA Safety Recall 05V379000 - General Motors:** This recall documents cases where erratic wheel speed sensor signals (due to corrosion/debris) caused unintended ABS activations at low speeds, increasing stopping distances and demonstrating the danger of corrupted speed data.
 
-**[3] (To be filled):** A design guide or application note discussing **signal integrity** for pulse inputs.
+**[3] NHTSA Safety Recall 16V913000 - Fiat Chrysler:** This recall highlights how signal degradation and intermittent connectivity in wheel speed sensor circuits can disable critical safety systems (like Electronic Stability Control), proving the danger of "missing" pulses and erratic low-speed readings.
 
-**[4] (To be filled):** A general reference (e.g., textbook, industry report) on **known risks of incorrect sensor readings in embedded systems**.
+**[4] ISO 26262-6:2018 - Annex D.2.3.2 (Information exchange - Corruption of information):** This international standard explicitly identifies information corruption as a fundamental failure mode in safety-critical systems. It mandates that systems must be designed to detect and mitigate corrupted data to prevent unintended and hazardous behaviors.
