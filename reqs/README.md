@@ -95,19 +95,19 @@ graph TD
     TST206_2 --> E206_2
 
     %% Links to files
-    click EXP201 "expectations/EXP-201.md"
-    click EXP202 "expectations/EXP-202.md"
-    click EXP206 "expectations/EXP-206.md"
-    click ASM201 "assumptions/ASM-201.md"
-    click ASM202 "assumptions/ASM-202.md"
-    click AST201 "assertions/AST-201.md"
-    click AST202 "assertions/AST-202.md"
-    click AST206 "assertions/AST-206.md"
-    click E201_1 "evidences/EVD-201-1.md"
-    click E201_2 "evidences/EVD-201-2.md"
-    click E202_1 "evidences/EVD-202-1.md"
-    click E206_1 "evidences/EVD-206-1.md"
-    click E206_2 "evidences/EVD-206-2.md"
+    click EXP201 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/expectations/EXP-201.md"
+    click EXP202 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/expectations/EXP-202.md"
+    click EXP206 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/expectations/EXP-206.md"
+    click ASM201 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/assumptions/ASM-201.md"
+    click ASM202 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/assumptions/ASM-202.md"
+    click AST201 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/assertions/AST-201.md"
+    click AST202 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/assertions/AST-202.md"
+    click AST206 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/assertions/AST-206.md"
+    click E201_1 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/evidences/EVD-201-1.md"
+    click E201_2 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/evidences/EVD-201-2.md"
+    click E202_1 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/evidences/EVD-202-1.md"
+    click E206_1 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/evidences/EVD-206-1.md"
+    click E206_2 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/evidences/EVD-206-2.md"
 ```
 
 ---
