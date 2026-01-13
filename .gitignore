@@ -81,3 +81,6 @@ desktop.ini
 
 # Local Review Checklist
 REVIEW_CHECKLIST_ISSUE_141.md
+
+# Python Virtual Environment
+venv/
