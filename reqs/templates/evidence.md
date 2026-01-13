@@ -12,5 +12,5 @@ evidence:
 date: 2026-01-09
 author: Senna Tech Member
 reviewer: Reviewer_Name
-score: 1.0
+score: 0.0
 ---
