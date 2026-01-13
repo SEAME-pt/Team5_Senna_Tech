@@ -34,81 +34,63 @@ The diagram below illustrates the full traceability from expectations to final e
 
 ```mermaid
 graph TD
-    subgraph "Expectations (EXP)"
-        EXP201[EXP-201]
-        EXP202[EXP-202]
-        EXP206[EXP-206]
-    end
+    %% Flow 201
+    EXP201[EXP-201] --> AST201[AST-201]
+    AST201 --> TST201[TST-201]
+    TST201 --> E201_1[EVD-201-1]
+    TST201 --> E201_2[EVD-201-2]
 
-    
+    %% Flow 202
+    EXP202[EXP-202] --> AST202[AST-202]
+    AST202 --> TST202[TST-202]
+    TST202 --> E202_1[EVD-202-1]
 
-    subgraph "Assertions / Assumptions"
-        direction LR
-        
-        %% Assumptions
-        ASM201[ASM-201: HW Protection]
-        ASM202[ASM-202: Secondary Src]
+    %% Flow 205
+    EXP205[EXP-205] --> AST205[AST-205]
+    EXP205 --> ASM205[ASM-205]
+    AST205 --> TST205[TST-205]
+    TST205 --> E205[EVD-205]
+    ASM205 -.-> E205
 
-        %% Assertions
-        AST201[AST-201]
-        AST202[AST-202]
-        AST206[AST-206]
+    %% Flow 206
+    EXP206[EXP-206] --> AST206[AST-206]
+    AST206 --> TST206[TST-206]
+    TST206 --> E206_1[EVD-206-1]
+    TST206 --> E206_2[EVD-206-2]
 
-        %% Horizontal Links
-        ASM201 -.-> AST201
-        ASM202 -.-> AST202
-    end
-
-    subgraph "Tests (TST)"
-        TST201_1[TST-201-1: Unit Script]
-        TST201_2[TST-201-2: Physical Proc]
-        TST202[TST-202: Noise Script]
-        TST206_1[TST-206-1: Overflow Script]
-        TST206_2[TST-206-2: Static Analysis]
-    end
-
-    subgraph "Evidences (EVD)"
-        E201_1[EVD-201-1: Log]
-        E201_2[EVD-201-2: Video]
-        E202_1[EVD-202-1: Log]
-        E206_1[EVD-206-1: Log]
-        E206_2[EVD-206-2: Report]
-    end
-
-    %% Relationships
-    EXP201 --> AST201
-    EXP202 --> AST202
-    EXP206 --> AST206
-
-    %% Invisible links to anchor ASM below EXP
-    EXP201 ~~~ ASM201
-    EXP202 ~~~ ASM202
-
-    AST201 --> TST201_1 & TST201_2
-    AST202 --> TST202
-    AST206 --> TST206_1 & TST206_2
-
-    TST201_1 --> E201_1
-    TST201_2 --> E201_2
-    TST202 --> E202_1
-    TST206_1 --> E206_1
-    TST206_2 --> E206_2
+    %% Flow 207
+    EXP207[EXP-207] --> AST207[AST-207]
+    EXP207 --> ASM207[ASM-207]
+    AST207 --> TST207[TST-207]
+    TST207 --> E207[EVD-207]
+    ASM207 -.-> E207
 
     %% Links to files
-    click EXP201 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/expectations/EXP-201.md"
-    click EXP202 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/expectations/EXP-202.md"
-    click EXP206 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/expectations/EXP-206.md"
-    click ASM201 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/assumptions/ASM-201.md"
-    click ASM202 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/assumptions/ASM-202.md"
-    click AST201 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/assertions/AST-201.md"
-    click AST202 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/assertions/AST-202.md"
-    click AST206 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/assertions/AST-206.md"
-    click E201_1 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/evidences/EVD-201-1.md"
-    click E201_2 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/evidences/EVD-201-2.md"
-    click E202_1 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/evidences/EVD-202-1.md"
-    click E206_1 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/evidences/EVD-206-1.md"
-    click E206_2 "https://github.com/SEAME-pt/Team5_Senna_Tech/blob/docs/TSF-reqs-Hellom-200/reqs/evidences/EVD-206-2.md"
-```
+    click EXP201 "./expectations/EXP-201.md"
+    click EXP202 "./expectations/EXP-202.md"
+    click EXP205 "./expectations/EXP-205.md"
+    click EXP206 "./expectations/EXP-206.md"
+    click EXP207 "./expectations/EXP-207.md"
+    click AST201 "./assertions/AST-201.md"
+    click AST202 "./assertions/AST-202.md"
+    click AST205 "./assertions/AST-205.md"
+    click ASM205 "./assumptions/ASM-205.md"
+    click AST206 "./assertions/AST-206.md"
+    click AST207 "./assertions/AST-207.md"
+    click ASM207 "./assumptions/ASM-207.md"
+    click TST201 "./test/"
+    click TST202 "./test/"
+    click TST205 "./test/"
+    click TST206 "./test/"
+    click TST207 "./test/"
+    click E201_1 "./evidences/EVD-201-1.md"
+    click E201_2 "./evidences/EVD-201-2.md"
+    click E202_1 "./evidences/EVD-202-1.md"
+    click E205 "./evidences/EVD-205.md"
+    click E206_1 "./evidences/EVD-206-1.md"
+    click E206_2 "./evidences/EVD-206-2.md"
+    click E207 "./evidences/EVD-207.md"
+``````
 
 ---
 -   **[`statements-viewer.md`](./statements-viewer.md)**: A document likely related to viewing or interpreting the various requirement statements.
