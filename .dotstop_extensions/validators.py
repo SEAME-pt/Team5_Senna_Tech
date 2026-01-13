@@ -35,3 +35,27 @@ def test_log_validator(configuration: dict[str, yaml]) -> tuple[float, list[Exce
 
     issues.append(Warning("No PASS or FAIL entries found in evidence log"))
     return (0.0, issues)
+
+
+def reviewer_score(configuration: dict[str, yaml]) -> tuple[float, list[Exception | Warning]]:
+    """
+    Validator that scores test evidence logs.
+
+    Rules:
+    - Any FAIL -> score = 0.0
+    - All PASS -> score = 1.0
+    """
+
+    issues: list[Exception | Warning] = []
+
+    log_path = configuration.get("url")
+    result = configuration.get("result")
+
+    if not log_path:
+        issues.append(ValueError("Missing 'url' in validator configuration"))
+        return (0.0, issues)
+    
+    if (result != "PASS"):
+        issues.append(ValueError("This evidence is not good"))
+        return (0.0, issues)
+    return (1.0, issues)
