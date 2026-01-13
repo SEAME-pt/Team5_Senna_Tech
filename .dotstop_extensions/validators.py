@@ -50,17 +50,12 @@ def reviewer_score(configuration: dict[str, yaml]) -> tuple[float, list[Exceptio
 
     log_path = configuration.get("url")
     result = configuration.get("result")
-    review_score = configuration.get("score")
 
     if not log_path:
         issues.append(ValueError("Missing 'url' in validator configuration"))
         return (0.0, issues)
     
-    if not review_score:
-        issues.append(ValueError("Missing 'score' in validator configuration"))
-        return (0.0, issues)
-    
     if (result != "PASS"):
         issues.append(ValueError("This evidence is not good"))
         return (0.0, issues)
-    return (review_score, issues)
+    return (1.0, issues)
