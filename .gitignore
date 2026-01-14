@@ -90,3 +90,7 @@ local_metrics/
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Allow logs specifically for TSF/Trudag evidence in test directories
+!tests/**/*.log
+!tests/**/reports/*.txt
