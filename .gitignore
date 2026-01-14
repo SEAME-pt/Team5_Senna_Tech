@@ -84,3 +84,9 @@ REVIEW_CHECKLIST_ISSUE_141.md
 
 # Python Virtual Environment
 venv/
+local_metrics/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class

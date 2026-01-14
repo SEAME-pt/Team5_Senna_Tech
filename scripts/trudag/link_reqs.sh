@@ -15,34 +15,37 @@ create_links_from_file() {
     local child_id=$2 
 
     # 1. Link: Expectation (Pai) -> Assertion (Filho)
-    # Procura por "related_expectation_id: VALOR"
-    parent_exp=$(grep "^related_expectation_id:" "$file" | awk '{print $2}')
-    # Remove espaços em branco extras e CRs (carriage returns) se houver
-    parent_exp=$(echo "$parent_exp" | tr -d '\r')
+    # Procura por "related_expectation_id: VALOR1, VALOR2..."
+    parents_exp=$(grep "^related_expectation_id:" "$file" | cut -d':' -f2 | tr -d ' \r')
 
-    if [ ! -z "$parent_exp" ] && [ "$parent_exp" != "EXP-XXX" ]; then
-        echo -n "   🔗 Linkando $parent_exp -> $child_id ... "
-        trudag manage create-link "$parent_exp" "$child_id" > /dev/null 2>&1
-        if [ $? -eq 0 ]; then 
-            echo -e "${GREEN}[OK]${NC}"
-        else 
-            echo -e "\033[0;31m[ERRO] (Verifique se $parent_exp existe)${NC}"
-        fi
+    if [ ! -z "$parents_exp" ] && [ "$parents_exp" != "EXP-XXX" ]; then
+        IFS=',' read -ra ADDR <<< "$parents_exp"
+        for parent in "${ADDR[@]}"; do
+            echo -n "   🔗 Linkando $parent -> $child_id ... "
+            trudag manage create-link "$parent" "$child_id" > /dev/null 2>&1
+            if [ $? -eq 0 ]; then 
+                echo -e "${GREEN}[OK]${NC}"
+            else 
+                echo -e "\033[0;31m[ERRO] (Verifique se $parent existe)${NC}"
+            fi
+        done
     fi
 
     # 2. Link: Assertion (Pai) -> Evidence/Assumption (Filho)
-    # Procura por "related_assertion_id: VALOR"
-    parent_ast=$(grep "^related_assertion_id:" "$file" | awk '{print $2}')
-    parent_ast=$(echo "$parent_ast" | tr -d '\r')
+    # Procura por "related_assertion_id: VALOR1, VALOR2..."
+    parents_ast=$(grep "^related_assertion_id:" "$file" | cut -d':' -f2 | tr -d ' \r')
 
-    if [ ! -z "$parent_ast" ] && [ "$parent_ast" != "AST-XXX" ]; then
-        echo -n "   🔗 Linkando $parent_ast -> $child_id ... "
-        trudag manage create-link "$parent_ast" "$child_id" > /dev/null 2>&1
-        if [ $? -eq 0 ]; then 
-            echo -e "${GREEN}[OK]${NC}"
-        else 
-            echo -e "\033[0;31m[ERRO] (Verifique se $parent_ast existe)${NC}"
-        fi
+    if [ ! -z "$parents_ast" ] && [ "$parents_ast" != "AST-XXX" ]; then
+        IFS=',' read -ra ADDR <<< "$parents_ast"
+        for parent in "${ADDR[@]}"; do
+            echo -n "   🔗 Linkando $parent -> $child_id ... "
+            trudag manage create-link "$parent" "$child_id" > /dev/null 2>&1
+            if [ $? -eq 0 ]; then 
+                echo -e "${GREEN}[OK]${NC}"
+            else 
+                echo -e "\033[0;31m[ERRO] (Verifique se $parent existe)${NC}"
+            fi
+        done
     fi
 }
 
