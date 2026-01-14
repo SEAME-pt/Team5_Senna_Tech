@@ -2,11 +2,12 @@
 
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="$BASE_DIR/logs"
-LOG_FILE="$LOG_DIR/system.log"
+LOG_FILE="$LOG_DIR/system.txt"
 
 TESTS=(
     "cluster_auto_start.sh"
     "check_update_started.sh"
+    "cluster_monitoring_running.sh"
 )
 
 # Cria pasta de logs se não existir
