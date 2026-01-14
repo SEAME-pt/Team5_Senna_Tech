@@ -25,20 +25,20 @@
 
 | ID | Failure Mode | Autonomous Scenario Consequence | Criticality |
 | :--- | :--- | :--- | :---: |
-| **H1-500** | **Complete loss of cluster functionality** | Observers lose all vehicle status information during operation.. | **C1** |
-| **H2-500** | **Incorrect information displayed** | Observers misinterpret vehicle state and system behavior. | **C1** |
-| **H3-500** | **Outdated or delayed information displayed** | Observers rely on obsolete data, reducing monitoring reliability. | **C1** |
-| **H4-500** | **Missing warning or status indications** | Critical vehicle conditions are not visible to observers. | **C2** |
+| **H1-500** | **Incorrect information displayed** | Observers misinterpret vehicle state and system behavior. | **C1** |
+| **H2-500** | **Outdated or delayed information displayed** | Observers rely on obsolete data, reducing monitoring reliability. | **C1** |
+| **H3-500** | **Missing warning or status indications** | Critical vehicle conditions are not visible to observers. | **C2** |
 
 ---
 
 ## 3. Safety Goals / Expectations (EXP)
 *What the system **must** do to mitigate the risks above.*
 
-* **EXP-501 (Focus H1):** The instrument cluster shall provide continuous availability of vehicle status information to ensure visual monitoring by observers during autonomous operation.
-* **EXP-502 (Focus H2/H3):** The instrument cluster shall ensure that displayed vehicle information
-  represents the current system state within an acceptable time window.
-* **EXP-503 (Focus H4):** The instrument cluster shall present warning and status indications
+* **EXP-501 (Focus H1/H2):** The instrument cluster shall ensure that displayed vehicle information
+  represents the current system state within an acceptable time window
+  and shall safely handle invalid, missing, or out-of-range data
+  without causing application failure or undefined behavior.
+* **EXP-502 (Focus H3):** The instrument cluster shall present warning and status indications
   whenever critical vehicle conditions are detected, ensuring observer awareness.
 
 ---
