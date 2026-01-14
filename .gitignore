@@ -84,3 +84,13 @@ REVIEW_CHECKLIST_ISSUE_141.md
 
 # Python Virtual Environment
 venv/
+local_metrics/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Allow logs specifically for TSF/Trudag evidence in test directories
+!tests/**/*.log
+!tests/**/reports/*.txt

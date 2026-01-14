@@ -1,47 +1,47 @@
 #!/bin/bash
 
-# Pastas para processar
+# Directories to process
 DIRS=("assertions" "assumptions" "evidences" "expectations")
 BASE_DIR="reqs"
 
-# Cores para output
+# Output colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "=== Iniciando Registro Seguro no Trudag ==="
+echo -e "=== Starting Secure Registration in Trudag ==="
 
-# === PASSO 0: LIMPEZA DO BANCO (OPCIONAL) ===
-read -p "Deseja limpar e reconstruir o banco de dados (.dotstop.dot)? [y/N] " response
+# === STEP 0: DATABASE CLEANUP (OPTIONAL) ===
+read -p "Do you want to clear and rebuild the database (.dotstop.dot)? [y/N] " response
 if [[ "$response" =~ ^[yY]$ ]]; then
-    echo -e "🧹 Limpando banco de dados antigo..."
+    echo -e "🧹 Clearing old database..."
     rm -f .dotstop.dot
     trudag init
-    echo -e "${GREEN}[OK] Banco limpo.${NC}"
+    echo -e "${GREEN}[OK] Database cleared.${NC}"
 else
-    echo -e "⚠️  Mantendo banco atual. Itens novos serão adicionados/atualizados."
+    echo -e "⚠️  Keeping current database. New items will be added/updated."
 fi
 
 validate_file() {
     local file=$1
     local content=$(cat "$file")
 
-    # 1. Verifica Normative
+    # 1. Check Normative
     if ! grep -q "normative: true" "$file"; then
-        echo -e "${RED}[ERRO] $file ausente 'normative: true'.${NC}"
+        echo -e "${RED}[ERROR] $file missing 'normative: true'.${NC}"
         return 1
     fi
 
-    # 2. Verifica Score vazio (Causa crash no Trudag)
+    # 2. Check for empty Score (Causes Trudag crash)
     if grep -q "^score:[[:space:]]*$" "$file"; then
-        echo -e "${RED}[ERRO] $file contem campo 'score:' vazio. Remova-o ou defina um valor.${NC}"
+        echo -e "${RED}[ERROR] $file contains empty 'score:' field. Remove it or set a value.${NC}"
         return 1
     fi
 
-    # 3. Verifica ID vazio
+    # 3. Check for empty ID
     if grep -q "^id:[[:space:]]*$" "$file"; then
-        echo -e "${RED}[ERRO] $file contem campo 'id:' vazio.${NC}"
+        echo -e "${RED}[ERROR] $file contains empty 'id:' field.${NC}"
         return 1
     fi
     
@@ -52,58 +52,74 @@ for dir in "${DIRS[@]}"; do
     TARGET_DIR="$BASE_DIR/$dir"
     
     if [ ! -d "$TARGET_DIR" ]; then
-        echo "Pasta $TARGET_DIR não encontrada, pulando..."
+        echo "Folder $TARGET_DIR not found, skipping..."
         continue
     fi
 
     echo ""
-    echo -e "📂 Processando: ${YELLOW}$TARGET_DIR${NC} (recursivo)"
+    echo -e "📂 Processing: ${YELLOW}$TARGET_DIR${NC} (recursive)"
     
-    # Usa find para buscar recursivamente e tratar nomes com espacos corretamente
+    # Use find to search recursively and handle filenames with spaces correctly
     find "$TARGET_DIR" -type f -name "*.md" | while read -r file; do
-        # Ignora arquivos temporários
+        # Ignore temporary files
         if [[ "$file" == *".tmp" ]]; then continue; fi
 
-        # === ESTÁGIO 1: VALIDAÇÃO ===
+        # === STAGE 1: VALIDATION ===
         if ! validate_file "$file"; then
             echo -e "${RED}Aborting process due to validation error in $file.${NC}"
-            # O exit aqui sai do subshell do pipe, nao do script pai, mas serve para alertar
+            # The exit here leaves the subshell of the pipe, not the parent script, but serves to alert
             exit 1 
         fi
 
+        # === STAGE 2: EXTRACTION AND HASH VERIFICATION ===
         filename=$(basename -- "$file")
-        dirname=$(dirname -- "$file") # Captura o diretório real do arquivo
+        dirname=$(dirname -- "$file")
         name_no_ext="${filename%.*}"
         
-        # === ESTÁGIO 2: EXTRAÇÃO INTELIGENTE DE PREFIXO ===
-        # Quebra no ÚLTIMO hífen para suportar nomes como EVD-201-1
-        id="${name_no_ext##*-}"
+        # Extract prefix and ID for Trudag
+        id_suffix="${name_no_ext##*-}"
         prefix="${name_no_ext%-*}"
 
-        echo -n "   -> Registrando $name_no_ext... "
+        echo -n "   -> Item $name_no_ext: "
 
-        # === ESTÁGIO 3: REGISTRO (COM BACKUP) ===
-        cp "$file" "$file.tmp" # Faz backup
-        
-        rm "$file"
-        # Usa $dirname para registrar no local correto
-        trudag manage create-item "$prefix" "$id" "$dirname" > /dev/null 2>&1
-        res=$?
-        
-        # Restaura imediatamente
-        mv "$file.tmp" "$file"
+        # Calculate hash of current file (content only, ignoring leading/trailing whitespace)
+        current_sha=$(sha256sum "$file" | awk '{print $1}')
+        # Search hash in .dotstop.dot database
+        stored_sha=$(grep "\"$name_no_ext\"" .dotstop.dot | grep -o 'sha="[^"].*"' | cut -d'"' -f2)
+
+        if [ "$current_sha" == "$stored_sha" ]; then
+            echo -e "${YELLOW}[NO CHANGES]${NC}"
+            continue
+        fi
+
+        # === STAGE 3: REGISTRATION OR UPDATE ===
+        if [ -z "$stored_sha" ]; then
+            echo -n "Registering NEW item... "
+            # Security process for NEW items only
+            cp "$file" "$file.tmp"
+            rm "$file"
+            error_msg=$(trudag manage create-item "$prefix" "$id_suffix" "$dirname" 2>&1)
+            res=$?
+            mv "$file.tmp" "$file"
+        else
+            echo -n "Synchronizing CHANGES... "
+            # Update only the hash in the database without touching the physical file
+            error_msg=$(trudag manage set-item "$name_no_ext" 2>&1)
+            res=$?
+        fi
 
         if [ $res -eq 0 ]; then
             echo -e "${GREEN}[OK]${NC}"
         else
-            echo -e "${YELLOW}[JÁ EXISTE/WARN]${NC}"
+            echo -e "${RED}[FAILED]${NC}"
+            echo -e "      Error: $error_msg"
         fi
     done
 done
 
-# === PASSO 4: LINKAGEM AUTOMÁTICA ===
+# === STEP 4: AUTOMATIC LINKING ===
 ./scripts/trudag/link_reqs.sh
 
 echo ""
-echo -e "${GREEN}=== Concluído! ===${NC}"
-echo "Execute 'trudag score' ou 'trudag manage show-graph' para validar."
+echo -e "${GREEN}=== Completed! ===${NC}"
+echo "Execute 'trudag score' and 'trudag plot' to validate."
