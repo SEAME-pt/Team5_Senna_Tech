@@ -15,7 +15,7 @@ class vehicleTest : public testing::Test {
         car->setTemperature(50); 
         car->setCharging(false);
     }
-};
+}; 
 
 // - - - - INIT STRUCT TEST - - - - 
 TEST_F(vehicleTest, StructInitialization) {
