@@ -38,6 +38,8 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | **08/01** | Beginning of filling out the HARA and TSF requirements. Discussion on how we will align branches with different edits in .dotstop.dot since we cannot resolve conflicts manually.|
 | **09/01** |Everyone will work to complete expectations, assertions, and assumptions before considering the evidence. We decided not to use Trudag at the moment and to clarify any doubts about conflicts in .dotstop with Felipe.|
 | **12/01** |Vini, Yasmine, Marcelo, and Nicole will work on the evidence, while Hellom will gather references for the safety parameters. Everyone will conduct research to understand how to develop the score to be discussed at tomorrow's meeting.|
+| **13/01** |Vini saw how to use validators and their advantages, and showed us the material that was generated from it. Hellom developed scripts that will help us use Trudag. We are still pending the completion of the review of the material and the evidence that can already be generated.|
+| **14/01** |Finish revisions and start using Trudag and Validator. We've decided to gather all the material tomorrow and generate the graphs and materials that prove our traceability.|
 | **...** | ... | |
 
 ## 🧠 Key Achievements
