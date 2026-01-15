@@ -87,3 +87,45 @@ def static_analysis_validator(configuration: dict[str, yaml]) -> tuple[float, li
 
     issues.append(Warning(f"Success pattern '{success_pattern}' not found in report"))
     return (0.0, issues)
+
+
+def system_log_validator(configuration: dict[str, yaml]) -> tuple[float, list[Exception | Warning]]:
+    """
+    Validator for tests/system
+    Checks the system.txt file containing test results
+
+    Rules:
+    - FAIL -> score = 0.0
+    - PASS -> score = 1.0
+    """
+    issues: list[Exception | Warning] = []
+    report_path = configuration.get("url")
+    test_name = configuration.get("test")
+
+    if not report_path:
+        issues.append(ValueError("Missing 'url' in validator configuration"))
+        return (0.0, issues)
+
+    if not test_name:
+        issues.append(ValueError("Missing 'test name' in validator configuration"))
+        return (0.0, issues)
+
+    try:
+        with open(report_path, "r") as f:
+            content = f.read()
+    except FileNotFoundError as e:
+        issues.append(e)
+        return (0.0, issues)
+
+    pass_pattern = f"[PASS] {test_name}"
+    fail_pattern = f"[FAIL] {test_name}"
+
+    if pass_pattern in content:
+        return (1.0, issues)
+
+    if fail_pattern in content:
+        issues.append(Warning(f"Test '{test_name}' failed"))
+        return (0.0, issues)
+
+    issues.append(Warning(f"Test '{test_name}' not found in report"))
+    return (0.0, issues)
