@@ -42,8 +42,6 @@
 
 ---
 
-## 4. Safe State Strategy
-*Automatic action triggered when OTA is not correct*
 
 ---
 **Additional Notes:**
