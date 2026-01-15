@@ -1,17 +1,19 @@
 ---
 id: EVD-ASM-205
-related_assertion_id: ASM-205
+related_assumption_id: ASM-205
 type: evidence
 normative: true
-evidence_type: document_review
+evidence_type: technical_datasheet
 evidence:
     type: reviewer_score
     configuration:
-        url: docs/Decision_support/DM-HR200-3_MPU-Isolation-Mitigation.md
+        url: docs/energy/components_datasheet.md
         result: PASS
-location: "STM32U5 Reference Manual RM0456, Section 4.5 (MPU)"
+location: docs/energy/components_datasheet.md
 date: 2026-01-14
 author: Hellom Mendes
-reviewer: Hellom Mendes
+reviewer: Hellom (Simulated)
 score: 1.0
 ---
+
+Technical evidence based on the STM32U5 datasheet, confirming the presence and capabilities of the Memory Protection Unit (MPU).
