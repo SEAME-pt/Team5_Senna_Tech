@@ -1,17 +1,96 @@
-# Ignorar pastas de ambiente virtual
-venv/
-.venv/
-scripts/trudag/venv/
+CMakeLists.txt.user
+Links
+issue_136
+issue_141
 
-# Ignorar arquivos de cache do Python
-__pycache__/
-*.pyc
+# =============================
+# STM32CubeIDE / Eclipse files
+# =============================
 
-# Ignorar geracoes do Trudag
-.dotstop.dot
-.dotstop_extensions
+# Project metadata (IDE-specific)
+.settings/
+.metadata/
+RemoteSystemsTempFiles/
 
-# Ignorar arquivos do sistema
+# Eclipse/CubeIDE project files
+*.launch
+*.project
+*.cproject
+
+# CubeMX internal file (optional to ignore)
+*.mxproject
+
+# =============================
+# Build folders
+# =============================
+Debug/
+Release/
+build/
+out/
+tests/car-control/build
+tests/car_cluster/build
+src/piracer-cpp/car-control/build
+src/car_cluster/build
+
+# =============================
+# Compiled objects
+# =============================
+*.o
+*.d
+*.su
+*.elf
+*.bin
+*.hex
+*.map
+*.srec
+*.list
+*.log
+
+# =============================
+# Temporary & Backup files
+# =============================
+*.tmp
+*.bak
+*.swp
+*.swm
+*.swo
+*.swn
+*.orig
+
+# =============================
+# OS-specific
+# =============================
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
 Thumbs.db
-.vscode/
+ehthumbs.db
+desktop.ini
+
+# Linux
+*~
+
+# =============================
+# Tools / misc cache
+# =============================
+.cache/
+
+
+# Local Review Checklist
+REVIEW_CHECKLIST_ISSUE_141.md
+
+# Python Virtual Environment
+venv/
+local_metrics/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Allow logs specifically for TSF/Trudag evidence in test directories
+!tests/**/*.log
+!tests/**/reports/*.txt
