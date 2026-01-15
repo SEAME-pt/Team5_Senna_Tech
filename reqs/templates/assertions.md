@@ -5,7 +5,7 @@ title: Assertion title
 statement:
   A clear, testable statement that can be proven true or false. #Define uma afirmação técnica verificável que, se verdadeira, satisfaz a Expectation.
 type: assertion
-criticity: C1 / C2 / C3 / C4
+criticity: C1 | C2 | C3 | C4
 owner: Senna Tech member
-date: 2025-10-30
+date: yyyy-mm-dd
 ---

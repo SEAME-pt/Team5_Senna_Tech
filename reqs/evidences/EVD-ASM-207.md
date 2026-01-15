@@ -1,6 +1,6 @@
 ---
 id: EVD-ASM-207
-related_assertion_id: ASM-207
+related_item_id: ASM-207
 type: evidence
 normative: true
 evidence_type: document_review
