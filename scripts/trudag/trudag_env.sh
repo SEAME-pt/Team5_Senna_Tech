@@ -1,8 +1,9 @@
 #!/bin/bash
 set -e  # Faz o script parar se algo der errado
+PYTHON_BIN=python3.12
 
 echo "Creating trudag virtual environment..."
-python3 -m venv venv
+$PYTHON_BIN -m venv venv
 
 echo "🔧 Activating environment..."
 # Ativa o ambiente virtual
