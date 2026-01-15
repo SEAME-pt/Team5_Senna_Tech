@@ -94,3 +94,7 @@ __pycache__/
 # Allow logs specifically for TSF/Trudag evidence in test directories
 !tests/**/*.log
 !tests/**/reports/*.txt
+docs/trustable/
+!docs/trustable/mkdocs_trustable.yml
+!docs/trustable/custom_fixes.css
+!docs/trustable/index.md
