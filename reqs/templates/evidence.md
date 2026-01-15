@@ -1,16 +1,18 @@
 ---
 id: EVD-XXX
-related_assertion_id: AST-XXX
+related_item_id: AST-XXX
 type: evidence
 normative: true
 evidence_type: test_report
 evidence:
-    type: reviewer_score
+    type: type_of_artifact
     configuration:
-        url: pathtofile
-        result: PASS or FAIL
-date: 2026-01-09
-author: Senna Tech Member
-reviewer: Reviewer_Name
-score: 0.0
+        url: path/to/log
+        test: path/to/test
+        result: waiting review | PASS | FAIL
+date: yyyy-mm-dd
+author: Senna Tech member
+reviewer: reviewer name 
+score: 0-1 (filled by reviewer)
+result: pass | fail
 ---

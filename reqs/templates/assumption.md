@@ -1,10 +1,10 @@
 ---
 id: ASM-XXX
-related_assertion_id: AST-XXX
+related_item_id: AST-XXX
 normative: true
 description:
   Condition assumed to be true for the assertion to hold. #Documenta condições externas ou restrições que não são controladas pelo sistema, mas das quais a Assertion depende.
 type: assumption
 owner: Senna Tech member
-date: 2025-10-30
+date: yyyy-mm-dd
 ---

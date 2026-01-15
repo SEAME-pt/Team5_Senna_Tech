@@ -1,6 +1,6 @@
 ---
 id: EVD-ASM-205
-related_assumption_id: ASM-205
+related_item_id: ASM-205
 type: evidence
 normative: true
 evidence_type: technical_datasheet
