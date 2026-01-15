@@ -7,5 +7,5 @@ statement:
 type: assertion
 criticality: C1 | C2 | C3 | C4
 owner: Senna Tech member
-date: 2025-10-30
+date: yyyy-mm-dd
 ---

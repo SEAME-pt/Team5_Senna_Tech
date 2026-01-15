@@ -8,5 +8,5 @@ normative: true            # true = obrigatório, false = informativo
 type: expectation
 owner: Senna Tech member
 source: ISO 26262 | TSF | Stakeholder | Internal
-date: 2025-10-30
+date: yyyy-mm-dd
 ---
