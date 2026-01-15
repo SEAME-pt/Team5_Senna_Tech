@@ -1,6 +1,6 @@
 ---
 id: EVD-XXX
-related_assertion_id: AST-XXX
+related_item_id: AST-XXX
 type: evidence
 normative: true
 evidence_type: test_report

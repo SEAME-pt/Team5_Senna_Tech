@@ -1,6 +1,0 @@
-site_name: Senna Tech
-
-markdown_extensions:
-  - attr_list
-  - tables
-  - toc

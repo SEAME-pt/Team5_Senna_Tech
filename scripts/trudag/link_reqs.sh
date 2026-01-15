@@ -38,8 +38,8 @@ create_links_from_file() {
     fi
 
     # 2. Link: Assertion (Parent) -> Evidence/Assumption (Child)
-    # Search for "related_assertion_id: VALUE1, VALUE2..."
-    parents_ast=$(grep "^related_assertion_id:" "$file" | cut -d':' -f2 | tr -d ' \r')
+    # Search for "related_item_id: VALUE1, VALUE2..."
+    parents_ast=$(grep "^related_item_id:" "$file" | cut -d':' -f2 | tr -d ' \r')
 
     if [ ! -z "$parents_ast" ] && [ "$parents_ast" != "AST-XXX" ]; then
         IFS=',' read -ra ADDR <<< "$parents_ast"
