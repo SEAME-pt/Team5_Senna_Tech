@@ -12,15 +12,21 @@ NC='\033[0m' # No Color
 
 echo -e "=== Starting Secure Registration in Trudag ==="
 
-# === STEP 0: DATABASE CLEANUP (OPTIONAL) ===
-read -p "Do you want to clear and rebuild the database (.dotstop.dot)? [y/N] " response
-if [[ "$response" =~ ^[yY]$ ]]; then
-    echo -e "🧹 Clearing old database..."
-    rm -f .dotstop.dot
+# === STEP 0: DATABASE INITIALIZATION ===
+if [ ! -f ".dotstop.dot" ]; then
+    echo -e "${YELLOW}[WARN] Database (.dotstop.dot) not found. Initializing new database...${NC}"
     trudag init
-    echo -e "${GREEN}[OK] Database cleared.${NC}"
+    echo -e "${GREEN}[OK] Database initialized.${NC}"
 else
-    echo -e "⚠️  Keeping current database. New items will be added/updated."
+    read -p "Do you want to clear and rebuild the database (.dotstop.dot)? [y/N] " response
+    if [[ "$response" =~ ^[yY]$ ]]; then
+        echo -e "🧹 Clearing old database..."
+        rm -f .dotstop.dot
+        trudag init
+        echo -e "${GREEN}[OK] Database cleared and re-initialized.${NC}"
+    else
+        echo -e "⚠️  Keeping current database. New items will be added/updated."
+    fi
 fi
 
 validate_file() {
@@ -44,13 +50,13 @@ validate_file() {
         echo -e "${RED}[ERROR] $file contains empty 'id:' field.${NC}"
         return 1
     fi
-    
+
     return 0
 }
 
 for dir in "${DIRS[@]}"; do
     TARGET_DIR="$BASE_DIR/$dir"
-    
+
     if [ ! -d "$TARGET_DIR" ]; then
         echo "Folder $TARGET_DIR not found, skipping..."
         continue
@@ -58,7 +64,7 @@ for dir in "${DIRS[@]}"; do
 
     echo ""
     echo -e "📂 Processing: ${YELLOW}$TARGET_DIR${NC} (recursive)"
-    
+
     # Use find to search recursively and handle filenames with spaces correctly
     find "$TARGET_DIR" -type f -name "*.md" | while read -r file; do
         # Ignore temporary files
@@ -68,14 +74,14 @@ for dir in "${DIRS[@]}"; do
         if ! validate_file "$file"; then
             echo -e "${RED}Aborting process due to validation error in $file.${NC}"
             # The exit here leaves the subshell of the pipe, not the parent script, but serves to alert
-            exit 1 
+            exit 1
         fi
 
         # === STAGE 2: EXTRACTION AND HASH VERIFICATION ===
         filename=$(basename -- "$file")
         dirname=$(dirname -- "$file")
         name_no_ext="${filename%.*}"
-        
+
         # Extract prefix and ID for Trudag
         id_suffix="${name_no_ext##*-}"
         prefix="${name_no_ext%-*}"
@@ -121,5 +127,13 @@ done
 ./scripts/trudag/link_reqs.sh
 
 echo ""
-echo -e "${GREEN}=== Completed! ===${NC}"
-echo "Execute 'trudag score' and 'trudag plot' to validate."
+
+echo -e "${GREEN}=== Registration Completed Successfully! ===${NC}"
+
+echo -e "${CYAN}Next Steps:${NC}"
+
+echo -e "  1. Score Command:    ${YELLOW}trudag score${NC}"
+echo -e "  2. Graph Command:    ${YELLOW}trudag plot${NC}"
+echo -e "  3. Visualize Site Command:   ${YELLOW}./scripts/trudag/preview_site.sh${NC}"
+
+echo ""
