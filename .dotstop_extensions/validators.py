@@ -35,3 +35,97 @@ def test_log_validator(configuration: dict[str, yaml]) -> tuple[float, list[Exce
 
     issues.append(Warning("No PASS or FAIL entries found in evidence log"))
     return (0.0, issues)
+
+
+def reviewer_score(configuration: dict[str, yaml]) -> tuple[float, list[Exception | Warning]]:
+    """
+    Validator that scores test evidence logs.
+
+    Rules:
+    - Any FAIL -> score = 0.0
+    - All PASS -> score = 1.0
+    """
+
+    issues: list[Exception | Warning] = []
+
+    log_path = configuration.get("url")
+    result = configuration.get("result")
+
+    if not log_path:
+        issues.append(ValueError("Missing 'url' in validator configuration"))
+        return (0.0, issues)
+    
+    if (result != "PASS"):
+        issues.append(ValueError("This evidence is not good"))
+        return (0.0, issues)
+    return (1.0, issues)
+
+
+def static_analysis_validator(configuration: dict[str, yaml]) -> tuple[float, list[Exception | Warning]]:
+    """
+    Validator for static analysis reports (e.g., cppcheck).
+    Checks if the report file contains a specific success pattern.
+    """
+    issues: list[Exception | Warning] = []
+    report_path = configuration.get("path")
+    # Default pattern for many tools is stating 0 errors found
+    success_pattern = configuration.get("success_pattern", "0 errors")
+
+    if not report_path:
+        issues.append(ValueError("Missing 'path' in validator configuration"))
+        return (0.0, issues)
+
+    try:
+        with open(report_path, "r") as f:
+            content = f.read()
+    except FileNotFoundError as e:
+        issues.append(e)
+        return (0.0, issues)
+
+    if success_pattern in content:
+        return (1.0, issues)
+
+    issues.append(Warning(f"Success pattern '{success_pattern}' not found in report"))
+    return (0.0, issues)
+
+
+def system_log_validator(configuration: dict[str, yaml]) -> tuple[float, list[Exception | Warning]]:
+    """
+    Validator for tests/system
+    Checks the system.txt file containing test results
+
+    Rules:
+    - FAIL -> score = 0.0
+    - PASS -> score = 1.0
+    """
+    issues: list[Exception | Warning] = []
+    report_path = configuration.get("url")
+    test_name = configuration.get("test")
+
+    if not report_path:
+        issues.append(ValueError("Missing 'url' in validator configuration"))
+        return (0.0, issues)
+
+    if not test_name:
+        issues.append(ValueError("Missing 'test name' in validator configuration"))
+        return (0.0, issues)
+
+    try:
+        with open(report_path, "r") as f:
+            content = f.read()
+    except FileNotFoundError as e:
+        issues.append(e)
+        return (0.0, issues)
+
+    pass_pattern = f"[PASS] {test_name}"
+    fail_pattern = f"[FAIL] {test_name}"
+
+    if pass_pattern in content:
+        return (1.0, issues)
+
+    if fail_pattern in content:
+        issues.append(Warning(f"Test '{test_name}' failed"))
+        return (0.0, issues)
+
+    issues.append(Warning(f"Test '{test_name}' not found in report"))
+    return (0.0, issues)

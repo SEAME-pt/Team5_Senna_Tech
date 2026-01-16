@@ -27,6 +27,13 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 ---
 
+## 🗣️ Daily Standup Logs
+
+| Data | Progress Summary and Plan | Obstacles? |
+| :--- | :--- | :--- |
+| **dd/mm** | Meeting summary |
+| **...** | ... | |
+
 ## 🧠 Key Achievements
 
 - [Summary of what was achieved]

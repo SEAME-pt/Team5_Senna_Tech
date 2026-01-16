@@ -1,27 +1,11 @@
 ---
-id: ASS-001
-title: Joystick inputs are correctly mapped
-normative: true
-level: 2.0
+id: AST-XXX
+related_expectation_id: EXP-XXX
+title: Assertion title
+statement:
+  A clear, testable statement that can be proven true or false. #Define uma afirmação técnica verificável que, se verdadeira, satisfaz a Expectation.
 type: assertion
-ASIL: A
-linked_expectations:
-  - FUNC-001
-reviewers:
-    - name: "namedoreviewer"
-    - email: "email@reviewr.com"
-reviewed: ''
-owner: Vinicius Vaccari
-date: 2025-10-30
+criticality: C1 | C2 | C3 | C4
+owner: Senna Tech member
+date: yyyy-mm-dd
 ---
-
-## Description
-ASSERTION DESCRIPTION HERE
-
-## Verification Criteria
-- EXAMPLE: Axis movement corresponds to correct steering
-- EXAMPLE: Acceleration and brake buttons work as expected
-
-## Evidences
-- EVD-xxx
-- EVD-yyy
