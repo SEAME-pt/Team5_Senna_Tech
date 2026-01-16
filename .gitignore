@@ -78,6 +78,13 @@ desktop.ini
 # =============================
 .cache/
 
+# =============================
+# TSF
+# =============================
+.dotstop.dot
+docs/trustable/
+graph
+
 
 # Local Review Checklist
 REVIEW_CHECKLIST_ISSUE_141.md
