@@ -1,0 +1,11 @@
+VERSION ""
+
+BS_:
+
+BU_: PiRacer STM32
+
+BO_ 16 Speed_Msg: 8 STM32
+ SG_ Speed_Kmh : 7|16@0+ (0.01,0) [0|250] "km/h" Vector__XXX
+
+BO_ 512 Battery_Msg: 8 STM32
+ SG_ Battery_Level : 7|8@0+ (1,0) [0|100] "%" Vector__XXX

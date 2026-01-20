@@ -1,0 +1,20 @@
+{
+  "Vehicle.Speed": {
+    "datatype": "float",
+    "type": "sensor",
+    "description": "Vehicle Speed",
+    "dbc": {
+      "signal": "Speed_Kmh",
+      "interval_ms": 100
+    }
+  },
+  "Vehicle.Powertrain.TractionBattery.StateOfCharge.Current": {
+    "datatype": "float",
+    "type": "sensor",
+    "description": "High Voltage Battery SoC",
+    "dbc": {
+      "signal": "Battery_Level",
+      "interval_ms": 1000
+    }
+  }
+}

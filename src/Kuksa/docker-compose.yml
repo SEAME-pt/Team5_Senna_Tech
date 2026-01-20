@@ -1,0 +1,35 @@
+services:
+  # 1. KUKSA Databroker
+  databroker:
+    image: ghcr.io/eclipse-kuksa/kuksa-databroker:main
+    container_name: databroker
+    network_mode: host
+    environment:
+      - RUST_LOG=info
+    restart: unless-stopped
+
+  # 2. KUKSA CAN Provider
+  can-provider:
+    image: quay.io/eclipse-kuksa/can-provider:main
+    container_name: can_provider
+    network_mode: host
+    depends_on:
+      - databroker
+    
+    volumes:
+      - ./CAN_decoder.dbc:/data/CAN_decoder.dbc
+      - ./CAN_mapping.json:/data/CAN_mapping.json
+    
+    # Comandos atulizados para usar o .json
+    command: >
+      --dbcfile /data/CAN_decoder.dbc
+      --mapping /data/CAN_mapping.json
+      --canport vcan0
+      --server-type kuksa_databroker
+      --use-socketcan
+    
+    environment:
+      - KUKSA_DATA_BROKER_ADDR=127.0.0.1
+      - KUKSA_DATA_BROKER_PORT=55555
+      - LOG_LEVEL=DEBUG
+    restart: unless-stopped
