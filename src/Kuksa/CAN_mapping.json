@@ -1,20 +1,99 @@
 {
-  "Vehicle.Speed": {
-    "datatype": "float",
-    "type": "sensor",
-    "description": "Vehicle Speed",
-    "dbc": {
-      "signal": "Speed_Kmh",
-      "interval_ms": 100
-    }
-  },
-  "Vehicle.Powertrain.TractionBattery.StateOfCharge.Current": {
-    "datatype": "float",
-    "type": "sensor",
-    "description": "High Voltage Battery SoC",
-    "dbc": {
-      "signal": "Battery_Level",
-      "interval_ms": 1000
+  "mapping_config": {
+    "description": "Mapping configuration for SEA:ME Team 5 Senna Tech project",
+    "dbc_file": "CAN_decoder.dbc",
+    "can_interface": "vcan0",
+    "mappings": {
+      "Vehicle.IsMoving": {
+        "datatype": "boolean",
+        "type": "sensor",
+        "description": "Emergency Stop Active State (Mapped to IsMoving logic or separate alert)",
+        "dbc": {
+          "signal": "E_Stop_Active",
+          "interval_ms": 100
+        }
+      },
+      "Vehicle.Speed": {
+        "datatype": "float",
+        "type": "sensor",
+        "description": "Vehicle Speed",
+        "dbc": {
+          "signal": "Speed_Kmh",
+          "interval_ms": 100
+        }
+      },
+      "Vehicle.Chassis.Accelerator.PedalPosition": {
+        "datatype": "uint8",
+        "type": "actuator",
+        "description": "Throttle Position (Command)",
+        "dbc": {
+          "signal": "Throttle_Pos",
+          "interval_ms": 20
+        }
+      },
+      "Vehicle.Powertrain.ElectricMotor.Power": {
+        "datatype": "int16",
+        "type": "sensor",
+        "description": "Motor Power Consumption",
+        "dbc": {
+          "signal": "Power_Watts",
+          "interval_ms": 100
+        }
+      },
+      "Vehicle.Chassis.SteeringWheel.Angle": {
+        "datatype": "int16",
+        "type": "actuator",
+        "description": "Steering Angle (Command)",
+        "dbc": {
+          "signal": "Steer_Angle",
+          "interval_ms": 20
+        }
+      },
+      "Vehicle.Powertrain.TractionBattery.StateOfCharge.Current": {
+        "datatype": "float",
+        "type": "sensor",
+        "description": "Battery State of Charge",
+        "dbc": {
+          "signal": "Battery_SoC",
+          "interval_ms": 1000
+        }
+      },
+      "Vehicle.Powertrain.TractionBattery.CurrentVoltage": {
+        "datatype": "float",
+        "type": "sensor",
+        "description": "Battery Voltage",
+        "dbc": {
+          "signal": "Battery_Voltage",
+          "interval_ms": 1000
+        }
+      },
+      "Vehicle.Powertrain.TractionBattery.CurrentCurrent": {
+        "datatype": "float",
+        "type": "sensor",
+        "description": "Battery Current",
+        "dbc": {
+          "signal": "Battery_Current",
+          "interval_ms": 1000
+        }
+      },
+      "Vehicle.Exterior.AirTemperature": {
+        "datatype": "float",
+        "type": "sensor",
+        "description": "Exterior/Air Temperature",
+        "dbc": {
+          "signal": "Temp_Air",
+          "interval_ms": 1000
+        }
+      },
+      "Vehicle.Powertrain.ElectricMotor.Temperature": {
+        "datatype": "int16",
+        "type": "sensor",
+        "description": "Motor Temperature",
+        "dbc": {
+          "signal": "Temp_Motor",
+          "interval_ms": 1000
+        }
+      }
     }
   }
 }
