@@ -1,0 +1,123 @@
+{
+  "Vehicle": {
+    "type": "branch",
+    "description": "Vehicle root branch",
+    "children": {
+      "IsMoving": {
+        "datatype": "boolean",
+        "type": "sensor",
+        "description": "Vehicle movement status"
+      },
+      "Speed": {
+        "datatype": "float",
+        "type": "sensor",
+        "description": "Vehicle speed",
+        "unit": "km/h",
+        "min": 0.0,
+        "max": 300.0
+      },
+      "Chassis": {
+        "type": "branch",
+        "description": "Chassis components",
+        "children": {
+          "Accelerator": {
+            "type": "branch",
+            "description": "Accelerator controls",
+            "children": {
+              "PedalPosition": {
+                "datatype": "uint8",
+                "type": "actuator",
+                "description": "Accelerator pedal position",
+                "unit": "%",
+                "min": 0,
+                "max": 100
+              }
+            }
+          },
+          "SteeringWheel": {
+            "type": "branch",
+            "description": "Steering wheel information",
+            "children": {
+              "Angle": {
+                "datatype": "int16",
+                "type": "actuator",
+                "description": "Steering wheel angle",
+                "unit": "degree",
+                "min": -900,
+                "max": 900
+              }
+            }
+          }
+        }
+      },
+      "Powertrain": {
+        "type": "branch",
+        "description": "Powertrain system",
+        "children": {
+          "ElectricMotor": {
+            "type": "branch",
+            "description": "Electric motor information",
+            "children": {
+              "Power": {
+                "datatype": "int16",
+                "type": "sensor",
+                "description": "Motor power",
+                "unit": "W"
+              },
+              "Temperature": {
+                "datatype": "int16",
+                "type": "sensor",
+                "description": "Motor temperature",
+                "unit": "°C"
+              }
+            }
+          },
+          "TractionBattery": {
+            "type": "branch",
+            "description": "Traction battery system",
+            "children": {
+              "StateOfCharge": {
+                "type": "branch",
+                "description": "State of charge information",
+                "children": {
+                  "Current": {
+                    "datatype": "float",
+                    "type": "sensor",
+                    "description": "Battery state of charge",
+                    "unit": "%",
+                    "min": 0.0,
+                    "max": 100.0
+                  }
+                }
+              },
+              "CurrentVoltage": {
+                "datatype": "float",
+                "type": "sensor",
+                "description": "Battery voltage",
+                "unit": "V"
+              },
+              "CurrentCurrent": {
+                "datatype": "float",
+                "type": "sensor",
+                "description": "Battery current",
+                "unit": "A"
+              }
+            }
+          }
+        }
+      },
+      "Exterior": {
+        "type": "branch",
+        "description": "Exterior conditions",
+        "children": {
+          "AirTemperature": {
+            "datatype": "float",
+            "type": "sensor",
+            "description": "Exterior air temperature",
+            "unit": "°C"
+          }
+        }
+      }
+    }
+  }
+}
