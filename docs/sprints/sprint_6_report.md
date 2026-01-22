@@ -40,10 +40,10 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83/views/1?sliceBy%5Bva
 
 | Data | Progress Summary and Plan | Obstacles? |
 | :--- | :--- | :--- |
-| **19/01** |  | - |
-| **20/01** |  | - |
-| **21/01** |  | - |
-| **22/01** |  | - |
+| **19/01** | The team better divided the responsibilities, planned the presentation for the planning session, and discussed initial questions.  | - |
+| **20/01** | Marcelo and Yasmine have started researching KUKSA, covering how to create and consume the data broker and adding it to the AGL image, while Hellom is studying STM32 pinouts and datasheets, Vinícius is delving into ThreadX. | - |
+| **21/01** | Hellom will work through the night modifying the I2C cables from the Raspberry Pi to the STM32 and verifying the feasibility of the I2C addresses, while Vinícius has defined the initial architecture for the RTOS threads and aims to have them created by the end of the day, as Marcelo added KUKSA to the system and transferred the legacy files, Yasmine completed and documented the CAN decoder files and Nicole is searching for image references to improve the IC. | - |
+| **22/01** | Hellom connected the cables and successfully identified the I2C addresses between the board and the STM32, while Vinícius managed to migrate the code from C++ to C within the microcontroller threads and validated that the I2C can move the car via the STM, and Yasmine and Marcelo are working on the vehicle's CAN decoder (DBC) to translate CAN bits into readable values such as speed, battery status, motor power, and steering angle. | - |
 | **23/01** |  | - |
 | **26/01** |  | - |
 | **27/01** |  | - |
