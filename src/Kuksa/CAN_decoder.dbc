@@ -8,7 +8,8 @@ BO_ 1 E_STOP: 1 STM32
  SG_ E_Stop_Active : 7|1@0+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 16 SPEED: 2 STM32
- SG_ Speed_Kmh : 7|16@0+ (0.01,0) [0|250] "km/h" Vector__XXX
+ SG_ Speed_Kmh : 7|8@0+ (0.01,0) [0|25] "km/h" Vector__XXX
+ 
 
 BO_ 256 MOTOR_PWR: 4 PiRacer
  SG_ Throttle_Pos : 7|8@0+ (1,0) [0|100] "%" Vector__XXX
