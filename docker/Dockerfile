@@ -71,7 +71,7 @@ RUN echo "alias qemu='qemu-aarch64-static -L /opt/agl-sdk/sysroots/aarch64-agl-l
 
 # Copia car_cluster e car_control para dentro do container
 COPY src/car_cluster/ /root/car_cluster/
-COPY src/car-control/piracer-cpp /root/car_control
+COPY src/car-control/raspberry-control /root/car_control
 
 # Compilaçao car_cluster
 RUN rm -rf /root/car_cluster/build

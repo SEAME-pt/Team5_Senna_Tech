@@ -1,4 +1,5 @@
 #include "Gamepad/ShanwanGamepad.hpp"
+#include "canSocket.cpp"
 #define CAN_ID_STEERING  0x110
 #define CAN_ID_THROTTLE  0x100
 
@@ -49,36 +50,34 @@ void send_int16(int socket, uint32_t can_id, int16_t value)
 
 int main()
 {
-	ShanWanGamepad gamepad;
+    try {
+        ShanWanGamepad gamepad;
 
-	int can_socket = open_can_socket("can0");
-	if (can_socket < 0)
-		return 1;
+        CanSocket can("can0");  
+        int sock = can.getSock();
 
-	while (true)
-	{
-		ShanWanGamepadInput input = gamepad.read_data();
+        while (true)
+        {
+            ShanWanGamepadInput input = gamepad.read_data();
 
-		float steering = input.analog_stick_right.x;
-		float throttle = input.analog_stick_left.y; 
+            float steering = input.analog_stick_right.x;
+            float throttle = input.analog_stick_left.y;
 
-		// Clamp de segurança
-		steering = std::max(-1.0f, std::min(1.0f, steering));
-		throttle = std::max(-1.0f, std::min(1.0f, throttle));
+            int16_t steering_can = static_cast<int16_t>(steering * 32767);
+            int16_t throttle_can = static_cast<int16_t>(throttle * 32767);
 
-		int16_t steering_can = static_cast<int16_t>(steering * 32767);
-		int16_t throttle_can = static_cast<int16_t>(throttle * 32767);
+            send_int16(sock, CAN_ID_STEERING, steering_can);
+            send_int16(sock, CAN_ID_THROTTLE, throttle_can);
 
-		send_int16(can_socket, CAN_ID_STEERING, steering_can);
-		send_int16(can_socket, CAN_ID_THROTTLE, throttle_can);
+            std::cout << "Steering: " << steering
+                      << " | Throttle: " << throttle
+                      << std::endl;
+        }
 
-		std::cout << "Steering: " << steering
-		          << " | Throttle: " << throttle
-		          << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error initializing CAN or Gamepad: " << e.what() << std::endl;
+        return 1;
+    }
 
-		usleep(10000); // 100 Hz
-	}
-
-	close(can_socket);
-	return 0;
+    return 0;
 }
