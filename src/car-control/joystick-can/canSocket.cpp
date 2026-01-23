@@ -11,7 +11,7 @@
 
 class CanSocket {
 public:
-    CanSocket(const std::string& interface_name) {
+    explicit CanSocket(const std::string& interface_name) {
         sock = ::socket(PF_CAN, SOCK_RAW, CAN_RAW);
         if (sock < 0) {
             throw std::runtime_error("Failed to create CAN socket");
