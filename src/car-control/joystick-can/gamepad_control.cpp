@@ -3,37 +3,6 @@
 #define CAN_ID_STEERING  0x110
 #define CAN_ID_THROTTLE  0x100
 
-int open_can_socket(const char *ifname)
-{
-	int sock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-	if (sock < 0)
-	{
-		perror("socket");
-		return -1;
-	}
-
-	struct ifreq ifr;
-	std::strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
-	if (ioctl(sock, SIOCGIFINDEX, &ifr) < 0)
-	{
-		perror("ioctl");
-		return -1;
-	}
-
-	struct sockaddr_can addr;
-	std::memset(&addr, 0, sizeof(addr));
-	addr.can_family  = AF_CAN;
-	addr.can_ifindex = ifr.ifr_ifindex;
-
-	if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
-	{
-		perror("bind");
-		return -1;
-	}
-
-	return sock;
-}
-
 void send_int16(int socket, uint32_t can_id, int16_t value)
 {
 	struct can_frame frame;
