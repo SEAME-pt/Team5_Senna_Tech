@@ -29,7 +29,8 @@ build/
 out/
 tests/car-control/build
 tests/car_cluster/build
-src/piracer-cpp/car-control/build
+src/car-control/joystick-can/build
+src/car-control/raspberry-control/build
 src/car_cluster/build
 
 # =============================
