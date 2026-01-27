@@ -1,32 +1,31 @@
-# Motor Control Migration to STM32U5 - Hardware Analysis and Connections
+# Motor Control Migration to STM32U5 - Hardware and Software Integration
 
 ## 1. Overview
-This document describes the analytical process and technical decisions made to migrate the motor control interface (PCA9685) from the Raspberry Pi 5 to the STM32U585.
+This document describes the analytical process and technical configuration for migrating the motor control interface (PCA9685) and sensors from the Raspberry Pi 5 to the STM32U585.
 
-## 2. Technical Investigation and Findings
+## 2. Hardware Requirements & Power Analysis
 
-### Expansion Board Requirements (Target)
-By analyzing the Expansion Board interface, we observed that the PWM controller chip (PCA9685) requires an external source for its communication logic.
-- **Fact:** The board uses a 6-pin header for signals and logic power.
-- **Discovery:** We confirmed that the board's logic operates at 3.3V and that, in the original setup, this power was actively provided by the Raspberry Pi.
-- **Conclusion:** It is mandatory for the STM32U5 to provide the **3.3V** line to power the expansion board's logic interface, in addition to the data (SDA) and clock (SCL) signals.
+### 2.1 Expansion Board Power
+The PWM controller (PCA9685) on the Expansion Board requires an external 3.3V source for its communication logic.
+- **Discovery:** The board logic operates at 3.3V, originally provided by the Raspberry Pi.
+- **Requirement:** The STM32U5 must provide the **3.3V** (VDD) and **GND** (VSS) lines to power the expansion board's logic interface.
 
-> ![Expansion Board Header](path/to/expansion_board_header.jpg)  
-> *Placeholder: Photo of the 6-pin header on the Expansion Board showing the labels (VCC, GND, SDA, SCL).*
+### 2.2 I2C Bus Load & Address Mapping
+We verified the total current draw on the STM32's 3.3V regulator and mapped the I2C addresses of all devices on the shared bus.
 
-### Resource Mapping on STM32U5 (Controller)
-We inspected the firmware configuration and the physical layout of the B-U585I-IOT02A board to identify the ideal I2C interface.
-- **Research:** The `I2C1` peripheral is enabled and mapped to pins **PB8 (SCL)** and **PB9 (SDA)**.
-- **Location:** These pins are accessible on the Arduino connector (**CN13**).
-- **Power Management:** The **3.3V** logic supply pin on the STM32 is now **shared** between the Speed Sensor (LM393) and the Expansion Board. This duplication is safe as the total current draw for both remains well within the STM32 regulator's limits (~20mA total).
-- **Conflict Validation:** we verified that these pins do not interfere with the CAN bus (SPI1) or the speed sensor (PB0).
-- **Conclusion:** Using pins PB8/PB9 on the CN13 connector is safe and compatible with the current system.
+| Component | Function | I2C Address | Est. Logic Current |
+| :--- | :--- | :--- | :--- |
+| **PCA9685** | PWM Control | `0x40` (Steering), `0x60` (Motors) | ~10 mA |
+| **ADS1115** | Battery Monitor | `0x48` | ~0.2 mA |
+| **SSD1306** | OLED Display | `0x3C` | ~5 mA |
+| **LM393** | Speed Sensor | N/A (GPIO) | ~2 mA |
+| **CAN Module** | MCP2515 (STM32 Side) | SPI1 | ~20 mA |
+| **TOTAL** | **Combined Load** | - | **~37.2 mA** |
 
-> ![STM32 Pinout](path/to/stm32_cn13_pins.jpg)  
-> *Placeholder: Photo of the STM32 board highlighting pins D14 (SDA) and D15 (SCL) on the CN13 connector.*
+**Conclusion:** The total load (~17.2 mA) is well within the STM32U585 onboard regulator capacity (>100mA), confirming electrical safety.
 
-## 3. Physical Implementation (Wiring Diagram)
-The diagram below details the physical bridge between the STM32U5 and the Expansion Board, consolidating the findings from the previous analyses.
+## 3. Physical Connections
+The diagram below details the physical bridge between the STM32U5 and the Expansion Board.
 
 ```mermaid
 graph TD
@@ -56,22 +55,34 @@ graph TD
     BAT -.->|Motor Power| HAT
 ```
 
-> ![Final Assembly](path/to/final_wiring_assembly.jpg)  
-> *Placeholder: Photo of the complete wiring setup connecting the STM32 to the Expansion Board.*
+## 4. Software Configuration (STM32CubeIDE)
+Validated firmware parameters and integration findings.
 
-## 4. Safety Notes
-*   **Power:** The motors must be powered exclusively by the batteries integrated into the Expansion Board.
-*   **Isolation:** The Raspberry Pi must be disconnected from the Expansion Board before connecting the STM32 to avoid voltage or bus conflicts.
+### 4.1 System & Power Parameters
+*   **MCU Model:** STM32U585AII6Q
+*   **Power Supply:** **SMPS (Mandatory)**. The board B-U585I-IOT02A requires `HAL_PWREx_ConfigSupply(PWR_SMPS_SUPPLY)` for stable operation.
+*   **Clock:** **4.0 MHz (MSI Range 4)**. This frequency is stable for both I2C communication and SWV Trace Debugging.
+*   **I2C Timing:** `0x00000E14` (calculated for 100kHz I2C with 4MHz source clock).
 
-### Load & Address Analysis (3.3V Logic Rail)
-We verified the total current draw on the STM32's 3.3V regulator and mapped the I2C addresses of all devices on the bus.
+### 4.2 TrustZone Restrictions (Non-Secure Domain)
+*   **GPIO Access:** Accessing **GPIOH** (where LEDs are located) from the Non-Secure domain causes an immediate **Hard Fault**. 
+*   **Workaround:** For Non-Secure testing, GPIO ports must be explicitly configured as non-secure or ignored.
+*   **Peripheral Linking:** To compile minimal code, dummy handles (structs) for `UART`, `OSPI`, `MDF`, and `PCD` were implemented in `main.c` to satisfy the linker dependencies in `stm32u5xx_it.c`.
 
-| Component | Function | I2C Address | Est. Logic Current |
+### 4.3 Definitive Pin Mapping
+
+| Peripheral | Function | MCU Pins | Detailed Configuration |
 | :--- | :--- | :--- | :--- |
-| **PCA9685** | PWM Control | `0x40` (Servo), `0x60` (Motor) | ~10 mA |
-| **ADS1115** | Battery Monitor | `0x48` | ~0.2 mA |
-| **SSD1306** | OLED Display | `0x3C` | ~5 mA |
-| **LM393** | Speed Sensor | N/A (GPIO) | ~2 mA |
-| **TOTAL** | **Combined Load** | - | **~17.2 mA** |
+| **I2C1** | Motors/Servos (PCA9685) | **PB8** (SCL), **PB9** (SDA) | Standard Mode (100kHz), Non-secure |
+| **SPI1** | CAN Controller (MCP2515) | **PE13** (SCK), **PE14** (MISO), **PE15** (MOSI) | Full-Duplex Master |
+| **GPIO EXTI** | Speed Sensor (Pulses) | **PB0** | EXTI0, Falling Edge |
 
-**Conclusion:** The total load is well within the capacity of the STM32U585 onboard regulator (>100mA), confirming that sharing the 3.3V pin is electrically safe.
+## 5. Hardware Validation (Scanner Results)
+Bus scan results updated on Jan 22, 2026:
+- **0x48** (Battery Monitor): Always detected.
+- **0x40** (Steering) & **0x60** (Motors): Detected only when the Expansion Board Battery Switch is **ON**.
+- **0x56**: Intermittent detection (possibly a battery management sub-address).
+
+## 6. Safety & Legacy Deactivation
+*   **Common Ground:** A common GND connection between STM32 and the Expansion Board is critical for signal integrity.
+*   **Trace Debugging:** SWV Trace only works reliably when the IDE's Core Clock is set to match the actual MCU clock (4MHz).
