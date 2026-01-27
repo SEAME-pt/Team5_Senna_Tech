@@ -2,8 +2,11 @@ cmake_minimum_required(VERSION 3.15)
 project(KuksaTestClient CXX)
 
 set(CMAKE_CXX_STANDARD 17)
+set(Protobuf_ROOT /usr/local)
+set(Protobuf_PROTOC_EXECUTABLE /usr/local/bin/protoc)
 
-find_package(Protobuf REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
+
 find_package(gRPC REQUIRED)
 
 # Diretório base onde estão os protos
@@ -21,19 +24,21 @@ add_custom_command(
         kuksa/val/v2/val.pb.cc kuksa/val/v2/val.pb.h 
         kuksa/val/v2/val.grpc.pb.cc kuksa/val/v2/val.grpc.pb.h
         kuksa/val/v2/types.pb.cc kuksa/val/v2/types.pb.h
-    COMMAND protoc
-    ARGS --proto_path=${PROTO_BASE_DIR}
-         --cpp_out=${CMAKE_CURRENT_BINARY_DIR}
-         --grpc_out=${CMAKE_CURRENT_BINARY_DIR}
-         --plugin=protoc-gen-grpc=`which grpc_cpp_plugin`
-         ${PROTO_FILES}
+    COMMAND ${Protobuf_PROTOC_EXECUTABLE}
+    ARGS
+        --proto_path=${PROTO_BASE_DIR}
+        --cpp_out=${CMAKE_CURRENT_BINARY_DIR}
+        --grpc_out=${CMAKE_CURRENT_BINARY_DIR}
+        --plugin=protoc-gen-grpc=$<TARGET_FILE:gRPC::grpc_cpp_plugin>
+        ${PROTO_FILES}
     DEPENDS ${PROTO_FILES}
 )
+
 
 add_executable(meu_cliente_cpp 
     main.cpp 
     kuksa/val/v2/val.pb.cc 
-    kuksa/val/v2/val.grpc.pb.cc 
+    kuksa/val/v2/val.grpc.pb.cc     
     kuksa/val/v2/types.pb.cc
 )
 
@@ -43,4 +48,7 @@ target_include_directories(meu_cliente_cpp PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(meu_cliente_cpp
     protobuf::libprotobuf
     gRPC::grpc++
+    absl::base
+    absl::synchronization
+    absl::strings
 )

@@ -11,11 +11,17 @@ find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
 # adicionado para Protobuf e gRPC
-find_package(Protobuf REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC REQUIRED)
 
+find_program(PROTOC_EXEC protoc REQUIRED HINTS /usr/local/bin /usr/bin)
+find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin REQUIRED HINTS /usr/local/bin /usr/bin)
+
+message(STATUS "Using protoc: ${PROTOC_EXEC}")
+message(STATUS "Using grpc_cpp_plugin: ${GRPC_CPP_PLUGIN}")
+
 # configurar onde estão os arquivos .proto (AJUSTAR O CAMINHO CONFORME SEJA NECESSARIO)
-set(PROTO_BASE_DIR ${CMAKE_SOURCE_DIR}/../protos)
+set(PROTO_BASE_DIR ${CMAKE_SOURCE_DIR}/protos)
 # Verificação de segurança (opcional, mas ajuda a debugar)
 if(NOT EXISTS "${PROTO_BASE_DIR}/kuksa/val/v2/val.proto")
     message(FATAL_ERROR "Arquivo Proto não encontrado em: ${PROTO_BASE_DIR}/kuksa/val/v2/val.proto. Verifique a estrutura de pastas.")
@@ -31,7 +37,7 @@ add_custom_command(
         kuksa/val/v2/val.pb.cc kuksa/val/v2/val.pb.h 
         kuksa/val/v2/val.grpc.pb.cc kuksa/val/v2/val.grpc.pb.h
         kuksa/val/v2/types.pb.cc kuksa/val/v2/types.pb.h
-    COMMAND protoc
+	COMMAND /usr/local/bin/protoc
     ARGS --proto_path=${PROTO_BASE_DIR}
          --cpp_out=${CMAKE_CURRENT_BINARY_DIR}
          --grpc_out=${CMAKE_CURRENT_BINARY_DIR}
@@ -40,7 +46,6 @@ add_custom_command(
     DEPENDS ${PROTO_FILES}
 )
 
-
 qt_add_executable(appcar_cluster
     main.cpp
     vehicleData.cpp
@@ -48,7 +53,7 @@ qt_add_executable(appcar_cluster
     #adicionados
     kuksa/val/v2/val.pb.cc 
     kuksa/val/v2/val.grpc.pb.cc 
-    kuksa/val/v2/types.pb.cc
+    kuksa/val/v2/types.pb.cc    
 )
 
 qt_add_qml_module(appcar_cluster
@@ -82,7 +87,11 @@ target_link_libraries(appcar_cluster
     #adicionado
     protobuf::libprotobuf gRPC::grpc++
 )
-target_link_libraries(appcar_cluster PRIVATE Qt6::Core)
+target_link_libraries(appcar_cluster
+    PRIVATE Qt6::Core
+    protobuf::libprotobuf
+    gRPC::grpc++
+)
 
 include(GNUInstallDirs)
 install(TARGETS appcar_cluster
