@@ -105,7 +105,7 @@ void sensor_thread_entry(ULONG thread_input)
 
 		    CAN_Frame speed_frame;
 	        speed_frame.id = CAN_ID_SPEED; // ID agreed with Raspberry Pi // Ver Padrao OBD-II
-		    speed_frame.dlc = 1;    // Sending 1 bytes
+		    speed_frame.dlc = 1;
 
             // Transmit Speed via CAN
             // Multiply by 100 to send 2 decimal places in an integer
@@ -124,9 +124,9 @@ void sensor_thread_entry(ULONG thread_input)
             
 			if (tx_queue_send(&g_tx_data_queue, &speed_frame, TX_NO_WAIT) != TX_SUCCESS) {
 				// Fila cheia: trate erro ou descarte
-				printf("TX queue cheia! Frame descartado.\n");
+				printf("Error: TX queue full!\n");
 			} else {
-				printf("Frame colocado na queue: speed=%u\n", speed_byte);
+				printf("Frame added: speed=%u\n", speed_byte);
 			}
 		}
 

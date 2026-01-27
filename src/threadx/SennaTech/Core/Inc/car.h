@@ -20,7 +20,6 @@ typedef struct
 {
     PCA9685_t steering;
     PCA9685_t throttle;
-    // INA219_t  battery;
 } car_t;
 
 void car_init(car_t *car, I2C_HandleTypeDef *hi2c);

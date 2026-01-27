@@ -19,40 +19,27 @@ TX_SEMAPHORE rx_sem;
 
 // --- Thread de Recepção (RX) - Alta Prioridade ---
 // Fica bloqueada (dormindo) até o pino INT do MCP2515 cair.
-void CAN_Rx_Thread_Entry(ULONG thread_input) {
+void CAN_Rx_Thread_Entry(ULONG thread_input)
+{
     CAN_Frame rx_frame;
-
-    while(1) {
-        // Espera a interrupção (Semáforo). 
-        // Zero consumo de CPU aqui.
+    printf("CAN RX STARTED THREAD\n");
+    while (1)
+    {
         tx_semaphore_get(&rx_sem, TX_WAIT_FOREVER);
-
-        // Acordou! Pega o Mutex para usar o SPI.
         tx_mutex_get(&spi_mutex, TX_WAIT_FOREVER);
 
-        // Esvazia o buffer do MCP2515
-        while (MCP2515_ReceiveMessage(&rx_frame) == HAL_OK) {
-            
-            // Roteador de mensagens
-            switch (rx_frame.id) {
-                case CAN_ID_MOTOR_CMD:
-                    vehicle_state.motor_cmd = rx_frame.data[0];
-                    // Atuar no hardware aqui (ex: TIM->CCR1 = ...)
-                    break;
-
-                case CAN_ID_STEER_CMD:
-                    vehicle_state.steer_angle = rx_frame.data[0];
-                    // Atuar no servo aqui
-                    break;
-                
-                // NOVO ID NO FUTURO? Adicione "case CAN_ID_NOVO:" aqui.
+        while (MCP2515_ReceiveMessage(&rx_frame) == HAL_OK)
+        {
+            printf("ID: 0x%X, DLC: %u, Data[0]: %u\n\n", rx_frame.id, rx_frame.dlc, rx_frame.data[0]);
+            if (tx_queue_send(&g_rx_data_queue, &rx_frame, TX_NO_WAIT) != TX_SUCCESS)
+            {
+                printf("RX QUEUE FULL\n");
             }
         }
 
-        // 4. Devolve o Mutex
         tx_mutex_put(&spi_mutex);
-        
-        // Acho que aqui tem que limpar a flag de interrupcao, ver nos testes
+
+        tx_thread_sleep(1);
     }
 }
 
@@ -74,8 +61,10 @@ void CAN_Tx_Thread_Entry(ULONG thread_input) {
         tx_queue_receive(&g_tx_data_queue, &frame, TX_WAIT_FOREVER);
 
         tx_mutex_get(&spi_mutex, TX_WAIT_FOREVER);
+        printf("ID: 0x%X, DLC: %u, Data[0]: %u\n\n", frame.id, frame.dlc, frame.data[0]);
         MCP2515_SendMessage(&frame);
         tx_mutex_put(&spi_mutex);
+
     }
 }
 

@@ -92,7 +92,6 @@ extern TX_MUTEX g_battery_mutex;
 // ENTRYS
 
 void sensor_thread_entry(ULONG thread_input);
-void can_tx_send_entry(ULONG thread_input);
 void battery_thread_entry(ULONG thread_input);
 void motors_thread_entry(ULONG thread_input);
 

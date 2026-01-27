@@ -22,31 +22,60 @@ void car_init(car_t *car, I2C_HandleTypeDef *hi2c)
 
 void car_set_steering_percent(car_t *car, float percent)
 {
-    float pulse = duty_from_percent_50hz(-percent);
-    uint16_t raw = (uint16_t)(pulse * PWM_FREQ_50HZ * 4096.0f);
+    if (percent > 0.5f) percent = 0.5f;
+    if (percent < -0.5f) percent = -0.5f;
+    
+
+    float dutyCycle = duty_from_percent_50hz(-percent);
+    int raw = (int)(PWM_MAX_RAW_VALUE * (dutyCycle / PWM_WAVELENGTH_50HZ));
+    
+    
+    
+    // Garante limite
+
+/*     float pulse = duty_from_percent_50hz(percent); // NÃO inverter o sinal
+    uint16_t raw = (uint16_t)(pulse * PWM_FREQ_50HZ * 4096.0f); */
 
     PCA9685_SetPWM(&car->steering, PWM_STEERING_CHANNEL, 0, raw);
 }
 
 void car_set_throttle_percent(car_t *car, float percent)
 {
-    uint16_t pwm = (uint16_t)(fabsf(percent) * PWM_MAX_RAW_VALUE);
+    // Limita ±50% do range
+
+    if (percent > 0.5f) percent = 0.5f;
+    if (percent < -0.5f) percent = -0.5f;
+
+    // Calcula PWM para velocidade proporcional
+/*     uint16_t pwm = (uint16_t)(fabsf(percent) * PWM_MAX_RAW_VALUE); */
 
     if (percent > 0.0f)
     {
+        // Frente
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_1,  0, PWM_MAX_RAW_VALUE);
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_2,  0, 0);
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_1, 0, 0);
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_2, 0, PWM_MAX_RAW_VALUE);
     }
-    else
+    else if (percent < 0.0f)
     {
+        // Ré
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_1,  0, 0);
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_2,  0, PWM_MAX_RAW_VALUE);
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_1, 0, PWM_MAX_RAW_VALUE);
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_2, 0, 0);
     }
+    else
+    {
+        // Stop
+        PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_1,  0, 0);
+        PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_2,  0, 0);
+        PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_1, 0, 0);
+        PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_2, 0, 0);
+    }
 
+    int pwm = PWM_MAX_RAW_VALUE * fabs(percent);
+    // Aplica PWM proporcional
     PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_PWM,  0, pwm);
     PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM, 0, pwm);
 }

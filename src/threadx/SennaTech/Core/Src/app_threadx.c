@@ -65,6 +65,9 @@ UCHAR battery_thread_stack[1024];
 TX_THREAD can_tx_send;
 UCHAR tx_send_thread_stack[1024];
 
+TX_THREAD can_rx_receive;
+UCHAR rx_rec_thread_stack[1024];
+
 TX_THREAD motor_control;
 UCHAR motors_thread_stack[1024];
 
@@ -112,14 +115,16 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   	tx_queue_create(&g_tx_data_queue,
                   "CAN TX Queue",
                   sizeof(CAN_Frame) / sizeof(ULONG),
-                  tx_queue_buffer,
+                  memory_ptr,
                   sizeof(tx_queue_buffer));
+	memory_ptr += QUEUE_LEN * sizeof(CAN_Frame);
 
   	tx_queue_create(&g_rx_data_queue,
                   "CAN RX Queue",
                   sizeof(CAN_Frame) / sizeof(ULONG),
-                  rx_queue_buffer,
+                  memory_ptr,
                   sizeof(rx_queue_buffer));
+	memory_ptr += QUEUE_LEN * sizeof(CAN_Frame);
 
 	tx_thread_create(&sensor_thread,
       						"Sensor Thread",
@@ -160,6 +165,17 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
       		                1,
       		                motors_thread_stack,
       		                sizeof(motors_thread_stack),
+      		                0,
+      		                0,
+      		                TX_NO_TIME_SLICE,
+      		                TX_AUTO_START);
+
+	tx_thread_create(&can_rx_receive,
+      						"CAN RX Thread",
+      		                CAN_Rx_Thread_Entry,
+      		                1,
+      		                rx_rec_thread_stack,
+      		                sizeof(rx_rec_thread_stack),
       		                0,
       		                0,
       		                TX_NO_TIME_SLICE,
