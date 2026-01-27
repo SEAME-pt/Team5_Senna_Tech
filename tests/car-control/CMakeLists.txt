@@ -22,10 +22,10 @@ FetchContent_MakeAvailable(googletest)
 # -----------------------------------
 # INCLUIA O DIRETÓRIO PARA OS .hpp
 include_directories(
-    ../../src/car-control/piracer-cpp/Adafruit_INA219
-    ../../src/car-control/piracer-cpp/Adafruit_PCA9685
-    ../../src/car-control/piracer-cpp/Gamepad
-    ../../src/car-control/piracer-cpp/PiRacer
+    ../../src/car-control/raspberry-control/Adafruit_INA219
+    ../../src/car-control/raspberry-control/Adafruit_PCA9685
+    ../../src/car-control/raspberry-control/Gamepad
+    ../../src/car-control/raspberry-control/PiRacer
 )
 
 
@@ -34,14 +34,14 @@ include_directories(
 # -----------------------------------
 # INCLUA OS ARQUIVOS .cpp QUE PRECISAM SER COMPILADOS
 set(PIRACER_SRC
-    ../../src/car-control/piracer-cpp/Adafruit_INA219/Adafruit_INA219.cpp
-    ../../src/car-control/piracer-cpp/Adafruit_PCA9685/Adafruit_PCA9685.cpp
-    ../../src/car-control/piracer-cpp/PiRacer/PiRacer.cpp
+    ../../src/car-control/raspberry-control/Adafruit_INA219/Adafruit_INA219.cpp
+    ../../src/car-control/raspberry-control/Adafruit_PCA9685/Adafruit_PCA9685.cpp
+    ../../src/car-control/raspberry-control/PiRacer/PiRacer.cpp
 )
 
 set(GAMEPAD_SRC
-    ../../src/car-control/piracer-cpp/Gamepad/Joystick.cpp
-    ../../src/car-control/piracer-cpp/Gamepad/ShanwanGamepad.cpp
+    ../../src/car-control/raspberry-control/Gamepad/Joystick.cpp
+    ../../src/car-control/raspberry-control/Gamepad/ShanwanGamepad.cpp
 )
 
 # -----------------------------------
