@@ -3,7 +3,7 @@
 
 static float duty_from_percent_50hz(float value)
 {
-    return 0.0015f + (value * 0.001f); // seconds
+    return 0.0015f + (value * 0.001f);
 }
 
 void car_init(car_t *car, I2C_HandleTypeDef *hi2c)
@@ -22,32 +22,14 @@ void car_init(car_t *car, I2C_HandleTypeDef *hi2c)
 
 void car_set_steering_percent(car_t *car, float percent)
 {
-    if (percent > 0.5f) percent = 0.5f;
-    if (percent < -0.5f) percent = -0.5f;
-    
-
     float dutyCycle = duty_from_percent_50hz(-percent);
     int raw = (int)(PWM_MAX_RAW_VALUE * (dutyCycle / PWM_WAVELENGTH_50HZ));
-    
-    
-    
-    // Garante limite
-
-/*     float pulse = duty_from_percent_50hz(percent); // NÃO inverter o sinal
-    uint16_t raw = (uint16_t)(pulse * PWM_FREQ_50HZ * 4096.0f); */
 
     PCA9685_SetPWM(&car->steering, PWM_STEERING_CHANNEL, 0, raw);
 }
 
 void car_set_throttle_percent(car_t *car, float percent)
 {
-    // Limita ±50% do range
-
-    if (percent > 0.5f) percent = 0.5f;
-    if (percent < -0.5f) percent = -0.5f;
-
-    // Calcula PWM para velocidade proporcional
-/*     uint16_t pwm = (uint16_t)(fabsf(percent) * PWM_MAX_RAW_VALUE); */
 
     if (percent > 0.0f)
     {
@@ -79,19 +61,3 @@ void car_set_throttle_percent(car_t *car, float percent)
     PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_PWM,  0, pwm);
     PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM, 0, pwm);
 }
-
-/* float car_get_battery_voltage(car_t *car)
-{
-    return INA219_GetBusVoltage(&car->battery) +
-           INA219_GetShuntVoltage(&car->battery);
-}
-
-float car_get_battery_current(car_t *car)
-{
-    return INA219_GetCurrent(&car->battery);
-}
-
-float car_get_battery_power(car_t *car)
-{
-    return INA219_GetPower(&car->battery);
-} */

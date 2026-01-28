@@ -52,10 +52,10 @@ HAL_StatusTypeDef MCP2515_SetBitrate(CAN_Bitrate bitrate, MCP_Clock clock)
     HAL_Delay(10);
 
     uint8_t canstat = MCP2515_ReadByte(MCP_CANSTAT);
-    printf("CANSTAT apos pedido de CONFIG = 0x%02X\n", canstat);
+    log_debug("CANSTAT apos pedido de CONFIG = 0x%02X", canstat);
 
     if ((canstat & 0xE0) != MODE_CONFIG) {
-        printf("Nao entrou em modo de configuracao!\n");
+        log_debug("Nao entrou em modo de configuracao!");
         return HAL_ERROR;
     }
 
@@ -73,7 +73,7 @@ HAL_StatusTypeDef MCP2515_SetBitrate(CAN_Bitrate bitrate, MCP_Clock clock)
     uint8_t c2 = MCP2515_ReadByte(MCP_CNF2);
     uint8_t c3 = MCP2515_ReadByte(MCP_CNF3);
 
-    printf("CNF1=0x%02X CNF2=0x%02X CNF3=0x%02X\n", c1, c2, c3);
+    log_debug("CNF1=0x%02X CNF2=0x%02X CNF3=0x%02X", c1, c2, c3);
 
     // Se por algum motivo a leitura não bate, a gente ainda mostra
     // mas retorna OK pra você conseguir testar o barramento CAN.
@@ -147,5 +147,65 @@ HAL_StatusTypeDef MCP2515_ReceiveMessage(CAN_Frame *frame) {
     // Limpa APENAS a flag RX0IF, preservando outras interrupções
     MCP2515_WriteByte(MCP_CANINTF, intf & ~0x01);
 
+    return HAL_OK;
+}
+
+HAL_StatusTypeDef MCP2515_Init(void)
+{
+    uint8_t check_inte;
+    uint8_t check_intf;
+    uint8_t final_canstat;
+
+    log_debug("Initializing MCP2515...");
+
+    // Reset inicial
+    log_debug("Calling MCP2515_Reset...");
+    MCP2515_Reset();
+    tx_thread_sleep(50);
+
+    // Configura bitrate (já entra em CONFIG mode)
+    if (MCP2515_SetBitrate(CAN_500KBPS, MCP_8MHZ) != HAL_OK) {
+        log_debug("ERROR: Bit rate");
+        return HAL_ERROR;
+    }
+
+    // Configura filtros (recebe tudo)
+    MCP2515_WriteByte(MCP_RXB0CTRL, 0x60);
+    MCP2515_WriteByte(MCP_RXM0SIDH, 0x00);
+    MCP2515_WriteByte(MCP_RXM0SIDL, 0x00);
+    MCP2515_WriteByte(MCP_RXM1SIDH, 0x00);
+    MCP2515_WriteByte(MCP_RXM1SIDL, 0x00);
+
+    // Habilita interrupção RX0
+    MCP2515_WriteByte(MCP_CANINTE, 0x01);
+
+    // Limpa flags pendentes
+    MCP2515_WriteByte(MCP_CANINTF, 0x00);
+
+    // Entra em modo normal
+    MCP2515_WriteByte(MCP_CANCTRL, MODE_NORMAL);
+    tx_thread_sleep(10);
+
+    // Verificação final
+    check_inte    = MCP2515_ReadByte(MCP_CANINTE);
+    check_intf    = MCP2515_ReadByte(MCP_CANINTF);
+    final_canstat = MCP2515_ReadByte(MCP_CANSTAT);
+
+    log_debug(
+        "Final check - CANINTE: 0x%02X, CANINTF: 0x%02X, CANSTAT: 0x%02X",
+        check_inte, check_intf, final_canstat
+    );
+
+    if (check_inte != 0x01) {
+        log_debug("ERROR: Interrupts not enabled! CANINTE=0x%02X", check_inte);
+        return HAL_ERROR;
+    }
+
+    if ((final_canstat & 0xE0) != MODE_NORMAL) {
+        log_debug("ERROR: MCP2515 not in NORMAL mode");
+        return HAL_ERROR;
+    }
+
+    log_debug("SUCCESS: MCP2515 initialized and ready");
     return HAL_OK;
 }

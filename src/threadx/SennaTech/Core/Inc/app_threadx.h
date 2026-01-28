@@ -30,6 +30,8 @@ extern "C" {
 #include <stdio.h>
 #include "stm32u5xx_hal.h"  // para I2C_HandleTypeDef
 #include "i2c.h"
+#include <stdarg.h>
+#include <inttypes.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -51,9 +53,15 @@ extern "C" {
 /* USER CODE BEGIN PD */
 
 #define QUEUE_LEN 10
+#define LOG_QUEUE_LEN 16
+#define LOG_MSG_LEN 64
 #define WHEEL_DIAMETER_M  0.0666f
 #define WHEEL_CIRCUMFERENCE (3.14159f * WHEEL_DIAMETER_M)
 #define ENCODER_HOLES     20
+
+typedef struct {
+    char msg[LOG_MSG_LEN];
+} log_msg_t;
 
 /* USER CODE END PD */
 
@@ -81,6 +89,7 @@ void MX_ThreadX_Init(void);
 // QUEUES
 extern TX_QUEUE g_tx_data_queue;
 extern TX_QUEUE g_rx_data_queue;
+extern TX_QUEUE g_log_queue;
 
 //MUTEXES
 
@@ -94,6 +103,11 @@ extern TX_MUTEX g_battery_mutex;
 void sensor_thread_entry(ULONG thread_input);
 void battery_thread_entry(ULONG thread_input);
 void motors_thread_entry(ULONG thread_input);
+void debug_thread_entry(ULONG thread_input);
+
+// utils
+
+void log_debug(const char *fmt, ...);
 
 
 /* USER CODE END 1 */

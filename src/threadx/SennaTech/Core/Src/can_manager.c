@@ -21,8 +21,10 @@ TX_SEMAPHORE rx_sem;
 // Fica bloqueada (dormindo) até o pino INT do MCP2515 cair.
 void CAN_Rx_Thread_Entry(ULONG thread_input)
 {
-    CAN_Frame rx_frame;
-    printf("CAN RX STARTED THREAD\n");
+	CAN_Frame rx_frame;
+	CAN_Frame local_copy;
+
+    log_debug("CAN RX STARTED THREAD");
     while (1)
     {
         tx_semaphore_get(&rx_sem, TX_WAIT_FOREVER);
@@ -30,10 +32,11 @@ void CAN_Rx_Thread_Entry(ULONG thread_input)
 
         while (MCP2515_ReceiveMessage(&rx_frame) == HAL_OK)
         {
-            printf("ID: 0x%X, DLC: %u, Data[0]: %u\n\n", rx_frame.id, rx_frame.dlc, rx_frame.data[0]);
-            if (tx_queue_send(&g_rx_data_queue, &rx_frame, TX_NO_WAIT) != TX_SUCCESS)
+            memcpy(&local_copy, &rx_frame, sizeof(CAN_Frame));
+            //log_debug("ID: 0x%X, DLC: %u, Data[0]: %u", rx_frame.id, rx_frame.dlc, rx_frame.data[0]);
+            if (tx_queue_send(&g_rx_data_queue, &local_copy, TX_NO_WAIT) != TX_SUCCESS)
             {
-                printf("RX QUEUE FULL\n");
+                log_debug("RX QUEUE FULL");
             }
         }
 
@@ -55,16 +58,16 @@ void CAN_Tx_Thread_Entry(ULONG thread_input) {
 
     CAN_Frame frame;
 
-    printf("TX THREAD STARTED");
+    log_debug("TX THREAD STARTED");
     while (1)
     {
         tx_queue_receive(&g_tx_data_queue, &frame, TX_WAIT_FOREVER);
 
         tx_mutex_get(&spi_mutex, TX_WAIT_FOREVER);
-        printf("ID: 0x%X, DLC: %u, Data[0]: %u\n\n", frame.id, frame.dlc, frame.data[0]);
+        // log_debug("ID: 0x%X, DLC: %u, Data[0]: %u", frame.id, frame.dlc, frame.data[0]);
         MCP2515_SendMessage(&frame);
         tx_mutex_put(&spi_mutex);
-
+        tx_thread_sleep(1);
     }
 }
 

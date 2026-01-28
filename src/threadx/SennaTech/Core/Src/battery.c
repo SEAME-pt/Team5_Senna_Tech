@@ -4,7 +4,7 @@
 
 void battery_thread_entry(ULONG thread_input)
 {
-	printf("BATTERY THREAD STARTED");
+	log_debug("BATTERY THREAD STARTED");
 	CAN_Frame batteryFrame;
 	batteryFrame.dlc = 1;
 	batteryFrame.id = CAN_ID_BATTERY;
@@ -30,10 +30,11 @@ void battery_thread_entry(ULONG thread_input)
 		tx_mutex_put(&g_battery_mutex);
 
 		if (tx_queue_send(&g_tx_data_queue, &batteryFrame, TX_NO_WAIT) != TX_SUCCESS) {
-			printf("TX queue cheia! Frame descartado.\n");
-		} else {
-			printf("Frame colocado na queue: battery=%u\n", batteryFrame.data[0]);
+			log_debug("TX queue cheia! Frame descartado.");
 		}
+/* 		else {
+			log_debug("Frame colocado na queue: battery=%u", batteryFrame.data[0]);
+		} */
 
 		tx_thread_sleep(100);
 	}

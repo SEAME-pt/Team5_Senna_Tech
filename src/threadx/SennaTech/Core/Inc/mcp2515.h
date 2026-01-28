@@ -89,6 +89,7 @@ HAL_StatusTypeDef MCP2515_SetBitrate(CAN_Bitrate bitrate, MCP_Clock clock);
 HAL_StatusTypeDef MCP2515_SetNormalMode(void);
 HAL_StatusTypeDef MCP2515_SendMessage(CAN_Frame *frame);
 HAL_StatusTypeDef MCP2515_ReceiveMessage(CAN_Frame *frame);
+HAL_StatusTypeDef MCP2515_Init(void);
 
 // Funções auxiliares (se necessário)
 uint8_t MCP2515_ReadByte(uint8_t address);

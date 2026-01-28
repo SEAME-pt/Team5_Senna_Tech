@@ -71,11 +71,16 @@ UCHAR rx_rec_thread_stack[1024];
 TX_THREAD motor_control;
 UCHAR motors_thread_stack[1024];
 
+// DEBUG THREAD
+TX_THREAD debug_thread;
+UCHAR log_thread_stack[1024];
+
 
 // QUEUES
 
 TX_QUEUE g_tx_data_queue;
 TX_QUEUE g_rx_data_queue;
+TX_QUEUE g_log_queue; // log thread
 
 // MUTEXES
 
@@ -88,6 +93,7 @@ TX_MUTEX g_battery_mutex;
 
 ULONG tx_queue_buffer[QUEUE_LEN * sizeof(CAN_Frame) / sizeof(ULONG)];
 ULONG rx_queue_buffer[QUEUE_LEN * sizeof(CAN_Frame) / sizeof(ULONG)];
+log_msg_t log_queue_buffer[LOG_QUEUE_LEN];
 
 /* USER CODE END PV */
 
@@ -112,19 +118,23 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 	tx_mutex_create(&spi_mutex, "spi_mutex", TX_NO_INHERIT);
 
 
-  	tx_queue_create(&g_tx_data_queue,
-                  "CAN TX Queue",
-                  sizeof(CAN_Frame) / sizeof(ULONG),
-                  memory_ptr,
-                  sizeof(tx_queue_buffer));
-	memory_ptr += QUEUE_LEN * sizeof(CAN_Frame);
+    tx_queue_create(&g_tx_data_queue,
+                    "CAN TX Queue",
+                    sizeof(CAN_Frame) / sizeof(ULONG),
+                    tx_queue_buffer,
+                    sizeof(tx_queue_buffer));
 
-  	tx_queue_create(&g_rx_data_queue,
-                  "CAN RX Queue",
-                  sizeof(CAN_Frame) / sizeof(ULONG),
-                  memory_ptr,
-                  sizeof(rx_queue_buffer));
-	memory_ptr += QUEUE_LEN * sizeof(CAN_Frame);
+    tx_queue_create(&g_rx_data_queue,
+                    "CAN RX Queue",
+                    sizeof(CAN_Frame) / sizeof(ULONG),
+                    rx_queue_buffer,
+                    sizeof(rx_queue_buffer));
+
+    tx_queue_create(&g_log_queue,
+                    "LOG Queue",
+                    sizeof(log_msg_t) / sizeof(ULONG),
+                    log_queue_buffer,
+                    sizeof(log_queue_buffer));
 
 	tx_thread_create(&sensor_thread,
       						"Sensor Thread",
@@ -181,6 +191,17 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
       		                TX_NO_TIME_SLICE,
       		                TX_AUTO_START);
 
+	tx_thread_create(&debug_thread,
+      						"Debug Thread",
+      		                debug_thread_entry,
+      		                1,
+      		                log_thread_stack,
+      		                sizeof(log_thread_stack),
+      		                20,
+      		                20,
+      		                TX_NO_TIME_SLICE,
+      		                TX_AUTO_START);
+
   /* USER CODE END App_ThreadX_MEM_POOL */
   /* USER CODE BEGIN App_ThreadX_Init */
   /* USER CODE END App_ThreadX_Init */
@@ -196,60 +217,15 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 void MX_ThreadX_Init(void)
 {
   /* USER CODE BEGIN Before_Kernel_Start */
+  
+  if (MCP2515_Init() != HAL_OK) {
+	  log_debug("MCP2515 init failed!");
+	  Error_Handler();
+  }
 
   /* USER CODE END Before_Kernel_Start */
 
-  	printf("Initializing MCP2515...\r\n");
-
-	  // Reset inicial
-	  printf("Calling MCP2515_Reset...\n");
-	  MCP2515_Reset();
-	  tx_thread_sleep(50);
-	  printf("Calling MCP2515_Reset...\n");
-	//  HAL_Delay(10);
-	  // Configure bitrate - THIS FUNCTION ALREADY PUTS YOU IN CONFIG MODE
-	  if (MCP2515_SetBitrate(CAN_500KBPS, MCP_8MHZ) != HAL_OK) {
-	      printf("ERROR: Bit rate\n");
-	  }
-
-	  // Configure filters
-	  // Here we have to change things later
-	  //there's no standard for arbitration, security, or priority.
-	  //We receive everything that comes via the can.
-	  //I'll switch after studying the Uprotocol.
-	  MCP2515_WriteByte(MCP_RXB0CTRL, 0x60); // Receive all messages
-	  MCP2515_WriteByte(MCP_RXM0SIDH, 0x00);
-	  MCP2515_WriteByte(MCP_RXM0SIDL, 0x00);
-	  MCP2515_WriteByte(MCP_RXM1SIDH, 0x00);
-	  MCP2515_WriteByte(MCP_RXM1SIDL, 0x00);
-
-	  // enable interrupts
-	  // Receive Buffer 0 Interrupt (RX0IE) to trigger MCU IRQ on new data
-	  MCP2515_WriteByte(MCP_CANINTE, 0x01);
-
-	  // Clear all pending interrupt flags to ensure a clean start state
-	  MCP2515_WriteByte(MCP_CANINTF, 0x00);
-
-	  // Switch from configuration mode to normal Mode to start bus communication
-	  MCP2515_WriteByte(MCP_CANCTRL, MODE_NORMAL);
-	//  HAL_Delay(10);
-
-	  // Final verification
-	  uint8_t check_inte = MCP2515_ReadByte(MCP_CANINTE);
-	  uint8_t check_intf = MCP2515_ReadByte(MCP_CANINTF);
-	  uint8_t final_canstat = MCP2515_ReadByte(MCP_CANSTAT);
-
-	  printf("Final check - CANINTE: 0x%02X, CANINTF: 0x%02X, CANSTAT: 0x%02X\n",
-	         check_inte, check_intf, final_canstat);
-
-	  if (check_inte == 0x01) {
-	      printf("SUCCESS: MCP2515 initialized - interrupts ENABLED\n");
-	  } else {
-	      printf("ERROR: Interrupts not enabled! CANINTE=0x%02X\n", check_inte);
-	  }
-
-	printf("MCP2515 in NORMAL mode and ready\n");
-  tx_kernel_enter();
+	tx_kernel_enter();
 
   /* USER CODE BEGIN Kernel_Start_Error */
 
