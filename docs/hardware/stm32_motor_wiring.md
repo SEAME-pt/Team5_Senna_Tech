@@ -86,3 +86,6 @@ Bus scan results updated on Jan 22, 2026:
 ## 6. Safety & Legacy Deactivation
 *   **Common Ground:** A common GND connection between STM32 and the Expansion Board is critical for signal integrity.
 *   **Trace Debugging:** SWV Trace only works reliably when the IDE's Core Clock is set to match the actual MCU clock (4MHz).
+
+## 7. Version Control Guidelines
+For detailed instructions on which STM32 project files to commit and which to ignore, please refer to the **[Project Specifics: STM32](../GITHUB/git_guidelines.md#6️⃣-project-specifics-stm32-cubeide)** section in our Git Guidelines.
