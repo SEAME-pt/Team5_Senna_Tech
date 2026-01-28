@@ -86,7 +86,7 @@ graph
 
 
 # Local Review Checklist
-PLAN_STM_MOTOR_CONTROL.md
+
 
 # Python Virtual Environment
 venv/
@@ -107,3 +107,4 @@ docs/trustable/
 
 # Trudag
 .dotstop.dot
+issue_167.md
