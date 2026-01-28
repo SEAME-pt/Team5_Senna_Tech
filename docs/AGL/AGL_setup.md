@@ -51,6 +51,7 @@ Inside the `connmanctl` prompt, run the following commands:
 
 * **Connect to your network**
     ```bash
+    agent on
     connect <network_name>
     ```
     (Enter the **Wi-Fi password** when prompted.)

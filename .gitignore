@@ -28,7 +28,8 @@ build/
 out/
 tests/car-control/build
 tests/car_cluster/build
-src/piracer-cpp/car-control/build
+src/car-control/joystick-can/build
+src/car-control/raspberry-control/build
 src/car_cluster/build
 
 # =============================
@@ -107,4 +108,4 @@ docs/trustable/
 
 # Trudag
 .dotstop.dot
-issue_167.md
+issue_137.md
