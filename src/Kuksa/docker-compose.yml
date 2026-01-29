@@ -1,3 +1,5 @@
+#THIS DOCKER IS TO RUN KUKSA LOCALLY WITH A VIRTUAL CAN (VCAN0)
+#IT IS NOT THE FINAL KUKSA VERSION FOR PRODUCTION
 services:
   # 1. KUKSA Databroker
   databroker:
@@ -20,7 +22,7 @@ services:
       - ./CAN_decoder.dbc:/data/CAN_decoder.dbc
       - ./CAN_mapping.json:/data/CAN_mapping.json
     
-    # Comandos atulizados para usar o .json
+    # Updated commands to use the .json
     command: >
       --dbcfile /data/CAN_decoder.dbc
       --mapping /data/CAN_mapping.json
