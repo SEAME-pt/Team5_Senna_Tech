@@ -63,6 +63,34 @@ RUN /opt/agl-sdk/env.sh cmake /opt/qt-everywhere-src-6.7.3 -GNinja \
 
 RUN /opt/agl-sdk/env.sh ninja -j $(nproc) && ninja install
 
+# ---------------------------
+# INSTALAÇÃO DO PROTOBUF 25.1.0
+# ---------------------------
+WORKDIR /tmp
+
+
+RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protobuf-cpp-25.1.zip \
+&& unzip protobuf-cpp-25.1.zip \
+&& cd protobuf-25.1 \
+&& mkdir build && cd build \
+&& cmake .. -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_BUILD_TYPE=Release \
+&& make -j$(nproc) \
+&& make install \
+&& ldconfig
+
+# ---------------------------
+# INSTALAÇÃO DO gRPC 1.62.0
+# ---------------------------
+WORKDIR /tmp
+RUN git clone -b v1.62.0 https://github.com/grpc/grpc \
+&& cd grpc \
+&& git submodule update --init --recursive \
+&& mkdir -p build && cd build \
+&& cmake ../cmake -DgRPC_INSTALL=ON -DgRPC_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release \
+&& make -j$(nproc) \
+&& make install \
+&& ldconfig
+
 # Fonte do ambiente do SDK AGL
 RUN echo "source /opt/agl-sdk/environment-setup-aarch64-agl-linux" >> /etc/bash.bashrc
 
@@ -70,7 +98,7 @@ RUN echo "source /opt/agl-sdk/environment-setup-aarch64-agl-linux" >> /etc/bash.
 RUN echo "alias qemu='qemu-aarch64-static -L /opt/agl-sdk/sysroots/aarch64-agl-linux'" >> /etc/bash.bashrc
 
 # Copia car_cluster e car_control para dentro do container
-COPY src/car_cluster/ /root/car_cluster/
+COPY src/Kuksa/car_cluster_with_kuksa/ /root/car_cluster/
 COPY src/car-control/piracer-cpp /root/car_control
 
 # Compilaçao car_cluster
