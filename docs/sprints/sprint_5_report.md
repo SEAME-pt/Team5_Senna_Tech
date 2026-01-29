@@ -1,6 +1,6 @@
 # 🚀 Sprint [Number] Report – Team5: Senna Tech
 
-**Duration:** [begin] → [end]
+**Duration:** [05/01/2026] → [16/01/2026]
 **Sprint Goal:** [Describe the main objective of the sprint]  
 **Team Roles:** :
 | Name            | Responsibilities     |

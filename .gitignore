@@ -1,7 +1,6 @@
 CMakeLists.txt.user
 Links
-issue_136
-issue_141
+issue_167.md
 
 # =============================
 # STM32CubeIDE / Eclipse files
@@ -29,7 +28,8 @@ build/
 out/
 tests/car-control/build
 tests/car_cluster/build
-src/piracer-cpp/car-control/build
+src/car-control/joystick-can/build
+src/car-control/raspberry-control/build
 src/car_cluster/build
 
 # =============================
@@ -87,7 +87,7 @@ graph
 
 
 # Local Review Checklist
-REVIEW_CHECKLIST_ISSUE_141.md
+
 
 # Python Virtual Environment
 venv/
@@ -108,3 +108,4 @@ docs/trustable/
 
 # Trudag
 .dotstop.dot
+issue_137.md
