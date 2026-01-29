@@ -1,7 +1,6 @@
 CMakeLists.txt.user
 Links
-issue_136
-issue_141
+issue_167.md
 
 # =============================
 # STM32CubeIDE / Eclipse files
@@ -88,7 +87,7 @@ graph
 
 
 # Local Review Checklist
-REVIEW_CHECKLIST_ISSUE_141.md
+
 
 # Python Virtual Environment
 venv/
