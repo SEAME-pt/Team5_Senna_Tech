@@ -14,7 +14,7 @@
 // --- TEST CONFIGURATION ---
 #define TEST_DURATION_SEC 120
 #define LOG_FILE_PATH "evidence_log.txt"
-#define CAN_INTERFACE "can0"  // Change to "can0" on Raspberry Pi
+#define CAN_INTERFACE "can0"
 #define CAN_BITRATE   500000.0 // 500kbps
 
 // IDs for Event-Driven Latency (Request/Response)
@@ -141,8 +141,20 @@ int main() {
     struct can_frame frame;
     long long current_time, delta;
 
-    logfile = fopen(LOG_FILE_PATH, "w");
-    if (!logfile) { perror("Error opening log"); return 1; }
+    char filename[100];
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    
+    // Format: evidence_YYYY-MM-DD_HH-MM-SS.txt
+    strftime(filename, sizeof(filename), "evidence_%Y-%m-%d_%H-%M-%S.txt", t);
+    
+    printf("--> Log File Created: %s\n", filename);
+    logfile = fopen(filename, "w");
+    
+    if (!logfile) { 
+        perror("Error creating log file"); 
+        return 1; 
+    }
 
     start_test_time = current_timestamp();
     long initial_errors = read_sys_errors(CAN_INTERFACE);
