@@ -31,8 +31,10 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    vehicle->startReadCan();
+    //vehicle->startReadCan();
     vehicle->startBatterySimulation();
+
+    vehicle->startKuksaSubscriber();
 
     return app.exec();
 }

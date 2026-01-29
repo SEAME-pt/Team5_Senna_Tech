@@ -1,4 +1,10 @@
 #include "vehicleData.hpp"
+#include "kuksa/val/v2/types.pb.h" // necessário para ler os tipos
+
+using grpc::ClientContext;
+using grpc::Status;
+using kuksa::val::v2::SubscribeRequest;
+using kuksa::val::v2::SubscribeResponse;
 
 // Singleton implementation
 vehicleData *vehicleData::instance() {
@@ -78,7 +84,7 @@ void vehicleData::startBatterySimulation() {
     timer->start(1000); // 1000 ms por tick -> 1 Hz
 }
 
-void vehicleData::startReadCan() {
+/*void vehicleData::startReadCan() {
     this->speed = 0;
 
     QTimer* timer = new QTimer(this);
@@ -118,7 +124,61 @@ void vehicleData::startReadCan() {
         close(sock);
     });
     timer->start(1000); // 1000 ms por tick -> 1 Hz
+}*/
+
+void vehicleData::startKuksaSubscriber() {
+    // Inicia o loop do KUKSA em uma thread separada
+    // Se rodarmos direto aqui, a GUI do Qt vai congelar!
+    kuksaThread = std::thread(&vehicleData::kuksaLoop, this);
+    kuksaThread.detach(); // Deixa rodando em background
 }
 
+void vehicleData::kuksaLoop() {
+    std::string target_str = "localhost:55555";
+    auto channel = grpc::CreateChannel(target_str, grpc::InsecureChannelCredentials());
+    auto stub = VAL::NewStub(channel);
+
+    ClientContext context;
+    SubscribeRequest request;
+
+    // Adiciona os caminhos VSS que queremos ouvir
+    request.add_signal_paths("Vehicle.Speed");
+    request.add_signal_paths("Vehicle.Powertrain.TractionBattery.StateOfCharge.Current");
+    // request.add_signal_paths("Vehicle.Powertrain.ElectricMotor.Temperature");
+
+    std::unique_ptr<grpc::ClientReader<SubscribeResponse>> reader(
+        stub->Subscribe(&context, request));
+
+    std::cout << "Conectado ao KUKSA Databroker!" << std::endl;
+
+    SubscribeResponse response;
+    while (reader->Read(&response)) {
+        for (const auto& pair : response.entries()) {
+            const std::string& path = pair.first;
+            const auto& datapoint = pair.second;
+
+            if (datapoint.has_value()) {
+                const auto& value = datapoint.value();
+                
+                // Atualiza a UI baseada no caminho recebido
+                // Nota: setSpeed e setBattery emitem sinais que o Qt entende
+                
+                if (path == "Vehicle.Speed") {
+                    if (value.has_float_()) {
+                        setSpeed((double)value.float_());
+                    }
+                } 
+                else if (path == "Vehicle.Powertrain.TractionBattery.StateOfCharge.Current") {
+                    if (value.has_float_()) {
+                        setBattery((int)value.float_());
+                    } else if (value.has_uint32()) {
+                        setBattery((int)value.uint32());
+                    }
+                }
+            }
+        }
+    }
+    std::cout << "Desconectado do KUKSA." << std::endl;
+}
 
 

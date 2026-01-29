@@ -176,8 +176,8 @@ RUN mkdir -p build_arm && cd build_arm \
     && cp -r ../include/* /opt/qt-cross-build/include/
 
 # Copia código fonte
-COPY src/Kuksa/car_cluster_with_kuksa/ /root/car_cluster/
-COPY src/car-control/piracer-cpp /root/car_control
+COPY src/car_cluster/ /root/car_cluster/
+COPY src/car-control/joystick-can /root/car_control
 
 RUN rm -rf /root/car_cluster/CMakeLists.txt
 COPY docker/CMakeListsQt.txt /root/car_cluster/CMakeLists.txt
@@ -194,8 +194,14 @@ RUN /opt/agl-sdk/env.sh cmake .. -GNinja -DQT_HOST_PATH=/opt/qt-host-build \
     -DLIB_GPR=/opt/qt-cross-build/lib/libgpr.a     -DLIB_ADDR_SORTING=/opt/qt-cross-build/lib/libaddress_sorting.a \
     && ninja -j $(nproc)
 
+# Compilacao car_control
+RUN rm -rf /root/car_control/build
+RUN mkdir /root/car_control/build && cd /root/car_control/build/ && cmake .. && make
+
 #Cria diretorio para os outputs
 RUN mkdir /root/outputs
 
 # Envio dos binarios para a pasta output
 RUN mv /root/car_cluster/build/appcar_cluster /root/outputs
+RUN mv /root/car_control/build/gamepad_control /root/outputs
+

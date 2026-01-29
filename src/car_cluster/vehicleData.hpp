@@ -6,7 +6,7 @@
 #include <QDebug>
 #include <iostream>
 #include <unistd.h>
-#include <sys/socket.h>
+//#include <sys/socket.h>
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include <net/if.h>
@@ -14,6 +14,15 @@
 #include <cstring>
 #include <QSocketNotifier>
 #include <fcntl.h>
+
+//add na troca pelo kuksa
+#include <thread> // Necessário para rodar o gRPC sem travar a UI
+#include <memory> // Necessário para std::shared_ptr
+#include <grpcpp/grpcpp.h>
+#include "kuksa/val/v2/val.grpc.pb.h"
+
+using grpc::Channel;
+using kuksa::val::v2::VAL;
 
 
 class vehicleData : public QObject
@@ -49,17 +58,22 @@ class vehicleData : public QObject
         //SIMULATION
         void startSpeedSimulation();
         void startBatterySimulation();
-        void startReadCan();
+        void startKuksaSubscriber();
 
 
 
     private:
         vehicleData(QObject *parent = nullptr);
 
+        void kuksaLoop();
+
         double  speed;
         int     battery;
         int     temperature;
         bool    isCharging;
+
+        // Thread para o gRPC
+        std::thread kuksaThread;
 
 };
 
