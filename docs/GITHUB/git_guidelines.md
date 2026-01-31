@@ -20,6 +20,8 @@ It ensures that all commits, reviews, and documentation remain **consistent, cle
 | `+` | Added something |
 | `~` | Modified something |
 | `=` | Refactored something |
+| `*` | Pull request |
+
 
 ### Guidelines
 - Each commit must represent **a single logical change**.  

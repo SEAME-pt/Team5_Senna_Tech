@@ -172,6 +172,6 @@ The contribution to the score of a parent item by a suspiciously linked child is
 _Generated for: Software_
 
 * _Repository root: /home/bruno/Desktop/SEA_ME/REFATORAR_GIT/Team5_Senna_Tech_
-* _Commit SHA: ea073ffdbec22e5e7f6012e44923a5ec1b926317_
-* _Commit date/time: 2026-01-29 17:55:46 UTC_
-* _Commit tag: ea073ff_
+* _Commit SHA: 065e291acf8c856bcdc5d1308679b10470bc89ae_
+* _Commit date/time: 2026-01-30 10:56:00 UTC_
+* _Commit tag: 065e291_
