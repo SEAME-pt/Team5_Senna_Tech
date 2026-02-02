@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/car_cluster">
-        <file>Main.qml</file>
-        <file>mclaren.png</file>
-    </qresource>
-</RCC>
-
