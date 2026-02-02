@@ -47,9 +47,9 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83/views/1?sliceBy%5Bva
 | **23/01** | Vinicius will handle the joystick code to send commands via CAN to the STM. Hellom will take care of the documentation and VPN adjustments. Marcelo will prepare a new AGL build with the new Kuksa dependencies, and Yasmine will run tests and validate the CAN provider implementation. | - |
 | **26/01** | Vinicius will refactor and organize the STM32 code. Hellom continues working on the team’s VPN adjustments. Marcelo transferred the files from the old system to the new one and is starting the process to compile KUKSA in the CI/CD pipeline, while Yasmine will research how we can perform latency tests. | - |
 | **27/01** | The team continues with the same tasks as the previous day. | - |
-| **28/01** |  | - |
-| **29/01** |  | - |
-| **30/01** |  | - |
+| **28/01** | Vinicius is investigating issues with the STM32 IDE debugger that are causing failures in motor control. Hello has finished the documentation for the VPN. Marcelo is experiencing problems with cross-compilation but is making progress with smaller steps to better understand the issue. Yasmine is testing how to use the oscilloscope for future latency tests. | - |
+| **29/01** | Marcelo completed the Qt cross-compilation with the addition of the KUKSA dependencies. Yasmine proposed a restructuring of some project folders and will work on that. Hellom moved on to reviewing his requirements. | - |
+| **30/01** | The team has completed the sprint goals and is starting the planning for the next one. | - |
 
 ---
 
