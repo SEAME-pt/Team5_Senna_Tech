@@ -20,6 +20,8 @@ It ensures that all commits, reviews, and documentation remain **consistent, cle
 | `+` | Added something |
 | `~` | Modified something |
 | `=` | Refactored something |
+| `*` | Pull request |
+
 
 ### Guidelines
 - Each commit must represent **a single logical change**.  
@@ -110,6 +112,33 @@ Remember: the issue is only considered completed after complete documentation.
 
 ## 5️⃣ Directorys and Branchs Structure
 All rules, hierarchies and commands are in the documentation [git_workflow_guide.md](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/documentation/docs/git_workflow_guide.md)
+
+---
+
+## 6️⃣ Project Specifics: STM32 (CubeIDE)
+
+To ensure repository hygiene and avoid "it works on my machine" issues, we adopt the following strategy for STM32CubeIDE generated files.
+
+### 6.1 Files to Track (Commit)
+These files are essential for building the project and understanding the configuration.
+
+| Path/Extension | Description | Why Track? |
+| :--- | :--- | :--- |
+| **`*.ioc`** | STM32CubeMX Configuration File. | **Critical.** Contains the definition of all pins, clocks, and peripherals. Used to regenerate the code structure. |
+| **`Core/Src/` & `Core/Inc/`** | Application Source Code. | Contains `main.c`, `stm32u5xx_it.c`, and user logic. This is where the development happens. |
+| **`Drivers/`** | HAL & CMSIS Libraries. | Although auto-generated, tracking them ensures **CI/CD pipelines** can build the code without needing STM32CubeMX installed. It also guarantees all developers use the exact same library version. |
+| **`*.ld`** | Linker Script (e.g., `STM32U585xx_FLASH.ld`). | Defines memory layout (Flash/RAM addresses). Essential for compilation. |
+| **`startup_*.s`** | Assembly Startup Code. | Handles the reset vector and system initialization. |
+
+### 6.2 Files to Ignore (.gitignore)
+These files are machine-specific, build artifacts, or personal preferences.
+
+| Path/Extension | Description | Why Ignore? |
+| :--- | :--- | :--- |
+| **`Debug/` & `Release/`** | Build Output Directories. | Contains binaries (`.elf`, `.bin`, `.hex`) and object files (`.o`). They cause merge conflicts and bloat the repo. |
+| **`.settings/`** | Eclipse/IDE Settings Folder. | Often contains absolute paths specific to the user's computer, causing errors for others. |
+| **`.mxproject`** | CubeMX Metadata. | Redundant. The IDE regenerates this file from the `.ioc` file automatically. |
+| **`*.launch`** | Debug Launch Configurations. | Stores personal debugger settings (like specific probe serial numbers). |
 
 
 

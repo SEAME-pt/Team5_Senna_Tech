@@ -1,0 +1,28 @@
+VERSION ""
+
+BS_:
+
+BU_: PiRacer STM32
+
+BO_ 1 E_STOP: 1 STM32
+ SG_ E_Stop_Active : 7|1@0+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 16 SPEED: 2 STM32
+ SG_ Speed_Kmh : 7|8@0+ (0.1,0) [0|25] "km/h" Vector__XXX
+ 
+
+BO_ 256 MOTOR_PWR: 4 PiRacer
+ SG_ Throttle_Pos : 7|8@0+ (1,0) [0|100] "%" Vector__XXX
+ SG_ Power_Watts : 23|16@0- (1,0) [-1000|1000] "W" Vector__XXX
+
+BO_ 272 STEER: 2 PiRacer
+ SG_ Steer_Angle : 7|16@0- (1,0) [-45|45] "deg" Vector__XXX
+
+BO_ 512 BATTERY: 8 STM32
+ SG_ Battery_SoC : 7|8@0+ (1,0) [0|100] "%" Vector__XXX
+ SG_ Battery_Voltage : 23|16@0+ (0.01,0) [0|20] "V" Vector__XXX
+ SG_ Battery_Current : 39|16@0- (0.01,0) [-50|50] "A" Vector__XXX
+
+BO_ 528 TEMPERATURE: 4 STM32
+ SG_ Temp_Air : 7|16@0- (0.1,0) [-40|100] "C" Vector__XXX
+ SG_ Temp_Motor : 23|16@0- (1,0) [-40|150] "C" Vector__XXX

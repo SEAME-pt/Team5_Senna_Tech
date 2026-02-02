@@ -1,5 +1,7 @@
 site_name: Senna Tech
 
+docs_dir: docs/TSF/trustable
+
 markdown_extensions:
   - attr_list
   - tables

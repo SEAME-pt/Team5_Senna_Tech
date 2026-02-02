@@ -42,7 +42,6 @@ Building a miniature autonomous vehicle (PiRacer) powered by Raspberry Pi 5 and 
    - Use of generative AI tools for pair programming and code assistance
 
 ## 📈 System Objectives
-- Assemble and configure the PiRacer hardware
 - Display a functional Qt GUI on the onboard screen
 - Configure autonomous driving (motors, steering)
 - Maintain traceable and documented software requirements
@@ -84,16 +83,16 @@ All documentation is kept inside the [docs/](docs/) folder.
 👥 Team
 | Name            | Responsibilities               |
 |-----------------| ------------------------------ |
-| Hellom          | Scrum Master                   |
-| Marcelo         | CI/CD                          |
-| Nicole          | TSF                            |
-| Vinicius        | OTA                            |
-| Yasmine         | COVESA & uProtocol Researcher  |
+| Hellom          | Hardware Engineer              |
+| Marcelo         | AGL / Kuksa                    |
+| Nicole          | Instrument Cluster             |
+| Vinicius        | ThreadX RTOS                   |
+| Yasmine         | CAN / Kuksa                    |
 
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 ## 🗓️ Sprint Status
-- **Current sprint**: Sprint 4
-- **Period**: December 09 to December 19, 2025
+- **Current sprint**: Sprint 6
+- **Period**: January 19 to January 30, 2026
 - **Current Status**: 🟡 In Progress
-- **Goals**: Investigation for OTA update implementation
+- **Goals**: Motor Control Migration and Communication Refinement.
