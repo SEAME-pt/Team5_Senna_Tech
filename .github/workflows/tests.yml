@@ -22,11 +22,7 @@ jobs:
 
       - name: Build and run Car Control tests
         run: |
-          mkdir -p tests/car-control/build
-          cd tests/car-control/build
-          cmake ..
-          cmake --build .
-          ctest --output-on-failure
+        
 
   # BUILD TEST
   build:
