@@ -28,6 +28,7 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83/views/1?sliceBy%5Bva
 | Data | Progress Summary and Plan | Obstacles? |
 | :--- | :--- | :--- |
 | **02/02** | The team better discussed initial questions, helping with the development of tha planning presentation. Yasmine will work on the refactoring of the repository structure, Vinicius will investigate the speed capture bug, Hellom will refactor the speedsensor requirements and Marcelo will start searching about the improvement of cluster UI | - |
+| **03/02** | Hellom will investigate EXP-202 to mitigate errors on capturing speed signals. Vinicius will continue refactoring TSF requirements related to the system and start the development of unit tests for ThreadX. Marcelo will continue the design of the new cluster version. Yasmine will implement the new CAN IDs and link the CAN tests to TSF structure. | - |
 
 
 ---
