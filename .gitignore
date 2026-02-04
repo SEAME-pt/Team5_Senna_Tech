@@ -7,14 +7,8 @@ issue_167.md
 # =============================
 
 # Project metadata (IDE-specific)
-.settings/
 .metadata/
 RemoteSystemsTempFiles/
-
-# Eclipse/CubeIDE project files
-*.launch
-*.project
-*.cproject
 
 # CubeMX internal file (optional to ignore)
 *.mxproject
