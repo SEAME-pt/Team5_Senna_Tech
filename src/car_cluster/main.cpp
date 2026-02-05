@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 
     //vehicle->startReadCan();
     vehicle->startBatterySimulation();
+    vehicle->startSpeedSimulation();
 
     //vehicle->startKuksaSubscriber();
 

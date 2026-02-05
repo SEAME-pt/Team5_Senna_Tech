@@ -1,7 +1,10 @@
+<!DOCTYPE RCC>
 <RCC>
-    <qresource prefix="/car_cluster">
-        <file>Main.qml</file>
-        <file>mclaren.png</file>
-    </qresource>
+  <qresource prefix="/car_cluster">
+    <file>Main.qml</file>
+    <file>assets/mclaren.png</file>
+    <file>assets/cluster_light.png</file>
+    <file>assets/cluster_dark.png</file>
+    <file>assets/Sonic_Turbo.otf</file>
+  </qresource>
 </RCC>
-

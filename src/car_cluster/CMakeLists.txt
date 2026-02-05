@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_PREFIX_PATH "/opt/qt-host-build")
 # para compilar no pc do seame, utilizar: "cmake.. -DCMAKE_PREFIX_PATH=/home/team5/qt-everywhere-src-6.8.3/qt-host-build/qtbase/lib/cmake/Qt6/"
 
-find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2)
+find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2 QuickEffects)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
 # adicionado para Protobuf e gRPC
@@ -61,11 +61,14 @@ qt_add_qml_module(appcar_cluster
     VERSION 1.0
     QML_FILES
         Main.qml
+        components/SpeedArc.qml
+        components/BatteryArc.qml
     RESOURCES
         resources.qrc
-        mclaren.png
-        cluster_light.png
-        cluster_dark.png
+        assets/mclaren.png
+        assets/cluster_light.png
+        assets/cluster_dark.png
+        assets/Sonic_Turbo.otf
 )
 
 # Incluir diretórios de build para achar os headers gerados

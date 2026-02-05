@@ -1,10 +1,10 @@
 #include "vehicleData.hpp"
-#include "kuksa/val/v2/types.pb.h" // necessário para ler os tipos
+//#include "kuksa/val/v2/types.pb.h" // necessário para ler os tipos
 
-using grpc::ClientContext;
-using grpc::Status;
-using kuksa::val::v2::SubscribeRequest;
-using kuksa::val::v2::SubscribeResponse;
+//using grpc::ClientContext;
+//using grpc::Status;
+//using kuksa::val::v2::SubscribeRequest;
+//using kuksa::val::v2::SubscribeResponse;
 
 // Singleton implementation
 vehicleData *vehicleData::instance() {
@@ -126,7 +126,7 @@ void vehicleData::startBatterySimulation() {
     timer->start(1000); // 1000 ms por tick -> 1 Hz
 }*/
 
-void vehicleData::startKuksaSubscriber() {
+/*void vehicleData::startKuksaSubscriber() {
     // Inicia o loop do KUKSA em uma thread separada
     // Se rodarmos direto aqui, a GUI do Qt vai congelar!
     kuksaThread = std::thread(&vehicleData::kuksaLoop, this);
@@ -181,4 +181,4 @@ void vehicleData::kuksaLoop() {
     std::cout << "Desconectado do KUKSA." << std::endl;
 }
 
-
+*/

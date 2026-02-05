@@ -21,8 +21,8 @@
 //#include <grpcpp/grpcpp.h>
 //#include "kuksa/val/v2/val.grpc.pb.h"
 
-using grpc::Channel;
-using kuksa::val::v2::VAL;
+//using grpc::Channel;
+//using kuksa::val::v2::VAL;
 
 
 class vehicleData : public QObject
@@ -58,14 +58,14 @@ class vehicleData : public QObject
         //SIMULATION
         void startSpeedSimulation();
         void startBatterySimulation();
-        void startKuksaSubscriber();
+        //void startKuksaSubscriber();
 
 
 
     private:
         vehicleData(QObject *parent = nullptr);
 
-        void kuksaLoop();
+        //void kuksaLoop();
 
         double  speed;
         int     battery;
@@ -73,7 +73,7 @@ class vehicleData : public QObject
         bool    isCharging;
 
         // Thread para o gRPC
-        std::thread kuksaThread;
+        //std::thread kuksaThread;
 
 };
 
