@@ -3,7 +3,7 @@ import QtQuick.Controls 2.15
 
 ApplicationWindow {
     id: root
-    width: 1480
+    width: 1280
     height: 400
     visible: true
     //flags: Qt.Window | Qt.FramelessWindowHint
@@ -18,10 +18,11 @@ ApplicationWindow {
     property int range: 245
 
     Rectangle {
-           anchors.fill: parent
-           gradient: Gradient {
-               GradientStop { position: 0.0; color: "#0a0a0a" }
-               GradientStop { position: 1.0; color: "#1a1a2e" }
+           Image {
+               anchors.fill: parent
+               source: "cluster_light.png"
+               fillMode: Image.Stretch
+               smooth: true
            }
 
     // Main Dashboard Layout

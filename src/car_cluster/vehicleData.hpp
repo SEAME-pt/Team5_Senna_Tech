@@ -7,8 +7,8 @@
 #include <iostream>
 #include <unistd.h>
 //#include <sys/socket.h>
-#include <linux/can.h>
-#include <linux/can/raw.h>
+//#include <linux/can.h>
+//#include <linux/can/raw.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <cstring>
@@ -18,8 +18,8 @@
 //add na troca pelo kuksa
 #include <thread> // Necessário para rodar o gRPC sem travar a UI
 #include <memory> // Necessário para std::shared_ptr
-#include <grpcpp/grpcpp.h>
-#include "kuksa/val/v2/val.grpc.pb.h"
+//#include <grpcpp/grpcpp.h>
+//#include "kuksa/val/v2/val.grpc.pb.h"
 
 using grpc::Channel;
 using kuksa::val::v2::VAL;
