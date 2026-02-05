@@ -8,7 +8,7 @@ on:
 
   push:
     branches:
-      - feature/Threadx-i2c-control
+      - feature/ThreadX-i2c-control
 
 jobs:
   # UNIT TESTS
