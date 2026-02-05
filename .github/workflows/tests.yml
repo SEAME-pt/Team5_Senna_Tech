@@ -28,7 +28,7 @@ jobs:
         run: |
           sudo apt install ruby
           sudo gem install ceedling
-          cd tests/unit/Threadx_RTOS/pca9685
+          cd tests/unit/ThreadX_RTOS/pca9685
           ./prepare.sh
           ceedling test:all
         
