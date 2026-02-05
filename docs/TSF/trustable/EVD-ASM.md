@@ -2,7 +2,7 @@
 
 ---
 
-### EVD-ASM-205 | Reviewed: ⨯ | Score: 0.0 ### {: #evd-asm-205 data-toc-label="EVD-ASM-205" .item-element .item-section class="tsf-score" style="background-color:hsl(0.0, 100%, 65%)"}
+### EVD-ASM-205 | Reviewed: ✔ | Score: 1.0 ### {: #evd-asm-205 data-toc-label="EVD-ASM-205" .item-element .item-section class="tsf-score" style="background-color:hsl(120.0, 100%, 30%)"}
 Technical evidence based on the STM32U5 datasheet, confirming the presence and capabilities of the Memory Protection Unit (MPU).
 {: .expanded-item-element }
 
@@ -10,7 +10,7 @@ Technical evidence based on the STM32U5 datasheet, confirming the presence and c
 
 | Item {style="width:25%"} | Summary {style="width:50%"} | Score {style="width:0%"} | Status {style="width:25%"} |
 | --- | --- | --- | --- |
-| [ASM-205](ASM.md#asm-205) {class="tsf-score status-unreviewed" style="background-color:hsl(0.0, 100%, 65%)"} | It is assumed that the hardware platform (STM32U5) possesses a functional and configurable Memory Protection Unit (MPU) or TrustZone capability. | 0.00 | ⨯ Item Reviewed<br>✔ Link Reviewed |
+| [ASM-205](ASM.md#asm-205) {class="tsf-score" style="background-color:hsl(120.0, 100%, 30%)"} | It is assumed that the hardware platform (STM32U5) possesses a functional and configurable Memory Protection Unit (MPU) or TrustZone capability. | 1.00 | ✔ Item Reviewed<br>✔ Link Reviewed |
 
 **Supporting Items:**
 
@@ -48,7 +48,7 @@ _None_
 
 ---
 
-### EVD-ASM-207 | Reviewed: ⨯ | Score: 0.0 ### {: #evd-asm-207 data-toc-label="EVD-ASM-207" .item-element .item-section class="tsf-score" style="background-color:hsl(0.0, 100%, 65%)"}
+### EVD-ASM-207 | Reviewed: ✔ | Score: 1.0 ### {: #evd-asm-207 data-toc-label="EVD-ASM-207" .item-element .item-section class="tsf-score" style="background-color:hsl(120.0, 100%, 30%)"}
 Verification of vehicle specifications, confirming that the IMU hardware is available and functional for secondary speed estimation.
 {: .expanded-item-element }
 
@@ -56,7 +56,7 @@ Verification of vehicle specifications, confirming that the IMU hardware is avai
 
 | Item {style="width:25%"} | Summary {style="width:50%"} | Score {style="width:0%"} | Status {style="width:25%"} |
 | --- | --- | --- | --- |
-| [ASM-207](ASM.md#asm-207) {class="tsf-score status-unreviewed" style="background-color:hsl(0.0, 100%, 65%)"} | It is assumed that the vehicle possesses a secondary source for speed estimation (e.g., IMU or motor model) with a known error margin. | 0.00 | ⨯ Item Reviewed<br>✔ Link Reviewed |
+| [ASM-207](ASM.md#asm-207) {class="tsf-score" style="background-color:hsl(120.0, 100%, 30%)"} | It is assumed that the vehicle possesses a secondary source for speed estimation (e.g., IMU or motor model) with a known error margin. | 1.00 | ✔ Item Reviewed<br>✔ Link Reviewed |
 
 **Supporting Items:**
 
