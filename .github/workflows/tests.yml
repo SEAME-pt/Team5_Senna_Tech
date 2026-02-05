@@ -27,7 +27,7 @@ jobs:
       - name: Car Control module pca9685 Unit Tests
         run: |
           sudo apt install ruby
-          gem install ceedling
+          sudo gem install ceedling
           cd tests/unit/Threadx_RTOS/pca9685
           ./prepare.sh
           ceedling test:all
