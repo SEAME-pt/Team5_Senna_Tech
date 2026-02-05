@@ -6,6 +6,10 @@ on:
       - develop
       - main
 
+  push:
+    branches:
+      - feature/Threadx-i2c-control
+
 jobs:
   # UNIT TESTS
   tests:
@@ -20,8 +24,13 @@ jobs:
           sudo apt update
           sudo apt install -y cmake g++ git
 
-      - name: Build and run Car Control tests
+      - name: Car Control module pca9685 Unit Tests
         run: |
+          sudo apt install ruby
+          gem install ceedling
+          cd tests/unit/Threadx_RTOS/pca9685
+          ./prepare.sh
+          ceedling test:all
         
 
   # BUILD TEST
