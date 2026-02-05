@@ -26,9 +26,3 @@ if [[ ! -d "$SRC_DIR" || "$SRC_DIR" == "/" ]]; then
 fi
 
 rm -rf "$SRC_DIR"/*
-
-cp "$SCRIPT_DIR/../../../../src/threadx/SennaTech/Core/Src/"{pca9685.c,car.c} "$SRC_DIR/"
-cp "$SCRIPT_DIR/../../../../src/threadx/SennaTech/Core/Inc/"{pca9685.h,car.h,i2c_hal.h,sleep_hal.h} "$SRC_DIR/"
-
-echo -e "${GREEN}ThreadX project files successfully copied. Ready to start unit test!${NC}"
-
