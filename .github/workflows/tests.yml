@@ -31,8 +31,9 @@ jobs:
         run: sudo gem install ceedling
 
       - name: Install QT Dependencies
-        run: sudo apt install -y qt6-base-dev qt6-declarative-dev 
-        run: sudo apt install libgrpc++-dev protobuf-compiler-grpc
+        run: |
+          sudo apt install -y qt6-base-dev qt6-declarative-dev 
+          sudo apt install libgrpc++-dev protobuf-compiler-grpc
 
 
       # -------------------------
