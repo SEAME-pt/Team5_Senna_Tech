@@ -27,7 +27,7 @@ enable_testing()
 # Biblioteca do projeto (Qt)
 # -----------------------------------
 add_library(car_cluster_lib
-    ../../src/car_cluster/vehicleData.cpp
+    ../../../src/car_cluster/vehicleData.cpp
 )
 
 target_include_directories(car_cluster_lib
