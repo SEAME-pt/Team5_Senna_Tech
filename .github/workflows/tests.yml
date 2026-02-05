@@ -11,7 +11,6 @@ on:
       - feature/ThreadX-i2c-control
 
 jobs:
-  # UNIT TESTS
   tests:
     runs-on: ubuntu-latest
 
@@ -19,18 +18,58 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+
+      # -------------------------
+      # Dependencies
+      # -------------------------
       - name: Install build tools
         run: |
           sudo apt update
-          sudo apt install -y cmake g++ git
+          sudo apt install -y cmake g++ git ruby
 
-      - name: Car Control module pca9685 Unit Tests
+      - name: Install Ceedling
+        run: sudo gem install ceedling
+
+
+      # -------------------------
+      # UNITY (hardware tests)
+      # -------------------------
+      - name: Car Control Module (Unity/Ceedling)
         run: |
-          sudo apt install ruby
-          sudo gem install ceedling
           cd tests/unit/ThreadX_RTOS/pca9685
           ./prepare.sh
           ceedling test:all
+
+
+      # -------------------------
+      # GTEST (Qt / cluster)
+      # -------------------------
+      - name: Build Cluster Tests (CMake + GTest)
+        run: |
+          cd tests/unit/car_cluster
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release 
+          make -j$(nproc)
+
+      - name: Run Cluster Tests (XML output)
+        run: |
+          cd tests/unit/car_cluster/build
+          ./test_car_cluster --gtest_output=xml:gtest-report.xml
+
+
+      # -------------------------
+      # UNIFIED REPORT
+      # -------------------------
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: All Unit Tests
+          reporter: java-junit
+          path: |
+            tests/**/build/artifacts/test/*.xml
+            tests/unit/car_cluster/build/gtest-report.xml
         
 
   # BUILD TEST
