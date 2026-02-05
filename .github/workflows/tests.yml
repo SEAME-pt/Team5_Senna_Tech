@@ -30,6 +30,9 @@ jobs:
       - name: Install Ceedling
         run: sudo gem install ceedling
 
+      - name: Install QT Dependencies
+        run: sudo apt install -y qt6-base-dev qt6-declarative-dev
+
 
       # -------------------------
       # UNITY (hardware tests)
