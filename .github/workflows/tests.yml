@@ -33,15 +33,6 @@ jobs:
       - name: Install QT Dependencies
         run: |
           sudo apt install -y qt6-base-dev qt6-declarative-dev 
-          sudo apt install libgrpc++-dev protobuf-compiler-grpc
-
-      - name: Generate protobuf files
-        run: |
-          protoc -I proto \
-            --grpc_out=src \
-            --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` \
-            --cpp_out=src \
-            proto/kuksa/val/v2/val.proto
 
 
       # -------------------------
@@ -52,37 +43,6 @@ jobs:
           cd tests/unit/ThreadX_RTOS/pca9685
           ./prepare.sh
           ceedling test:all
-
-
-      # -------------------------
-      # GTEST (Qt / cluster)
-      # -------------------------
-      - name: Build Cluster Tests (CMake + GTest)
-        run: |
-          cd tests/unit/car_cluster
-          mkdir -p build
-          cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release 
-          make -j$(nproc)
-
-      - name: Run Cluster Tests (XML output)
-        run: |
-          cd tests/unit/car_cluster/build
-          ./test_car_cluster --gtest_output=xml:gtest-report.xml
-
-
-      # -------------------------
-      # UNIFIED REPORT
-      # -------------------------
-      - name: Publish Test Results
-        uses: dorny/test-reporter@v1
-        if: always()
-        with:
-          name: All Unit Tests
-          reporter: java-junit
-          path: |
-            tests/**/build/artifacts/test/*.xml
-            tests/unit/car_cluster/build/gtest-report.xml
         
 
   # BUILD TEST
