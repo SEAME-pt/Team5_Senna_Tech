@@ -43,7 +43,7 @@ void    test_car_throttle_half_forward(void)
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_PWM,  0, pwm);
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM, 0, pwm);
 
-    car_set_throttle_percent(&car, 0.7f);
+    car_set_throttle_percent(&car, 0.5f);
 }
 
 // THROTTLE 100% SPEED FORWARD TEST
