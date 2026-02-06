@@ -33,7 +33,7 @@ void CAN_Rx_Thread_Entry(ULONG thread_input)
         while (MCP2515_ReceiveMessage(&rx_frame) == HAL_OK)
         {
             memcpy(&local_copy, &rx_frame, sizeof(CAN_Frame));
-            //log_debug("ID: 0x%X, DLC: %u, Data[0]: %u", rx_frame.id, rx_frame.dlc, rx_frame.data[0]);
+            // log_debug("ID: 0x%X, DLC: %u, Data[0]: %u, Data[1]: %u", rx_frame.id, rx_frame.dlc, rx_frame.data[0], rx_frame.data[0]);
             if (tx_queue_send(&g_rx_data_queue, &local_copy, TX_NO_WAIT) != TX_SUCCESS)
             {
                 log_debug("RX QUEUE FULL");
@@ -75,4 +75,21 @@ void CAN_Tx_Thread_Entry(ULONG thread_input) {
 void CAN_ISR_Handler(void) {
     // Avisa a Thread RX que tem trabalho
     tx_semaphore_put(&rx_sem);
+}
+
+void heartbeat_thread_entry(ULONG thread_input)
+{
+    CAN_Frame hb_frame;
+    hb_frame.id = CAN_ID_HEARTBEAT;
+    hb_frame.dlc = 1;
+    hb_frame.data[0] = 0xAA;
+
+    log_debug("HEARTBEAT THREAD STARTED");
+
+    while(1)
+    {
+        tx_queue_send(&g_tx_data_queue, &hb_frame, TX_NO_WAIT);
+
+        tx_thread_sleep(100);
+    }
 }

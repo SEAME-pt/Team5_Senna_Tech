@@ -7,6 +7,8 @@
 
 // --- Definição dos IDs CAN  ---
 #define CAN_ID_ESTOP        0x001
+#define CAN_ID_RESET        0x002
+#define CAN_ID_HEARTBEAT    0x005
 #define CAN_ID_SPEED        0x10
 #define CAN_ID_MOTOR_CMD    0x100
 #define CAN_ID_STEER_CMD    0x110
@@ -38,5 +40,6 @@ void CAN_Manager_Init(void);
 void CAN_Tx_Thread_Entry(ULONG thread_input);
 void CAN_Rx_Thread_Entry(ULONG thread_input);
 void CAN_ISR_Handler(void); // Chama isso dentro do HAL_GPIO_EXTI_Callback
+void heartbeat_thread_entry(ULONG thread_input);
 
 #endif

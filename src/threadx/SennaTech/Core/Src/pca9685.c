@@ -1,4 +1,4 @@
-#include "../Inc/pca9685.h"
+#include "pca9685.h"
 
 /*
 ** prescale = round(25MHz / (4096 * freq)) - 1
@@ -26,11 +26,11 @@ void PCA9685_SetPWMFreq(PCA9685_t *dev, uint16_t freq_hz)
     PCA9685_WriteByte(dev, PRESCALE, (uint8_t)prescale);
     PCA9685_WriteByte(dev, MODE1, oldmode);
 
-    tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND / 200); // ~5ms
+    tx_sleep(1); // ~5ms
     PCA9685_WriteByte(dev, MODE1, oldmode | RESTART);
 }
 
-void PCA9685_Init(PCA9685_t *dev, I2C_HandleTypeDef *hi2c, uint8_t address)
+void PCA9685_Init(PCA9685_t *dev, void *hi2c, uint8_t address)
 {
     dev->hi2c    = hi2c;
     dev->address = address;
@@ -39,13 +39,13 @@ void PCA9685_Init(PCA9685_t *dev, I2C_HandleTypeDef *hi2c, uint8_t address)
     PCA9685_WriteByte(dev, MODE2, OUTDRV);
     PCA9685_WriteByte(dev, MODE1, ALLCALL);
 
-    tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND / 200); // ~5ms
+    tx_sleep(1); // ~5ms
 
     uint8_t mode1 = PCA9685_ReadByte(dev, MODE1);
     mode1 &= ~SLEEP;
     PCA9685_WriteByte(dev, MODE1, mode1);
 
-    tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND / 200); // ~5ms
+    tx_sleep(1); // ~5ms
 }
 
 void PCA9685_SetPWM(PCA9685_t *dev, uint8_t channel, uint16_t on, uint16_t off)
@@ -66,30 +66,14 @@ void PCA9685_SetAllPWM(PCA9685_t *dev, uint16_t on, uint16_t off)
 
 void PCA9685_WriteByte(PCA9685_t *dev, uint8_t reg, uint8_t data)
 {
-    HAL_I2C_Mem_Write(
-        dev->hi2c,
-        dev->address,
-        reg,
-        I2C_MEMADD_SIZE_8BIT,
-        &data,
-        1,
-        HAL_MAX_DELAY
-    );
+    I2C_WriteReg(dev->hi2c, dev->address, reg, data);
 }
 
 uint8_t PCA9685_ReadByte(PCA9685_t *dev, uint8_t reg)
 {
     uint8_t data = 0;
 
-    HAL_I2C_Mem_Read(
-        dev->hi2c,
-        dev->address,
-        reg,
-        I2C_MEMADD_SIZE_8BIT,
-        &data,
-        1,
-        HAL_MAX_DELAY
-    );
+    I2C_ReadReg(dev->hi2c, dev->address, reg, &data);
 
     return data;
 }
