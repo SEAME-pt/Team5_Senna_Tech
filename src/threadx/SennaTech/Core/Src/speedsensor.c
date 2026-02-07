@@ -36,7 +36,7 @@ void sensor_thread_entry(ULONG thread_input)
 			// FORMULA: (DeltaPulses * 60000 ms) / (DeltaTime * Holes)
 			// We use 20 because it is the number of holes in our encoder
 			if (time_diff > 0) {
-				rpm_instant = (float)(pulses_diff * 60000) / (time_diff * 20);
+				rpm_instant = (float)(pulses_diff * 60000) / (time_diff * 18);
 				rpm = (int)rpm_instant;
 
                 // KM/H = RPM * Circunference * 0.06 (conversion m/min -> km/h)
@@ -131,7 +131,7 @@ void sensor_thread_entry2(ULONG thread_input)
                 /* 6000 = 60s * 100 ticks/s */
                 rpm_instant =
                     (float)(acc_pulses * 6000) /
-                    (acc_ticks * 20);
+                    (acc_ticks * 18);
 
                 rpm = (int)rpm_instant;
 
