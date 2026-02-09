@@ -77,7 +77,7 @@ When prompted, choose y to rebuild the database if you have changed links or IDs
 Propagate trust scores from evidence up to expectations:
 ```bash
 trudag score
-```
+``` 
 
 ---
 
