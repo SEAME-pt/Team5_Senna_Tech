@@ -16,6 +16,9 @@
 #define PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_2 2
 #define PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM 0
 
+#define SERVO_RAW_MIN 205
+#define SERVO_RAW_MAX 410
+
 typedef struct
 {
     PCA9685_t steering;
