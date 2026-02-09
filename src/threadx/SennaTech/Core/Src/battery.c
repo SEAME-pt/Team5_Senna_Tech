@@ -24,12 +24,11 @@ void battery_thread_entry(ULONG thread_input)
 		tx_mutex_get(&g_battery_mutex, TX_WAIT_FOREVER);
 
 		float voltage = INA219_GetBusVoltage(&ina219);
-		float current = INA219_GetCurrent(&ina219);
 
 		int battery_level = (int)(((voltage - BATTERY_VOLTAGE_MIN) /
 								(BATTERY_VOLTAGE_MAX - BATTERY_VOLTAGE_MIN)) * 100);
 
-		if (battery_level < 0) battery_level = 0;
+		if (battery_level < 0) battery_level = 1;
 		if (battery_level > 100) battery_level = 100;
 
 		if (first_time)
