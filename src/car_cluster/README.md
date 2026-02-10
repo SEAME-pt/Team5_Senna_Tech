@@ -7,8 +7,8 @@ This project demonstrates how **C++ (Qt backend)** and **QML (frontend)** can in
 
 The interface was specifically developed for the rear display of the **PiRacer** prototype, optimized for a wide **1280×400-pixel** screen configuration.
 
-![screenshot](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/qt/src/car_cluster/cluster_v2_light.png)
-![screenshot](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/qt/src/car_cluster/cluster_v2_dark.png)
+![screenshot](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/qt/src/car_cluster/assets/cluster_v2_light.png)
+![screenshot](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/qt/src/car_cluster/assets/cluster_v2_dark.png)
 ---
 
 ## 📸 Overview
