@@ -1,15 +1,14 @@
 
 # Instrument Cluster - Senna Tech 🚗 
 
-
-
 A **Qt-based car dashboard** that displays (simulated) vehicle data such as speed, battery level, and temperature through an elegant, animated QML interface.
 
 This project demonstrates how **C++ (Qt backend)** and **QML (frontend)** can interact seamlessly to create modern, responsive automotive interfaces — a key concept behind **Software-Defined Vehicles (SDV)**.
 
-The interface was specifically developed for the rear display of the **PiRacer** prototype, optimized for a wide **1480×400-pixel** screen configuration.
+The interface was specifically developed for the rear display of the **PiRacer** prototype, optimized for a wide **1280×400-pixel** screen configuration.
 
-![screenshot](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/qt/src/car_cluster/usage_example.png)
+![screenshot](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/qt/src/car_cluster/cluster_v2_light.png)
+![screenshot](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/feature/qt/src/car_cluster/cluster_v2_dark.png)
 ---
 
 ## 📸 Overview
