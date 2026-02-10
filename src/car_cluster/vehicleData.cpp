@@ -1,4 +1,6 @@
 #include "vehicleData.hpp"
+#include <vector>
+#include <memory>
 //#include "kuksa/val/v2/types.pb.h" // necessário para ler os tipos
 
 //using grpc::ClientContext;
@@ -13,7 +15,7 @@ vehicleData *vehicleData::instance() {
 }
 
 //Private constructor
-vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), isCharging(false) {(void) parent;}
+vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), trafficSign("") {(void) parent;}
 
 // Getters
 double vehicleData::getSpeed() const{ return speed;}
@@ -22,7 +24,7 @@ int vehicleData::getBattery() const { return battery;}
 
 int vehicleData::getTemperature() const{ return temperature;}
 
-bool vehicleData::getIsCharging() const{ return isCharging;}
+std::string vehicleData::getTrafficSign() const{ return trafficSign;}
 
 //Slots
 void    vehicleData::setSpeed(double newSpeed) {
@@ -55,11 +57,11 @@ void    vehicleData::setTemperature(int newTemperature){
     emit temperatureChanged();
 }
 
-void    vehicleData::setCharging(bool newCharging){
-    if (this->isCharging == newCharging)
+void    vehicleData::setTrafficSign(std::string newTrafficSign){
+    if (this->trafficSign == newTrafficSign)
         return ;
-    this->isCharging = newCharging;
-    emit chargingChanged();
+    this->trafficSign = newTrafficSign;
+    emit trafficSignChanged();
 }
 
 //SIMULATION TESTS
@@ -82,6 +84,24 @@ void vehicleData::startBatterySimulation() {
         emit batteryChanged();
     });
     timer->start(1000); // 1000 ms por tick -> 1 Hz
+}
+
+void vehicleData::startTrafficSignSimulation() {
+    // Lista de sinais que serão exibidos em loop
+    std::vector<std::string> signs = {"stop", "80", "50", "danger", "pedestrian", "yield", "red", "yellow", "green"};
+
+    if (!signs.empty())
+        this->setTrafficSign(signs[0]);
+
+    // índice compartilhado entre chamadas do lambda para permanecer válido
+    auto index = std::make_shared<int>(0);
+
+    QTimer* timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [this, signs, index]() mutable {
+        *index = (*index + 1) % static_cast<int>(signs.size());
+        this->setTrafficSign(signs[*index]);
+    });
+    timer->start(5000); // troca a cada 5 segundos
 }
 
 /*void vehicleData::startReadCan() {

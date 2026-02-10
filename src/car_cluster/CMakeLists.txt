@@ -61,14 +61,45 @@ qt_add_qml_module(appcar_cluster
     VERSION 1.0
     QML_FILES
         Main.qml
-        components/SpeedArc.qml
-        components/BatteryArc.qml
+        components/SpeedPanel.qml
+        components/BatteryPanel.qml
+        components/GearSelector.qml
+        components/Footer.qml
+        components/Header.qml
+        components/TrafficSign.qml
+        components/Warning.qml
     RESOURCES
         resources.qrc
-        assets/mclaren.png
-        assets/cluster_light.png
-        assets/cluster_dark.png
-        assets/Sonic_Turbo.otf
+        assets/cluster/cluster_light.png
+        assets/cluster/cluster_dark.png
+        assets/fonts/Rajdhani.ttf
+        assets/fonts/Michroma.ttf
+        assets/fonts/Awesome_Solid.otf
+        assets/autonomy_light.png
+        assets/autonomy_dark.png
+        assets/battery/battery_light_100.png
+        assets/battery/battery_light_75.png
+        assets/battery/battery_light_50.png
+        assets/battery/battery_light_30.png
+        assets/battery/battery_light_15.png
+        assets/battery/battery_dark_100.png
+        assets/battery/battery_dark_75.png
+        assets/battery/battery_dark_50.png
+        assets/battery/battery_dark_30.png
+        assets/battery/battery_dark_15.png
+        assets/traffic/50.png
+        assets/traffic/80.png
+        assets/traffic/stop.png
+        assets/traffic/yield.png
+        assets/traffic/danger.png
+        assets/traffic/pedestrian.png
+        assets/traffic/traffic-light-red.png
+        assets/traffic/traffic-light-green.png
+        assets/traffic/traffic-light-yellow.png
+        assets/warnings/warning_estop.png
+        assets/warnings/warning_low_battery.png
+        assets/warnings/warning_temp_max.png
+        assets/warnings/warning_temp_rising.png
 )
 
 # Incluir diretórios de build para achar os headers gerados
