@@ -20,8 +20,29 @@ void car_init(car_t *car, void *hi2c)
     tx_sleep(1);
 }
 
+int calculateRaw(float percent)
+{
+    percent *= -1.0;
+
+    if (percent > 1.0f) percent = 1.0f;
+    if (percent < -1.0f) percent = -1.0f;
+
+    int raw = SERVO_RAW_MIN +
+              (int)((percent + 1.0f) * 0.5f *
+              (SERVO_RAW_MAX - SERVO_RAW_MIN));
+
+    
+    if (raw > SERVO_RAW_MAX)
+        raw = SERVO_RAW_MAX;
+    if (raw < SERVO_RAW_MIN)
+        raw = SERVO_RAW_MIN;
+    return raw;
+}
+
 void car_set_steering_percent(car_t *car, float percent)
 {
+    percent *= -1.0;
+
     if (percent > 1.0f) percent = 1.0f;
     if (percent < -1.0f) percent = -1.0f;
 

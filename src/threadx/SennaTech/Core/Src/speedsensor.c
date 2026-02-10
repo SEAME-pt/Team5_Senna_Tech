@@ -122,9 +122,9 @@ void sensor_thread_entry2(ULONG thread_input)
         }
 
         /* ========================= */
-        /* envio a cada 20 ticks (~200ms) */
+        /* envio a cada 10 ticks (~100ms) */
         /* ========================= */
-        if (acc_ticks >= 20)
+        if (acc_ticks >= 10)
         {
             if (acc_ticks > 0)
             {
@@ -152,7 +152,9 @@ void sensor_thread_entry2(ULONG thread_input)
             speed_frame.id  = CAN_ID_SPEED;
             speed_frame.dlc = 1;
 
-            uint8_t speed_byte = (uint8_t)speed_kmh;
+            uint8_t speed_byte = (uint8_t)(speed_kmh * 10.0f);
+            if (speed_byte > 255)
+                speed_byte = 255;
             speed_frame.data[0] = speed_byte;
 
             tx_mutex_get(&g_speed_mutex, TX_WAIT_FOREVER);
@@ -164,7 +166,6 @@ void sensor_thread_entry2(ULONG thread_input)
                 log_debug("Error: TX queue full!");
             }
         }
-
         tx_thread_sleep(1); // 1 tick = 10ms
     }
 }

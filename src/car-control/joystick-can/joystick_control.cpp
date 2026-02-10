@@ -66,3 +66,61 @@ int main()
 
     return 0;
 }
+
+/* #include <chrono>
+
+using namespace std::chrono;
+
+int main()
+{
+    try {
+        ShanWanGamepad gamepad;
+        CanSocket can("can0");  
+        int sock = can.getSock();
+
+        auto last_input_time = steady_clock::now();
+        const auto TIMEOUT = milliseconds(200); // 200 ms sem input -> fail-safe
+
+        while (true)
+        {
+            ShanWanGamepadInput input;
+            bool ok = gamepad.try_read_data(input); // supondo que exista um método que retorna false se desconectado
+
+            if (ok) {
+                last_input_time = steady_clock::now();
+
+                float steering  = input.analog_stick_right.x; 
+                float throttle  = input.analog_stick_left.y;  
+
+                int16_t steering_can = raw_from_percent_int16(steering);
+                int16_t throttle_can = raw_from_percent_int16(throttle);
+                
+                send_int16(sock, CAN_ID_STEERING, steering_can);
+                send_int16(sock, CAN_ID_THROTTLE, throttle_can);
+
+                printf(
+                    "Steer: %.2f (%d) | Throttle: %.2f (%d)\n",
+                    steering, steering_can,
+                    throttle, throttle_can
+                );
+            }
+            else {
+                // Falha: joystick desconectado
+                auto now = steady_clock::now();
+                if (now - last_input_time > TIMEOUT) {
+                    // Envia comandos neutros para segurança
+                    send_int16(sock, CAN_ID_STEERING, 0);
+                    send_int16(sock, CAN_ID_THROTTLE, 0);
+                    printf("Joystick disconnected! Motors stopped.\n");
+                }
+            }
+        }
+
+    } catch (const std::exception& e) {
+        std::cerr << "Error initializing CAN or Gamepad: " << e.what() << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+ */

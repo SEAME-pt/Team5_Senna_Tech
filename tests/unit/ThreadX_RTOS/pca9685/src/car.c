@@ -20,15 +20,42 @@ void car_init(car_t *car, void *hi2c)
     tx_sleep(1);
 }
 
+int calculateRaw(float percent)
+{
+    percent *= -1.0;
+
+    if (percent > 1.0f) percent = 1.0f;
+    if (percent < -1.0f) percent = -1.0f;
+
+    int raw = SERVO_RAW_MIN +
+              (int)((percent + 1.0f) * 0.5f *
+              (SERVO_RAW_MAX - SERVO_RAW_MIN));
+
+    
+    if (raw > SERVO_RAW_MAX)
+        raw = SERVO_RAW_MAX;
+    if (raw < SERVO_RAW_MIN)
+        raw = SERVO_RAW_MIN;
+    return raw;
+}
+
 void car_set_steering_percent(car_t *car, float percent)
 {
-    if (percent > 1.0f)
-        percent = 1.0f;
-    else if (percent < -1.0f)
-        percent = -1.0f;
+    percent *= -1.0;
+
+    if (percent > 1.0f) percent = 1.0f;
+    if (percent < -1.0f) percent = -1.0f;
+
+    int raw = SERVO_RAW_MIN +
+              (int)((percent + 1.0f) * 0.5f *
+              (SERVO_RAW_MAX - SERVO_RAW_MIN));
+
     
-    float dutyCycle = duty_from_percent_50hz(-percent);
-    int raw = (int)(PWM_MAX_RAW_VALUE * (dutyCycle / PWM_WAVELENGTH_50HZ));
+    if (raw > SERVO_RAW_MAX)
+        raw = SERVO_RAW_MAX;
+    if (raw < SERVO_RAW_MIN)
+        raw = SERVO_RAW_MIN;
+    //log_debug("raw: %i", raw);
     PCA9685_SetPWM(&car->steering, PWM_STEERING_CHANNEL, 0, raw);
 }
 

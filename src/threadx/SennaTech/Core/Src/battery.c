@@ -16,11 +16,13 @@ void battery_thread_entry(ULONG thread_input)
 	INA219_Init(&ina219, &hi2c1, INA219_DEFAULT_ADDRESS);
 	INA219_SetCalibration32V2A(&ina219);
 
+	float current = 0.0f;
 	int diff = 0;
 	bool first_time = true;
 
 	while (1)
 	{
+		current = INA219_GetCurrent(&ina219);
 		tx_mutex_get(&g_battery_mutex, TX_WAIT_FOREVER);
 
 		float voltage = INA219_GetBusVoltage(&ina219);
@@ -28,31 +30,34 @@ void battery_thread_entry(ULONG thread_input)
 		int battery_level = (int)(((voltage - BATTERY_VOLTAGE_MIN) /
 								(BATTERY_VOLTAGE_MAX - BATTERY_VOLTAGE_MIN)) * 100);
 
-		if (battery_level < 0) battery_level = 1;
+		if (battery_level <= 0) battery_level = 1;
 		if (battery_level > 100) battery_level = 100;
+
+		bool update = false;
 
 		if (first_time)
 		{
-			vehicle_state.battery_level = battery_level;
-			batteryFrame.data[0] = vehicle_state.battery_level;
+			update = true;
 			first_time = false;
-			diff = 0;
 		}
-		else if (battery_level != vehicle_state.battery_level)
+		else if (current < 0.0f && battery_level < vehicle_state.battery_level)
 		{
-			diff++;
-
+			diff += 1;
 			if (diff >= 10)
-			{
-				vehicle_state.battery_level = battery_level;
-				batteryFrame.data[0] = vehicle_state.battery_level;
+				update = true;
+			else
 				diff = 0;
-			}
 		}
-		else
+		else if (current > 0.0f)
+			update = true;
+
+		if (update)
 		{
+			vehicle_state.battery_level = battery_level;
+			batteryFrame.data[0] = battery_level;
 			diff = 0;
 		}
+
 		tx_mutex_put(&g_battery_mutex);
 
 		if (tx_queue_send(&g_tx_data_queue, &batteryFrame, TX_NO_WAIT) != TX_SUCCESS)
