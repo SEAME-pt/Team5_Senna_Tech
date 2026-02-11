@@ -15,7 +15,12 @@ vehicleData *vehicleData::instance() {
 }
 
 //Private constructor
-vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), trafficSign("") {(void) parent;}
+vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), trafficSign("") {
+    (void) parent;
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &vehicleData::updateTemperature);
+    timer->start(1000); // atualiza a cada 1 seg
+}
 
 // Getters
 double vehicleData::getSpeed() const{ return speed;}
@@ -199,4 +204,20 @@ void vehicleData::kuksaLoop() {
         }
     }
     std::cout << "Desconectado do KUKSA." << std::endl;
+}
+
+void vehicleData::updateTemperature() {
+    QFile tempFile("/sys/class/thermal/thermal_zone0/temp");
+
+    if (tempFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&tempFile);
+        QString rawTemp = in.readLine();
+        tempFile.close();
+
+        // O valor vem em milicelsius (ex: 45000), então dividimos por 1000
+        int tempCelsius = rawTemp.toDouble() / 1000;
+
+        // Atribuindo à sua variável
+        setTemperature(tempCelsius);
+    }
 }

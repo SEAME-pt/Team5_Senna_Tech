@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QTimer>
 #include <QDebug>
+#include <QFile>
+#include <QTextStream>
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -57,7 +59,9 @@ class vehicleData : public QObject
         void startSpeedSimulation();
         void startBatterySimulation();
         void startTrafficSignSimulation();
+        
         void startKuksaSubscriber();
+        void updateTemperature();
 
 
 

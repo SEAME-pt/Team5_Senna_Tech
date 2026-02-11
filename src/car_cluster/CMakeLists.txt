@@ -3,54 +3,87 @@ cmake_minimum_required(VERSION 3.16)
 project(car_cluster VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_PREFIX_PATH "/opt/qt-host-build")
-# para compilar no pc do seame, utilizar: "cmake.. -DCMAKE_PREFIX_PATH=/home/team5/qt-everywhere-src-6.8.3/qt-host-build/qtbase/lib/cmake/Qt6/"
 
-find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2)
-find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2 Core)
 
-# adicionado para Protobuf e gRPC
+# ---------------------------------------------------------
+# 1. PROTOBUF (Config Mode - Esse funciona)
+# ---------------------------------------------------------
 find_package(Protobuf CONFIG REQUIRED)
-find_package(gRPC CONFIG REQUIRED)
+message(STATUS "Protobuf Found: ${Protobuf_DIR}")
 
-find_program(PROTOC_EXEC protoc REQUIRED HINTS /usr/local/bin /usr/bin)
-find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin REQUIRED HINTS /usr/local/bin /usr/bin)
+# ---------------------------------------------------------
+# 2. GRPC (Manual Mode - "Force Brute")
+# ---------------------------------------------------------
+# Como o gRPCConfig.cmake não foi gerado corretamente,
+# vamos pegar as bibliotecas estáticas diretamente.
+set(GRPC_SEARCH_PATH "/opt/qt-cross-build/lib")
 
-message(STATUS "Using protoc: ${PROTOC_EXEC}")
-message(STATUS "Using grpc_cpp_plugin: ${GRPC_CPP_PLUGIN}")
+find_library(LIB_GRPC_CPP grpc++ PATHS ${GRPC_SEARCH_PATH} NO_DEFAULT_PATH REQUIRED)
+find_library(LIB_GRPC grpc PATHS ${GRPC_SEARCH_PATH} NO_DEFAULT_PATH REQUIRED)
+find_library(LIB_GPR gpr PATHS ${GRPC_SEARCH_PATH} NO_DEFAULT_PATH REQUIRED)
+find_library(LIB_ADDR_SORTING address_sorting PATHS ${GRPC_SEARCH_PATH} NO_DEFAULT_PATH REQUIRED)
+message(STATUS "gRPC Libs Found Manually: ${LIB_GRPC_CPP}")
 
-# configurar onde estão os arquivos .proto (AJUSTAR O CAMINHO CONFORME SEJA NECESSARIO)
+# ---------------------------------------------------------
+# 3. FERRAMENTAS DO HOST (x86)
+# ---------------------------------------------------------
+# Renomeamos a variável para evitar conflitos de cache
+find_program(MY_PROTOC_EXEC protoc 
+             PATHS /usr/local/bin /usr/bin 
+             NO_DEFAULT_PATH REQUIRED)
+
+find_program(MY_GRPC_CPP_PLUGIN grpc_cpp_plugin 
+             PATHS /usr/local/bin /usr/bin 
+             NO_DEFAULT_PATH REQUIRED)
+
+message(STATUS "Using protoc: ${MY_PROTOC_EXEC}")
+message(STATUS "Using grpc_plugin: ${MY_GRPC_CPP_PLUGIN}")
+
+# ---------------------------------------------------------
+# 4. GERAÇÃO DOS ARQUIVOS .PROTO
+# ---------------------------------------------------------
 set(PROTO_BASE_DIR ${CMAKE_SOURCE_DIR}/protos)
-# Verificação de segurança (opcional, mas ajuda a debugar)
+
+# Verifica se os arquivos existem para não dar erro obscuro depois
 if(NOT EXISTS "${PROTO_BASE_DIR}/kuksa/val/v2/val.proto")
-    message(FATAL_ERROR "Arquivo Proto não encontrado em: ${PROTO_BASE_DIR}/kuksa/val/v2/val.proto. Verifique a estrutura de pastas.")
+    message(FATAL_ERROR "ERRO: ${PROTO_BASE_DIR}/kuksa/val/v2/val.proto não encontrado!")
 endif()
+
 set(PROTO_FILES 
     ${PROTO_BASE_DIR}/kuksa/val/v2/val.proto 
     ${PROTO_BASE_DIR}/kuksa/val/v2/types.proto
 )
 
-# gerar código C++ a partir dos Protos
+# Cria pasta de output
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/kuksa/val/v2)
+
+# Comando para gerar C++
 add_custom_command(
     OUTPUT 
         kuksa/val/v2/val.pb.cc kuksa/val/v2/val.pb.h 
         kuksa/val/v2/val.grpc.pb.cc kuksa/val/v2/val.grpc.pb.h
         kuksa/val/v2/types.pb.cc kuksa/val/v2/types.pb.h
-	COMMAND /usr/local/bin/protoc
+    COMMAND ${MY_PROTOC_EXEC}
     ARGS --proto_path=${PROTO_BASE_DIR}
-        --cpp_out=${CMAKE_CURRENT_BINARY_DIR}
-        --grpc_out=${CMAKE_CURRENT_BINARY_DIR}
-        --plugin=protoc-gen-grpc=`which grpc_cpp_plugin`
-        ${PROTO_FILES}
+         --cpp_out=${CMAKE_CURRENT_BINARY_DIR}
+         --grpc_out=${CMAKE_CURRENT_BINARY_DIR}
+         --plugin=protoc-gen-grpc=${MY_GRPC_CPP_PLUGIN}
+         ${PROTO_FILES}
     DEPENDS ${PROTO_FILES}
+    COMMENT "Compilando Protos..."
 )
 
+# ---------------------------------------------------------
+# 5. EXECUTÁVEL
+# ---------------------------------------------------------
 qt_add_executable(appcar_cluster
     main.cpp
     vehicleData.cpp
     vehicleData.hpp
-    #adicionados
+    # Arquivos Gerados
     kuksa/val/v2/val.pb.cc 
     kuksa/val/v2/val.grpc.pb.cc 
     kuksa/val/v2/types.pb.cc    
@@ -102,28 +135,36 @@ qt_add_qml_module(appcar_cluster
         assets/warnings/warning_temp_rising.png
 )
 
-# Incluir diretórios de build para achar os headers gerados
-target_include_directories(appcar_cluster PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+# Incluir diretórios
+target_include_directories(appcar_cluster PRIVATE 
+    ${CMAKE_CURRENT_BINARY_DIR}
+    /opt/qt-cross-build/include
+)
 
-
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
+# Propriedades
 set_target_properties(appcar_cluster PROPERTIES
-#    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.appQML_study
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
 
+# ---------------------------------------------------------
+# 6. LINKAGEM (A parte importante)
+# ---------------------------------------------------------
+# Pega TODAS as bibliotecas estáticas que compilamos e copiamos
+file(GLOB ALL_STATIC_LIBS "/opt/qt-cross-build/lib/*.a")
+
 target_link_libraries(appcar_cluster
-    PRIVATE Qt6::Quick
+    PRIVATE 
+    Qt6::Quick
     Qt6::QuickControls2
-    #adicionado
-    protobuf::libprotobuf gRPC::grpc++
-    protobuf::libprotobuf
-    gRPC::grpc++
+    Qt6::Core
+    -Wl,--start-group
+    ${ALL_STATIC_LIBS}
+    -Wl,--end-group
+    z
+    ssl
+    crypto
+    systemd
 )
 
 include(GNUInstallDirs)

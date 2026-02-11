@@ -7,7 +7,7 @@ Item {
 
     property real battery: 0
     property bool isDark: false
-    property real autonomy: 74
+    property real range: 8
     
     function getBatteryImage() {
         if (root.battery >= 76) {
@@ -61,7 +61,7 @@ Item {
                 }
                 
                 Text {
-                    text: root.autonomy + "km"
+                    text: root.range.toFixed(1) + "km"
                     color:root.isDark ? '#ddeff8' : '#0b4659'
                     font.family: rajdhani.name
                     font.pixelSize: 25

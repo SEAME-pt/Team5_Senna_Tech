@@ -9,7 +9,7 @@ Item {
     signal darkModeToggled()
         
     property bool isDark: false
-    property bool isM_S: false
+    property bool isDm_H: false
 
     Item {
         id: switchUnit
@@ -39,20 +39,20 @@ Item {
             color: root.isDark ? '#ddeff8' : '#0b4659'
             y: 4
 
-            x: root.isM_S ? 6 : parent.width - speedCircle.width - 6
+            x: root.isDm_H ? 6 : parent.width - speedCircle.width - 6
             Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.InOutQuad } }
         }
         Text {
             id: unitLabel
             anchors.verticalCenter: parent.verticalCenter
-            text: root.isM_S ? "km/h" : "m/s"  
+            text: root.isDm_H ? "km/h" : "dm/h"  
             color: root.isDark ? '#ddeff8' : '#0b4659' 
             font.family: rajdhani.name
             font.pixelSize: 22
             font.bold: true
 
             // Use posições fixas relativas ao botão (não à propriedade animada knob.x)
-            x: root.isM_S ? (6 + speedCircle.width + 8) : (parent.width - speedCircle.width - 6 - implicitWidth - 8)
+            x: root.isDm_H ? (6 + speedCircle.width + 8) : (parent.width - speedCircle.width - 6 - implicitWidth - 8)
         }
     }
     Item {

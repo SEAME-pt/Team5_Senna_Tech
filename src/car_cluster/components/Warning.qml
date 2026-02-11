@@ -9,7 +9,7 @@ Item {
     property int batteryLevel: 100
 
     function getWarningImage() {
-        if (root.temperature > 60 && root.temperature < 80)
+        if (root.temperature > 70 && root.temperature < 80)
             return "../assets/warnings/warning_temp_rising.png"
         else if (root.temperature >= 80)
             return "../assets/warnings/warning_temp_max.png"

@@ -24,15 +24,16 @@ ApplicationWindow {
         source: "assets/fonts/Awesome_Solid.otf"
     }
     // Properties
-    property real currentSpeed: Math.round(Number(vehicle.speed))
+    property real currentSpeed: Number(vehicle.speed)
     property string currentGear: currentSpeed > 0.5 ? "D" : "N"
     property int batteryLevel:Math.round(Number(vehicle.battery))
-    property int temperature: 45
+    property int temperature: Math.round(Number(vehicle.temperature))
     property string currentTrafficSign: String(vehicle.trafficSign)
+    property real range: batteryLevel * 0.0806
     // speed unit change
-    property bool isM_S: false
-    property real displaySpeed: isM_S ? (currentSpeed / 3.6) : currentSpeed
-    property string unitText: isM_S ? "m/s" : "km/h"
+    property bool isDm_H: false
+    property real displaySpeed: isDm_H ? (currentSpeed * 10) : currentSpeed
+    property string unitText: isDm_H ? "dm/h" : "km/h"
     // cluster mode
     property bool isDark: false
 
@@ -58,14 +59,14 @@ ApplicationWindow {
             }
     }
     Header {
-        isM_S: root.isM_S
+        isDm_H: root.isDm_H
         isDark: root.isDark
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.margins: 20
         
-        onSpeedUnitToggled: root.isM_S = !root.isM_S
+        onSpeedUnitToggled: root.isDm_H = !root.isDm_H
         onDarkModeToggled: root.isDark = !root.isDark
     }
     Footer {
@@ -89,6 +90,7 @@ ApplicationWindow {
     BatteryPanel {
         battery: root.batteryLevel // Sua propriedade vinculada ao C++
         isDark: root.isDark
+        range: root.range
 
         anchors.verticalCenter: parent.verticalCenter
         anchors.verticalCenterOffset: - 20
