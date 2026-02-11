@@ -150,13 +150,13 @@ void sensor_thread_entry2(ULONG thread_input)
             /* ===== CAN 1 byte ===== */
             CAN_Frame speed_frame;
             speed_frame.id  = CAN_ID_SPEED;
-            speed_frame.dlc = 1;
+            speed_frame.dlc = 2;
 
-            uint8_t speed_byte = (uint8_t)(speed_kmh * 10.0f);
-            if (speed_byte > 255)
-                speed_byte = 255;
-            speed_frame.data[0] = speed_byte;
-
+            uint16_t speed_byte = (uint16_t)(speed_kmh * 100.0f);
+/*             if (speed_byte > 255)
+                speed_byte = 255; */
+            speed_frame.data[0] = (speed_byte >> 8) & 0xFF;
+            speed_frame.data[1] = speed_byte & 0xFF;
             tx_mutex_get(&g_speed_mutex, TX_WAIT_FOREVER);
             vehicle_state.speed_kmh = speed_byte;
             tx_mutex_put(&g_speed_mutex);

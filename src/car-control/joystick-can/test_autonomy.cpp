@@ -95,6 +95,8 @@ int main()
         move(sock, CAN_ID_STEERING, 1.0f);
         move(sock, CAN_ID_STEERING, 0.0f);
         move(sock, CAN_ID_THROTTLE, 0.0f);
+        move(sock, CAN_ID_THROTTLE, -1.0f);
+        sleep(2);
 
         uint8_t batteryStart = read_battery(sock);
         uint8_t battery = batteryStart;
@@ -130,3 +132,10 @@ int main()
         return 1;
     }
 }
+
+
+/* 
+    Media de 6km/h -> 1,66 m/s
+
+    50 segundos * 1,6m  - > 80m * 100 = 8km
+*/

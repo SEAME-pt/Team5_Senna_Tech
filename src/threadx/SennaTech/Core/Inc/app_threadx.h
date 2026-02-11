@@ -107,6 +107,7 @@ void sensor_thread_entry(ULONG thread_input);
 void battery_thread_entry(ULONG thread_input);
 void motors_thread_entry(ULONG thread_input);
 void debug_thread_entry(ULONG thread_input);
+void heartbeat_thread_entry(ULONG thread_input);
 
 // utils
 

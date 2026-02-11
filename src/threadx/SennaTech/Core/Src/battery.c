@@ -3,7 +3,6 @@
 #include "ina219.h"
 #include <stdbool.h>
 
-
 void battery_thread_entry(ULONG thread_input)
 {
 	log_debug("BATTERY THREAD STARTED");
@@ -16,10 +15,11 @@ void battery_thread_entry(ULONG thread_input)
 	INA219_Init(&ina219, &hi2c1, INA219_DEFAULT_ADDRESS);
 	INA219_SetCalibration32V2A(&ina219);
 
-	float current = 0.0f;
+	int current = 0;
 	int diff = 0;
 	bool first_time = true;
 
+	tx_thread_sleep(600);
 	while (1)
 	{
 		current = INA219_GetCurrent(&ina219);
@@ -35,20 +35,26 @@ void battery_thread_entry(ULONG thread_input)
 
 		bool update = false;
 
+/* 		if (current > 0)
+			log_debug("corrente positiva");
+		else
+			log_debug("corrente negativa"); */
+
 		if (first_time)
 		{
 			update = true;
 			first_time = false;
 		}
-		else if (current < 0.0f && battery_level < vehicle_state.battery_level)
+		else if (current < 0 && battery_level < vehicle_state.battery_level)
 		{
 			diff += 1;
 			if (diff >= 10)
+			{
 				update = true;
-			else
 				diff = 0;
+			}
 		}
-		else if (current > 0.0f)
+		else if (current > 0 && battery_level > vehicle_state.battery_level)
 			update = true;
 
 		if (update)
