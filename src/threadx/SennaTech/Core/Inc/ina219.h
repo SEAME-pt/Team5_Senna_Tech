@@ -5,7 +5,7 @@
 #include "app_threadx.h"
 
 #define INA219_DEFAULT_ADDRESS 0x41 << 1
-#define BATTERY_VOLTAGE_MIN 9.0f
+#define BATTERY_VOLTAGE_MIN 8.4f
 #define BATTERY_VOLTAGE_MAX 12.0f
 
 #define REG_CONFIG        0x00

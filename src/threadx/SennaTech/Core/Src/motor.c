@@ -3,14 +3,16 @@
 #include "car.h"
 #include <inttypes.h>
 
-float percent_from_can_int16(uint8_t high_byte, uint8_t low_byte)
+float percent_from_can_int16(uint8_t low_byte, uint8_t high_byte)
 {
-    uint16_t u_combined = ((uint16_t)high_byte << 8) | (uint16_t)low_byte;
+    // Intel (little endian)
+    uint16_t u_combined = ((uint16_t)high_byte << 8) | low_byte;
+
     int16_t raw = (int16_t)u_combined;
 
-    float percent = (float)raw / 32767.0f;
+    float percent = raw * 0.01f;
 
-    // Safety
+    // safety clamp
     if (percent > 1.0f)  percent = 1.0f;
     if (percent < -1.0f) percent = -1.0f;
 
