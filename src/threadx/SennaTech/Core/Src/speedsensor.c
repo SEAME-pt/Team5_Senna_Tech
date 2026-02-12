@@ -36,7 +36,7 @@ void sensor_thread_entry(ULONG thread_input)
 			// FORMULA: (DeltaPulses * 60000 ms) / (DeltaTime * Holes)
 			// We use 20 because it is the number of holes in our encoder
 			if (time_diff > 0) {
-				rpm_instant = (float)(pulses_diff * 60000) / (time_diff * 20);
+				rpm_instant = (float)(pulses_diff * 60000) / (time_diff * 18);
 				rpm = (int)rpm_instant;
 
                 // KM/H = RPM * Circunference * 0.06 (conversion m/min -> km/h)
@@ -122,16 +122,16 @@ void sensor_thread_entry2(ULONG thread_input)
         }
 
         /* ========================= */
-        /* envio a cada 20 ticks (~200ms) */
+        /* envio a cada 10 ticks (~100ms) */
         /* ========================= */
-        if (acc_ticks >= 20)
+        if (acc_ticks >= 10)
         {
             if (acc_ticks > 0)
             {
                 /* 6000 = 60s * 100 ticks/s */
                 rpm_instant =
                     (float)(acc_pulses * 6000) /
-                    (acc_ticks * 20);
+                    (acc_ticks * 18);
 
                 rpm = (int)rpm_instant;
 
@@ -150,11 +150,13 @@ void sensor_thread_entry2(ULONG thread_input)
             /* ===== CAN 1 byte ===== */
             CAN_Frame speed_frame;
             speed_frame.id  = CAN_ID_SPEED;
-            speed_frame.dlc = 1;
+            speed_frame.dlc = 2;
 
-            uint8_t speed_byte = (uint8_t)speed_kmh;
-            speed_frame.data[0] = speed_byte;
-
+            uint16_t speed_byte = (uint16_t)(speed_kmh * 100.0f);
+/*             if (speed_byte > 255)
+                speed_byte = 255; */
+            speed_frame.data[0] = (speed_byte >> 8) & 0xFF;
+            speed_frame.data[1] = speed_byte & 0xFF;
             tx_mutex_get(&g_speed_mutex, TX_WAIT_FOREVER);
             vehicle_state.speed_kmh = speed_byte;
             tx_mutex_put(&g_speed_mutex);
@@ -164,7 +166,6 @@ void sensor_thread_entry2(ULONG thread_input)
                 log_debug("Error: TX queue full!");
             }
         }
-
         tx_thread_sleep(1); // 1 tick = 10ms
     }
 }

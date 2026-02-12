@@ -40,6 +40,5 @@ void CAN_Manager_Init(void);
 void CAN_Tx_Thread_Entry(ULONG thread_input);
 void CAN_Rx_Thread_Entry(ULONG thread_input);
 void CAN_ISR_Handler(void); // Chama isso dentro do HAL_GPIO_EXTI_Callback
-void heartbeat_thread_entry(ULONG thread_input);
 
 #endif

@@ -4,10 +4,6 @@
 #include "mock_pca9685.h"
 #include "car.h"
 
-#define PWM_MAX_RAW_VALUE ((1 << PWM_RESOLUTION) - 1)  
-#define PWM_FREQ_50HZ 50.0f
-#define PWM_WAVELENGTH_50HZ (1.0f / 50.0f)
-
 car_t car;
 
 // CAR INIT TEST
@@ -155,9 +151,9 @@ void test_car_steering_half_left(void)
 {
     float percent = 0.5f;
 
-    float dutyCycle = 0.0015f + (-percent * 0.001f);
-    int raw = (int)(PWM_MAX_RAW_VALUE * (dutyCycle / PWM_WAVELENGTH_50HZ));
+    int raw = calculateRaw(percent);
     PCA9685_SetPWM_Expect(&car.steering, PWM_STEERING_CHANNEL, 0, raw);
+
     car_set_steering_percent(&car, 0.5f);
 }
 
@@ -166,9 +162,8 @@ void test_car_steering_full_left(void)
 {
     float percent = 1.0f;
     
-    float dutyCycle = 0.0015f + (-percent * 0.001f);
-    int expected_raw = (int)(PWM_MAX_RAW_VALUE * (dutyCycle / PWM_WAVELENGTH_50HZ));
-    PCA9685_SetPWM_Expect(&car.steering, PWM_STEERING_CHANNEL, 0, expected_raw);
+    int raw = calculateRaw(percent);
+    PCA9685_SetPWM_Expect(&car.steering, PWM_STEERING_CHANNEL, 0, raw);
     
     car_set_steering_percent(&car, 1.0f);
 }
@@ -178,9 +173,8 @@ void test_car_steering_half_right(void)
 {
     float percent = -0.5f;
 
-    float dutyCycle = 0.0015f + (-percent * 0.001f);
-    int expected_raw = (int)(PWM_MAX_RAW_VALUE * (dutyCycle / PWM_WAVELENGTH_50HZ));
-    PCA9685_SetPWM_Expect(&car.steering, PWM_STEERING_CHANNEL, 0, expected_raw);
+    int raw = calculateRaw(percent);
+    PCA9685_SetPWM_Expect(&car.steering, PWM_STEERING_CHANNEL, 0, raw);
     
     car_set_steering_percent(&car, -0.5f);
 }
@@ -190,9 +184,8 @@ void test_car_steering_full_right(void)
 {
     float percent = -1.0f;
     
-    float dutyCycle = 0.0015f + (-percent * 0.001f);
-    int expected_raw = (int)(PWM_MAX_RAW_VALUE * (dutyCycle / PWM_WAVELENGTH_50HZ));
-    PCA9685_SetPWM_Expect(&car.steering, PWM_STEERING_CHANNEL, 0, expected_raw);
+    int raw = calculateRaw(percent);
+    PCA9685_SetPWM_Expect(&car.steering, PWM_STEERING_CHANNEL, 0, raw);
     
     car_set_steering_percent(&car, -1.0f);
 }
@@ -202,9 +195,8 @@ void test_car_steering_stop(void)
 {
     float percent = 0.0f;
     
-    float dutyCycle = 0.0015f + (-percent * 0.001f);
-    int expected_raw = (int)(PWM_MAX_RAW_VALUE * (dutyCycle / PWM_WAVELENGTH_50HZ));
-    PCA9685_SetPWM_Expect(&car.steering, PWM_STEERING_CHANNEL, 0, expected_raw);
+    int raw = calculateRaw(percent);
+    PCA9685_SetPWM_Expect(&car.steering, PWM_STEERING_CHANNEL, 0, raw);
     
     car_set_steering_percent(&car, 0.0f);
 }
@@ -213,11 +205,10 @@ void test_car_steering_stop(void)
 void test_car_steering_overflow_left(void)
 {
     float percent = 1.0f;
-    
-    float dutyCycle = 0.0015f + (-percent * 0.001f);
-    int expected_raw = (int)(PWM_MAX_RAW_VALUE * (dutyCycle / PWM_WAVELENGTH_50HZ));
-    PCA9685_SetPWM_Expect(&car.steering, PWM_STEERING_CHANNEL, 0, expected_raw);
-    
+
+    int raw = calculateRaw(percent);
+    PCA9685_SetPWM_Expect(&car.steering, PWM_STEERING_CHANNEL, 0, raw);
+
     car_set_steering_percent(&car, 1.1f);
 }
 
@@ -226,9 +217,8 @@ void test_car_steering_overflow_right(void)
 {
     float percent = -1.0f;
     
-    float dutyCycle = 0.0015f + (-percent * 0.001f);
-    int expected_raw = (int)(PWM_MAX_RAW_VALUE * (dutyCycle / PWM_WAVELENGTH_50HZ));
-    PCA9685_SetPWM_Expect(&car.steering, PWM_STEERING_CHANNEL, 0, expected_raw);
+    int raw = calculateRaw(percent);
+    PCA9685_SetPWM_Expect(&car.steering, PWM_STEERING_CHANNEL, 0, raw);
     
     car_set_steering_percent(&car, -1.1f);
 }
