@@ -30,7 +30,7 @@ void battery_thread_entry(ULONG thread_input)
 		int battery_level = (int)(((voltage - BATTERY_VOLTAGE_MIN) /
 								(BATTERY_VOLTAGE_MAX - BATTERY_VOLTAGE_MIN)) * 100);
 
-		if (battery_level <= 0) battery_level = 1;
+		if (battery_level < 2) battery_level = 1;
 		if (battery_level > 100) battery_level = 100;
 
 		bool update = false;
@@ -50,6 +50,7 @@ void battery_thread_entry(ULONG thread_input)
 			diff += 1;
 			if (diff >= 10)
 			{
+				battery_level = vehicle_state.battery_level - 1;
 				update = true;
 				diff = 0;
 			}
@@ -69,6 +70,6 @@ void battery_thread_entry(ULONG thread_input)
 		if (tx_queue_send(&g_tx_data_queue, &batteryFrame, TX_NO_WAIT) != TX_SUCCESS)
 			log_debug("TX queue cheia! Frame descartado.");
 
-		tx_thread_sleep(100);
+		tx_thread_sleep(150);
 	}
 }
