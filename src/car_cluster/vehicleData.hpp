@@ -33,6 +33,7 @@ class vehicleData : public QObject
     Q_PROPERTY(int battery READ getBattery NOTIFY batteryChanged)
     Q_PROPERTY(int temperature READ getTemperature NOTIFY temperatureChanged)
     Q_PROPERTY(std::string trafficSign READ getTrafficSign NOTIFY trafficSignChanged)
+    Q_PROPERTY(char gear READ getGear NOTIFY gearChanged)
 
     public:
         static vehicleData* instance(); //Singleton definition
@@ -42,28 +43,29 @@ class vehicleData : public QObject
         int         getBattery() const;
         int         getTemperature() const;
         std::string getTrafficSign() const;
+        char        getGear() const;
 
     signals:
         void    speedChanged();
         void    batteryChanged();
         void    temperatureChanged();
         void    trafficSignChanged();
+        void    gearChanged();
 
     public slots: // mudam os atributos e chamam os respectivos sinais
         void    setSpeed(double newSpeed);
         void    setBattery(int newBattery);
         void    setTemperature(int newTemperature);
         void    setTrafficSign(std::string newTrafficSign);
+        void    setGear(char newGear);
 
         //SIMULATION
-        void startSpeedSimulation();
-        void startBatterySimulation();
+        //void startSpeedSimulation();
+        //void startBatterySimulation();
         void startTrafficSignSimulation();
         
         void startKuksaSubscriber();
         void updateTemperature();
-
-
 
     private:
         vehicleData(QObject *parent = nullptr);
@@ -74,6 +76,7 @@ class vehicleData : public QObject
         int         battery;
         int         temperature;
         std::string trafficSign;
+        char        gear;
 
         // Thread para o gRPC
         std::thread kuksaThread;

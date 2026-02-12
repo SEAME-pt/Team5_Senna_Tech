@@ -25,7 +25,7 @@ ApplicationWindow {
     }
     // Properties
     property real currentSpeed: Number(vehicle.speed)
-    property string currentGear: currentSpeed > 0.5 ? "D" : "N"
+    property string currentGear: vehicle.gear
     property int batteryLevel:Math.round(Number(vehicle.battery))
     property int temperature: Math.round(Number(vehicle.temperature))
     property string currentTrafficSign: String(vehicle.trafficSign)

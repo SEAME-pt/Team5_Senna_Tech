@@ -31,6 +31,9 @@ int vehicleData::getTemperature() const{ return temperature;}
 
 std::string vehicleData::getTrafficSign() const{ return trafficSign;}
 
+char vehicleData::getGear() const{ return gear;}
+
+
 //Slots
 void    vehicleData::setSpeed(double newSpeed) {
     if (newSpeed < 0) {
@@ -67,6 +70,13 @@ void    vehicleData::setTrafficSign(std::string newTrafficSign){
         return ;
     this->trafficSign = newTrafficSign;
     emit trafficSignChanged();
+}
+
+void    vehicleData::setGear(char newGear){
+    if (this->gear == newGear)
+        return ;
+    this->gear = newGear;
+    emit gearChanged();
 }
 
 //SIMULATION TESTS
@@ -169,7 +179,7 @@ void vehicleData::kuksaLoop() {
     // Adiciona os caminhos VSS que queremos ouvir
     request.add_signal_paths("Vehicle.Speed");
     request.add_signal_paths("Vehicle.Powertrain.TractionBattery.StateOfCharge.Current");
-    // request.add_signal_paths("Vehicle.Powertrain.ElectricMotor.Temperature");
+    request.add_signal_paths("Vehicle.Powertrain.ElectricMotor.Power");
 
     std::unique_ptr<grpc::ClientReader<SubscribeResponse>> reader(
         stub->Subscribe(&context, request));
@@ -199,6 +209,14 @@ void vehicleData::kuksaLoop() {
                     } else if (value.has_uint32()) {
                         setBattery((int)value.uint32());
                     }
+                }
+                else if (path == "Vehicle.Powertrain.ElectricMotor.Power") {
+                    if (value < 0)
+                        setGear('R')
+                    if (value == 0)
+                        setGear('N')
+                    if (value > 0)
+                        setGear('D')
                 }
             }
         }
