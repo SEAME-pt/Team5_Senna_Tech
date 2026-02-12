@@ -1,4 +1,6 @@
 #include "vehicleData.hpp"
+#include <vector>
+#include <memory>
 #include "kuksa/val/v2/types.pb.h" // necessário para ler os tipos
 
 using grpc::ClientContext;
@@ -13,7 +15,12 @@ vehicleData *vehicleData::instance() {
 }
 
 //Private constructor
-vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), isCharging(false) {(void) parent;}
+vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), trafficSign("") {
+    (void) parent;
+    QTimer *timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &vehicleData::updateTemperature);
+    timer->start(1000); // atualiza a cada 1 seg
+}
 
 // Getters
 double vehicleData::getSpeed() const{ return speed;}
@@ -22,7 +29,10 @@ int vehicleData::getBattery() const { return battery;}
 
 int vehicleData::getTemperature() const{ return temperature;}
 
-bool vehicleData::getIsCharging() const{ return isCharging;}
+QString vehicleData::getTrafficSign() const{ return trafficSign;}
+
+QString vehicleData::getGear() const{ return gear;}
+
 
 //Slots
 void    vehicleData::setSpeed(double newSpeed) {
@@ -55,11 +65,20 @@ void    vehicleData::setTemperature(int newTemperature){
     emit temperatureChanged();
 }
 
-void    vehicleData::setCharging(bool newCharging){
-    if (this->isCharging == newCharging)
+void    vehicleData::setTrafficSign(QString newTrafficSign){
+    if (this->trafficSign == newTrafficSign)
         return ;
-    this->isCharging = newCharging;
-    emit chargingChanged();
+    this->trafficSign = newTrafficSign;
+    emit trafficSignChanged();
+}
+
+void    vehicleData::setGear(QString newGear){
+    if (newGear != 'P' && newGear != 'R' && newGear != 'N' && newGear != 'D')
+        throw(std::invalid_argument("Gear must not be anything different from P, R, N or D"));
+    if (this->gear == newGear)
+        return ;
+    this->gear = newGear;
+    emit gearChanged();
 }
 
 //SIMULATION TESTS
@@ -82,6 +101,24 @@ void vehicleData::startBatterySimulation() {
         emit batteryChanged();
     });
     timer->start(1000); // 1000 ms por tick -> 1 Hz
+}
+
+void vehicleData::startTrafficSignSimulation() {
+    // Lista de sinais que serão exibidos em loop
+    std::vector<QString> signs = {"stop", "80", "50", "danger", "pedestrian", "yield", "red", "yellow", "green"};
+
+    if (!signs.empty())
+        this->setTrafficSign(signs[0]);
+
+    // índice compartilhado entre chamadas do lambda para permanecer válido
+    auto index = std::make_shared<int>(0);
+
+    QTimer* timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [this, signs, index]() mutable {
+        *index = (*index + 1) % static_cast<int>(signs.size());
+        this->setTrafficSign(signs[*index]);
+    });
+    timer->start(5000); // troca a cada 5 segundos
 }
 
 /*void vehicleData::startReadCan() {
@@ -144,7 +181,7 @@ void vehicleData::kuksaLoop() {
     // Adiciona os caminhos VSS que queremos ouvir
     request.add_signal_paths("Vehicle.Speed");
     request.add_signal_paths("Vehicle.Powertrain.TractionBattery.StateOfCharge.Current");
-    // request.add_signal_paths("Vehicle.Powertrain.ElectricMotor.Temperature");
+    request.add_signal_paths("Vehicle.Powertrain.ElectricMotor.Power");
 
     std::unique_ptr<grpc::ClientReader<SubscribeResponse>> reader(
         stub->Subscribe(&context, request));
@@ -175,10 +212,35 @@ void vehicleData::kuksaLoop() {
                         setBattery((int)value.uint32());
                     }
                 }
+                else if (path == "Vehicle.Powertrain.ElectricMotor.Power") {
+                    if (value.has_int32()) {
+                        int16_t v = static_cast<int16_t>(value.int32());
+                        if (v < 0)
+                            setGear("R");
+                        if (v== 0)
+                            setGear("N");
+                        if (v > 0)
+                            setGear("D");
+                    }
+                }
             }
         }
     }
     std::cout << "Desconectado do KUKSA." << std::endl;
 }
 
+void vehicleData::updateTemperature() {
+    QFile tempFile("/sys/class/thermal/thermal_zone0/temp");
 
+    if (tempFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&tempFile);
+        QString rawTemp = in.readLine();
+        tempFile.close();
+
+        // O valor vem em milicelsius (ex: 45000), então dividimos por 1000
+        int tempCelsius = rawTemp.toDouble() / 1000;
+
+        // Atribuindo à sua variável
+        setTemperature(tempCelsius);
+    }
+}
