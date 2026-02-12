@@ -29,9 +29,9 @@ int vehicleData::getBattery() const { return battery;}
 
 int vehicleData::getTemperature() const{ return temperature;}
 
-std::string vehicleData::getTrafficSign() const{ return trafficSign;}
+QString vehicleData::getTrafficSign() const{ return trafficSign;}
 
-char vehicleData::getGear() const{ return gear;}
+QString vehicleData::getGear() const{ return gear;}
 
 
 //Slots
@@ -65,14 +65,16 @@ void    vehicleData::setTemperature(int newTemperature){
     emit temperatureChanged();
 }
 
-void    vehicleData::setTrafficSign(std::string newTrafficSign){
+void    vehicleData::setTrafficSign(QString newTrafficSign){
     if (this->trafficSign == newTrafficSign)
         return ;
     this->trafficSign = newTrafficSign;
     emit trafficSignChanged();
 }
 
-void    vehicleData::setGear(char newGear){
+void    vehicleData::setGear(QString newGear){
+    if (newGear != 'P' && newGear != 'R' && newGear != 'N' && newGear != 'D')
+        throw(std::invalid_argument("Gear must not be anything different from P, R, N or D"));
     if (this->gear == newGear)
         return ;
     this->gear = newGear;
@@ -103,7 +105,7 @@ void vehicleData::startBatterySimulation() {
 
 void vehicleData::startTrafficSignSimulation() {
     // Lista de sinais que serão exibidos em loop
-    std::vector<std::string> signs = {"stop", "80", "50", "danger", "pedestrian", "yield", "red", "yellow", "green"};
+    std::vector<QString> signs = {"stop", "80", "50", "danger", "pedestrian", "yield", "red", "yellow", "green"};
 
     if (!signs.empty())
         this->setTrafficSign(signs[0]);
@@ -211,12 +213,15 @@ void vehicleData::kuksaLoop() {
                     }
                 }
                 else if (path == "Vehicle.Powertrain.ElectricMotor.Power") {
-                    if (value < 0)
-                        setGear('R')
-                    if (value == 0)
-                        setGear('N')
-                    if (value > 0)
-                        setGear('D')
+                    if (value.has_int32()) {
+                        int16_t v = static_cast<int16_t>(value.int32());
+                        if (v < 0)
+                            setGear("R");
+                        if (v== 0)
+                            setGear("N");
+                        if (v > 0)
+                            setGear("D");
+                    }
                 }
             }
         }

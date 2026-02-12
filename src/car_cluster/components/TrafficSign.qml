@@ -8,30 +8,25 @@ Item {
     property bool showSign: true
     property var currentTrafficSign: ""  // Aceitar QVariant
     
-    property string signValue: {
-        var str = String(currentTrafficSign);
-        var match = str.match(/"([^"]*)"/);
-        return match ? match[1] : "";
-    }
     
     function getTrafficSignImage() {
-        if (signValue == "stop")
+        if (currentTrafficSign == "stop")
             return "../assets/traffic/stop.png"
-        else if (signValue == "50")
+        else if (currentTrafficSign == "50")
             return "../assets/traffic/50.png"
-        else if (signValue == "80")
+        else if (currentTrafficSign == "80")
             return "../assets/traffic/80.png"
-        else if (signValue == "pedestrian")
+        else if (currentTrafficSign == "pedestrian")
             return "../assets/traffic/pedestrian.png"
-        else if (signValue == "danger")
+        else if (currentTrafficSign == "danger")
             return "../assets/traffic/danger.png"
-        else if (signValue == "yield")
+        else if (currentTrafficSign == "yield")
             return "../assets/traffic/yield.png"
-        else if (signValue == "red")
+        else if (currentTrafficSign == "red")
             return "../assets/traffic/traffic-light-red.png"
-        else if (signValue == "yellow")
+        else if (currentTrafficSign == "yellow")
             return "../assets/traffic/traffic-light-yellow.png"
-        else if (signValue == "green")
+        else if (currentTrafficSign == "green")
             return "../assets/traffic/traffic-light-green.png"
         else 
             return ""

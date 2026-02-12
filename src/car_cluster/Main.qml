@@ -28,7 +28,7 @@ ApplicationWindow {
     property string currentGear: vehicle.gear
     property int batteryLevel:Math.round(Number(vehicle.battery))
     property int temperature: Math.round(Number(vehicle.temperature))
-    property string currentTrafficSign: String(vehicle.trafficSign)
+    property string currentTrafficSign: vehicle.trafficSign
     property real range: batteryLevel * 0.0806
     // speed unit change
     property bool isDm_H: false

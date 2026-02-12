@@ -32,8 +32,8 @@ class vehicleData : public QObject
     Q_PROPERTY(double speed READ getSpeed NOTIFY speedChanged)
     Q_PROPERTY(int battery READ getBattery NOTIFY batteryChanged)
     Q_PROPERTY(int temperature READ getTemperature NOTIFY temperatureChanged)
-    Q_PROPERTY(std::string trafficSign READ getTrafficSign NOTIFY trafficSignChanged)
-    Q_PROPERTY(char gear READ getGear NOTIFY gearChanged)
+    Q_PROPERTY(QString trafficSign READ getTrafficSign NOTIFY trafficSignChanged)
+    Q_PROPERTY(QString gear READ getGear NOTIFY gearChanged)
 
     public:
         static vehicleData* instance(); //Singleton definition
@@ -42,8 +42,8 @@ class vehicleData : public QObject
         double      getSpeed() const;
         int         getBattery() const;
         int         getTemperature() const;
-        std::string getTrafficSign() const;
-        char        getGear() const;
+        QString     getTrafficSign() const;
+        QString     getGear() const;
 
     signals:
         void    speedChanged();
@@ -56,12 +56,12 @@ class vehicleData : public QObject
         void    setSpeed(double newSpeed);
         void    setBattery(int newBattery);
         void    setTemperature(int newTemperature);
-        void    setTrafficSign(std::string newTrafficSign);
-        void    setGear(char newGear);
+        void    setTrafficSign(QString newTrafficSign);
+        void    setGear(QString newGear);
 
         //SIMULATION
-        //void startSpeedSimulation();
-        //void startBatterySimulation();
+        void startSpeedSimulation();
+        void startBatterySimulation();
         void startTrafficSignSimulation();
         
         void startKuksaSubscriber();
@@ -75,8 +75,8 @@ class vehicleData : public QObject
         double      speed;
         int         battery;
         int         temperature;
-        std::string trafficSign;
-        char        gear;
+        QString     trafficSign;
+        QString     gear;
 
         // Thread para o gRPC
         std::thread kuksaThread;
