@@ -83,16 +83,15 @@ All documentation is kept inside the [docs/](docs/) folder.
 👥 Team
 | Name            | Responsibilities               |
 |-----------------| ------------------------------ |
-| Hellom          | Hardware Engineer              |
-| Marcelo         | AGL / Kuksa                    |
-| Nicole          | Instrument Cluster             |
+| Hellom          | Hardware / Speedsensor         |
+| Marcelo         | Instrument Cluster             |
 | Vinicius        | ThreadX RTOS                   |
-| Yasmine         | CAN / Kuksa                    |
+| Yasmine         | CAN / Instrument Cluster       |
 
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 ## 🗓️ Sprint Status
-- **Current sprint**: Sprint 6
-- **Period**: January 19 to January 30, 2026
-- **Current Status**: 🟡 In Progress
-- **Goals**: Motor Control Migration and Communication Refinement.
+- **Current sprint**: Sprint 7
+- **Period**: January 31 to February 13, 2026  [31/01/2026] → [13/02/2026]
+- **Current Status**: Finished
+- **Goals**: Modernize Instrument Cluster and TSF Validation

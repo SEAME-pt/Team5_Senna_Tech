@@ -36,21 +36,22 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83/views/1?sliceBy%5Bva
 | **10/02** | Hellom will continue to improve the vehicle hardware organization Vinicius will develop a method to calculate the vehicle's range. Marcelo and Yasmine will continue the design of the new cluster version, by adding new assets such as buttons, traffic signs, warnings, battery and autonomy figures.
 | **11/02** | Hellom will develop an electrical schematic that details all connections between the vehicle components. Vinicius validated the new servo motor by stress tests and will develop a method to calculate the vehicle's range. Marcelo will implement the new cluster version in the car, integrating real temperature data from the Raspberry Pi and the vehicle's estimated range, ensuring it is displayed responsively. Yasmine created the slide presentation detailing the new features, UI/UX design, and functionality developed for the new cluster version and will start the ADAS research, preparing the team to the upcome module.
 | **12/02** | Hellom will continue to develop an electrical schematic that details all connections between the vehicle components. Vinicius and Marcelo will develop a method to detect whether the motor is in reverse throttle and display this information responsively on the cluster. They will also start working on the sprint retrospective presentation. Yasmine will continue the research about ADAS and Carla Simulator.
+| **13/02** | The team finished the sprint, and will prepare the Retrospective presentation.
 
 ---
 
 ## 🧠 Key Achievements
 
-- 
-- 
-- 
-- 
-- 
-- 
+- Cluster redesign with new modular components and a modern dashboard layout
+- Development of unit and integration tests
+- Validation of evidences for TSF structure
+- Reorganization of repository architecture
+- Implementation of new CAN IDs for Emergency Stop and Raspberry–STM32 heartbeat communication
+- Hardware reorganization
 
 ---
 
 ## ⚙️ Pending for next sprint
 
-- 
-- 
+- SSD upgrade for Raspberry Pi
+- Implement Emergency Stop functionality
