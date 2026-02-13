@@ -37,6 +37,7 @@ jobs:
       - name: Car Control Module (Unity/Ceedling)
         run: |
           cd tests/unit/ThreadX_RTOS/pca9685
+          chmod +x prepare.sh
           ./prepare.sh
           ceedling test:all
         

@@ -2,7 +2,7 @@
   "mapping_config": {
     "description": "Mapping configuration for SEA:ME Team 5 Senna Tech project",
     "dbc_file": "CAN_decoder.dbc",
-    "can_interface": "vcan0",
+    "can_interface": "can0",
     "mappings": {
       "Vehicle.IsMoving": {
         "datatype": "boolean",
