@@ -71,6 +71,9 @@ UCHAR rx_rec_thread_stack[1024];
 TX_THREAD motor_control;
 UCHAR motors_thread_stack[1024];
 
+TX_THREAD heartbeat_thread;
+UCHAR heartbeat_thread_stack[512];
+
 // DEBUG THREAD
 TX_THREAD debug_thread;
 UCHAR log_thread_stack[1024];
@@ -138,7 +141,7 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 
 	tx_thread_create(&sensor_thread,
       						"Sensor Thread",
-      		                sensor_thread_entry,
+      		                sensor_thread_entry2,
       		                0,
       		                sensor_thread_stack,
       		                sizeof(sensor_thread_stack),
@@ -175,8 +178,8 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
       		                1,
       		                motors_thread_stack,
       		                sizeof(motors_thread_stack),
-      		                0,
-      		                0,
+      		                1,
+      		                1,
       		                TX_NO_TIME_SLICE,
       		                TX_AUTO_START);
 
@@ -186,8 +189,8 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
       		                1,
       		                rx_rec_thread_stack,
       		                sizeof(rx_rec_thread_stack),
-      		                0,
-      		                0,
+      		                1,
+      		                1,
       		                TX_NO_TIME_SLICE,
       		                TX_AUTO_START);
 
@@ -201,6 +204,17 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
       		                20,
       		                TX_NO_TIME_SLICE,
       		                TX_AUTO_START);
+
+	tx_thread_create(&heartbeat_thread,
+    						"Heartbeat Thread",
+						    heartbeat_thread_entry,
+						    0,
+						    heartbeat_thread_stack,
+						    sizeof(heartbeat_thread_stack),
+						    16,
+						    16,
+						    TX_NO_TIME_SLICE,
+						    TX_AUTO_START);
 
   /* USER CODE END App_ThreadX_MEM_POOL */
   /* USER CODE BEGIN App_ThreadX_Init */

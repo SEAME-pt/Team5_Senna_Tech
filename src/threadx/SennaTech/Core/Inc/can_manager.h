@@ -7,6 +7,8 @@
 
 // --- Definição dos IDs CAN  ---
 #define CAN_ID_ESTOP        0x001
+#define CAN_ID_RESET        0x002
+#define CAN_ID_HEARTBEAT    0x005
 #define CAN_ID_SPEED        0x10
 #define CAN_ID_MOTOR_CMD    0x100
 #define CAN_ID_STEER_CMD    0x110

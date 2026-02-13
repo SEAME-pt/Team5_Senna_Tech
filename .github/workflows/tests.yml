@@ -5,9 +5,8 @@ on:
     branches:
       - develop
       - main
-
+      
 jobs:
-  # UNIT TESTS
   tests:
     runs-on: ubuntu-latest
 
@@ -15,13 +14,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+
+      # -------------------------
+      # Dependencies
+      # -------------------------
       - name: Install build tools
         run: |
           sudo apt update
-          sudo apt install -y cmake g++ git
+          sudo apt install -y cmake g++ git ruby
 
-      - name: Build and run Car Control tests
+      - name: Install Ceedling
+        run: sudo gem install ceedling
+
+      - name: Install QT Dependencies
         run: |
+          sudo apt install -y qt6-base-dev qt6-declarative-dev 
+
+
+      # -------------------------
+      # UNITY (hardware tests)
+      # -------------------------
+      - name: Car Control Module (Unity/Ceedling)
+        run: |
+          cd tests/unit/ThreadX_RTOS/pca9685
+          chmod +x prepare.sh
+          ./prepare.sh
+          ceedling test:all
         
 
   # BUILD TEST

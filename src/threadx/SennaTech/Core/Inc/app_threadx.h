@@ -32,6 +32,8 @@ extern "C" {
 #include "i2c.h"
 #include <stdarg.h>
 #include <inttypes.h>
+#include "i2c_hal.h"
+#include "sleep_hal.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -100,10 +102,12 @@ extern TX_MUTEX g_battery_mutex;
 
 // ENTRYS
 
+void sensor_thread_entry2(ULONG thread_input);
 void sensor_thread_entry(ULONG thread_input);
 void battery_thread_entry(ULONG thread_input);
 void motors_thread_entry(ULONG thread_input);
 void debug_thread_entry(ULONG thread_input);
+void heartbeat_thread_entry(ULONG thread_input);
 
 // utils
 

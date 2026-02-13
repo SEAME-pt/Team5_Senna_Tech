@@ -19,3 +19,12 @@ add_executable(gamepad_control
 	gamepad_control.cpp
 	${GAMEPAD_SRC}
 )
+
+add_executable(test_move
+	test_move.cpp
+)
+
+add_executable(test_autonomy
+	test_autonomy.cpp
+)
+
