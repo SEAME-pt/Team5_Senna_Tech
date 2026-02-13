@@ -83,6 +83,7 @@ desktop.ini
 # =============================
 .dotstop.dot
 docs/trustable/
+docs/TSF/trustable/graph
 graph
 graph.svg
 
@@ -101,13 +102,13 @@ __pycache__/
 # Allow logs specifically for TSF/Trudag evidence in test directories
 !tests/**/*.log
 !tests/**/reports/*.txt
-docs/trustable/
-!docs/trustable/mkdocs_trustable.yml
-!docs/trustable/custom_fixes.css
-!docs/trustable/index.md
+docs/trustable/!docs/TSF/trustable/mkdocs_trustable.yml
+docs/TSF/trustable/!docs/TSF/trustable/mkdocs_trustable.yml
+!docs/TSF/trustable/custom_fixes.css
+!docs/TSF/trustable/index.md
 
 # Trudag
 .dotstop.dot
 issue_137.md
 
-**/.qtcreator/
+**/.qtcreator/*.mp4
