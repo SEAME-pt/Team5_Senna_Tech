@@ -93,6 +93,7 @@ TX_MUTEX g_speed_mutex;
 TX_MUTEX g_dc_motor_mutex;
 TX_MUTEX g_servo_mutex;
 TX_MUTEX g_battery_mutex;
+TX_MUTEX g_odometer_mutex;
 
 // #define QUEUE_LEN 8
 

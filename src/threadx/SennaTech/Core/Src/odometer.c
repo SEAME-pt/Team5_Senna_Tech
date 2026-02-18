@@ -23,7 +23,7 @@ void odometer_thread_entry(ULONG thread_input)
         delta = pulse_count - last_pulse_count;
         total_pulses_accum += delta;
 
-        total_distance_mm = total_pulses_accum * (WHEEL_CIRCUMFERENCE * 1000 / 18);
+        total_distance_mm = total_pulses_accum * (WHEEL_CIRCUMFERENCE_MM / 18);
         total_distance_m = total_distance_mm / 1000;
         if (total_distance_m > last_sent_distance_m){
             last_sent_distance_m = total_distance_m;
