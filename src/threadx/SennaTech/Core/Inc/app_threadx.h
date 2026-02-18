@@ -99,6 +99,7 @@ extern TX_MUTEX g_speed_mutex;
 extern TX_MUTEX g_dc_motor_mutex;
 extern TX_MUTEX g_servo_mutex;
 extern TX_MUTEX g_battery_mutex;
+extern TX_MUTEX g_odometer_mutex;
 
 // ENTRYS
 
@@ -108,6 +109,7 @@ void battery_thread_entry(ULONG thread_input);
 void motors_thread_entry(ULONG thread_input);
 void debug_thread_entry(ULONG thread_input);
 void heartbeat_thread_entry(ULONG thread_input);
+void odometer_thread_entry(ULONG thread_input);
 
 // utils
 

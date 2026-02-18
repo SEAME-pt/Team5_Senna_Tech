@@ -74,10 +74,12 @@ UCHAR motors_thread_stack[1024];
 TX_THREAD heartbeat_thread;
 UCHAR heartbeat_thread_stack[512];
 
+TX_THREAD odometer_thread;
+UCHAR odometer_thread_stack[1024];
+
 // DEBUG THREAD
 TX_THREAD debug_thread;
 UCHAR log_thread_stack[1024];
-
 
 // QUEUES
 
@@ -213,6 +215,16 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 						    sizeof(heartbeat_thread_stack),
 						    16,
 						    16,
+						    TX_NO_TIME_SLICE,
+						    TX_AUTO_START);
+	tx_thread_create(&odometer_thread,
+    						"Odometer Thread",
+						    odometer_thread_entry,
+						    1,
+						    odometer_thread_stack,
+						    sizeof(odometer_thread_stack),
+						    17,
+						    17,
 						    TX_NO_TIME_SLICE,
 						    TX_AUTO_START);
 
