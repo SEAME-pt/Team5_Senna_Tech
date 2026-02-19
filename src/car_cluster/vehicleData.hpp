@@ -32,7 +32,7 @@ class vehicleData : public QObject
     Q_PROPERTY(double speed READ getSpeed NOTIFY speedChanged)
     Q_PROPERTY(int battery READ getBattery NOTIFY batteryChanged)
     Q_PROPERTY(int temperature READ getTemperature NOTIFY temperatureChanged)
-    Q_PROPERTY(unsigned int odometer READ getOdometer NOTIFY odometerChanged)
+    Q_PROPERTY(uint16_t odometer READ getOdometer NOTIFY odometerChanged)
     Q_PROPERTY(QString trafficSign READ getTrafficSign NOTIFY trafficSignChanged)
     Q_PROPERTY(QString gear READ getGear NOTIFY gearChanged)
 
@@ -43,7 +43,7 @@ class vehicleData : public QObject
         double          getSpeed() const;
         int             getBattery() const;
         int             getTemperature() const;
-        unsigned int    getOdometer() const;
+        uint16_t        getOdometer() const;
         QString         getTrafficSign() const;
         QString         getGear() const;
 
@@ -59,7 +59,7 @@ class vehicleData : public QObject
         void    setSpeed(double newSpeed);
         void    setBattery(int newBattery);
         void    setTemperature(int newTemperature);
-        void    setOdometer(unsigned int newOdometer);
+        void    setOdometer(uint16_t newOdometer);
         void    setTrafficSign(QString newTrafficSign);
         void    setGear(QString newGear);
 
@@ -77,12 +77,12 @@ class vehicleData : public QObject
 
         void kuksaLoop();
 
-        double              speed;
-        int                 battery;
-        int                 temperature;
-        unsigned int        odometer;
-        QString             trafficSign;
-        QString             gear;
+        double        speed;
+        int           battery;
+        int           temperature;
+        uint16_t      odometer;
+        QString       trafficSign;
+        QString       gear;
 
         // Thread para o gRPC
         std::thread kuksaThread;

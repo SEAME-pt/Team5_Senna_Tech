@@ -30,7 +30,7 @@ int vehicleData::getBattery() const { return battery;}
 
 int vehicleData::getTemperature() const{ return temperature;}
 
-unsigned int vehicleData::getOdometer() const{ return odometer;}
+uint16_t vehicleData::getOdometer() const{ return odometer;}
 
 QString vehicleData::getTrafficSign() const{ return trafficSign;}
 
@@ -68,7 +68,7 @@ void    vehicleData::setTemperature(int newTemperature){
     emit temperatureChanged();
 }
 
-void    vehicleData::setOdometer(unsigned int newOdometer){
+void    vehicleData::setOdometer(uint16_t newOdometer){
     if (this->odometer == newOdometer)
         return ;
     this->odometer = newOdometer;
@@ -240,30 +240,40 @@ void vehicleData::kuksaLoop() {
 }
 
 void vehicleData::updateTemperature() {
+
     QFile tempFile("/sys/class/thermal/thermal_zone0/temp");
 
-    if (tempFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&tempFile);
-        QString rawTemp = in.readLine();
-        tempFile.close();
-
-        // O valor vem em milicelsius (ex: 45000), então dividimos por 1000
-        int tempCelsius = rawTemp.toDouble() / 1000;
-
-        // Atribuindo à sua variável
-        setTemperature(tempCelsius);
+    if (!tempFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cout << "Erro ao abrir arquivo da temperatura: " << std::endl;
+        return ;
     }
+    QTextStream in(&tempFile);
+    QString rawTemp = in.readLine();
+    tempFile.close();
+
+    // O valor vem em milicelsius (ex: 45000), então dividimos por 1000
+    int tempCelsius = rawTemp.toDouble() / 1000;
+
+    // Atribuindo à sua variável
+    setTemperature(tempCelsius);
 }
 
 void vehicleData::updateOdometer() {
     
-    unsigned int odometer_read = 0; 
     QFile odometerFile("/odometer/odometer.bin");
-    if (odometerFile.open(QIODevice::ReadOnly)) {
-        QDataStream in(&odometerFile);
-        
-        in.setByteOrder(QDataStream::LittleEndian);
-        in >> odometer_read;
-        setOdometer(odometer_read);
+
+    if (!odometerFile.open(QIODevice::ReadOnly)) {
+        std::cout << "Erro ao abrir arquivo do odometro: " << std::endl;
+        return ;
     }
+    uint16_t odometer_read;
+    qint64 bytes_read = odometerFile.read(reinterpret_cast<char*>(&odometer_read), sizeof(odometer_read));
+
+    if (bytes_read != sizeof(odometer_read)) {
+        std::cout << "Erro ao ler arquivo do odometro: " << std::endl;
+        return ;
+    }
+
+    odometerFile.close();
+    setOdometer(odometer_read);
 }
