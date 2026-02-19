@@ -30,7 +30,7 @@ int vehicleData::getBattery() const { return battery;}
 
 int vehicleData::getTemperature() const{ return temperature;}
 
-int vehicleData::getOdometer() const{ return odometer;}
+unsigned int vehicleData::getOdometer() const{ return odometer;}
 
 QString vehicleData::getTrafficSign() const{ return trafficSign;}
 
@@ -258,10 +258,12 @@ void vehicleData::updateTemperature() {
 void vehicleData::updateOdometer() {
     
     unsigned int odometer_read = 0; 
-    std::ifstream infile("/odometer/odometer.bin", std::ios::binary);
-    if (infile.is_open()) {
-        infile.read(reinterpret_cast<char*>(&odometer_read), sizeof(odometer_read));
-        infile.close();
-        setOdometer(odometer_read)
+    QFile odometerFile("/odometer/odometer.bin");
+    if (odometerFile.open(QIODevice::ReadOnly)) {
+        QDataStream in(&odometerFile);
+        
+        in.setByteOrder(QDataStream::LittleEndian);
+        in >> odometer_read;
+        setOdometer(odometer_read);
     }
 }

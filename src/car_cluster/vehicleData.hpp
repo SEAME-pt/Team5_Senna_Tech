@@ -59,7 +59,7 @@ class vehicleData : public QObject
         void    setSpeed(double newSpeed);
         void    setBattery(int newBattery);
         void    setTemperature(int newTemperature);
-        void    setOdometer(int newOdometer);
+        void    setOdometer(unsigned int newOdometer);
         void    setTrafficSign(QString newTrafficSign);
         void    setGear(QString newGear);
 
@@ -77,11 +77,12 @@ class vehicleData : public QObject
 
         void kuksaLoop();
 
-        double      speed;
-        int         battery;
-        int         temperature;
-        QString     trafficSign;
-        QString     gear;
+        double              speed;
+        int                 battery;
+        int                 temperature;
+        unsigned int        odometer;
+        QString             trafficSign;
+        QString             gear;
 
         // Thread para o gRPC
         std::thread kuksaThread;
