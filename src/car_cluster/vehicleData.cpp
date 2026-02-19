@@ -15,11 +15,12 @@ vehicleData *vehicleData::instance() {
 }
 
 //Private constructor
-vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), trafficSign("") {
+vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), odometer(0), trafficSign("") {
     (void) parent;
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &vehicleData::updateTemperature);
-    timer->start(1000); // atualiza a cada 1 seg
+    connect(timer, &QTimer::timeout, this, &vehicleData::updateOdometer);
+    timer->start(500); // atualiza a cada 0.5 seg
 }
 
 // Getters
@@ -28,6 +29,8 @@ double vehicleData::getSpeed() const{ return speed;}
 int vehicleData::getBattery() const { return battery;}
 
 int vehicleData::getTemperature() const{ return temperature;}
+
+int vehicleData::getOdometer() const{ return odometer;}
 
 QString vehicleData::getTrafficSign() const{ return trafficSign;}
 
@@ -63,6 +66,13 @@ void    vehicleData::setTemperature(int newTemperature){
         return ;
     this->temperature = newTemperature;
     emit temperatureChanged();
+}
+
+void    vehicleData::setOdometer(unsigned int newOdometer){
+    if (this->odometer == newOdometer)
+        return ;
+    this->odometer = newOdometer;
+    emit odometerChanged();
 }
 
 void    vehicleData::setTrafficSign(QString newTrafficSign){
@@ -242,5 +252,16 @@ void vehicleData::updateTemperature() {
 
         // Atribuindo à sua variável
         setTemperature(tempCelsius);
+    }
+}
+
+void vehicleData::updateOdometer() {
+    
+    unsigned int odometer_read = 0; 
+    std::ifstream infile("/odometer/odometer.bin", std::ios::binary);
+    if (infile.is_open()) {
+        infile.read(reinterpret_cast<char*>(&odometer_read), sizeof(odometer_read));
+        infile.close();
+        setOdometer(odometer_read)
     }
 }

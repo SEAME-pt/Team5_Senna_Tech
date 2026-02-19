@@ -9,7 +9,8 @@ Item {
     property real speed: 0
     property string unitText: "km/h"
     property string odometerNumber: "2041"
-    property string odometerUnit: "km"
+    property int odometer: 0
+    property string odometerUnit: "m"
     property bool isDark: false
 
     // Texto Centralizado
@@ -45,7 +46,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: root.odometerNumber
+                        text: Math.round(root.odometer)
                         color: root.isDark ? '#ddeff8' : '#0b4659'
                         font.family: rajdhani.name
                         font.pixelSize: 25
