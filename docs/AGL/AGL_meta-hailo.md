@@ -135,6 +135,74 @@ bitbake agl-image-minimal-crosssdk
 
 ## Step 5 — Verify Hailo packages
 
+**5.1 libhailort**
+
+Ensure the file exists:
+
+```
+ls /usr/lib/libhailort.so
+```
+
+**5.2 hailortcli**
+
+After connecting the hailo chip – scan and run commands should communicate with the board.
+
+```
+hailortcli scan
+hailortcli run "example.hef"
+```
+
+**5.2 libgsthailo**
+
+Running ```gst-inspect-1.0 | grep hailo``` returns hailo elements:
+
+```
+hailo:  hailodevicestats: hailodevicestats element
+hailo:  hailonet: hailonet element
+hailo:  synchailonet: sync hailonet element
+```
+
+**5.3 hailo-firmware**
+
+Hailo’s firmware exists at: ```/lib/firmware/hailo/```
+
+
+**5.3 hailo-pci**
+
+Run:
+
+```modinfo hailo-pci```
+
+You must see a successful result and info about the driver. For example:
+
+```filename:       /lib/modules/6.12.25-v8-16k/kernel/drivers/misc/hailo_pci.ko.xz
+version:        4.23.0
+license:        GPL v2
+description:    Hailo PCIe driver
+author:         Hailo Technologies Ltd.
+import_ns:      DMA_BUF
+srcversion:     6AA96411C62B9CA56BF4262
+alias:          pci:v00001E60d00002864sv*sd*bc*sc*i*
+depends:        
+name:           hailo_pci
+vermagic:       6.12.25-v8-16k SMP preempt mod_unload modversions aarch64
+parm:           o_dbg:int
+parm:           no_power_mode:Disables automatic D0->D3 PCIe transactions (invbool)
+parm:           force_allocation_from_driver:Determines whether to force buffer allocation from driver or userspace (int)
+parm:           force_desc_page_size:Determines the maximum DMA descriptor page size (must be a power of 2) (int)
+parm:           force_hailo10h_legacy_mode:Forces work with Hailo10h in legacy mode(relevant for emulators) (bool)
+parm:           force_boot_linux_from_eemc:Boot the linux image from eemc (Requires special Image) (bool)
+parm:           support_soft_reset:enables driver reload to reload a new firmware as well (bool)
+```
+
+
+
+# References
+
+- https://hailo.ai/developer-zone/documentation/hailort-v5-2-0/?sp_referrer=yocto/yocto.html#integrating-to-an-existing-yocto-environment
+
+- https://github.com/hailo-ai/meta-hailo
+
 
 
 
