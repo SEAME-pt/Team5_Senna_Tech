@@ -14,6 +14,7 @@
 #define CAN_ID_STEER_CMD    0x110
 #define CAN_ID_BATTERY      0x200
 #define CAN_ID_TEMP         0x210
+#define CAN_ID_ODOMETER     0x220
 
 // --- Estrutura global ---
 typedef struct {
@@ -22,6 +23,7 @@ typedef struct {
     float    speed_kmh;
     uint8_t  battery_level;
     float    temperature;
+    uint16_t odometer;
 
     // Atuadores (RX - Entra no STM32)
     uint8_t  motor_cmd;

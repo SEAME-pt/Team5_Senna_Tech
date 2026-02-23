@@ -58,7 +58,9 @@ extern "C" {
 #define LOG_QUEUE_LEN 16
 #define LOG_MSG_LEN 64
 #define WHEEL_DIAMETER_M  0.0666f
+#define WHEEL_DIAMETER_MM  66.666f
 #define WHEEL_CIRCUMFERENCE (3.14159f * WHEEL_DIAMETER_M)
+#define WHEEL_CIRCUMFERENCE_MM (3.14159f * WHEEL_DIAMETER_MM)
 #define ENCODER_HOLES     20
 
 typedef struct {
@@ -99,6 +101,7 @@ extern TX_MUTEX g_speed_mutex;
 extern TX_MUTEX g_dc_motor_mutex;
 extern TX_MUTEX g_servo_mutex;
 extern TX_MUTEX g_battery_mutex;
+extern TX_MUTEX g_odometer_mutex;
 
 // ENTRYS
 
@@ -108,6 +111,7 @@ void battery_thread_entry(ULONG thread_input);
 void motors_thread_entry(ULONG thread_input);
 void debug_thread_entry(ULONG thread_input);
 void heartbeat_thread_entry(ULONG thread_input);
+void odometer_thread_entry(ULONG thread_input);
 
 // utils
 
