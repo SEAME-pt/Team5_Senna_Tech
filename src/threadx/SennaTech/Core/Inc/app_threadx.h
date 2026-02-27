@@ -27,16 +27,20 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "tx_api.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+
+#include <main.h>
+#include <string.h>
 #include <stdio.h>
-#include "stm32u5xx_hal.h"  // para I2C_HandleTypeDef
 #include "i2c.h"
 #include <stdarg.h>
 #include <inttypes.h>
 #include "i2c_hal.h"
 #include "sleep_hal.h"
-
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+#include "can_manager.h"
+#include "mcp2515.h"
 
 /* USER CODE END Includes */
 
@@ -96,25 +100,20 @@ extern TX_QUEUE g_rx_data_queue;
 extern TX_QUEUE g_log_queue;
 
 //MUTEXES
-
 extern TX_MUTEX g_speed_mutex;
 extern TX_MUTEX g_dc_motor_mutex;
 extern TX_MUTEX g_servo_mutex;
 extern TX_MUTEX g_battery_mutex;
-extern TX_MUTEX g_odometer_mutex;
 
-// ENTRYS
-
+// THREAD ENTRYS
 void sensor_thread_entry2(ULONG thread_input);
 void sensor_thread_entry(ULONG thread_input);
 void battery_thread_entry(ULONG thread_input);
 void motors_thread_entry(ULONG thread_input);
 void debug_thread_entry(ULONG thread_input);
 void heartbeat_thread_entry(ULONG thread_input);
-void odometer_thread_entry(ULONG thread_input);
 
-// utils
-
+// UTILS
 void log_debug(const char *fmt, ...);
 
 
