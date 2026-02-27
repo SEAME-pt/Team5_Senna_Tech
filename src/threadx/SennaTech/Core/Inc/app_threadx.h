@@ -104,6 +104,7 @@ extern TX_MUTEX g_speed_mutex;
 extern TX_MUTEX g_dc_motor_mutex;
 extern TX_MUTEX g_servo_mutex;
 extern TX_MUTEX g_battery_mutex;
+extern TX_MUTEX g_odometer_mutex;
 
 // THREAD ENTRYS
 void sensor_thread_entry2(ULONG thread_input);
