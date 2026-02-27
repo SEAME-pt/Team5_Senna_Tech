@@ -97,8 +97,8 @@ static UINT init_threads(void);
   */
 UINT App_ThreadX_Init(VOID *memory_ptr)
 {
-	UINT ret = TX_SUCCESS;
-	/* USER CODE BEGIN App_ThreadX_MEM_POOL */
+  UINT ret = TX_SUCCESS;
+  /* USER CODE BEGIN App_ThreadX_MEM_POOL */
 
     ret = init_mutexes();
     if (ret != TX_SUCCESS) 
@@ -135,7 +135,7 @@ void MX_ThreadX_Init(void)
 
   /* USER CODE END Before_Kernel_Start */
 
-	tx_kernel_enter();
+  tx_kernel_enter();
 
   /* USER CODE BEGIN Kernel_Start_Error */
 

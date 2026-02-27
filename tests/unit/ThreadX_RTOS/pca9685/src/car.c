@@ -17,7 +17,7 @@ void car_init(car_t *car, void *hi2c)
     car_set_steering_percent(car, 0.0f);
     car_set_throttle_percent(car, 0.0f);
 
-    tx_sleep(1);
+    tx_thread_sleep(1);
 }
 
 int calculateRaw(float percent)
