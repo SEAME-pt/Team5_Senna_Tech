@@ -39,4 +39,5 @@ This directory contains all the technical and process-related documentation for 
   - [Sprint 5 Report](./sprints/sprint_5_report.md)
   - [Sprint 6 Report](./sprints/sprint_6_report.md)
   - [Sprint 7 Report](./sprints/sprint_7_report.md)
+  - [Sprint 8 Report](./sprints/sprint_8_report.md)
   - [Sprint Template](./sprints/sprint_template.md)
