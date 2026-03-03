@@ -71,7 +71,6 @@ static t_thread threads[THREAD_COUNT];
 // QUEUES
 TX_QUEUE g_tx_data_queue;
 TX_QUEUE g_rx_data_queue;
-TX_QUEUE g_log_queue;
 
 // MUTEXES
 TX_MUTEX g_speed_mutex;
@@ -130,7 +129,7 @@ void MX_ThreadX_Init(void)
   /* USER CODE BEGIN Before_Kernel_Start */
   
   if (MCP2515_Init() != HAL_OK) {
-	  log_debug("MCP2515 init failed!");
+	  uart_send("MCP2515 init failed!");
 	  Error_Handler();
   }
 
@@ -150,13 +149,13 @@ static UINT init_mutexes(void)
     UINT ret;
 
     ret = tx_mutex_create(&g_speed_mutex, "speed_mutex", TX_NO_INHERIT);
-    if (ret != TX_SUCCESS) { log_debug("ERROR: speed_mutex creation failed"); return ret; }
+    if (ret != TX_SUCCESS) { uart_send("ERROR: speed_mutex creation failed\r\n"); return ret; }
 
     ret = tx_mutex_create(&g_battery_mutex, "battery_mutex", TX_NO_INHERIT);
-    if (ret != TX_SUCCESS) { log_debug("ERROR: battery_mutex creation failed"); return ret; }
+    if (ret != TX_SUCCESS) { uart_send("ERROR: battery_mutex creation failed\r\n"); return ret; }
 
     ret = tx_mutex_create(&spi_mutex, "spi_mutex", TX_NO_INHERIT);
-    if (ret != TX_SUCCESS) { log_debug("ERROR: spi_mutex creation failed"); return ret; }
+    if (ret != TX_SUCCESS) { uart_send("ERROR: spi_mutex creation failed\r\n"); return ret; }
 
     return TX_SUCCESS;
 }
@@ -169,19 +168,14 @@ static UINT init_queues(VOID *memory_ptr)
     ret = tx_queue_create(&g_tx_data_queue, "CAN TX Queue",
                           sizeof(CAN_Frame) / sizeof(ULONG),
                           ptr, QUEUE_LEN * sizeof(CAN_Frame));
-    if (ret != TX_SUCCESS) { log_debug("ERROR: CAN TX queue creation failed"); return ret; }
+    if (ret != TX_SUCCESS) { uart_send("ERROR: CAN TX queue creation failed\r\n"); return ret; }
     ptr += QUEUE_LEN * sizeof(CAN_Frame);
 
     ret = tx_queue_create(&g_rx_data_queue, "CAN RX Queue",
                           sizeof(CAN_Frame) / sizeof(ULONG),
                           ptr, QUEUE_LEN * sizeof(CAN_Frame));
-    if (ret != TX_SUCCESS) { log_debug("ERROR: CAN RX queue creation failed"); return ret; }
+    if (ret != TX_SUCCESS) { uart_send("ERROR: CAN RX queue creation failed\r\n"); return ret; }
     ptr += QUEUE_LEN * sizeof(CAN_Frame);
-
-    ret = tx_queue_create(&g_log_queue, "LOG Queue",
-                          sizeof(log_msg_t) / sizeof(ULONG),
-                          ptr, LOG_QUEUE_LEN * sizeof(log_msg_t));
-    if (ret != TX_SUCCESS) { log_debug("ERROR: LOG queue creation failed"); return ret; }
 
     return TX_SUCCESS;
 }
@@ -194,43 +188,43 @@ static UINT init_threads(void)
                            sensor_thread_entry2, 0,
                            threads[THREAD_SENSOR].stack, sizeof(threads[THREAD_SENSOR].stack),
                            10, 10, TX_NO_TIME_SLICE, TX_AUTO_START);
-    if (ret != TX_SUCCESS) { log_debug("ERROR: Sensor thread creation failed"); return ret; }
+    if (ret != TX_SUCCESS) { uart_send("ERROR: Sensor thread creation failed\r\n"); return ret; }
 
     ret = tx_thread_create(&threads[THREAD_CAN_TX].handle, "CAN TX Thread",
                            CAN_Tx_Thread_Entry, 1,
                            threads[THREAD_CAN_TX].stack, sizeof(threads[THREAD_CAN_TX].stack),
                            10, 10, TX_NO_TIME_SLICE, TX_AUTO_START);
-    if (ret != TX_SUCCESS) { log_debug("ERROR: CAN TX thread creation failed"); return ret; }
+    if (ret != TX_SUCCESS) { uart_send("ERROR: CAN TX thread creation failed\r\n"); return ret; }
 
     ret = tx_thread_create(&threads[THREAD_CAN_RX].handle, "CAN RX Thread",
                            CAN_Rx_Thread_Entry, 1,
                            threads[THREAD_CAN_RX].stack, sizeof(threads[THREAD_CAN_RX].stack),
                            1, 1, TX_NO_TIME_SLICE, TX_AUTO_START);
-    if (ret != TX_SUCCESS) { log_debug("ERROR: CAN RX thread creation failed"); return ret; }
+    if (ret != TX_SUCCESS) { uart_send("ERROR: CAN RX thread creation failed\r\n"); return ret; }
 
     ret = tx_thread_create(&threads[THREAD_BATTERY].handle, "Battery Thread",
                            battery_thread_entry, 1,
                            threads[THREAD_BATTERY].stack, sizeof(threads[THREAD_BATTERY].stack),
                            15, 15, TX_NO_TIME_SLICE, TX_AUTO_START);
-    if (ret != TX_SUCCESS) { log_debug("ERROR: Battery thread creation failed"); return ret; }
+    if (ret != TX_SUCCESS) { uart_send("ERROR: Battery thread creation failed\r\n"); return ret; }
 
     ret = tx_thread_create(&threads[THREAD_MOTOR].handle, "Motors Thread",
                            motors_thread_entry, 1,
                            threads[THREAD_MOTOR].stack, sizeof(threads[THREAD_MOTOR].stack),
                            1, 1, TX_NO_TIME_SLICE, TX_AUTO_START);
-    if (ret != TX_SUCCESS) { log_debug("ERROR: Motor thread creation failed"); return ret; }
+    if (ret != TX_SUCCESS) { uart_send("ERROR: Motor thread creation failed\r\n"); return ret; }
 
     ret = tx_thread_create(&threads[THREAD_DEBUG].handle, "Debug Thread",
                            debug_thread_entry, 1,
                            threads[THREAD_DEBUG].stack, sizeof(threads[THREAD_DEBUG].stack),
                            20, 20, TX_NO_TIME_SLICE, TX_AUTO_START);
-    if (ret != TX_SUCCESS) { log_debug("ERROR: Debug thread creation failed"); return ret; }
+    if (ret != TX_SUCCESS) { uart_send("ERROR: Debug thread creation failed\r\n"); return ret; }
 
     ret = tx_thread_create(&threads[THREAD_HEARTBEAT].handle, "Heartbeat Thread",
                            heartbeat_thread_entry, 0,
                            threads[THREAD_HEARTBEAT].stack, sizeof(threads[THREAD_HEARTBEAT].stack),
                            16, 16, TX_NO_TIME_SLICE, TX_AUTO_START);
-    if (ret != TX_SUCCESS) { log_debug("ERROR: Heartbeat thread creation failed"); return ret; }
+    if (ret != TX_SUCCESS) { uart_send("ERROR: Heartbeat thread creation failed\r\n"); return ret; }
 
     return TX_SUCCESS;
 }

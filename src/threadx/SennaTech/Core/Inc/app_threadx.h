@@ -59,7 +59,6 @@ extern "C" {
 /* USER CODE BEGIN PD */
 
 #define QUEUE_LEN 10
-#define LOG_QUEUE_LEN 16
 #define LOG_MSG_LEN 64
 #define WHEEL_DIAMETER_M  0.0666f
 #define WHEEL_DIAMETER_MM  66.666f
@@ -97,7 +96,6 @@ void MX_ThreadX_Init(void);
 // QUEUES
 extern TX_QUEUE g_tx_data_queue;
 extern TX_QUEUE g_rx_data_queue;
-extern TX_QUEUE g_log_queue;
 
 //MUTEXES
 extern TX_MUTEX g_speed_mutex;
@@ -113,10 +111,6 @@ void battery_thread_entry(ULONG thread_input);
 void motors_thread_entry(ULONG thread_input);
 void debug_thread_entry(ULONG thread_input);
 void heartbeat_thread_entry(ULONG thread_input);
-
-// UTILS
-void log_debug(const char *fmt, ...);
-
 
 /* USER CODE END 1 */
 
