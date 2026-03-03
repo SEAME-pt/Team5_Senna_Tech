@@ -112,6 +112,9 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
     if (ret != TX_SUCCESS) 
 		return ret;
 
+	if (ret == TX_SUCCESS)
+		uart_send("\r\n=== ThreadX Initialized ===\r\n");
+
   /* USER CODE END App_ThreadX_MEM_POOL */
   /* USER CODE BEGIN App_ThreadX_Init */
   /* USER CODE END App_ThreadX_Init */
