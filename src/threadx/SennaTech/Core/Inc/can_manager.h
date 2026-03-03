@@ -1,7 +1,6 @@
 #ifndef CAN_MANAGER_H_
 #define CAN_MANAGER_H_
 
-#include "main.h"
 #include "mcp2515.h"
 #include "app_threadx.h"
 

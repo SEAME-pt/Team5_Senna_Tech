@@ -41,6 +41,7 @@ extern "C" {
 #include "sleep_hal.h"
 #include "can_manager.h"
 #include "mcp2515.h"
+#include "utils.h"
 
 /* USER CODE END Includes */
 
@@ -109,7 +110,6 @@ void sensor_thread_entry2(ULONG thread_input);
 void sensor_thread_entry(ULONG thread_input);
 void battery_thread_entry(ULONG thread_input);
 void motors_thread_entry(ULONG thread_input);
-void debug_thread_entry(ULONG thread_input);
 void heartbeat_thread_entry(ULONG thread_input);
 
 /* USER CODE END 1 */

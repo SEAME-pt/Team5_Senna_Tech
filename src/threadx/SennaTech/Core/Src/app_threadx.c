@@ -214,12 +214,6 @@ static UINT init_threads(void)
                            1, 1, TX_NO_TIME_SLICE, TX_AUTO_START);
     if (ret != TX_SUCCESS) { uart_send("ERROR: Motor thread creation failed\r\n"); return ret; }
 
-    ret = tx_thread_create(&threads[THREAD_DEBUG].handle, "Debug Thread",
-                           debug_thread_entry, 1,
-                           threads[THREAD_DEBUG].stack, sizeof(threads[THREAD_DEBUG].stack),
-                           20, 20, TX_NO_TIME_SLICE, TX_AUTO_START);
-    if (ret != TX_SUCCESS) { uart_send("ERROR: Debug thread creation failed\r\n"); return ret; }
-
     ret = tx_thread_create(&threads[THREAD_HEARTBEAT].handle, "Heartbeat Thread",
                            heartbeat_thread_entry, 0,
                            threads[THREAD_HEARTBEAT].stack, sizeof(threads[THREAD_HEARTBEAT].stack),
