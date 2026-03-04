@@ -1,0 +1,31 @@
+--> Log File Created: evidence_2026-02-04_16-45-12.txt
+Starting Bus Validation (Duration: 120s)
+
+========================================================================================
+                                CAN BUS PERFORMANCE REPORT                              
+========================================================================================
+| FINAL BUS LOAD    | REQ ID   | TARGET |                                     | STATUS |
+| 0.90%             | EXP-100  | <70%   |                                     | PASS   |
+
+| MESSAGE      | REQ ID   | TARGET | AVG    | MIN    | MAX    | JITTER  | STATUS |
+|--------------|----------|--------|--------|--------|--------|---------|--------|
+| SPEED        | EXP-101  |  200ms |  199.7 |  189ms |  223ms |    4.81 | PASS   |
+| MOTOR_PWR    | EXP-101  |  200ms |   30.2 |    0ms | 4125ms |  106.68 | FAIL   |
+| STEER        | EXP-101  |  200ms |   30.2 |    0ms | 4125ms |  106.68 | FAIL   |
+| HEARTBEAT    | EXP-102  | 1000ms |  994.6 |  985ms | 1014ms |    3.77 | PASS   |
+| BATTERY      | EXP-102  | 1000ms |  994.6 |  984ms | 1017ms |    5.11 | PASS   |
+| TEMP         | EXP-102  | 1000ms |    0.0 |    0ms |    0ms |    0.00 | STALE  |
+========================================================================================
+LEGEND:
+- TARGET: Expected cyclic interval defined in requirements.
+- AVG: Actual average interval measured between messages.
+- JITTER: Standard deviation of time. Ideal < 5.0ms.
+- STALE: No messages received for this ID during the test.
+----------------------------------------------------------------------------------------
+
+========================================================================================
+                                CAN BUS PERFORMANCE LOG                              
+========================================================================================
+[PASS] bus load
+[PASS] EXP-101
+[PASS] EXP-102

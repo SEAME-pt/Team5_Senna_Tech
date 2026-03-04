@@ -2,10 +2,10 @@
 
 **Project:** CAN Communication & Control Bus <br>
 **Subsystem:** CAN Bus Interface (STM32 ↔ RPi 5 AGL) <br>
-**Scenario:** Fully Autonomous (No Human Driver) <br>
+**Scenario:** Fully Autonomous <br>
 **Date:** 07/01/2026 <br>
 **Author:** Yasmine Macedo <br>
-**Reviewer:** [Reviewer Name] <br>
+**Reviewer:** Marcelo Fassbinder <br>
 
 ---
 
@@ -38,13 +38,13 @@
 ## 3. Safety Goals (SG)
 *What the system **must** do to mitigate the risks above.*
 
-* **SG-CAN-01 (Focus H-CAN-01/03)**: The STM32 shall implement a Watchdog Timer that triggers the Safe State if the Heartbeat message (ID 0x005) is missing for more than 500ms.
+* **SG-CAN-01 (Focus H1-100/H3-100)**: The STM32 shall implement a Watchdog Timer that triggers the Safe State if the Heartbeat message (ID 0x005) is missing for more than 500ms.
 
-* **SG-CAN-02 (Focus H-CAN-02/05)**: The ESTOP message (ID 0x001) shall always be assigned the lowest CAN ID to guarantee arbitration priority over all other messages.
+* **SG-CAN-02 (Focus H2-100/H5-100)**: The ESTOP message (ID 0x001) shall always be assigned the lowest CAN ID to guarantee arbitration priority over all other messages.
 
-* **SG-CAN-03 (Focus H-CAN-04)**: The CAN Control Loop (Rasp5 → STM32) shall ensure end-to-end latency is less than 50ms for steering and throttle commands.
+* **SG-CAN-03 (Focus H4-100/H5-100)**: The bus load shall be maintained below 70% at 500kbps to prevent packet collisions and jitter.
 
-* **SG-CAN-04 (Focus H-CAN-03)**: The Rasp5 software shall run the Heartbeat sender in a dedicated thread/process, ensuring it stops transmission immediately upon OS freeze/Kernel Panic.
+* **SG-CAN-04 (Focus H3-100)**: The RPi 5 (AGL) software shall run the cyclic transmission process with real-time priority, ensuring that process interruption (freeze) ceases CAN traffic immediately.
 
 
 ---
@@ -54,8 +54,8 @@
 
 * **Primary Action (Actuator Cutoff)**: STM32 immediately sets Motor PWM to 0 (Coast/Brake) and Steering Servo to Center/Neutral.
 
-* **Secondary Action (State Lock)**: System enters STATE_ESTOP. Exit from this state requires a manual hardware reset or a specific "Arming Sequence" (no automatic restart).
+* **Secondary Action (State Lock)**: The system transitions to STATE_ESTOP if:
+Cycle Timeout: Interval between messages > 55ms (AST-101).
+Bus Failure: Bus Off detection or load > 70% (AST-100).
+External Request: Reception of ID 0x001 (EXP-103).
 
----
-**Additional Notes:**
-[Space for observations regarding field tests or specific hardware behavior]

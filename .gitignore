@@ -25,6 +25,7 @@ tests/car_cluster/build
 src/car-control/joystick-can/build
 src/car-control/raspberry-control/build
 src/car_cluster/build
+docs/TSF/trustable
 
 # =============================
 # Compiled objects
