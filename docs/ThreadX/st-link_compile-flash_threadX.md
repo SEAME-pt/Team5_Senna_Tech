@@ -90,6 +90,50 @@ st-flash --reset write ThreadX_Os.bin 0x08000000
 
 ---
 
+# UART Debug Messages
+
+ - Debug messages are sent via USART1 at 115200 baud, 8N1.
+ - Use a serial terminal (minicom, screen, etc.) to view output.
+
+## 1. Connect the Board
+- Use a USB cable if your board has a Virtual COM Port (e.g., ST-Link VCP)
+- Or use a USB-to-Serial adapter connected to the board's UART TX/RX pins
+
+## 2. Find the Serial Port
+On Linux, run:
+```sh
+sudo dmesg | grep tty
+```
+Look for `/dev/ttyACM0`, `/dev/ttyUSB0`, or similar.
+
+## 3. Open a Serial Terminal
+You can use `minicom` or `screen`.
+
+**minicom example:**
+```sh
+minicom -b 115200 -D /dev/ttyACM0
+```
+
+**screen example:**
+```sh
+screen /dev/ttyACM0 115200
+```
+
+## 4. UART Settings
+- Baud rate: 115200
+- Data bits: 8
+- Parity: None
+- Stop bits: 1
+
+## 5. View Output
+You should now see the debug messages printed by your firmware.
+
+## 6. Kill UART Window
+ - Press Ctrl+A then release both and press K
+ - When prompted, press y to confirm exit.
+
+---
+
 ## Summary
 
 - Use install_dependencies.sh for setup.
