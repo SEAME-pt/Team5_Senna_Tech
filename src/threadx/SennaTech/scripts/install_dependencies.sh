@@ -32,9 +32,9 @@ detect_os() {
         print_error "Cannot detect OS"
         exit 1
     fi
-    
+
     print_msg "Detected OS: $OS $VERSION"
-    
+
     # Check if Debian-based
     case "$OS" in
         ubuntu|debian|linuxmint|pop)
@@ -45,7 +45,7 @@ detect_os() {
             print_msg "Please install dependencies manually:"
             echo "  - CMake"
             echo "  - ARM GCC toolchain (arm-none-eabi-gcc)"
-            echo "  - ST-Link tools (stlink-tools)"
+            echo "  - ST-Link tools (built from source)"
             exit 1
             ;;
     esac
@@ -55,14 +55,58 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Install ST-Link from source (apt version 1.7.0 lacks STM32H7 support)
+install_stlink_from_source() {
+    print_msg "Installing ST-Link build dependencies..."
+    sudo apt-get install -y libusb-1.0-0-dev libgtk-3-dev git || {
+        print_error "Failed to install ST-Link build dependencies"
+        exit 1
+    }
+
+    local STLINK_DIR="/tmp/stlink"
+
+    if [ -d "$STLINK_DIR" ]; then
+        rm -rf "$STLINK_DIR"
+    fi
+
+    print_msg "Cloning ST-Link repository..."
+    git clone https://github.com/stlink-org/stlink.git "$STLINK_DIR" || {
+        print_error "Failed to clone ST-Link repository"
+        exit 1
+    }
+
+    print_msg "Building ST-Link from source..."
+    cmake -S "$STLINK_DIR" -B "$STLINK_DIR/build" -DCMAKE_INSTALL_PREFIX=/usr/local || {
+        print_error "ST-Link CMake configuration failed"
+        exit 1
+    }
+    cmake --build "$STLINK_DIR/build" -j$(nproc) || {
+        print_error "ST-Link compilation failed"
+        exit 1
+    }
+    sudo cmake --install "$STLINK_DIR/build" || {
+        print_error "ST-Link installation failed"
+        exit 1
+    }
+
+    print_msg "Installing udev rules..."
+    sudo cp "$STLINK_DIR/config/udev/rules.d/"*.rules /etc/udev/rules.d/ || \
+        print_warning "Failed to copy udev rules (non-critical)"
+    sudo udevadm control --reload-rules
+    sudo udevadm trigger
+
+    rm -rf "$STLINK_DIR"
+    print_success "ST-Link installed from source ($(st-flash --version 2>&1 | head -n1))"
+}
+
 # Install dependencies on Ubuntu/Debian
 install_ubuntu_debian() {
     print_msg "Installing dependencies for Ubuntu/Debian..."
-    
+
     # Update package list
     print_msg "Updating package list..."
     sudo apt-get update || { print_error "Failed to update package list"; exit 1; }
-    
+
     # Install CMake
     if ! command_exists cmake; then
         print_msg "Installing CMake..."
@@ -71,7 +115,7 @@ install_ubuntu_debian() {
     else
         print_success "CMake already installed ($(cmake --version | head -n1))"
     fi
-    
+
     # Install ARM GCC toolchain
     if ! command_exists arm-none-eabi-gcc; then
         print_msg "Installing ARM GCC toolchain..."
@@ -83,19 +127,17 @@ install_ubuntu_debian() {
     else
         print_success "ARM GCC toolchain already installed ($(arm-none-eabi-gcc --version | head -n1))"
     fi
-    
-    # Install ST-Link tools
+
+    # Install ST-Link from source (apt version 1.7.0 lacks STM32H7 chip ID support)
     if ! command_exists st-flash; then
-        print_msg "Installing ST-Link tools..."
-        sudo apt-get install -y stlink-tools || {
-            print_error "Failed to install ST-Link tools"
-            exit 1
-        }
-        print_success "ST-Link tools installed"
+        print_msg "Installing ST-Link from source..."
+        install_stlink_from_source
     else
-        print_success "ST-Link tools already installed ($(st-flash --version 2>&1 | head -n1))"
+        local current_ver
+        current_ver=$(st-flash --version 2>&1 | grep -oP '\d+\.\d+\.\d+' | head -n1)
+        print_warning "ST-Link already installed (v$current_ver). Remove it and re-run if you need a newer version."
     fi
-    
+
     # Install optional tools (for UART usage, not critical)
     print_msg "Installing optional tools (minicom, screen)..."
     sudo apt-get install -y minicom screen bc || print_warning "Optional tools installation failed (non-critical)"
@@ -105,7 +147,7 @@ install_ubuntu_debian() {
 # Only users in the dialout group can access serial ports
 setup_serial_permissions() {
     print_msg "Setting up serial port permissions..."
-    
+
     if groups | grep -q dialout; then
         print_success "User already in 'dialout' group"
     else
