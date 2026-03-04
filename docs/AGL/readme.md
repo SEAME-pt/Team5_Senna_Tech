@@ -59,8 +59,9 @@ This document provides a high-level guide to the available AGL documentation in 
 
 ## 5. AGL_support.md
 
-**Purpose: A general support guide for the AGL environment.
-Content includes:**
+#### Purpose: A general support guide for the AGL environment.
+
+**Content includes:**
 
 - Common issues encountered during development
 
@@ -69,3 +70,21 @@ Content includes:**
 - How to inspect system logs, services, and kernel modules
 
 - Guidelines for adding new hardware support or features
+
+## 6. AGL_camera_setup.md
+
+#### Purpose: Describes the integration and configuration of Raspberry Pi camera support in AGL using the rpi-libcamera fork.
+
+**Content includes:**
+
+- Overview of the problem with standard libcamera in AGL
+
+- Explanation of why the Raspberry Pi fork (rpi-libcamera) is required
+
+- Integration of libpisp for Raspberry Pi 5 PISP pipeline support
+
+- Replacement of libcamera-apps with rpicam-apps
+
+- Yocto recipe structure and preferred provider configuration
+
+- Verification steps to confirm pipeline and IPA loading
