@@ -81,17 +81,18 @@ All documentation is kept inside the [docs/](docs/) folder.
 - **Tools:** GitHub Projects + Issues
 
 👥 Team
-| Name            | Responsibilities               |
-|-----------------| ------------------------------ |
-| Hellom          | Hardware / Speedsensor         |
-| Marcelo         | Instrument Cluster             |
-| Vinicius        | ThreadX RTOS                   |
-| Yasmine         | CAN / Instrument Cluster       |
+| Name            | Responsibilities                          |
+|-----------------|-------------------------------------------|
+| Hellom          | Scrum Master / Hardware                   |
+| Vinicius        | Camera Software Resources                 |
+| Jose            | Team Integration                          |
+| Yasmine         | ADAS Module Research                      |
+| Marcelo         | ADAS Module Research                      |
 
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 ## 🗓️ Sprint Status
-- **Current sprint**: Sprint 7
-- **Period**: January 31 to February 13, 2026  [31/01/2026] → [13/02/2026]
-- **Current Status**: Finished
-- **Goals**: Modernize Instrument Cluster and TSF Validation
+- **Current sprint**: Sprint 8
+- **Period**: February 23 to March 6, 2026  [23/02/2026] → [06/03/2026]
+- **Current Status**: In Progress
+- **Goals**: Define the initial architecture of our ADAS

@@ -14,6 +14,8 @@ This document serves as a visual **report and planning tool** for Agile progress
 - [Sprint #4 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_4_report.md)
 - [Sprint #5 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_5_report.md)
 - [Sprint #6 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_6_report.md)
+- [Sprint #7 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_7_report.md)
+- [Sprint #8 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_8_report.md)
 
 ## 🏁 Sprint 0 — Setup & Fundamentals
 **Duration:** [13/10/2025] → [26/10/2025]
@@ -45,7 +47,11 @@ This document serves as a visual **report and planning tool** for Agile progress
 
 ## 🏁 Sprint 7 — Modernize Instrument Cluster and TSF Validation
 **Duration:** [31/01/2026] → [13/02/2026]
-**Sprint 6:** [Sprint 7 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_7_report.md)
+**Sprint 7:** [Sprint 7 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_7_report.md)
+
+## 🏁 Sprint 8 — Define the initial architecture of our ADAS
+**Duration:** [23/02/2026] → [06/03/2026]
+**Sprint 8:** [Sprint 8 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_8_report.md)
 
 ---
 

@@ -15,11 +15,12 @@ vehicleData *vehicleData::instance() {
 }
 
 //Private constructor
-vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), trafficSign("") {
+vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), odometer(0), trafficSign("") {
     (void) parent;
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &vehicleData::updateTemperature);
-    timer->start(1000); // atualiza a cada 1 seg
+    connect(timer, &QTimer::timeout, this, &vehicleData::updateOdometer);
+    timer->start(500); // atualiza a cada 0.5 seg
 }
 
 // Getters
@@ -28,6 +29,8 @@ double vehicleData::getSpeed() const{ return speed;}
 int vehicleData::getBattery() const { return battery;}
 
 int vehicleData::getTemperature() const{ return temperature;}
+
+uint16_t vehicleData::getOdometer() const{ return odometer;}
 
 QString vehicleData::getTrafficSign() const{ return trafficSign;}
 
@@ -63,6 +66,13 @@ void    vehicleData::setTemperature(int newTemperature){
         return ;
     this->temperature = newTemperature;
     emit temperatureChanged();
+}
+
+void    vehicleData::setOdometer(uint16_t newOdometer){
+    if (this->odometer == newOdometer)
+        return ;
+    this->odometer = newOdometer;
+    emit odometerChanged();
 }
 
 void    vehicleData::setTrafficSign(QString newTrafficSign){
@@ -230,17 +240,40 @@ void vehicleData::kuksaLoop() {
 }
 
 void vehicleData::updateTemperature() {
+
     QFile tempFile("/sys/class/thermal/thermal_zone0/temp");
 
-    if (tempFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&tempFile);
-        QString rawTemp = in.readLine();
-        tempFile.close();
-
-        // O valor vem em milicelsius (ex: 45000), então dividimos por 1000
-        int tempCelsius = rawTemp.toDouble() / 1000;
-
-        // Atribuindo à sua variável
-        setTemperature(tempCelsius);
+    if (!tempFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cout << "Erro ao abrir arquivo da temperatura: " << std::endl;
+        return ;
     }
+    QTextStream in(&tempFile);
+    QString rawTemp = in.readLine();
+    tempFile.close();
+
+    // O valor vem em milicelsius (ex: 45000), então dividimos por 1000
+    int tempCelsius = rawTemp.toDouble() / 1000;
+
+    // Atribuindo à sua variável
+    setTemperature(tempCelsius);
+}
+
+void vehicleData::updateOdometer() {
+    
+    QFile odometerFile("/odometer/odometer.bin");
+
+    if (!odometerFile.open(QIODevice::ReadOnly)) {
+        std::cout << "Erro ao abrir arquivo do odometro: " << std::endl;
+        return ;
+    }
+    uint16_t odometer_read;
+    qint64 bytes_read = odometerFile.read(reinterpret_cast<char*>(&odometer_read), sizeof(odometer_read));
+
+    if (bytes_read != sizeof(odometer_read)) {
+        std::cout << "Erro ao ler arquivo do odometro: " << std::endl;
+        return ;
+    }
+
+    odometerFile.close();
+    setOdometer(odometer_read);
 }

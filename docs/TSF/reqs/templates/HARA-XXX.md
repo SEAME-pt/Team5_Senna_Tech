@@ -1,6 +1,6 @@
 # 📑 HARA: Hazard Analysis and Risk Assessment
 
-**Project:** PiRacer - Speedometer Sensor Integration <br>
+**Project:** PiRacer - [Insert Project Name] <br>
 **Subsystem:** [Insert Sensor Name, e.g., I2C Encoder] <br>
 **Scenario:** Fully Autonomous (No Human Driver) <br>
 **Date:** [Insert Date] <br>
@@ -26,19 +26,20 @@
 
 | ID | Failure Mode | Autonomous Scenario Consequence | Criticality |
 | :--- | :--- | :--- | :---: |
-| **H1-XXX** | **Loss of Function (M1)** | System reads 0 km/h and applies maximum motor power to compensate. | **C4** |
-| **H2-XXX** | **Erratic High Value (M2)** | System reads excessive speed and performs emergency braking unexpectedly. | **C4** |
-| **H3-XXX** | **Erratic Low Value (M3)** | Robot operates above the actual allowed speed limit for the environment. | **C3** |
-| **H4-XXX** | **Stale Data / Latency (M4)** | Old data causes oscillations in path tracking (instability). | **C2** |
+| **H1-XXX** | **[e.g., Total Loss of Comm]** |[e.g., RPi stops receiving data; car maintains last speed.] | **C4** |
+| **H2-XXX** | **[e.g., Stale/Frozen Data]** | [e.g., Old speed value causes PID controller to over-accelerate.] | **C4** |
+| **H3-XXX** | **[e.g., Bus Congestion]** | [e.g., High latency (>100ms) on steering commands.] | **C3** |
+| **H4-XXX** | **[e.g., Data Corruption]** | [e.g., Bit-flip leads to incorrect ID mapping or wrong CRC.] | **C3** |
+| **H5-XXX** | **[e.g., OLED Display Glitch]** | [e.g., The onboard status screen flickers or shows corrupted characters. Internal control logic remains 100% nominal.] | **C1** |
 
 ---
 
 ## 3. Safety Goals (SG)
 *What the system **must** do to mitigate the risks above.*
 
-* **SG-XXX (Focus H1/H2):** The system shall invalidate readings if the speed delta violates the motor's physical acceleration limits.
-* **SG-XXX (Focus H1):** The I2C driver shall report communication failure in real-time if the sensor fails to respond within [X] ms.
-* **SG-XXX (Focus H4):** Every data sample shall be accompanied by a hardware timestamp to ensure data freshness.
+* **SG-XXX (Focus H1/H2):** [e.g., the system shall invalidate readings if the speed delta violates the motor's physical acceleration limits.]
+* **SG-XXX (Focus H1):** [e.g.,The I2C driver shall report communication failure in real-time if the sensor fails to respond within [X] ms.]
+* **SG-XXX (Focus H4):** [e.g.,Every data sample shall be accompanied by a hardware timestamp to ensure data freshness.]
 
 ---
 
