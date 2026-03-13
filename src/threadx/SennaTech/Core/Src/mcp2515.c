@@ -52,10 +52,12 @@ HAL_StatusTypeDef MCP2515_SetBitrate(CAN_Bitrate bitrate, MCP_Clock clock)
     HAL_Delay(10);
 
     uint8_t canstat = MCP2515_ReadByte(MCP_CANSTAT);
-    log_debug("CANSTAT apos pedido de CONFIG = 0x%02X", canstat);
+    uart_send("CANSTAT apos pedido de CONFIG = ");
+	uart_send_int(canstat);
+	uart_send("\r\n");
 
     if ((canstat & 0xE0) != MODE_CONFIG) {
-        log_debug("Nao entrou em modo de configuracao!");
+        uart_send("Nao entrou em modo de configuracao!\r\n");
         return HAL_ERROR;
     }
 
@@ -73,7 +75,7 @@ HAL_StatusTypeDef MCP2515_SetBitrate(CAN_Bitrate bitrate, MCP_Clock clock)
     uint8_t c2 = MCP2515_ReadByte(MCP_CNF2);
     uint8_t c3 = MCP2515_ReadByte(MCP_CNF3);
 
-    log_debug("CNF1=0x%02X CNF2=0x%02X CNF3=0x%02X", c1, c2, c3);
+    //log_debug("CNF1=0x%02X CNF2=0x%02X CNF3=0x%02X", c1, c2, c3);
 
     // Se por algum motivo a leitura não bate, a gente ainda mostra
     // mas retorna OK pra você conseguir testar o barramento CAN.
@@ -156,16 +158,16 @@ HAL_StatusTypeDef MCP2515_Init(void)
     uint8_t check_intf;
     uint8_t final_canstat;
 
-    log_debug("Initializing MCP2515...");
+    uart_send("Initializing MCP2515...\r\n");
 
     // Reset inicial
-    log_debug("Calling MCP2515_Reset...");
+    uart_send("Calling MCP2515_Reset...\r\n");
     MCP2515_Reset();
     tx_thread_sleep(50);
 
     // Configura bitrate (já entra em CONFIG mode)
     if (MCP2515_SetBitrate(CAN_500KBPS, MCP_8MHZ) != HAL_OK) {
-        log_debug("ERROR: Bit rate");
+        uart_send("ERROR: Bit rate\r\n");
         return HAL_ERROR;
     }
 
@@ -191,21 +193,23 @@ HAL_StatusTypeDef MCP2515_Init(void)
     check_intf    = MCP2515_ReadByte(MCP_CANINTF);
     final_canstat = MCP2515_ReadByte(MCP_CANSTAT);
 
-    log_debug(
+    /* log_debug(
         "Final check - CANINTE: 0x%02X, CANINTF: 0x%02X, CANSTAT: 0x%02X",
         check_inte, check_intf, final_canstat
-    );
+    ); */
 
     if (check_inte != 0x01) {
-        log_debug("ERROR: Interrupts not enabled! CANINTE=0x%02X", check_inte);
+        uart_send("ERROR: Interrupts not enabled! CANINTE= ");
+		uart_send_int(check_inte);
+		uart_send("\r\n");
         return HAL_ERROR;
     }
 
     if ((final_canstat & 0xE0) != MODE_NORMAL) {
-        log_debug("ERROR: MCP2515 not in NORMAL mode");
+        uart_send("ERROR: MCP2515 not in NORMAL mode\r\n");
         return HAL_ERROR;
     }
 
-    log_debug("SUCCESS: MCP2515 initialized and ready");
+    uart_send("SUCCESS: MCP2515 initialized and ready\r\n");
     return HAL_OK;
 }

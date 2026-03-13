@@ -17,7 +17,7 @@ void sensor_thread_entry(ULONG thread_input)
     last_time_ms = tx_time_get();
     last_print = tx_time_get();
 
-	log_debug("SENSOR THREAD STARTED");
+	uart_send("SENSOR THREAD STARTED\r\n");
 	while(1)
 	{
         //take the time (Ticks from ThreadX)
@@ -74,7 +74,7 @@ void sensor_thread_entry(ULONG thread_input)
 
 			if (tx_queue_send(&g_tx_data_queue, &speed_frame, TX_NO_WAIT) != TX_SUCCESS) {
 				// Fila cheia: trate erro ou descarte
-				log_debug("Error: TX queue full!");
+				uart_send("Error: TX queue full!\r\n");
 			} /* else {
 				log_debug("Frame added: speed=%u", speed_byte);
 			} */
@@ -99,7 +99,7 @@ void sensor_thread_entry2(ULONG thread_input)
     uint32_t acc_pulses = 0;
     uint32_t acc_ticks  = 0;
 
-    log_debug("SENSOR THREAD2 STARTED");
+    uart_send("SENSOR THREAD2 STARTED\r\n");
 
     while (1)
     {
@@ -163,7 +163,7 @@ void sensor_thread_entry2(ULONG thread_input)
 
             if (tx_queue_send(&g_tx_data_queue, &speed_frame, TX_NO_WAIT) != TX_SUCCESS)
             {
-                log_debug("Error: TX queue full!");
+                uart_send("Error: TX queue full!\r\n");
             }
         }
         tx_thread_sleep(1); // 1 tick = 10ms

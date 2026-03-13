@@ -3,7 +3,6 @@
 #pragma once
 #include <stdint.h>
 #include "i2c_hal.h"
-#include "sleep_hal.h"
 //#include "app_threadx.h"
 /* I2C address (shifted for HAL) */
 #define SERVO_ADDRESS     0x40 << 1

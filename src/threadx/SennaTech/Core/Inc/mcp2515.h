@@ -8,7 +8,6 @@
 #ifndef MCP2515_H_
 #define MCP2515_H_
 
-#include "main.h"
 #include "app_threadx.h"
 
 #define MCP2515_CS_LOW()   HAL_GPIO_WritePin(GPIOE, GPIO_PIN_12, GPIO_PIN_RESET)

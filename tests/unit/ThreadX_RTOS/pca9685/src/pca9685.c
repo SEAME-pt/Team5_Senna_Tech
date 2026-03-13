@@ -26,7 +26,7 @@ void PCA9685_SetPWMFreq(PCA9685_t *dev, uint16_t freq_hz)
     PCA9685_WriteByte(dev, PRESCALE, (uint8_t)prescale);
     PCA9685_WriteByte(dev, MODE1, oldmode);
 
-    tx_sleep(1); // ~5ms
+    tx_thread_sleep(1); // ~5ms
     PCA9685_WriteByte(dev, MODE1, oldmode | RESTART);
 }
 
@@ -39,13 +39,13 @@ void PCA9685_Init(PCA9685_t *dev, void *hi2c, uint8_t address)
     PCA9685_WriteByte(dev, MODE2, OUTDRV);
     PCA9685_WriteByte(dev, MODE1, ALLCALL);
 
-    tx_sleep(1); // ~5ms
+    tx_thread_sleep(1); // ~5ms
 
     uint8_t mode1 = PCA9685_ReadByte(dev, MODE1);
     mode1 &= ~SLEEP;
     PCA9685_WriteByte(dev, MODE1, mode1);
 
-    tx_sleep(1); // ~5ms
+    tx_thread_sleep(1); // ~5ms
 }
 
 void PCA9685_SetPWM(PCA9685_t *dev, uint8_t channel, uint16_t on, uint16_t off)

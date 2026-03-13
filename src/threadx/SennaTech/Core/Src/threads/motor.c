@@ -21,7 +21,7 @@ float percent_from_can_int16(uint8_t low_byte, uint8_t high_byte)
 
 void motors_thread_entry(ULONG thread_input)
 {
-    log_debug("Motor Thread Entry");
+    uart_send("MOTOR THREAD STARTED\r\n");
 
     CAN_Frame frame;
 
@@ -54,7 +54,4 @@ void motors_thread_entry(ULONG thread_input)
             car_set_steering_percent(&car, percent);
         }
     }
-
-    log_debug("Car test finished!");
-    log_debug("Motor thread encerrou!");
 }
