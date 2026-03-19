@@ -55,7 +55,7 @@ void car_set_steering_percent(car_t *car, float percent)
         raw = SERVO_RAW_MAX;
     if (raw < SERVO_RAW_MIN)
         raw = SERVO_RAW_MIN;
-
+    //log_debug("raw: %i", raw);
     PCA9685_SetPWM(&car->steering, PWM_STEERING_CHANNEL, 0, raw);
 }
 

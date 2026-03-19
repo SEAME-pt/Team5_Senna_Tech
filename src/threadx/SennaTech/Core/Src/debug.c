@@ -1,15 +1,30 @@
-#include "utils.h"
+#include "can_manager.h"
+#include <stdio.h>
+#include <inttypes.h>
 
-// Function to send a string over UART
-VOID    uart_send(const char *msg) 
+void log_debug(const char *fmt, ...)
 {
-    HAL_UART_Transmit(&huart1, (uint8_t*)msg, strlen(msg), 100);
+    va_list args;
+    va_start(args, fmt);
+
+    log_msg_t log;
+    vsnprintf(log.msg, sizeof(log.msg), fmt, args);
+
+    va_end(args);
+
+    tx_queue_send(&g_log_queue, &log, TX_NO_WAIT);
 }
 
-// Function to send an integer over UART
-VOID    uart_send_int(int32_t value) 
+void debug_thread_entry(ULONG thread_input)
 {
-    char buffer[12]; // capacity of -2147483648 + null terminator
-    snprintf(buffer, sizeof(buffer), "%ld", value);
-    uart_send(buffer);
+    log_msg_t log;
+
+    while (1)
+    {
+        if (tx_queue_receive(&g_log_queue, &log, TX_WAIT_FOREVER) == TX_SUCCESS)
+        {
+            printf("%s\n", log.msg);
+        }
+        tx_thread_sleep(1);
+    }
 }
