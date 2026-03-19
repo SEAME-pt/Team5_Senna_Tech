@@ -39,7 +39,10 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | **11/03** | **Hellom:** See how to convert the code to .hef.  **Marcelo:** testing pre-trained models in CARLA  **Vinicius:** Day off (worked at the carnival)  **Jose:** PID **Yasmine:** organize public dataset. |
 | **12/03** | **Hellom:** Perform the first conversion of the trained model to .hef.  **Marcelo:** Extract dataset from CARLA  **Vinicius:** Day off (worked at the carnival)  **Jose:** PID **Yasmine:** train model with vill-100 and CULane(public dataset). |
 | **13/03** | **Hellom:** Convert our second trained model to .hef and organize the conversion scripts.  **Marcelo:** testing the first model in the car.  **Vinicius:** Day off (worked at the carnival)  **Jose:** PID **Yasmine:** Organize the public dataset + the CARLA dataset for training with the larger dataset and with more epochs and batchs. |
-
+| **16/03** | **Hellom:** Integration of the .hef conversion into hailo. **Marcelo:** Integration of the first trained model in the CARLA simulator.  **Vinicius:** Day off (worked at the carnival)  **Jose:** PID **Yasmine:** Organization of the CARLA dataset and study of new training parameters. |
+| **17/03** | **Hellom:** post-processing study of .hef files. **Marcelo:** Comparison between models trained within the CARLA environment.  **Vinicius:** Day off (worked at the carnival)  **Jose:** PID **Yasmine:** Developing pipeline code for image processing. |
+| **18/03** | **Hellom:** post-processing study of .hef files. **Marcelo:** Adaptation of the PID code for use in the CARLA API.  **Vinicius:** Adaptation of the PID code for use in the CARLA API. **Jose:** PID **Yasmine:** Developing pipeline code for image processing. |
+| **19/03** | **Hellom:** post-processing study of .hef files. **Marcelo:** Adaptation of the PID code for use in the CARLA API.  **Vinicius:** PID test in the car. **Jose:** PID **Yasmine:** adaptation of the output values ​​of the image post-processing code. |
 ---
 
 ## 🧠 Key Achievements
