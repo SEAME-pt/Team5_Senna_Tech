@@ -16,7 +16,7 @@ This document serves as a visual **report and planning tool** for Agile progress
 - [Sprint #6 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_6_report.md)
 - [Sprint #7 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_7_report.md)
 - [Sprint #8 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_8_report.md)
-- [Sprint #8 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_9_report.md)
+- [Sprint #9 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_9_report.md)
 
 ## 🏁 Sprint 0 — Setup & Fundamentals
 **Duration:** [13/10/2025] → [26/10/2025]
