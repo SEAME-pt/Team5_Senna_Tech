@@ -5,7 +5,7 @@
 
 void battery_thread_entry(ULONG thread_input)
 {
-	uart_send("BATTERY THREAD STARTED\r\n");
+	log_debug("BATTERY THREAD STARTED");
 	CAN_Frame batteryFrame;
 	batteryFrame.dlc = 1;
 	batteryFrame.id = CAN_ID_BATTERY;
@@ -35,10 +35,10 @@ void battery_thread_entry(ULONG thread_input)
 
 		bool update = false;
 
-		/*if (current > 0)
-			uart_send("corrente positiva\r\n");
+/* 		if (current > 0)
+			log_debug("corrente positiva");
 		else
-			uart_send("corrente negativa\r\n"); */
+			log_debug("corrente negativa"); */
 
 		if (first_time)
 		{
@@ -68,7 +68,7 @@ void battery_thread_entry(ULONG thread_input)
 		tx_mutex_put(&g_battery_mutex);
 
 		if (tx_queue_send(&g_tx_data_queue, &batteryFrame, TX_NO_WAIT) != TX_SUCCESS)
-			uart_send("TX queue cheia! Frame descartado.\r\n");
+			log_debug("TX queue cheia! Frame descartado.");
 
 		tx_thread_sleep(150);
 	}

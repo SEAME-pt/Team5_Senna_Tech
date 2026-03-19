@@ -24,7 +24,7 @@ void CAN_Rx_Thread_Entry(ULONG thread_input)
 	CAN_Frame rx_frame;
 	CAN_Frame local_copy;
 
-    uart_send("CAN RX STARTED THREAD\r\n");
+    log_debug("CAN RX STARTED THREAD");
     while (1)
     {
         tx_semaphore_get(&rx_sem, TX_WAIT_FOREVER);
@@ -33,9 +33,10 @@ void CAN_Rx_Thread_Entry(ULONG thread_input)
         while (MCP2515_ReceiveMessage(&rx_frame) == HAL_OK)
         {
             memcpy(&local_copy, &rx_frame, sizeof(CAN_Frame));
+            // log_debug("ID: 0x%X, DLC: %u, Data[0]: %u, Data[1]: %u", rx_frame.id, rx_frame.dlc, rx_frame.data[0], rx_frame.data[0]);
             if (tx_queue_send(&g_rx_data_queue, &local_copy, TX_NO_WAIT) != TX_SUCCESS)
             {
-                uart_send("RX QUEUE FULL\r\n");
+                log_debug("RX QUEUE FULL");
             }
         }
 
@@ -57,7 +58,7 @@ void CAN_Tx_Thread_Entry(ULONG thread_input) {
 
     CAN_Frame frame;
 
-    uart_send("TX THREAD STARTED\r\n");
+    log_debug("TX THREAD STARTED");
     while (1)
     {
         tx_queue_receive(&g_tx_data_queue, &frame, TX_WAIT_FOREVER);
