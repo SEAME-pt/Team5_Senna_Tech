@@ -1,0 +1,6 @@
+# Recreate the environment:
+# cd ~/convert_hailo && rm -rf hailo-env && python3 -m venv hailo-env && source hailo-env/bin/activate && python -m pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+
+ultralytics>=8.3,<9
+onnx>=1.14,<2
+onnxsim>=0.4.33,<1
