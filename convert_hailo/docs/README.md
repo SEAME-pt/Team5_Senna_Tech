@@ -7,6 +7,7 @@ This directory contains the official documentation for the project.
 - [run_convert](./01_run_convert.md)
 - [Docker Environment](./02_docker_environment.md)
 - [HEF Compilation](./03_hef_compilation.md)
+- [Manual Conversion Step by Step](./07_manual_conversion_step_by_step.md)
 
 ## Technical Reference
 
