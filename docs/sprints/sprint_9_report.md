@@ -1,6 +1,6 @@
 # 🚀 Sprint 9 Report – Team5: Senna Tech
 
-**Duration:** [09/03/2026] → [21/03/2026]
+**Duration:** [09/03/2026] → [20/03/2026]
 
 **Sprint Goal:** Define the initial architecture of our ADAS
 
@@ -43,11 +43,12 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | **17/03** | **Hellom:** post-processing study of .hef files. **Marcelo:** Comparison between models trained within the CARLA environment.  **Vinicius:** Day off (worked at the carnival)  **Jose:** PID **Yasmine:** Developing pipeline code for image processing. |
 | **18/03** | **Hellom:** post-processing study of .hef files. **Marcelo:** Adaptation of the PID code for use in the CARLA API.  **Vinicius:** Adaptation of the PID code for use in the CARLA API. **Jose:** PID **Yasmine:** Developing pipeline code for image processing. |
 | **19/03** | **Hellom:** post-processing study of .hef files. **Marcelo:** Adaptation of the PID code for use in the CARLA API.  **Vinicius:** PID test in the car. **Jose:** PID **Yasmine:** adaptation of the output values ​​of the image post-processing code. |
+| **20/03** | sprint restrospective. |
 ---
 
 ## 🧠 Key Achievements
 
--
+- Defined YOLOv8n-sec model, training versions, model integration and PID in the Carla simulator.
 
 ---
 
