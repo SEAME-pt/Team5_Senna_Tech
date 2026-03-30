@@ -35,7 +35,7 @@ void odometer_thread_entry(ULONG thread_input)
             odometer_frame.data[1] = total_distance_m & 0xFF;
 
             if (tx_queue_send(&g_tx_data_queue, &odometer_frame, TX_NO_WAIT) != TX_SUCCESS) {
-				log_debug("Error: TX queue full!");
+				//log_debug("Error: TX queue full!");
 			}
 
             tx_mutex_get(&g_odometer_mutex, TX_WAIT_FOREVER);
