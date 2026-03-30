@@ -106,3 +106,9 @@ docs/trustable/
 issue_137.md
 
 **/.qtcreator/
+
+# Hailo conversion local environment and generated artifacts
+convert_hailo/.env.hailo
+convert_hailo/hailo-env/
+convert_hailo/shared_with_docker/*
+!convert_hailo/shared_with_docker/README.md

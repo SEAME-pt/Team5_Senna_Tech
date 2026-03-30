@@ -16,6 +16,7 @@ This document serves as a visual **report and planning tool** for Agile progress
 - [Sprint #6 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_6_report.md)
 - [Sprint #7 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_7_report.md)
 - [Sprint #8 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_8_report.md)
+- [Sprint #9 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_9_report.md)
 
 ## 🏁 Sprint 0 — Setup & Fundamentals
 **Duration:** [13/10/2025] → [26/10/2025]
@@ -52,6 +53,10 @@ This document serves as a visual **report and planning tool** for Agile progress
 ## 🏁 Sprint 8 — Define the initial architecture of our ADAS
 **Duration:** [23/02/2026] → [06/03/2026]
 **Sprint 8:** [Sprint 8 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_8_report.md)
+
+## 🏁 Sprint 9 — LKA model and PID test in the CARLA simulator
+**Duration:** [09/03/2026] → [20/03/2026]
+**Sprint 8:** [Sprint 9 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_9_report.md)
 
 ---
 

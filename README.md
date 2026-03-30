@@ -83,16 +83,16 @@ All documentation is kept inside the [docs/](docs/) folder.
 👥 Team
 | Name            | Responsibilities                          |
 |-----------------|-------------------------------------------|
-| Hellom          | Scrum Master / Hardware                   |
-| Vinicius        | Camera Software Resources                 |
-| Jose            | Team Integration                          |
-| Yasmine         | ADAS Module Research                      |
-| Marcelo         | ADAS Module Research                      |
+| Hellom          | Hailo HAT                                 |
+| Vinicius        | PID                                       |
+| Jose            | PID                                       |
+| Yasmine         | Scrum Master / LKA developer              |
+| Marcelo         | CARLA developer                           |
 
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 ## 🗓️ Sprint Status
-- **Current sprint**: Sprint 8
-- **Period**: February 23 to March 6, 2026  [23/02/2026] → [06/03/2026]
+- **Current sprint**: Sprint 9
+- **Period**: March 9 to March 21, 2026  [09/03/2026] → [21/03/2026]
 - **Current Status**: In Progress
-- **Goals**: Define the initial architecture of our ADAS
+- **Goals**: Training our first LKA model and testing it on the CARLA.

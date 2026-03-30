@@ -1,0 +1,2 @@
+# YOLOv8n-seg Fused NMS
+nms_postprocess(nms_score_threshold=0.3, nms_iou_threshold=0.45, max_proposals_per_class=100)
