@@ -50,8 +50,6 @@ MDF_FilterConfigTypeDef AdfFilterConfig0;
 
 I2C_HandleTypeDef hi2c1;
 
-OSPI_HandleTypeDef hospi2;
-
 SPI_HandleTypeDef hspi1;
 
 UART_HandleTypeDef huart1;
@@ -80,7 +78,6 @@ static void MX_GPIO_Init(void);
 static void MX_ADF1_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_ICACHE_Init(void);
-static void MX_OCTOSPI2_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
@@ -137,7 +134,6 @@ int main(void)
   MX_ADF1_Init();
   MX_I2C1_Init();
   MX_ICACHE_Init();
-  MX_OCTOSPI2_Init();
   MX_USART1_UART_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
@@ -483,63 +479,6 @@ static void MX_ICACHE_Init(void)
 }
 
 /**
-  * @brief OCTOSPI2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_OCTOSPI2_Init(void)
-{
-
-  /* USER CODE BEGIN OCTOSPI2_Init 0 */
-
-  /* USER CODE END OCTOSPI2_Init 0 */
-
-  OSPIM_CfgTypeDef sOspiManagerCfg = {0};
-  HAL_OSPI_DLYB_CfgTypeDef HAL_OSPI_DLYB_Cfg_Struct = {0};
-
-  /* USER CODE BEGIN OCTOSPI2_Init 1 */
-
-  /* USER CODE END OCTOSPI2_Init 1 */
-  /* OCTOSPI2 parameter configuration*/
-  hospi2.Instance = OCTOSPI2;
-  hospi2.Init.FifoThreshold = 4;
-  hospi2.Init.DualQuad = HAL_OSPI_DUALQUAD_DISABLE;
-  hospi2.Init.MemoryType = HAL_OSPI_MEMTYPE_MACRONIX;
-  hospi2.Init.DeviceSize = 26;
-  hospi2.Init.ChipSelectHighTime = 2;
-  hospi2.Init.FreeRunningClock = HAL_OSPI_FREERUNCLK_DISABLE;
-  hospi2.Init.ClockMode = HAL_OSPI_CLOCK_MODE_0;
-  hospi2.Init.WrapSize = HAL_OSPI_WRAP_NOT_SUPPORTED;
-  hospi2.Init.ClockPrescaler = 4;
-  hospi2.Init.SampleShifting = HAL_OSPI_SAMPLE_SHIFTING_NONE;
-  hospi2.Init.DelayHoldQuarterCycle = HAL_OSPI_DHQC_ENABLE;
-  hospi2.Init.ChipSelectBoundary = 0;
-  hospi2.Init.DelayBlockBypass = HAL_OSPI_DELAY_BLOCK_USED;
-  hospi2.Init.MaxTran = 0;
-  hospi2.Init.Refresh = 0;
-  if (HAL_OSPI_Init(&hospi2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sOspiManagerCfg.ClkPort = 2;
-  sOspiManagerCfg.DQSPort = 2;
-  if (HAL_OSPIM_Config(&hospi2, &sOspiManagerCfg, HAL_OSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  HAL_OSPI_DLYB_Cfg_Struct.Units = 0;
-  HAL_OSPI_DLYB_Cfg_Struct.PhaseSel = 0;
-  if (HAL_OSPI_DLYB_SetConfig(&hospi2, &HAL_OSPI_DLYB_Cfg_Struct) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN OCTOSPI2_Init 2 */
-
-  /* USER CODE END OCTOSPI2_Init 2 */
-
-}
-
-/**
   * @brief SPI1 Initialization Function
   * @param None
   * @retval None
@@ -734,6 +673,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = GPIO_AF10_USB;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : OCTOSPI_F_CLK_P_Pin OCTOSPI_F_DQS_Pin */
+  GPIO_InitStruct.Pin = OCTOSPI_F_CLK_P_Pin|OCTOSPI_F_DQS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF5_OCTOSPI2;
+  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
   /*Configure GPIO pin : MCP_INT_Pin */
   GPIO_InitStruct.Pin = MCP_INT_Pin;
