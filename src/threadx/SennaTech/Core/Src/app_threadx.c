@@ -246,7 +246,7 @@ void MX_ThreadX_Init(void)
   /* USER CODE BEGIN Before_Kernel_Start */
   
   if (MCP2515_Init() != HAL_OK) {
-	  log_debug("MCP2515 init failed!");
+	  //log_debug("MCP2515 init failed!");
 	  Error_Handler();
   }
 

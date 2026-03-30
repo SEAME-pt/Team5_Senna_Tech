@@ -24,7 +24,6 @@
 /* USER CODE BEGIN Includes */
 #include "mcp2515.h"
 #include <string.h>
-#include <stdio.h>
 #include "core_cm33.h"
 /* USER CODE END Includes */
 

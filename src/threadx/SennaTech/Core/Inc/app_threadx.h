@@ -30,7 +30,6 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>
 #include "stm32u5xx_hal.h"  // para I2C_HandleTypeDef
 #include "i2c.h"
 #include <stdarg.h>
@@ -112,10 +111,6 @@ void motors_thread_entry(ULONG thread_input);
 void debug_thread_entry(ULONG thread_input);
 void heartbeat_thread_entry(ULONG thread_input);
 void odometer_thread_entry(ULONG thread_input);
-
-// utils
-
-void log_debug(const char *fmt, ...);
 
 
 /* USER CODE END 1 */
