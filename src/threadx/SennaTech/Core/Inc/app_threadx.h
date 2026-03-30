@@ -27,6 +27,9 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "tx_api.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include "stm32u5xx_hal.h"  // para I2C_HandleTypeDef
 #include "i2c.h"
@@ -34,9 +37,6 @@ extern "C" {
 #include <inttypes.h>
 #include "i2c_hal.h"
 #include "sleep_hal.h"
-
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
 
