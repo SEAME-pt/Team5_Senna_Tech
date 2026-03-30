@@ -20,7 +20,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "app_threadx.h"
-#include "can_manager.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -28,6 +27,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "core_cm33.h"
+#include "can_manager.h"
 
 /* USER CODE END Includes */
 
@@ -115,9 +115,9 @@ log_msg_t log_queue_buffer[LOG_QUEUE_LEN];
   * @retval int
   */
 UINT App_ThreadX_Init(VOID *memory_ptr)
-	{
-	UINT ret = TX_SUCCESS;
-	/* USER CODE BEGIN App_ThreadX_MEM_POOL */
+{
+  UINT ret = TX_SUCCESS;
+  /* USER CODE BEGIN App_ThreadX_MEM_POOL */
 
 	tx_mutex_create(&g_speed_mutex, "speed_mutex", TX_NO_INHERIT);
 	tx_mutex_create(&g_battery_mutex, "battery_mutex", TX_NO_INHERIT);
@@ -252,7 +252,7 @@ void MX_ThreadX_Init(void)
 
   /* USER CODE END Before_Kernel_Start */
 
-	tx_kernel_enter();
+  tx_kernel_enter();
 
   /* USER CODE BEGIN Kernel_Start_Error */
 
