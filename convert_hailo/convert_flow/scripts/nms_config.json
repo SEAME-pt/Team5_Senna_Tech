@@ -1,0 +1,8 @@
+{
+    "nms_scores_th": 0.25,
+    "nms_iou_th": 0.7,
+    "max_proposals_per_class": 100,
+    "classes": 80,
+    "background_removal": false,
+    "meta_arch": "yolov8"
+}
