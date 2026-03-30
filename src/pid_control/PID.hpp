@@ -37,7 +37,7 @@ private:
 
 
 /*
-common examples of instanciating this object to steering values:
+common examples of instantiating this object to steering values:
 
 kp = 0.3 – 0.6
 ki = 0.0 – 0.02
