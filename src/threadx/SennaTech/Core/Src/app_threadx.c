@@ -286,7 +286,7 @@ static UINT App_CreateThreads(void)
 				       "Heartbeat Thread",
 				       heartbeat_thread_entry,
 				       0,
-				       threads[6].stack,
+				       threads[6].mini_stack,
 				       sizeof(threads[6].mini_stack),
 				       16, 16,
 					   TX_NO_TIME_SLICE, TX_AUTO_START);
