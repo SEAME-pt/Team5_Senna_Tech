@@ -2,6 +2,7 @@
  #define UTILS_H_
 
 #include "app_threadx.h"
+#include <stdio.h>
 
 extern UART_HandleTypeDef   huart1;
 
