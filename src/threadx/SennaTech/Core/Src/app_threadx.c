@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include "core_cm33.h"
 #include "can_manager.h"
+#include "utils.h"
 
 /* USER CODE END Includes */
 
@@ -77,18 +78,11 @@ UCHAR heartbeat_thread_stack[512];
 TX_THREAD odometer_thread;
 UCHAR odometer_thread_stack[1024];
 
-// DEBUG THREAD
-TX_THREAD debug_thread;
-UCHAR log_thread_stack[1024];
-
 // QUEUES
-
 TX_QUEUE g_tx_data_queue;
 TX_QUEUE g_rx_data_queue;
-TX_QUEUE g_log_queue; // log thread
 
 // MUTEXES
-
 TX_MUTEX g_speed_mutex;
 TX_MUTEX g_dc_motor_mutex;
 TX_MUTEX g_servo_mutex;
@@ -99,7 +93,6 @@ TX_MUTEX g_odometer_mutex;
 
 ULONG tx_queue_buffer[QUEUE_LEN * sizeof(CAN_Frame) / sizeof(ULONG)];
 ULONG rx_queue_buffer[QUEUE_LEN * sizeof(CAN_Frame) / sizeof(ULONG)];
-log_msg_t log_queue_buffer[LOG_QUEUE_LEN];
 
 /* USER CODE END PV */
 
@@ -135,12 +128,6 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
                     sizeof(CAN_Frame) / sizeof(ULONG),
                     rx_queue_buffer,
                     sizeof(rx_queue_buffer));
-
-    tx_queue_create(&g_log_queue,
-                    "LOG Queue",
-                    sizeof(log_msg_t) / sizeof(ULONG),
-                    log_queue_buffer,
-                    sizeof(log_queue_buffer));
 
 	tx_thread_create(&sensor_thread,
       						"Sensor Thread",
@@ -197,17 +184,6 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
       		                TX_NO_TIME_SLICE,
       		                TX_AUTO_START);
 
-	tx_thread_create(&debug_thread,
-      						"Debug Thread",
-      		                debug_thread_entry,
-      		                1,
-      		                log_thread_stack,
-      		                sizeof(log_thread_stack),
-      		                20,
-      		                20,
-      		                TX_NO_TIME_SLICE,
-      		                TX_AUTO_START);
-
 	tx_thread_create(&heartbeat_thread,
     						"Heartbeat Thread",
 						    heartbeat_thread_entry,
@@ -228,6 +204,8 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 						    17,
 						    TX_NO_TIME_SLICE,
 						    TX_AUTO_START);
+
+	uart_send("ThreadX Initialized\r\n");
 
   /* USER CODE END App_ThreadX_MEM_POOL */
   /* USER CODE BEGIN App_ThreadX_Init */

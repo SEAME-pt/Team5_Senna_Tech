@@ -48,7 +48,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/battery.c
     Core/Src/can_manager.c
     Core/Src/car.c
-    Core/Src/debug.c
+    Core/Src/debug_utils.c
     Core/Src/heartbeat.c
     Core/Src/i2c_hal.c
     Core/Src/ina219.c

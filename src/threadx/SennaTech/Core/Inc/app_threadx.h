@@ -92,7 +92,6 @@ void MX_ThreadX_Init(void);
 // QUEUES
 extern TX_QUEUE g_tx_data_queue;
 extern TX_QUEUE g_rx_data_queue;
-extern TX_QUEUE g_log_queue;
 
 //MUTEXES
 
@@ -108,7 +107,6 @@ void sensor_thread_entry2(ULONG thread_input);
 void sensor_thread_entry(ULONG thread_input);
 void battery_thread_entry(ULONG thread_input);
 void motors_thread_entry(ULONG thread_input);
-void debug_thread_entry(ULONG thread_input);
 void heartbeat_thread_entry(ULONG thread_input);
 void odometer_thread_entry(ULONG thread_input);
 
