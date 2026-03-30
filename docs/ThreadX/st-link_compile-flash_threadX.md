@@ -88,6 +88,51 @@ st-flash --reset write SennaTech.bin 0x08000000
 - `0x08000000` - Flash memory start address for STM32
 - `--reset` - Automatically reset the microcontroller after flashing
 
+# Note: ST-Link “Unknown Chip ID” Error 
+
+If you encounter this error:
+
+```shell
+unknown chip id! 0x482
+Failed to connect to target
+[ERROR] Flash erase failed
+```
+
+It usually means your ST-Link tools version is too old (common with 1.7.0).
+
+### Fix:
+
+1. Remove the old version:
+
+```shell
+sudo apt remove stlink-tools
+```
+
+2. Install required dependencies:
+
+```shell
+sudo apt update
+sudo apt install -y git build-essential cmake libusb-1.0-0-dev
+```
+
+3. Clone and build the latest ST-Link tools:
+
+```shell
+git clone https://github.com/stlink-org/stlink.git
+cd stlink
+make release
+sudo make install
+sudo ldconfig
+```
+
+4. Verify installation:
+
+```shell
+st-flash --version
+```
+
+You should see st-flash 1.8.x or newer.
+
 ---
 
 # UART Debug Messages
