@@ -88,7 +88,7 @@ st-flash --reset write SennaTech.bin 0x08000000
 - `0x08000000` - Flash memory start address for STM32
 - `--reset` - Automatically reset the microcontroller after flashing
 
-# Note: ST-Link “Unknown Chip ID” Error 
+## Note: ST-Link “Unknown Chip ID” Error 
 
 If you encounter this error:
 
