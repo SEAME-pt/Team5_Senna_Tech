@@ -45,8 +45,6 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-MDF_HandleTypeDef AdfHandle0;
-MDF_FilterConfigTypeDef AdfFilterConfig0;
 
 I2C_HandleTypeDef hi2c1;
 
@@ -75,7 +73,6 @@ volatile uint8_t flag_mensagem_recebida = 0; // Flag to process in the loop
 void SystemClock_Config(void);
 static void SystemPower_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_ADF1_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_ICACHE_Init(void);
 static void MX_USART1_UART_Init(void);
@@ -131,7 +128,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ADF1_Init();
   MX_I2C1_Init();
   MX_ICACHE_Init();
   MX_USART1_UART_Init();
@@ -342,60 +338,6 @@ static void SystemPower_Config(void)
   }
 /* USER CODE BEGIN PWR */
 /* USER CODE END PWR */
-}
-
-/**
-  * @brief ADF1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_ADF1_Init(void)
-{
-
-  /* USER CODE BEGIN ADF1_Init 0 */
-
-  /* USER CODE END ADF1_Init 0 */
-
-  /* USER CODE BEGIN ADF1_Init 1 */
-
-  /* USER CODE END ADF1_Init 1 */
-
-  /**
-    AdfHandle0 structure initialization and HAL_MDF_Init function call
-  */
-  AdfHandle0.Instance = ADF1_Filter0;
-  AdfHandle0.Init.CommonParam.ProcClockDivider = 1;
-  AdfHandle0.Init.CommonParam.OutputClock.Activation = DISABLE;
-  AdfHandle0.Init.SerialInterface.Activation = ENABLE;
-  AdfHandle0.Init.SerialInterface.Mode = MDF_SITF_LF_MASTER_SPI_MODE;
-  AdfHandle0.Init.SerialInterface.ClockSource = MDF_SITF_CCK0_SOURCE;
-  AdfHandle0.Init.SerialInterface.Threshold = 4;
-  AdfHandle0.Init.FilterBistream = MDF_BITSTREAM0_FALLING;
-  if (HAL_MDF_Init(&AdfHandle0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /**
-    AdfFilterConfig0 structure initialization
-
-    WARNING : only structure is filled, no specific init function call for filter
-  */
-  AdfFilterConfig0.DataSource = MDF_DATA_SOURCE_BSMX;
-  AdfFilterConfig0.Delay = 0;
-  AdfFilterConfig0.CicMode = MDF_ONE_FILTER_SINC4;
-  AdfFilterConfig0.DecimationRatio = 2;
-  AdfFilterConfig0.Gain = 0;
-  AdfFilterConfig0.ReshapeFilter.Activation = DISABLE;
-  AdfFilterConfig0.HighPassFilter.Activation = DISABLE;
-  AdfFilterConfig0.SoundActivity.Activation = DISABLE;
-  AdfFilterConfig0.AcquisitionMode = MDF_MODE_ASYNC_CONT;
-  AdfFilterConfig0.FifoThreshold = MDF_FIFO_THRESHOLD_NOT_EMPTY;
-  AdfFilterConfig0.DiscardSamples = 0;
-  /* USER CODE BEGIN ADF1_Init 2 */
-
-  /* USER CODE END ADF1_Init 2 */
-
 }
 
 /**
@@ -687,6 +629,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(MCP_INT_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : MIC_SDINx_Pin MIC_CCK0_Pin */
+  GPIO_InitStruct.Pin = MIC_SDINx_Pin|MIC_CCK0_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF3_ADF1;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pin : WRLS_WKUP_B_Pin */
   GPIO_InitStruct.Pin = WRLS_WKUP_B_Pin;
