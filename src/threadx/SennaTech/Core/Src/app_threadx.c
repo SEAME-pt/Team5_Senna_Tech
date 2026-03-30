@@ -78,7 +78,12 @@ UCHAR heartbeat_thread_stack[512];
 TX_THREAD odometer_thread;
 UCHAR odometer_thread_stack[1024];
 
+// DEBUG THREAD
+TX_THREAD debug_thread;
+UCHAR log_thread_stack[1024];
+
 // QUEUES
+
 TX_QUEUE g_tx_data_queue;
 TX_QUEUE g_rx_data_queue;
 
@@ -205,6 +210,10 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 						    TX_NO_TIME_SLICE,
 						    TX_AUTO_START);
 
+	if (ret != TX_SUCCESS) {
+		uart_send("ThreadX Initialized failed!\r\n");
+		Error_Handler();
+	}
 	uart_send("ThreadX Initialized\r\n");
 
   /* USER CODE END App_ThreadX_MEM_POOL */

@@ -62,10 +62,6 @@ extern "C" {
 #define WHEEL_CIRCUMFERENCE_MM (3.14159f * WHEEL_DIAMETER_MM)
 #define ENCODER_HOLES     20
 
-typedef struct {
-    char msg[LOG_MSG_LEN];
-} log_msg_t;
-
 /* USER CODE END PD */
 
 /* Main thread defines -------------------------------------------------------*/
@@ -101,15 +97,13 @@ extern TX_MUTEX g_servo_mutex;
 extern TX_MUTEX g_battery_mutex;
 extern TX_MUTEX g_odometer_mutex;
 
-// ENTRYS
-
+// THREAD ENTRYS
 void sensor_thread_entry2(ULONG thread_input);
 void sensor_thread_entry(ULONG thread_input);
 void battery_thread_entry(ULONG thread_input);
 void motors_thread_entry(ULONG thread_input);
 void heartbeat_thread_entry(ULONG thread_input);
 void odometer_thread_entry(ULONG thread_input);
-
 
 /* USER CODE END 1 */
 
