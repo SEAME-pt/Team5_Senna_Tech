@@ -80,17 +80,36 @@ void MX_ThreadX_Init(void);
 
 /* USER CODE BEGIN EFP */
 
+// Thread structure
+typedef struct s_threads {
+  TX_THREAD thread;
+  UINT      stack[1024];
+  UINT      mini_stack[512];
+} t_threads;
+
 /* USER CODE END EFP */
 
 /* USER CODE BEGIN 1 */
 
+/*
+Number of threads
+1 -> sensor_thread_entry2
+2 -> CAN_Tx_Thread_Entry
+3 -> battery_thread_entry
+4 -> motors_thread_entry
+5 -> CAN_Rx_Thread_Entry
+6 -> odometer_thread_entry
+7 -> heartbeat_thread_entry
+*/
+#define THREAD_COUNT    7
+
+extern t_threads threads[THREAD_COUNT];
 
 // QUEUES
 extern TX_QUEUE g_tx_data_queue;
 extern TX_QUEUE g_rx_data_queue;
 
 //MUTEXES
-
 extern TX_MUTEX g_speed_mutex;
 extern TX_MUTEX g_dc_motor_mutex;
 extern TX_MUTEX g_servo_mutex;
