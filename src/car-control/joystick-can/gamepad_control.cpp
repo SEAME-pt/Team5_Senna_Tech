@@ -49,7 +49,7 @@ int main()
             float throttle  = input.analog_stick_left.y;  // -1.0 .. 1.0
 
             // Mapear para int16
-            int16_t steering_can = raw_from_percent_int16(steering);
+            int16_t steering_can = raw_from_percent_int16(steering / 100);
             int16_t throttle_can = raw_from_percent_int16(throttle);
             
             send_int16(sock, CAN_ID_STEERING, steering_can);
