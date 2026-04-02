@@ -99,13 +99,15 @@ void motors_thread_entry(ULONG thread_input)
             current = -current;
 
         float throttle_cmd = pid_update(&throttle_pid, throttle_target, current, dt);
+        float throttle_cmd_percent = throttle_cmd * 100.0f;
 
         if (throttle_target == 0.0f)
         {
             pid_reset(&throttle_pid);
             throttle_cmd = 0.0f;
+            throttle_cmd_percent = 0.0f;
         }
 
-        car_set_throttle_percent(&car, throttle_cmd);
+        car_set_throttle_percent(&car, throttle_cmd_percent);
     }
 }
