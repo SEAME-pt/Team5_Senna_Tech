@@ -21,3 +21,16 @@ void pid_set_integral_limit(pid_t *pid, float limit);
 void pid_set_output_limit(pid_t *pid, float limit);
 
 #endif
+
+/*
+
+Proportional gain -> reacts to current error
+Integral gain -> reacts to accumulated error over time
+Derivative gain -> reacts to the rate of change of error
+
+Slow to respond: increase Kp.
+Never reaches the target (steady-state error): increase Ki.
+Overshoots the target a lot: increase Kd or reduce Kp.
+Continuous oscillation: reduce Kp and/or Ki.
+Output jitter (noise): reduce Kd.
+*/
