@@ -57,7 +57,7 @@ void motors_thread_entry(ULONG thread_input)
     car_init(&car, &hi2c1);
 
     pid_t throttle_pid;
-    pid_init(&throttle_pid, 0.1f, 0.02f, 0.02f);
+    pid_init(&throttle_pid, 0.5f, 0.02f, 0.02f);
     //0.3 00, 0.001
     pid_set_integral_limit(&throttle_pid, 0.70f);
     pid_set_output_limit(&throttle_pid, 1.0f);

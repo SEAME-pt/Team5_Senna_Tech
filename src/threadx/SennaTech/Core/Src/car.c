@@ -11,8 +11,8 @@ void car_init(car_t *car, void *hi2c)
     PCA9685_Init(&car->steering, hi2c, SERVO_ADDRESS);
     PCA9685_Init(&car->throttle, hi2c, DC_ADDRESS);
 
-    PCA9685_SetPWMFreq(&car->steering, PWM_FREQ_50HZ);
-    PCA9685_SetPWMFreq(&car->throttle, PWM_FREQ_50HZ);
+    PCA9685_SetPWMFreq(&car->steering, PWM_FREQ_SERVO_HZ);
+    PCA9685_SetPWMFreq(&car->throttle, PWM_FREQ_MOTOR_HZ);
 
     car_set_steering_percent(car, 0.0f);
     car_set_throttle_percent(car, 0.0f);
