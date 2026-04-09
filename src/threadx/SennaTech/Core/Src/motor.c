@@ -3,11 +3,6 @@
 #include "pid.h"
 #include <inttypes.h>
 
-#define THROTTLE_CTRL_PERIOD_TICKS 2U
-#define THROTTLE_SPEED_MAX_KMH 10.0f
-
-extern float speed_kmh;
-
 static float clamp_symmetric_f(float value, float limit)
 {
     if (limit <= 0.0f)
@@ -27,8 +22,7 @@ static float get_throttle_current_normalized(void)
     speed_abs_kmh = speed_kmh;
     tx_mutex_put(&g_speed_mutex);
 
-    // Sensor speed is absolute; direction comes from commanded target sign.
-    return clamp_symmetric_f(speed_abs_kmh / THROTTLE_SPEED_MAX_KMH, 1.0f);
+    return clamp_symmetric_f(speed_abs_kmh / 10.0f, 1.0f);
 }
 
 float percent_from_can_int16(uint8_t low_byte, uint8_t high_byte)
@@ -47,6 +41,36 @@ float percent_from_can_int16(uint8_t low_byte, uint8_t high_byte)
     return percent;
 }
 
+static float get_delta_time_seconds(ULONG *last_tick)
+{
+    ULONG now_tick = tx_time_get();
+    ULONG elapsed_ticks = now_tick - *last_tick;
+
+    if (elapsed_ticks == 0U)
+        return 0.0f;
+
+    *last_tick = now_tick;
+
+    return (float)elapsed_ticks / (float)TX_TIMER_TICKS_PER_SECOND;
+}
+
+static float pidCalculation(pid_t *throttle_pid, float throttle_target, float dt)
+{
+    float current = get_throttle_current_normalized();
+    if (throttle_target < 0.0f)
+        current = -current;
+
+    float throttle_cmd = pid_update(throttle_pid, throttle_target, current, dt);
+
+    if (throttle_target == 0.0f)
+    {
+        pid_reset(throttle_pid);
+        throttle_cmd = 0.0f;
+    }
+
+    return throttle_cmd * 100.0f;
+}
+
 void motors_thread_entry(ULONG thread_input)
 {
     uart_send("Motor Thread Entry\r\n");
@@ -57,7 +81,7 @@ void motors_thread_entry(ULONG thread_input)
     car_init(&car, &hi2c1);
 
     pid_t throttle_pid;
-    pid_init(&throttle_pid, 0.78f, 0.78f, 0.01f);
+    pid_init(&throttle_pid, 0.82f, 1.11f, 0.01f);
     pid_set_integral_limit(&throttle_pid, 0.70f);
     pid_set_output_limit(&throttle_pid, 1.0f);
 
@@ -66,7 +90,7 @@ void motors_thread_entry(ULONG thread_input)
 
     while (1)
     {
-        if (tx_queue_receive(&g_rx_data_queue, &frame, THROTTLE_CTRL_PERIOD_TICKS) == TX_SUCCESS)
+        if (tx_queue_receive(&g_rx_data_queue, &frame, THROTTLE_PERIOD_TICKS) == TX_SUCCESS)
         {
             if (frame.dlc < 2)
                 continue;
@@ -83,29 +107,11 @@ void motors_thread_entry(ULONG thread_input)
             }
         }
 
-        ULONG now_tick = tx_time_get();
-        ULONG elapsed_ticks = now_tick - last_tick;
+        float dt = get_delta_time_seconds(&last_tick);
+        if (dt <= 0.0f)
+            continue;
 
-        if (elapsed_ticks == 0U)
-            continue ;
-
-        last_tick = now_tick;
-
-        float dt = (float)elapsed_ticks / (float)TX_TIMER_TICKS_PER_SECOND;
-
-        float current = get_throttle_current_normalized();
-        if (throttle_target < 0.0f)
-            current = -current;
-
-        float throttle_cmd = pid_update(&throttle_pid, throttle_target, current, dt);
-        float throttle_cmd_percent = throttle_cmd * 100.0f;
-
-        if (throttle_target == 0.0f)
-        {
-            pid_reset(&throttle_pid);
-            throttle_cmd = 0.0f;
-            throttle_cmd_percent = 0.0f;
-        }
+        float throttle_cmd_percent = pidCalculation(&throttle_pid, throttle_target, dt);
 
         car_set_throttle_percent(&car, throttle_cmd_percent);
     }

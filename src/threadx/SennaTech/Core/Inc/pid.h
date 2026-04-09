@@ -20,6 +20,11 @@ void pid_reset(pid_t *pid);
 void pid_set_integral_limit(pid_t *pid, float limit);
 void pid_set_output_limit(pid_t *pid, float limit);
 
+#define THROTTLE_PERIOD_TICKS 2
+
+// Real measured vehicle speed from sensor, global/shared
+extern float speed_kmh;
+
 #endif
 
 /*
