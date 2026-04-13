@@ -17,6 +17,7 @@ This document serves as a visual **report and planning tool** for Agile progress
 - [Sprint #7 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_7_report.md)
 - [Sprint #8 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_8_report.md)
 - [Sprint #9 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_9_report.md)
+- [Sprint #10 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_10_report.md)
 
 ## 🏁 Sprint 0 — Setup & Fundamentals
 **Duration:** [13/10/2025] → [26/10/2025]
@@ -56,7 +57,11 @@ This document serves as a visual **report and planning tool** for Agile progress
 
 ## 🏁 Sprint 9 — LKA model and PID test in the CARLA simulator
 **Duration:** [09/03/2026] → [20/03/2026]
-**Sprint 8:** [Sprint 9 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_9_report.md)
+**Sprint 9:** [Sprint 9 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_9_report.md)
+
+## 🏁 Sprint 10 — Complete the pipeline from model inference to post-processed output for control integration
+**Duration:** [20/03/2026] → [02/04/2026]
+**Sprint 10:** [Sprint 10 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_10_report.md)
 
 ---
 

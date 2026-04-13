@@ -1,5 +1,4 @@
 #include "can_manager.h"
-#include <stdio.h>
 #include "car.h"
 #include <inttypes.h>
 
@@ -21,7 +20,7 @@ float percent_from_can_int16(uint8_t low_byte, uint8_t high_byte)
 
 void motors_thread_entry(ULONG thread_input)
 {
-    log_debug("Motor Thread Entry");
+    //log_debug("Motor Thread Entry");
 
     CAN_Frame frame;
 
@@ -55,6 +54,6 @@ void motors_thread_entry(ULONG thread_input)
         }
     }
 
-    log_debug("Car test finished!");
-    log_debug("Motor thread encerrou!");
+    //log_debug("Car test finished!");
+    //log_debug("Motor thread encerrou!");
 }

@@ -7,7 +7,7 @@ void heartbeat_thread_entry(ULONG thread_input)
     hb_frame.dlc = 1;
     hb_frame.data[0] = 0xAA;
 
-    log_debug("HEARTBEAT THREAD STARTED");
+    //log_debug("HEARTBEAT THREAD STARTED");
 
     while(1)
     {

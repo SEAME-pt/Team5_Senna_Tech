@@ -1,5 +1,4 @@
 #include "can_manager.h"
-#include <stdio.h>
 
 extern volatile uint32_t pulse_count; // Pulse counter (incremented on interrupt)
 float speed_kmh = 0.0f;
@@ -17,7 +16,7 @@ void sensor_thread_entry(ULONG thread_input)
     last_time_ms = tx_time_get();
     last_print = tx_time_get();
 
-	log_debug("SENSOR THREAD STARTED");
+	//log_debug("SENSOR THREAD STARTED");
 	while(1)
 	{
         //take the time (Ticks from ThreadX)
@@ -74,7 +73,7 @@ void sensor_thread_entry(ULONG thread_input)
 
 			if (tx_queue_send(&g_tx_data_queue, &speed_frame, TX_NO_WAIT) != TX_SUCCESS) {
 				// Fila cheia: trate erro ou descarte
-				log_debug("Error: TX queue full!");
+				//log_debug("Error: TX queue full!");
 			} /* else {
 				log_debug("Frame added: speed=%u", speed_byte);
 			} */
@@ -99,7 +98,7 @@ void sensor_thread_entry2(ULONG thread_input)
     uint32_t acc_pulses = 0;
     uint32_t acc_ticks  = 0;
 
-    log_debug("SENSOR THREAD2 STARTED");
+    //log_debug("SENSOR THREAD2 STARTED");
 
     while (1)
     {
@@ -163,7 +162,7 @@ void sensor_thread_entry2(ULONG thread_input)
 
             if (tx_queue_send(&g_tx_data_queue, &speed_frame, TX_NO_WAIT) != TX_SUCCESS)
             {
-                log_debug("Error: TX queue full!");
+                //log_debug("Error: TX queue full!");
             }
         }
         tx_thread_sleep(1); // 1 tick = 10ms
