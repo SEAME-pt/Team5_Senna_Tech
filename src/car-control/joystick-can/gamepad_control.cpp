@@ -4,6 +4,7 @@
 #include <chrono>
 #define CAN_ID_STEERING  0x110
 #define CAN_ID_THROTTLE  0x100
+#define CAN_ID_MODE      0x105
 
 void send_int16(int socket, uint32_t can_id, int16_t value)
 {
@@ -40,19 +41,37 @@ int main()
 
         CanSocket can("can0");  
         int sock = can.getSock();
+        int debug = false;
 
         while (true)
         {
             ShanWanGamepadInput input = gamepad.read_data();
+            
+            if (input.button_a) {
+                send_int16(sock, CAN_ID_MODE, 0); // Autonomous Mode (A)
+                debug = false;
+                printf("Mode: AUTO\n");
+            }
+            else if (input.button_l1) {
+                send_int16(sock, CAN_ID_MODE, 1); // Manual Mode (Y)
+                debug = false;
+                printf("Mode: MANUAL\n");
+            }
+            else if (input.button_b) {
+                send_int16(sock, CAN_ID_MODE, 2); // Debug Mode (B)
+                debug = true;
+                printf("Mode: DEBUG\n");
+            }
 
             float steering  = input.analog_stick_right.x; // -1.0 .. 1.0
             float throttle  = input.analog_stick_left.y;  // -1.0 .. 1.0
 
             // Mapear para int16
-            int16_t steering_can = raw_from_percent_int16(steering / 100);
+            int16_t steering_can = raw_from_percent_int16(steering);
             int16_t throttle_can = raw_from_percent_int16(throttle);
             
-            send_int16(sock, CAN_ID_STEERING, steering_can);
+            if (!debug)
+                send_int16(sock, CAN_ID_STEERING, steering_can);
             send_int16(sock, CAN_ID_THROTTLE, throttle_can);
 
             printf(

@@ -88,6 +88,8 @@ void motors_thread_entry(ULONG thread_input)
     float throttle_target = 0.0f; // normalized [-1, 1]
     ULONG last_tick = tx_time_get();
 
+    UINT mode = 1U; // 0 = autonomous, 1 = manual, 2 = debug
+
     while (1)
     {
         if (tx_queue_receive(&g_rx_data_queue, &frame, THROTTLE_PERIOD_TICKS) == TX_SUCCESS)
@@ -97,22 +99,53 @@ void motors_thread_entry(ULONG thread_input)
 
             float percent = percent_from_can_int16(frame.data[0], frame.data[1]);
 
-            if (frame.id == CAN_ID_MOTOR_CMD)
+            if (frame.id == CAN_ID_MODE)
             {
-                throttle_target = percent;
+                int16_t mode_cmd = (int16_t)(((uint16_t)frame.data[1] << 8) | frame.data[0]);
+
+                if (mode_cmd == 0) {
+                    uart_send("Switched to AUTO mode\r\n");
+                    mode = 0;
+                    pid_reset(&throttle_pid);
+                    last_tick = tx_time_get();
+                }
+                else if (mode_cmd == 1) {
+                    uart_send("Switched to MANUAL mode\r\n");
+                    mode = 1;
+                    pid_reset(&throttle_pid);
+                    throttle_target = 0.0f;
+                }
+                else if (mode_cmd == 2) {
+                    uart_send("Switched to DEBUG mode\r\n");
+                    mode = 2;
+                    pid_reset(&throttle_pid);
+                    throttle_target = 0.0f;
+                }
+
+                continue;
             }
-            else if (frame.id == CAN_ID_STEER_CMD)
+
+            if (frame.id == CAN_ID_STEER_CMD && (mode == 0U || mode == 2U || mode == 1U))
             {
                 car_set_steering_percent(&car, percent);
+                continue;
+            }
+
+            if (frame.id == CAN_ID_MOTOR_CMD && (mode == 1U || mode == 2U))
+            {
+                throttle_target = percent;
+                continue;
             }
         }
 
-        float dt = get_delta_time_seconds(&last_tick);
-        if (dt <= 0.0f)
-            continue;
+        if (mode == 1U || mode == 2U)
+        {
+            float dt = get_delta_time_seconds(&last_tick);
+            if (dt <= 0.0f)
+                continue;
 
-        float throttle_cmd_percent = pidCalculation(&throttle_pid, throttle_target, dt);
-
-        car_set_throttle_percent(&car, throttle_cmd_percent);
+            float throttle_cmd_percent = pidCalculation(&throttle_pid, throttle_target, dt);
+            car_set_throttle_percent(&car, throttle_cmd_percent);
+        }
     }
 }
