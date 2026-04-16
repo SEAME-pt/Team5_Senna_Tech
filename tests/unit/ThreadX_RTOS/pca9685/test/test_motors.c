@@ -24,7 +24,6 @@ void test_car_init(void)
     car_init(&car, i2c);
 }
 
-
 // THROTTLE 50% SPEED FORWARD TEST
 void    test_car_throttle_half_forward(void)
 {
