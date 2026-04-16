@@ -59,10 +59,10 @@ void car_set_steering_percent(car_t *car, float percent)
 
 void car_set_throttle_percent(car_t *car, float percent)
 {
-    if (percent > 100.0f)
-        percent = 100.0f;
-    if (percent < -100.0f)
-        percent = -100.0f;
+    if (percent > 1.0f)
+        percent = 1.0f;
+    if (percent < -1.0f)
+        percent = -1.0f;
 
     if (percent > 0.0f)
     {
@@ -89,7 +89,7 @@ void car_set_throttle_percent(car_t *car, float percent)
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_2, 0, 0);
     }
 
-    int pwm = (int)((float)PWM_MAX_RAW_VALUE * (fabs(percent) / 100.0f));
+    int pwm = (int)((float)PWM_MAX_RAW_VALUE * fabs(percent));
     if (pwm > PWM_MAX_RAW_VALUE)
         pwm = PWM_MAX_RAW_VALUE; // ALTERAR NO CODIGO ORIGINAL!!
     // Aplica PWM proporcional

@@ -68,7 +68,7 @@ static float pidCalculation(pid_t *throttle_pid, float throttle_target, float dt
         throttle_cmd = 0.0f;
     }
 
-    return throttle_cmd * 100.0f;
+    return throttle_cmd;
 }
 
 void motors_thread_entry(ULONG thread_input)
