@@ -14,8 +14,8 @@ void test_car_init(void)
     PCA9685_Init_Expect(&car.steering, i2c, SERVO_ADDRESS);
     PCA9685_Init_Expect(&car.throttle, i2c, DC_ADDRESS);
 
-    PCA9685_SetPWMFreq_Expect(&car.steering, PWM_FREQ_50HZ);
-    PCA9685_SetPWMFreq_Expect(&car.throttle, PWM_FREQ_50HZ);
+    PCA9685_SetPWMFreq_Expect(&car.steering, PWM_FREQ_SERVO_HZ);
+    PCA9685_SetPWMFreq_Expect(&car.throttle, PWM_FREQ_MOTOR_HZ);
 
     PCA9685_SetPWM_Ignore();
 
@@ -23,7 +23,6 @@ void test_car_init(void)
 
     car_init(&car, i2c);
 }
-
 
 // THROTTLE 50% SPEED FORWARD TEST
 void    test_car_throttle_half_forward(void)

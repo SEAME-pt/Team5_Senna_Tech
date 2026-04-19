@@ -54,6 +54,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/ina219.c
     Core/Src/mcp2515.c
     Core/Src/motor.c
+    Core/Src/pid.c
     Core/Src/odometer.c
     Core/Src/pca9685.c
     Core/Src/sleep_hal.c

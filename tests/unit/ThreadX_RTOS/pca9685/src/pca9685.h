@@ -38,7 +38,7 @@ typedef struct
 
 /* API */
 void    PCA9685_Init(PCA9685_t *dev, void *hi2c, uint8_t address);
-void    PCA9685_SetPWMFreq(PCA9685_t *dev, uint16_t freq_hz);
+void    PCA9685_SetPWMFreq(PCA9685_t *dev, uint8_t freq_hz);
 void    PCA9685_SetPWM(PCA9685_t *dev, uint8_t channel, uint16_t on, uint16_t off);
 void    PCA9685_SetAllPWM(PCA9685_t *dev, uint16_t on, uint16_t off);
 

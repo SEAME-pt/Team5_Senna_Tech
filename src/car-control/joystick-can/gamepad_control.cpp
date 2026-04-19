@@ -4,6 +4,7 @@
 #include <chrono>
 #define CAN_ID_STEERING  0x110
 #define CAN_ID_THROTTLE  0x100
+#define CAN_ID_MODE      0x105
 
 void send_int16(int socket, uint32_t can_id, int16_t value)
 {
@@ -40,10 +41,30 @@ int main()
 
         CanSocket can("can0");  
         int sock = can.getSock();
+        int debug = false;
+        int auto_mode = false;
 
         while (true)
         {
             ShanWanGamepadInput input = gamepad.read_data();
+            
+            if (input.button_a) {
+                send_int16(sock, CAN_ID_MODE, 0); // Autonomous Mode (A)
+                auto_mode = true;
+                printf("Mode: AUTO\n");
+            }
+            else if (input.button_l1) {
+                send_int16(sock, CAN_ID_MODE, 1); // Manual Mode (Y)
+                debug = false;
+                auto_mode = false;
+                printf("Mode: MANUAL\n");
+            }
+            else if (input.button_b) {
+                send_int16(sock, CAN_ID_MODE, 2); // Debug Mode (B)
+                debug = true;
+                auto_mode = false;
+                printf("Mode: DEBUG\n");
+            }
 
             float steering  = input.analog_stick_right.x; // -1.0 .. 1.0
             float throttle  = input.analog_stick_left.y;  // -1.0 .. 1.0
@@ -52,11 +73,16 @@ int main()
             int16_t steering_can = raw_from_percent_int16(steering);
             int16_t throttle_can = raw_from_percent_int16(throttle);
             
-            send_int16(sock, CAN_ID_STEERING, steering_can);
-            send_int16(sock, CAN_ID_THROTTLE, throttle_can);
+            if (!auto_mode) {
+                if (!debug)
+                    send_int16(sock, CAN_ID_STEERING, steering_can);
+                send_int16(sock, CAN_ID_THROTTLE, throttle_can);
+            }
 
+            const char* current_mode = auto_mode ? "AUTO" : (debug ? "DEBUG" : "MANUAL");
             printf(
-                "Steer: %.2f (%d) | Throttle: %.2f (%d)\n",
+                "Mode: %-6s | Steering: %6.2f -> %4d | Throttle: %6.2f -> %4d\n",
+                current_mode,
                 steering, steering_can,
                 throttle, throttle_can
             );
