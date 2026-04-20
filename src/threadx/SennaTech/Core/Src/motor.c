@@ -122,30 +122,32 @@ void motors_thread_entry(ULONG thread_input)
                     throttle_target = 0.0f;
                 }
 
-                continue;
+                continue ;
             }
 
-            if (frame.id == CAN_ID_STEER_CMD && (mode == 0U || mode == 2U || mode == 1U))
+            if (frame.id == CAN_ID_STEER_CMD)
             {
                 car_set_steering_percent(&car, percent);
-                continue;
+                continue ;
             }
 
-            if (frame.id == CAN_ID_MOTOR_CMD && (mode == 1U || mode == 2U))
+            if (frame.id == CAN_ID_MOTOR_CMD && (mode == 1U || mode == 0U))
             {
                 throttle_target = percent;
-                continue;
+                continue ;
+            }
+            else if (frame.id == CAN_ID_MOTOR_CMD && mode == 2U)
+            {
+                throttle_target = 0.13f;
+                continue ;
             }
         }
 
-        if (mode == 1U || mode == 2U)
-        {
-            float dt = get_delta_time_seconds(&last_tick);
-            if (dt <= 0.0f)
-                continue;
+        float dt = get_delta_time_seconds(&last_tick);
+        if (dt <= 0.0f)
+            continue ;
 
-            float throttle_cmd_percent = pidCalculation(&throttle_pid, throttle_target, dt);
-            car_set_throttle_percent(&car, throttle_cmd_percent);
-        }
+        float throttle_cmd_percent = pidCalculation(&throttle_pid, throttle_target, dt);
+        car_set_throttle_percent(&car, throttle_cmd_percent);
     }
 }
