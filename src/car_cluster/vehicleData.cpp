@@ -15,7 +15,7 @@ vehicleData *vehicleData::instance() {
 }
 
 //Private constructor
-vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), odometer(0), trafficSign(""), speedSign("") {
+vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), odometer(0), trafficSign(TRAFFIC_SIGN::NONE), speedSign(SPEED_SIGN::NONE) {
     (void) parent;
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &vehicleData::updateTemperature);
@@ -32,9 +32,9 @@ int vehicleData::getTemperature() const{ return temperature;}
 
 uint16_t vehicleData::getOdometer() const{ return odometer;}
 
-QString vehicleData::getTrafficSign() const{ return trafficSign;}
+TRAFFIC_SIGN vehicleData::getTrafficSign() const{ return trafficSign;}
 
-QString vehicleData::getSpeedSign() const{ return speedSign;}
+SPEED_SIGN vehicleData::getSpeedSign() const{ return speedSign;}
 
 QString vehicleData::getGear() const{ return gear;}
 
@@ -77,13 +77,13 @@ void    vehicleData::setOdometer(uint16_t newOdometer){
     emit odometerChanged();
 }
 
-void    vehicleData::setTrafficSign(QString newTrafficSign){
+void    vehicleData::setTrafficSign(TRAFFIC_SIGN newTrafficSign){
     if (this->trafficSign == newTrafficSign)
         return ;
     this->trafficSign = newTrafficSign;
     emit trafficSignChanged();
 }
-void    vehicleData::setSpeedSign(QString newSpeedSign){
+void    vehicleData::setSpeedSign(SPEED_SIGN newSpeedSign){
     if (this->speedSign == newSpeedSign)
         return ;
     this->speedSign = newSpeedSign;
@@ -123,8 +123,8 @@ void vehicleData::startBatterySimulation() {
 
 void vehicleData::startTrafficSignSimulation() {
     // Lista de sinais que serão exibidos em loop
-    std::vector<QString> trafficSigns = {"", "stop", "danger", "crosswalk", "yield", "red", "yellow", "green"};
-    std::vector<QString> speedSigns = {"", "50", "80",};
+    std::vector<TRAFFIC_SIGN> trafficSigns = {TRAFFIC_SIGN::NONE, TRAFFIC_SIGN::STOP, TRAFFIC_SIGN::DANGER, TRAFFIC_SIGN::CROSSWALK, TRAFFIC_SIGN::YIELD, TRAFFIC_SIGN::RED, TRAFFIC_SIGN::YELLOW, TRAFFIC_SIGN::GREEN};
+    std::vector<SPEED_SIGN> speedSigns = {SPEED_SIGN::NONE, SPEED_SIGN::SIGNAL_50, SPEED_SIGN::SIGNAL_80};
 
     if (!trafficSigns.empty())
         this->setTrafficSign(trafficSigns[0]);

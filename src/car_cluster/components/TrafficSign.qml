@@ -9,23 +9,23 @@ Item {
     property var currentTrafficSign: ""  // Aceitar QVariant
     
     function getTrafficSignImage() {
-        if (currentTrafficSign == "stop")
+        if (currentTrafficSign == 1)
             return "../assets/traffic/stop.png"
-        else if (currentTrafficSign == "50")
+        else if (currentTrafficSign == 11)
             return "../assets/traffic/50.png"
-        else if (currentTrafficSign == "80")
+        else if (currentTrafficSign == 12)
             return "../assets/traffic/80.png"
-        else if (currentTrafficSign == "crosswalk")
+        else if (currentTrafficSign == 3)
             return "../assets/traffic/crosswalk.png"
-        else if (currentTrafficSign == "danger")
+        else if (currentTrafficSign == 2)
             return "../assets/traffic/danger.png"
-        else if (currentTrafficSign == "yield")
+        else if (currentTrafficSign == 4)
             return "../assets/traffic/yield.png"
-        else if (currentTrafficSign == "red")
+        else if (currentTrafficSign == 5)
             return "../assets/traffic/red.png"
-        else if (currentTrafficSign == "yellow")
+        else if (currentTrafficSign == 6)
             return "../assets/traffic/yellow.png"
-        else if (currentTrafficSign == "green")
+        else if (currentTrafficSign == 7)
             return "../assets/traffic/green.png"
         return ""
     }
