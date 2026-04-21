@@ -25,7 +25,6 @@
 using grpc::Channel;
 using kuksa::val::v2::VAL;
 
-
 class vehicleData : public QObject
 {
     Q_OBJECT
@@ -34,6 +33,7 @@ class vehicleData : public QObject
     Q_PROPERTY(int temperature READ getTemperature NOTIFY temperatureChanged)
     Q_PROPERTY(uint16_t odometer READ getOdometer NOTIFY odometerChanged)
     Q_PROPERTY(QString trafficSign READ getTrafficSign NOTIFY trafficSignChanged)
+    Q_PROPERTY(QString speedSign READ getSpeedSign NOTIFY speedSignChanged)
     Q_PROPERTY(QString gear READ getGear NOTIFY gearChanged)
 
     public:
@@ -53,6 +53,7 @@ class vehicleData : public QObject
         void    temperatureChanged();
         void    odometerChanged();
         void    trafficSignChanged();
+        void    speedSignChanged();
         void    gearChanged();
 
     public slots: // mudam os atributos e chamam os respectivos sinais
@@ -61,6 +62,7 @@ class vehicleData : public QObject
         void    setTemperature(int newTemperature);
         void    setOdometer(uint16_t newOdometer);
         void    setTrafficSign(QString newTrafficSign);
+        void    setSpeedSign(QString newTrafficSign);
         void    setGear(QString newGear);
 
         //SIMULATION
@@ -82,6 +84,7 @@ class vehicleData : public QObject
         int           temperature;
         uint16_t      odometer;
         QString       trafficSign;
+        QString       speedSign;
         QString       gear;
 
         // Thread para o gRPC

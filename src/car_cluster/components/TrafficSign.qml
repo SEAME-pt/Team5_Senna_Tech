@@ -8,7 +8,6 @@ Item {
     property bool showSign: true
     property var currentTrafficSign: ""  // Aceitar QVariant
     
-    
     function getTrafficSignImage() {
         if (currentTrafficSign == "stop")
             return "../assets/traffic/stop.png"
@@ -16,20 +15,19 @@ Item {
             return "../assets/traffic/50.png"
         else if (currentTrafficSign == "80")
             return "../assets/traffic/80.png"
-        else if (currentTrafficSign == "pedestrian")
-            return "../assets/traffic/pedestrian.png"
+        else if (currentTrafficSign == "crosswalk")
+            return "../assets/traffic/crosswalk.png"
         else if (currentTrafficSign == "danger")
             return "../assets/traffic/danger.png"
         else if (currentTrafficSign == "yield")
             return "../assets/traffic/yield.png"
         else if (currentTrafficSign == "red")
-            return "../assets/traffic/traffic-light-red.png"
+            return "../assets/traffic/traffic_light_red.png"
         else if (currentTrafficSign == "yellow")
-            return "../assets/traffic/traffic-light-yellow.png"
+            return "../assets/traffic/traffic_light_yellow.png"
         else if (currentTrafficSign == "green")
-            return "../assets/traffic/traffic-light-green.png"
-        else 
-            return ""
+            return "../assets/traffic/traffic_light_green.png"
+        return ""
     }
     // Exibir/ocultar com animação
     opacity: showSign ? 1.0 : 0.0

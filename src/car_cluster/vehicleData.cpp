@@ -15,7 +15,7 @@ vehicleData *vehicleData::instance() {
 }
 
 //Private constructor
-vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), odometer(0), trafficSign("") {
+vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), odometer(0), trafficSign(""), speedSign("") {
     (void) parent;
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &vehicleData::updateTemperature);
@@ -33,6 +33,8 @@ int vehicleData::getTemperature() const{ return temperature;}
 uint16_t vehicleData::getOdometer() const{ return odometer;}
 
 QString vehicleData::getTrafficSign() const{ return trafficSign;}
+
+QString vehicleData::getSpeedSign() const{ return speedSign;}
 
 QString vehicleData::getGear() const{ return gear;}
 
@@ -81,6 +83,12 @@ void    vehicleData::setTrafficSign(QString newTrafficSign){
     this->trafficSign = newTrafficSign;
     emit trafficSignChanged();
 }
+void    vehicleData::setSpeedSign(QString newSpeedSign){
+    if (this->speedSign == newSpeedSign)
+        return ;
+    this->speedSign = newSpeedSign;
+    emit speedSignChanged();
+}
 
 void    vehicleData::setGear(QString newGear){
     if (newGear != 'P' && newGear != 'R' && newGear != 'N' && newGear != 'D')
@@ -115,18 +123,24 @@ void vehicleData::startBatterySimulation() {
 
 void vehicleData::startTrafficSignSimulation() {
     // Lista de sinais que serão exibidos em loop
-    std::vector<QString> signs = {"stop", "80", "50", "danger", "pedestrian", "yield", "red", "yellow", "green"};
+    std::vector<QString> trafficSigns = {"", "stop", "danger", "crosswalk", "yield", "red", "yellow", "green"};
+    std::vector<QString> speedSigns = {"", "50", "80",};
 
-    if (!signs.empty())
-        this->setTrafficSign(signs[0]);
-
+    if (!trafficSigns.empty())
+        this->setTrafficSign(trafficSigns[0]);
+    if (!speedSigns.empty())
+        this->setSpeedSign(speedSigns[0]);
     // índice compartilhado entre chamadas do lambda para permanecer válido
-    auto index = std::make_shared<int>(0);
+    auto trafficIndex = std::make_shared<int>(0);
+    auto speedIndex = std::make_shared<int>(0);
 
     QTimer* timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, [this, signs, index]() mutable {
-        *index = (*index + 1) % static_cast<int>(signs.size());
-        this->setTrafficSign(signs[*index]);
+    connect(timer, &QTimer::timeout, this, [=]() mutable {
+        *trafficIndex = (*trafficIndex + 1) % static_cast<int>(trafficSigns.size());
+        *speedIndex = (*speedIndex + 1) % static_cast<int>(speedSigns.size());
+
+        this->setTrafficSign(trafficSigns[*trafficIndex]);
+        this->setSpeedSign(speedSigns[*speedIndex]);
     });
     timer->start(5000); // troca a cada 5 segundos
 }
