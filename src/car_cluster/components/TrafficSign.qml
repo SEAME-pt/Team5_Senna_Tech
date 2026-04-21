@@ -2,8 +2,8 @@ import QtQuick 2.15
 
 Item {
     id: root
-    width: 90
-    height: 90
+    width: 100
+    height: 100
     
     property bool showSign: true
     property var currentTrafficSign: ""  // Aceitar QVariant
@@ -22,11 +22,11 @@ Item {
         else if (currentTrafficSign == "yield")
             return "../assets/traffic/yield.png"
         else if (currentTrafficSign == "red")
-            return "../assets/traffic/traffic_light_red.png"
+            return "../assets/traffic/red.png"
         else if (currentTrafficSign == "yellow")
-            return "../assets/traffic/traffic_light_yellow.png"
+            return "../assets/traffic/yellow.png"
         else if (currentTrafficSign == "green")
-            return "../assets/traffic/traffic_light_green.png"
+            return "../assets/traffic/green.png"
         return ""
     }
     // Exibir/ocultar com animação

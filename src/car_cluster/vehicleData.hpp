@@ -19,11 +19,11 @@
 
 #include <thread> // Necessário para rodar o gRPC sem travar a UI
 #include <memory> // Necessário para std::shared_ptr
-#include <grpcpp/grpcpp.h>
-#include "kuksa/val/v2/val.grpc.pb.h"
+//#include <grpcpp/grpcpp.h>
+//#include "kuksa/val/v2/val.grpc.pb.h"
 
-using grpc::Channel;
-using kuksa::val::v2::VAL;
+//using grpc::Channel;
+//using kuksa::val::v2::VAL;
 
 class vehicleData : public QObject
 {
@@ -45,6 +45,7 @@ class vehicleData : public QObject
         int             getTemperature() const;
         uint16_t        getOdometer() const;
         QString         getTrafficSign() const;
+        QString         getSpeedSign() const;
         QString         getGear() const;
 
     signals:
@@ -70,14 +71,14 @@ class vehicleData : public QObject
         void startBatterySimulation();
         void startTrafficSignSimulation();
         
-        void startKuksaSubscriber();
+        //void startKuksaSubscriber();
         void updateTemperature();
         void updateOdometer();
 
     private:
         vehicleData(QObject *parent = nullptr);
 
-        void kuksaLoop();
+        //void kuksaLoop();
 
         double        speed;
         int           battery;
@@ -88,7 +89,7 @@ class vehicleData : public QObject
         QString       gear;
 
         // Thread para o gRPC
-        std::thread kuksaThread;
+        //std::thread kuksaThread;
 
 };
 

@@ -18,12 +18,8 @@
         <file>assets/battery/battery_light_75.png</file>
         <file>assets/cluster/cluster_dark.png</file>
         <file>assets/cluster/cluster_light.png</file>
-        <file>assets/traffic/traffic-light-green.png</file>
-        <file>assets/traffic/traffic-light-yellow.png</file>
         <file>assets/traffic/50.png</file>
-        <file>assets/traffic/traffic-light-red.png</file>
         <file>assets/traffic/danger.png</file>
-        <file>assets/traffic/pedestrian.png</file>
         <file>assets/traffic/stop.png</file>
         <file>assets/traffic/80.png</file>
         <file>assets/traffic/yield.png</file>
@@ -31,9 +27,9 @@
         <file>assets/warnings/warning_estop.png</file>
         <file>assets/warnings/warning_temp_rising.png</file>
         <file>assets/warnings/warning_low_battery.png</file>
-        <file>assets/traffic/traffic_light_green.png</file>
-        <file>assets/traffic/traffic_light_yellow.png</file>
-        <file>assets/traffic/traffic_light_red.png</file>
         <file>assets/traffic/crosswalk.png</file>
+        <file>assets/traffic/yellow.png</file>
+        <file>assets/traffic/red.png</file>
+        <file>assets/traffic/green.png</file>
     </qresource>
 </RCC>

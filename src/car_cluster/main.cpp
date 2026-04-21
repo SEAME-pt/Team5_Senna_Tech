@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     //vehicle->startSpeedSimulation();
     vehicle->startTrafficSignSimulation();
 
-    vehicle->startKuksaSubscriber();
+    //vehicle->startKuksaSubscriber();
 
     return app.exec();
 }
