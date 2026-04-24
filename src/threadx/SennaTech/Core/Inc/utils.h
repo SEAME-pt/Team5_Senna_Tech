@@ -6,7 +6,7 @@
 
 extern UART_HandleTypeDef   huart1;
 
-VOID                uart_send(const char *msg);
-VOID                uart_send_int(int32_t value);
+VOID    uart_send(const char *msg);
+VOID    uart_send_int(int32_t value);
 
 #endif

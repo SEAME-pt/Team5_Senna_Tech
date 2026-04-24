@@ -81,7 +81,7 @@ void motors_thread_entry(ULONG thread_input)
     car_init(&car, &hi2c1);
 
     pid_t throttle_pid;
-    pid_init(&throttle_pid, 0.82f, 1.11f, 0.01f);
+    pid_init(&throttle_pid, 0.92f, 1.11f, 0.01f);
     pid_set_integral_limit(&throttle_pid, 0.70f);
     pid_set_output_limit(&throttle_pid, 1.0f);
 
@@ -138,7 +138,7 @@ void motors_thread_entry(ULONG thread_input)
             }
             else if (frame.id == CAN_ID_MOTOR_CMD && mode == 2U)
             {
-                throttle_target = 0.13f;
+                throttle_target = 0.10f;
                 continue ;
             }
         }
