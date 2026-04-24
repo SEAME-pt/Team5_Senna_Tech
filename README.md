@@ -81,18 +81,18 @@ All documentation is kept inside the [docs/](docs/) folder.
 - **Tools:** GitHub Projects + Issues
 
 👥 Team
-| Name            | Responsibilities                          |
-|-----------------|-------------------------------------------|
-| Hellom          | Hailo HAT                                 |
-| Vinicius        | PID                                       |
-| Jose            | PID                                       |
-| Yasmine         | Scrum Master / LKA developer              |
-| Marcelo         | CARLA developer                           |
+| Name            | Responsibilities                                 |
+|-----------------|--------------------------------------------------|
+| Hellom          | Energy and Hardware                              |
+| Vinicius        | PID + Lane Detection Integration                 |
+| Jose            | PID + Lane Detection Integration                 |
+| Yasmine         | Lane Detection Model                             |
+| Marcelo         | PID + Lane Detection Integration (Scrum Master)  | 
 
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 ## 🗓️ Sprint Status
-- **Current sprint**: Sprint 9
-- **Period**: March 9 to March 21, 2026  [09/03/2026] → [21/03/2026]
-- **Current Status**: In Progress
-- **Goals**: Training our first LKA model and testing it on the CARLA.
+- **Current sprint**: Sprint 11
+- **Period**: April 13 to April 24, 2026  [13/04/2026] → [24/04/2026]
+- **Current Status**: Finished
+- **Goals**: Integrate PID (steering) with Lane Detection Model and perform a live demo.
