@@ -1,4 +1,5 @@
 import cv2
+import sys
 import numpy as np
 import time
 import subprocess
@@ -15,9 +16,24 @@ from hailo_platform import (
     OutputVStreamParams
 )
 
-# ---------------- CONFIG ----------------
-HEF_PATH = "yolo26n_v2.hef"
+# ---------------- CLASSES ----------------
+CLASS_NAMES = [
+    "50_sign",
+    "80_sign",
+    "gate",
+    "crosswalk_sign",
+    "stop_sign",
+    "yeald_sign",
+    "car",
+    "danger_sign",
+    "obstacle",
+    "light_green",
+    "light_off",
+    "light_red",
+    "light_yellow"
+]
 
+# ---------------- CONFIG ----------------
 NET_SIZE = 640
 NUM_CLASSES = 13
 
@@ -26,7 +42,7 @@ NMS_THRESH = 0.45
 
 CAM_WIDTH = 640
 CAM_HEIGHT = 640
-CAM_FPS = 30
+CAM_FPS = 40
 
 DISPLAY_WIDTH = 1280
 DISPLAY_HEIGHT = 720
@@ -172,13 +188,15 @@ def postprocess(outputs, frame, sx, sy):
         y2 = min(frame.shape[0], y2)
 
         cls = int(classes[i])
+        class_name = CLASS_NAMES[cls]
+    
         score = float(scores[i])
 
         cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
         cv2.putText(
             frame,
-            f"{cls}:{score:.2f}",
+            f"{class_name}:{score:.2f}",
             (x1, y1 - 5),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.6,
@@ -254,6 +272,7 @@ def run_camera(hef):
                     yuv = yuv.reshape((CAM_HEIGHT * 3 // 2, CAM_WIDTH))
 
                     frame = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
                     input_tensor, sx, sy = preprocess(frame)
 
@@ -298,9 +317,15 @@ def run_camera(hef):
 # ---------------- MAIN ----------------
 def main():
 
-    hef = HEF(HEF_PATH)
+    if len(sys.argv) < 2:
+        print("Usage: python main.py <model.hef>")
+        sys.exit(1)
 
-    print("HEF loaded")
+    hef_path = sys.argv[1]
+
+    hef = HEF(hef_path)
+
+    print(f"HEF loaded: {hef_path}")
 
     for info in hef.get_output_vstream_infos():
         print(info.name, info.shape)
