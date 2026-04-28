@@ -1,11 +1,22 @@
-# Hailo Conversion Flow (YOLOv8-seg) - Senna Edition
+# Hailo Conversion Flow — Senna Edition
 
-This repository section focuses on the conversion flow for YOLOv8-seg models into **HEF (Hailo Executable Format)**. The current pipeline covers ONNX export, calibration preparation, organization of Docker-shared artifacts, and compilation through the Hailo Model Zoo.
+This section covers the full pipeline for converting segmentation models to
+**HEF (Hailo Executable Format)** for inference on the Hailo-8 accelerator.
+
+Two conversion flows are available depending on the model:
+
+| Flow | Folder | Use when |
+|---|---|---|
+| **Model Zoo (hailomz)** | `convert_flow/` | YOLOv8-seg and other models supported by the Hailo Model Zoo |
+| **BYOM (custom)** | `yolo26_seg/` | YOLO26-seg, YOLOv13 and any model not in the Model Zoo |
+
+---
 
 ## Getting Started
 
-### Conversion (`.pt` to `.hef`)
-The recommended and current entry point is:
+### YOLOv8-seg — Model Zoo flow
+
+The recommended entry point is:
 
 ```bash
 ./convert_flow/run_convert.sh
@@ -23,9 +34,30 @@ Notes:
 - Legacy root-level scripts for ONNX export, calibration preparation, and the old manual Docker flow were removed to avoid duplication and behavioral drift.
 - The compilation step depends on the Hailo container being available. During environment setup or recovery, you may need to run `./convert_flow/run_hailo_docker.sh` first.
 
+### YOLO26-seg — BYOM flow
+
+The full automated pipeline for YOLO26n/s-seg is:
+
+```bash
+cd yolo26_seg/scripts/conversion
+bash pipeline.sh <train_folder> <model_name> <input_size> [quant_mode] [cut_mode]
+```
+
+Example:
+```bash
+bash pipeline.sh yolov26nseg_cltusm_v yolo26n_seg_640 640 gpu 3outputs
+```
+
+This pipeline covers: ONNX export → ONNX cut (removes unsupported Tile nodes) →
+translation → INT8 quantization → HEF compilation.
+
+See `yolo26_seg/docs/06_complete_flow_reference.md` for the full step-by-step guide.
+
+---
+
 ## Local Configuration
 
-The main scripts support local configuration through a `.env.hailo` file at the project root.
+All scripts support local configuration through a `.env.hailo` file at the `convert_hailo/` root.
 
 Use the example file as a starting point:
 
@@ -33,15 +65,18 @@ Use the example file as a starting point:
 cp .env.hailo.example .env.hailo
 ```
 
-Set the absolute paths for your local machine or server in `.env.hailo`, for example:
-- `BASE_PROJECT`
-- `VENV_NAME`
-- `SHARED_DIR`
-- `CONTAINER_NAME`
-- `DOCKER_IMAGE_NAME`
-- `DOCKER_TAR_FILE`
+Set the absolute paths and RPi5 address for your local machine in `.env.hailo`:
+- `BASE_PROJECT` — path to the LKA model project
+- `VENV_NAME` — path to the Hailo virtual environment
+- `SHARED_DIR` — path to the Docker shared folder
+- `CONTAINER_NAME` — Hailo Docker container name
+- `DOCKER_IMAGE_NAME` — Hailo Docker image name
+- `RUNS_BASE` — path to training runs folder (BYOM pipeline)
+- `RPI5_HOST` — RPi5 SSH address (e.g. `root@<rpi5-ip>`)
 
-This file is machine-local and should not be published to the public repository.
+This file is machine-local and must not be committed to the repository.
+
+---
 
 ## External Prerequisites
 
@@ -54,33 +89,45 @@ In practice, this means:
 
 The Hailo documentation distributed with the suite is also available locally after setup inside `shared_with_docker/doc/`.
 
+---
+
 ## Project Structure
 
-- **`convert_flow/`**: main conversion flow, with scripts and documentation for the recommended pipeline.
-- **`shared_with_docker/`**: folder shared with Docker, used to store `best.onnx`, calibration images, helper scripts, `nms_config.json`, and generated compilation artifacts.
-- **`docs/`**: supporting documentation and technical context for the project.
+- **`convert_flow/`**: Model Zoo conversion flow — scripts and documentation for the recommended YOLOv8-seg pipeline.
+- **`yolo26_seg/`**: BYOM conversion flow — full pipeline for YOLO26n/s-seg custom models, including ONNX cut scripts, quantization, and inference test scripts for the RPi5.
+- **`shared_with_docker/`**: folder shared with the Docker container — stores `best.onnx`, calibration images, helper scripts, `nms_config.json`, and generated compilation artifacts.
+- **`docs/`**: supporting documentation and technical context for the Model Zoo flow.
 
 Generated `.hef` artifacts are produced in `shared_with_docker/` during compilation and are not meant to be versioned.
 
+---
+
 ## Documentation
 
-The official documentation hub is:
-
+### Model Zoo flow
 ```bash
 docs/README.md
-```
-
-The `run_convert` flow is documented in a single file:
-
-```bash
 docs/01_run_convert.md
 ```
 
+### BYOM flow (YOLO26-seg)
+```bash
+yolo26_seg/docs/06_complete_flow_reference.md   # full step-by-step
+yolo26_seg/docs/07_yolo26_seg_study.md          # model study and architecture
+yolo26_seg/docs/08_nano_rpi5_test.md            # RPi5 test guide
+yolo26_seg/docs/NANO_TEST_GUIDE.txt             # quick reference
+yolo26_seg/docs/Journey.md                      # full technical journey log
+```
+
+---
+
 ## Technologies Used
 
-- **Ultralytics YOLOv8**: export and segmentation model structure.
+- **Ultralytics YOLO**: export and segmentation model structure (YOLOv8, YOLO26).
 - **Hailo Dataflow Compiler / Hailo Model Zoo**: optimization and HEF compilation.
 - **Docker**: isolated environment for the Hailo toolchain.
+
+---
 
 ## Credits
 

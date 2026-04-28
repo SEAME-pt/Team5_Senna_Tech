@@ -4,26 +4,13 @@
 ** prescale = round(25MHz / (4096 * freq)) - 1
 ** versão inteira
 */
-void PCA9685_SetPWMFreq(PCA9685_t *dev, uint16_t freq_hz)
+void PCA9685_SetPWMFreq(PCA9685_t *dev, uint8_t freq_hz)
 {
-    uint32_t prescale;
-
-    if (freq_hz < 1)
-        freq_hz = 1;
-
-    prescale = 25000000UL;
-    prescale /= 4096UL;
-    prescale /= freq_hz;
-    prescale -= 1;
-
-    if (prescale > 255)
-        prescale = 255;
-
     uint8_t oldmode = PCA9685_ReadByte(dev, MODE1);
     uint8_t sleep   = (oldmode & 0x7F) | SLEEP;
 
     PCA9685_WriteByte(dev, MODE1, sleep);
-    PCA9685_WriteByte(dev, PRESCALE, (uint8_t)prescale);
+    PCA9685_WriteByte(dev, PRESCALE, freq_hz);
     PCA9685_WriteByte(dev, MODE1, oldmode);
 
     tx_sleep(1); // ~5ms

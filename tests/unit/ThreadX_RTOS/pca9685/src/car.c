@@ -11,8 +11,8 @@ void car_init(car_t *car, void *hi2c)
     PCA9685_Init(&car->steering, hi2c, SERVO_ADDRESS);
     PCA9685_Init(&car->throttle, hi2c, DC_ADDRESS);
 
-    PCA9685_SetPWMFreq(&car->steering, PWM_FREQ_50HZ);
-    PCA9685_SetPWMFreq(&car->throttle, PWM_FREQ_50HZ);
+    PCA9685_SetPWMFreq(&car->steering, PWM_FREQ_SERVO_HZ);
+    PCA9685_SetPWMFreq(&car->throttle, PWM_FREQ_MOTOR_HZ);
 
     car_set_steering_percent(car, 0.0f);
     car_set_throttle_percent(car, 0.0f);
@@ -30,7 +30,6 @@ int calculateRaw(float percent)
     int raw = SERVO_RAW_MIN +
               (int)((percent + 1.0f) * 0.5f *
               (SERVO_RAW_MAX - SERVO_RAW_MIN));
-
     
     if (raw > SERVO_RAW_MAX)
         raw = SERVO_RAW_MAX;
@@ -49,7 +48,6 @@ void car_set_steering_percent(car_t *car, float percent)
     int raw = SERVO_RAW_MIN +
               (int)((percent + 1.0f) * 0.5f *
               (SERVO_RAW_MAX - SERVO_RAW_MIN));
-
     
     if (raw > SERVO_RAW_MAX)
         raw = SERVO_RAW_MAX;
@@ -61,6 +59,10 @@ void car_set_steering_percent(car_t *car, float percent)
 
 void car_set_throttle_percent(car_t *car, float percent)
 {
+    if (percent > 1.0f)
+        percent = 1.0f;
+    if (percent < -1.0f)
+        percent = -1.0f;
 
     if (percent > 0.0f)
     {
@@ -87,7 +89,7 @@ void car_set_throttle_percent(car_t *car, float percent)
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_2, 0, 0);
     }
 
-    int pwm = PWM_MAX_RAW_VALUE * fabs(percent);
+    int pwm = (int)((float)PWM_MAX_RAW_VALUE * fabs(percent));
     if (pwm > PWM_MAX_RAW_VALUE)
         pwm = PWM_MAX_RAW_VALUE; // ALTERAR NO CODIGO ORIGINAL!!
     // Aplica PWM proporcional

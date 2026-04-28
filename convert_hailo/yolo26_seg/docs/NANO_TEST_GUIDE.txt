@@ -1,0 +1,119 @@
+==============================================================================
+TEST GUIDE - YOLO26n-seg on Hailo-8 (RPi5)
+Model: yolo26n_seg_640.hef  |  Date: 06/04/2026
+==============================================================================
+
+PREREQUISITES
+--------------
+- SSH access to RPi5: <rpi5-host>
+- Files already present on RPi5:
+    ~/test_yolo26_hailo3.py
+    ~/yolo26n_seg_640.hef
+
+If files are not there, copy from host:
+    scp test_yolo26_hailo3.py <rpi5-host>:~/
+    scp yolo26n_seg_640.hef  <rpi5-host>:~/
+
+
+------------------------------------------------------------------------------
+OPTION 1 — VIEW REMOTELY FROM HOST MACHINE (recommended)
+------------------------------------------------------------------------------
+Run in the host machine terminal:
+
+    ssh <rpi5-host> "python3 test_yolo26_hailo3.py camera yolo26n_seg_640.hef --remote" | DISPLAY=:1 ffplay -f mjpeg -i -
+
+To stop: close the ffplay window or press Ctrl+C in the terminal.
+
+  Install ffplay if not available:
+    Ubuntu/Debian:  sudo apt install ffmpeg
+    Mac:            brew install ffmpeg
+    Windows:        https://ffmpeg.org/download.html
+
+
+------------------------------------------------------------------------------
+OPTION 2 — VIEW ON RPi5 SCREEN (display connected via HDMI)
+------------------------------------------------------------------------------
+Connect a monitor to the RPi5 and run:
+
+    python3 test_yolo26_hailo3.py camera yolo26n_seg_640.hef
+
+To stop: Ctrl+C
+
+
+------------------------------------------------------------------------------
+OPTION 3 — TERMINAL ONLY (no video, metrics in console only)
+------------------------------------------------------------------------------
+    ssh <rpi5-host>
+    python3 test_yolo26_hailo3.py camera yolo26n_seg_640.hef --no-display
+
+Every 90 frames prints to terminal:
+    [DBG] mask=2.1%  clean=1.8%  bev=3.2%  L=True R=True  CTE=0.042
+    [INF] hailo=12.3ms  FPS=21.4
+    [CPU] postproc=1.2ms  morph=0.3ms  bev=0.1ms  sliding=0.4ms
+
+
+------------------------------------------------------------------------------
+OPTION 4 — TEST WITH STATIC IMAGE
+------------------------------------------------------------------------------
+Copy an image to the RPi5 and run:
+
+    scp my_photo.jpg <rpi5-host>:~/
+    ssh <rpi5-host>
+    python3 test_yolo26_hailo3.py image my_photo.jpg yolo26n_seg_640.hef
+
+Result saved as: result_my_photo.jpg
+Copy back to view:
+    scp <rpi5-host>:~/result_my_photo.jpg .
+
+
+------------------------------------------------------------------------------
+ADJUST DETECTION SENSITIVITY (optional)
+------------------------------------------------------------------------------
+Default threshold is 0.25. To detect more (less strict):
+
+    ssh <rpi5-host> "python3 test_yolo26_hailo3.py camera yolo26n_seg_640.hef --remote 0.15" | DISPLAY=:1 ffplay -f mjpeg -i -
+
+Lower values = more detections (may have more false positives).
+Higher values = fewer detections (more conservative).
+
+
+------------------------------------------------------------------------------
+WHAT APPEARS ON SCREEN
+------------------------------------------------------------------------------
+  - Green area:    detected lane region
+  - Blue line:     left lane
+  - Red line:      right lane
+  - Yellow line:   lane center
+  - Purple diamond: perspective trapezoid (region of interest)
+  - CTE:           lateral deviation in meters (+ = left, - = right)
+  - Inf:           Hailo-8 latency in ms
+  - FPS:           frames per second
+
+
+------------------------------------------------------------------------------
+EXPECTED PERFORMANCE
+------------------------------------------------------------------------------
+  Hailo-8 latency:    ~10-15 ms
+  FPS:                ~20-21 fps
+  Mask coverage:      ~2% (nano model — point detections on lanes)
+
+
+------------------------------------------------------------------------------
+COMMON ISSUES
+------------------------------------------------------------------------------
+  "HEF not found"
+    → Check that yolo26n_seg_640.hef is in ~/
+
+  "No module named hailo_platform"
+    → Activate the virtual environment before running:
+        source ~/hailo-env/bin/activate
+
+  ffplay does not open / black screen
+    → Wait 3-5 seconds for the camera to initialize.
+    → Check that the camera is connected to the RPi5.
+
+  NO LANES on screen
+    → Insufficient lighting or lanes out of frame.
+    → Try lowering the threshold: replace the last argument with 0.15.
+
+==============================================================================
