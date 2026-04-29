@@ -206,6 +206,8 @@ void vehicleData::kuksaLoop() {
     request.add_signal_paths("Vehicle.Speed");
     request.add_signal_paths("Vehicle.Powertrain.TractionBattery.StateOfCharge.Current");
     request.add_signal_paths("Vehicle.Powertrain.ElectricMotor.Power");
+    request.add_signal_paths("Vehicle.ADAS.TrafficSign");
+    request.add_signal_paths("Vehicle.ADAS.SpeedLimitSign");
 
     std::unique_ptr<grpc::ClientReader<SubscribeResponse>> reader(
         stub->Subscribe(&context, request));
@@ -245,6 +247,16 @@ void vehicleData::kuksaLoop() {
                             setGear("N");
                         if (v > 0)
                             setGear("D");
+                    }
+                }
+                else if (path == "Vehicle.ADAS.TrafficSign") {
+                    if (value.has_int8()) {
+                        setTrafficSign((int)value.int8())
+                    }
+                }
+                else if (path == "Vehicle.ADAS.SpeedLimitSign") {
+                    if (value.has_int8()) {
+                        setSpeedLimit((int)value.int8())
                     }
                 }
             }

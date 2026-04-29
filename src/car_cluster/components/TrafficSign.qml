@@ -6,7 +6,7 @@ Item {
     height: 100
     
     property bool showSign: true
-    property var currentTrafficSign: ""  // Aceitar QVariant
+    property var currentTrafficSign: ""  
     
     function getTrafficSignImage() {
         if (currentTrafficSign == 1)
