@@ -19,11 +19,11 @@
 
 #include <thread> // Necessário para rodar o gRPC sem travar a UI
 #include <memory> // Necessário para std::shared_ptr
-//#include <grpcpp/grpcpp.h>
-//#include "kuksa/val/v2/val.grpc.pb.h"
+#include <grpcpp/grpcpp.h>
+#include "kuksa/val/v2/val.grpc.pb.h"
 
-//using grpc::Channel;
-//using kuksa::val::v2::VAL;
+using grpc::Channel;
+using kuksa::val::v2::VAL;
 
 enum class TRAFFIC_SIGN {
     NONE = 0,
@@ -106,7 +106,7 @@ class vehicleData : public QObject
         QString       gear;
 
         // Thread para o gRPC
-        //std::thread kuksaThread;
+        std::thread kuksaThread;
 
 };
 

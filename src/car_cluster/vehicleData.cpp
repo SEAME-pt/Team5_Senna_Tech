@@ -187,7 +187,7 @@ void vehicleData::startTrafficSignSimulation() {
     timer->start(1000); // 1000 ms por tick -> 1 Hz
 }*/
 
-/* void vehicleData::startKuksaSubscriber() {
+ void vehicleData::startKuksaSubscriber() {
     // Inicia o loop do KUKSA em uma thread separada
     // Se rodarmos direto aqui, a GUI do Qt vai congelar!
     kuksaThread = std::thread(&vehicleData::kuksaLoop, this);
@@ -264,7 +264,7 @@ void vehicleData::kuksaLoop() {
     }
     std::cout << "Desconectado do KUKSA." << std::endl;
 }
- */
+
 void vehicleData::updateTemperature() {
 
     QFile tempFile("/sys/class/thermal/thermal_zone0/temp");
