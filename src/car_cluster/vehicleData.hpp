@@ -88,14 +88,14 @@ class vehicleData : public QObject
         void startBatterySimulation();
         void startTrafficSignSimulation();
         
-        //void startKuksaSubscriber();
+        void startKuksaSubscriber();
         void updateTemperature();
         void updateOdometer();
 
     private:
         vehicleData(QObject *parent = nullptr);
 
-        //void kuksaLoop();
+        void kuksaLoop();
 
         double        speed;
         int           battery;

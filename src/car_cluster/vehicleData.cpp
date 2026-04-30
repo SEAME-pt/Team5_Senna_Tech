@@ -1,12 +1,12 @@
 #include "vehicleData.hpp"
 #include <vector>
 #include <memory>
-/* #include "kuksa/val/v2/types.pb.h" // necessário para ler os tipos
+ #include "kuksa/val/v2/types.pb.h" // necessário para ler os tipos
 
 using grpc::ClientContext;
 using grpc::Status;
 using kuksa::val::v2::SubscribeRequest;
-using kuksa::val::v2::SubscribeResponse; */
+using kuksa::val::v2::SubscribeResponse; 
 
 // Singleton implementation
 vehicleData *vehicleData::instance() {
@@ -225,7 +225,7 @@ void vehicleData::kuksaLoop() {
                 
                 // Atualiza a UI baseada no caminho recebido
                 // Nota: setSpeed e setBattery emitem sinais que o Qt entende
-                
+
                 if (path == "Vehicle.Speed") {
                     if (value.has_float_()) {
                         setSpeed((double)value.float_());
@@ -249,14 +249,14 @@ void vehicleData::kuksaLoop() {
                             setGear("D");
                     }
                 }
-                else if (path == "Vehicle.ADAS.TrafficSign") {
-                    if (value.has_int8()) {
-                        setTrafficSign((int)value.int8())
+                else if (path == "Vehicle.ADAS.TrafficSign") { 
+                    if (value.has_uint32()) {
+                        setTrafficSign((TRAFFIC_SIGN)value.uint32());
                     }
                 }
                 else if (path == "Vehicle.ADAS.SpeedLimitSign") {
-                    if (value.has_int8()) {
-                        setSpeedLimit((int)value.int8())
+                    if (value.has_uint32()) {
+                        setSpeedSign((SPEED_SIGN)value.uint32());
                     }
                 }
             }
