@@ -19,6 +19,7 @@ float pid_update(pid_t *pid, float target, float current, float dt);
 void pid_reset(pid_t *pid);
 void pid_set_integral_limit(pid_t *pid, float limit);
 void pid_set_output_limit(pid_t *pid, float limit);
+float clamp_symmetric(float value, float limit);
 
 #define THROTTLE_PERIOD_TICKS 2
 

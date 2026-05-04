@@ -3,17 +3,6 @@
 #include "pid.h"
 #include <inttypes.h>
 
-static float clamp_symmetric_f(float value, float limit)
-{
-    if (limit <= 0.0f)
-        return 0.0f;
-    if (value > limit)
-        return limit;
-    if (value < -limit)
-        return -limit;
-    return value;
-}
-
 static float get_throttle_current_normalized(void)
 {
     float speed_abs_kmh;
@@ -22,7 +11,7 @@ static float get_throttle_current_normalized(void)
     speed_abs_kmh = speed_kmh;
     tx_mutex_put(&g_speed_mutex);
 
-    return clamp_symmetric_f(speed_abs_kmh / 10.0f, 1.0f);
+    return clamp_symmetric(speed_abs_kmh / 10.0f, 1.0f);
 }
 
 float percent_from_can_int16(uint8_t low_byte, uint8_t high_byte)
