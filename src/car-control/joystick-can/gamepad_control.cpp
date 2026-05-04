@@ -78,16 +78,6 @@ int main()
                 send_int16(sock, CAN_ID_THROTTLE, throttle_can);
             }
 
-            if (debug) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    
-                send_int16(sock, CAN_ID_MODE, 3);
-    
-                std::this_thread::sleep_for(std::chrono::milliseconds(2500));
-
-                send_int16(sock, CAN_ID_MODE, 2);
-            }
-
             const char* current_mode = auto_mode ? "AUTO" : (debug ? "DEBUG" : "MANUAL");
             printf(
                 "Mode: %-6s | Steering: %6.2f -> %4d | Throttle: %6.2f -> %4d\n",

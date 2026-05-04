@@ -138,7 +138,7 @@ void motors_thread_entry(ULONG thread_input)
             }
             else if (frame.id == CAN_ID_MOTOR_CMD && mode == 2U)
             {
-                throttle_target = 5.0f;
+                throttle_target = 0.08f;
                 continue ;
             }
         }
