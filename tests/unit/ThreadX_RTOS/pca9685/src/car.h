@@ -27,7 +27,7 @@ typedef struct
 
 void car_init(car_t *car, void *hi2c);
 void car_set_steering_percent(car_t *car, float percent);
-void car_set_throttle_percent(car_t *car, float percent);
+void car_set_throttle_percent(car_t *car, float percent, uint8_t brake);
 int  calculateRaw(float percent);
 
 float car_get_battery_voltage(car_t *car);

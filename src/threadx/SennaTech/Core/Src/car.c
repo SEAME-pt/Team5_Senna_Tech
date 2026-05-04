@@ -15,7 +15,7 @@ void car_init(car_t *car, void *hi2c)
     PCA9685_SetPWMFreq(&car->throttle, PWM_FREQ_MOTOR_HZ);
 
     car_set_steering_percent(car, 0.0f);
-    car_set_throttle_percent(car, 0.0f);
+    car_set_throttle_percent(car, 0.0f, 0);
 
     tx_sleep(1);
 }
@@ -57,16 +57,27 @@ void car_set_steering_percent(car_t *car, float percent)
     PCA9685_SetPWM(&car->steering, PWM_STEERING_CHANNEL, 0, raw);
 }
 
-void car_set_throttle_percent(car_t *car, float percent)
+void car_set_throttle_percent(car_t *car, float percent, uint8_t brake)
 {
     if (percent > 1.0f)
         percent = 1.0f;
     if (percent < -1.0f)
         percent = -1.0f;
 
-    if (percent > 0.0f)
+    // Fast stop (brake): both IN high + full PWM = H-bridge shunts motor terminals, maximum braking force
+    if (brake) 
     {
-        // Frente
+        PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_1,  0, PWM_MAX_RAW_VALUE);
+        PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_2,  0, PWM_MAX_RAW_VALUE);
+        PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_1, 0, PWM_MAX_RAW_VALUE);
+        PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_2, 0, PWM_MAX_RAW_VALUE);
+        PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_PWM,  0, PWM_MAX_RAW_VALUE);
+        PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM, 0, PWM_MAX_RAW_VALUE);
+        return;
+    }
+    else if (percent > 0.0f)
+    {
+        // forward
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_1,  0, PWM_MAX_RAW_VALUE);
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_2,  0, 0);
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_1, 0, 0);
@@ -74,7 +85,7 @@ void car_set_throttle_percent(car_t *car, float percent)
     }
     else if (percent < 0.0f)
     {
-        // Ré
+        // reverse
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_1,  0, 0);
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_2,  0, PWM_MAX_RAW_VALUE);
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_1, 0, PWM_MAX_RAW_VALUE);
@@ -82,7 +93,7 @@ void car_set_throttle_percent(car_t *car, float percent)
     }
     else
     {
-        // Stop
+        // Light stop
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_1,  0, 0);
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_2,  0, 0);
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_1, 0, 0);
