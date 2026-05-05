@@ -1,5 +1,4 @@
 #include "car.h"
-#include <math.h>
 
 float duty_from_percent_50hz(float value)
 {
@@ -53,7 +52,7 @@ void car_set_steering_percent(car_t *car, float percent)
         raw = SERVO_RAW_MAX;
     if (raw < SERVO_RAW_MIN)
         raw = SERVO_RAW_MIN;
-    //log_debug("raw: %i", raw);
+
     PCA9685_SetPWM(&car->steering, PWM_STEERING_CHANNEL, 0, raw);
 }
 
@@ -64,7 +63,7 @@ void car_set_throttle_percent(car_t *car, float percent, uint8_t brake)
     if (percent < -1.0f)
         percent = -1.0f;
 
-    // Fast stop (brake): both IN high + full PWM = H-bridge shunts motor terminals, maximum braking force
+    // brake (maximum braking force) 
     if (brake) 
     {
         PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_1,  0, PWM_MAX_RAW_VALUE);
@@ -102,8 +101,8 @@ void car_set_throttle_percent(car_t *car, float percent, uint8_t brake)
 
     int pwm = (int)((float)PWM_MAX_RAW_VALUE * fabs(percent));
     if (pwm > PWM_MAX_RAW_VALUE)
-        pwm = PWM_MAX_RAW_VALUE; // ALTERAR NO CODIGO ORIGINAL!!
-    // Aplica PWM proporcional
+        pwm = PWM_MAX_RAW_VALUE;
+
     PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_PWM,  0, pwm);
     PCA9685_SetPWM(&car->throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM, 0, pwm);
 }
