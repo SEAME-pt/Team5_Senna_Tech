@@ -77,7 +77,7 @@ void motors_thread_entry(ULONG thread_input)
     float throttle_target = 0.0f; // normalized [-1, 1]
     ULONG last_tick = tx_time_get();
 
-    UINT mode = 1U; // 0 = autonomous, 1 = manual, 2 = debug, 3 = estop
+    UINT mode = 1U; // 0 = autonomous, 1 = manual, 2 = debug
     uint8_t brake = 0;
 
     while (1)
@@ -86,6 +86,8 @@ void motors_thread_entry(ULONG thread_input)
         {
             if (frame.dlc < 2)
                 continue;
+
+            float percent = percent_from_can_int16(frame.data[0], frame.data[1]);
 
             if (frame.id == CAN_ID_MODE)
             {
@@ -96,34 +98,22 @@ void motors_thread_entry(ULONG thread_input)
                     mode = 0;
                     pid_reset(&throttle_pid);
                     last_tick = tx_time_get();
-                    brake = 0;
                 }
                 else if (mode_cmd == 1) {
                     uart_send("Switched to MANUAL mode\r\n");
                     mode = 1;
                     pid_reset(&throttle_pid);
                     throttle_target = 0.0f;
-                    brake = 0;
                 }
                 else if (mode_cmd == 2) {
                     uart_send("Switched to DEBUG mode\r\n");
                     mode = 2;
                     pid_reset(&throttle_pid);
                     throttle_target = 0.0f;
-                    brake = 0;
-                }
-                else if (mode_cmd == 3) {
-                    uart_send("EMERGENCY STOP ACTIVATED\r\n");
-                    mode = 3;
-                    brake = 1;
-                    car_set_throttle_percent(&car, 0.0f, 1);
-                    tx_sleep(100);
                 }
 
                 continue ;
             }
-
-            float percent = percent_from_can_int16(frame.data[0], frame.data[1]);
 
             if (frame.id == CAN_ID_STEER_CMD)
             {
@@ -138,7 +128,7 @@ void motors_thread_entry(ULONG thread_input)
             }
             else if (frame.id == CAN_ID_MOTOR_CMD && mode == 2U)
             {
-                throttle_target = 0.08f;
+                throttle_target = 0.09f;
                 continue ;
             }
         }
@@ -148,6 +138,6 @@ void motors_thread_entry(ULONG thread_input)
             continue ;
 
         float throttle_cmd_percent = pidCalculation(&throttle_pid, throttle_target, dt);
-        car_set_throttle_percent(&car, throttle_cmd_percent, brake);
+        car_set_throttle_percent(&car, throttle_cmd_percent, 0);
     }
 }
