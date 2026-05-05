@@ -50,7 +50,7 @@ The MG996R servo has failed repeatedly due to **stall current overheating**. In 
 
 **Benefit:** The servo now operates at 85% of its mechanical capacity, preventing hard mechanical stops that trigger stall current. This safety margin eliminates the worst-case 2.5A stall scenario while maintaining full steering responsiveness.
 
-### 3.3 Critical: Power Supply Verification & Voltage Stability
+### 3.2 Critical: Power Supply Verification & Voltage Stability
 
 The power supply **must** deliver stable 5.14V in this system. The datasheet lists a 6.0V nominal value for best performance, but the current hardware uses a 5V supply from the expansion board.
 
@@ -89,7 +89,7 @@ The power supply **must** deliver stable 5.14V in this system. The datasheet lis
 ## 4. Hardware Fix Checklist
 
 ### Power Management
-- [ ] **Dedicated 6V supply** – Do NOT use shared USB/logic rail
+- [ ] **Dedicated stable 5V supply** – Do NOT use shared USB/logic rail
 - [ ] **Current rating ≥3A** – Verify power supply spec sheet
 - [ ] **Voltage stability test** – Measure voltage during full servo stall (using oscilloscope or multimeter)
 
@@ -130,6 +130,6 @@ The power supply **must** deliver stable 5.14V in this system. The datasheet lis
 
 ## 6. References
 
-- **MG996R Datasheet:** [MG996R] (./MG996R.PDF)
+- **MG996R Datasheet:** [MG996R](./MG996R.PDF)
 - **Code Changes:** [car.h](../src/threadx/SennaTech/Core/Inc/car.h) and [car.c](../src/threadx/SennaTech/Core/Src/car.c)
  
