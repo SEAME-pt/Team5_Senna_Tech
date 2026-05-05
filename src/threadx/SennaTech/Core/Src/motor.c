@@ -2,6 +2,7 @@
 #include "car.h"
 #include "pid.h"
 #include <inttypes.h>
+#include <math.h>
 
 static float get_throttle_current_normalized(void)
 {
@@ -43,6 +44,45 @@ static float get_delta_time_seconds(ULONG *last_tick)
     return (float)elapsed_ticks / (float)TX_TIMER_TICKS_PER_SECOND;
 }
 
+static float steering_update(float target, float current, float dt)
+{
+    // Constants for controlling the adaptive smoothing algorithm behavior for steering
+    // This algorithm prioritizes responsiveness in curves and stability in straights
+    const float deadband = 0.03f;              // Deadband: ignores very small commands to avoid jitter
+    const float direct_turn_threshold = 0.20f; // Threshold for large turns: apply direct change if target > 0.20 (slightly lowered for earlier turns)
+    const float close_threshold = 0.02f;       // Proximity threshold: if delta < 0.02, snap to target
+    const float minor_alpha = 0.25f;           // Low alpha for small corrections (slow smoothing, reduces oscillations)
+    const float major_alpha = 0.65f;           // High alpha for medium corrections (faster smoothing)
+    const float correction_alpha = 0.4f;       // Correction alpha (not currently used, reserved for future adjustments)
+
+    // Apply deadband: if target is very small, treat as zero to avoid unnecessary movements
+    if (fabsf(target) < deadband)
+        target = 0.0f;
+
+    // Calculate the difference between target and current value
+    float delta = target - current;
+    float abs_delta = fabsf(delta);
+
+    // If very close to target, return target directly (avoids infinitesimal adjustments)
+    if (abs_delta < close_threshold)
+        return target;
+
+    // For large changes (curves): apply directly for fast response
+    // Condition: large target OR large delta (sudden change)
+    if (fabsf(target) > direct_turn_threshold || abs_delta > 0.25f)
+    {
+        // Large curve changes should be applied quickly
+        return clamp_symmetric(target, 1.0f);
+    }
+
+    // For medium corrections: use higher alpha for faster adjustment
+    if (fabsf(target) > 0.10f)
+        return clamp_symmetric(current + delta * major_alpha, 1.0f);
+
+    // For small corrections: use lower alpha to smooth and reduce oscillations in straights
+    return clamp_symmetric(current + delta * minor_alpha, 1.0f);
+}
+
 static float pidCalculation(pid_t *throttle_pid, float throttle_target, float dt)
 {
     float current = get_throttle_current_normalized();
@@ -75,6 +115,10 @@ void motors_thread_entry(ULONG thread_input)
     pid_set_output_limit(&throttle_pid, 1.0f);
 
     float throttle_target = 0.0f; // normalized [-1, 1]
+
+    float steering_target = 0.0f; // normalized [-1, 1]
+    float steering_current = 0.0f; // tracked servo position
+
     ULONG last_tick = tx_time_get();
 
     UINT mode = 1U; // 0 = autonomous, 1 = manual, 2 = debug
@@ -97,19 +141,24 @@ void motors_thread_entry(ULONG thread_input)
                     uart_send("Switched to AUTO mode\r\n");
                     mode = 0;
                     pid_reset(&throttle_pid);
+                    steering_current = steering_target;
                     last_tick = tx_time_get();
                 }
                 else if (mode_cmd == 1) {
                     uart_send("Switched to MANUAL mode\r\n");
                     mode = 1;
                     pid_reset(&throttle_pid);
+                    steering_current = steering_target;
                     throttle_target = 0.0f;
+                    steering_target = 0.0f;
                 }
                 else if (mode_cmd == 2) {
                     uart_send("Switched to DEBUG mode\r\n");
                     mode = 2;
                     pid_reset(&throttle_pid);
+                    steering_current = steering_target;
                     throttle_target = 0.0f;
+                    steering_target = 0.0f;
                 }
 
                 continue ;
@@ -117,7 +166,7 @@ void motors_thread_entry(ULONG thread_input)
 
             if (frame.id == CAN_ID_STEER_CMD)
             {
-                car_set_steering_percent(&car, percent);
+                steering_target = percent;
                 continue ;
             }
 
@@ -128,7 +177,7 @@ void motors_thread_entry(ULONG thread_input)
             }
             else if (frame.id == CAN_ID_MOTOR_CMD && mode == 2U)
             {
-                throttle_target = 0.09f;
+                throttle_target = 0.07f;
                 continue ;
             }
         }
@@ -139,5 +188,9 @@ void motors_thread_entry(ULONG thread_input)
 
         float throttle_cmd_percent = pidCalculation(&throttle_pid, throttle_target, dt);
         car_set_throttle_percent(&car, throttle_cmd_percent, 0);
+
+        // Steering: use dynamic update to remove straight-line noise and speed up curves
+        steering_current = steering_update(steering_target, steering_current, dt);
+        car_set_steering_percent(&car, steering_current);
     }
 }
