@@ -78,7 +78,15 @@ The power supply **must** deliver stable 5.14V in this system. The datasheet lis
 - Battery sag events: Servo voltage enters danger zone
 - Stall risk: ❌ **High** – servo constantly fighting mechanical limits
 
-**Real-World Impact:** The 85% soft limit prevents voltage collapse and eliminates the previous 4V sag condition, keeping the servo in the safe operating window even with partially depleted battery. The temperature values in the failure timeline are estimates based on expected power dissipation under stall conditions; they have not been directly measured in this hardware configuration.
+**Real-World Impact:** The 85% soft limit prevents voltage collapse and eliminates the previous 4V sag condition, keeping the servo in the safe operating window even with partially depleted battery.
+
+**How the temperature estimate was derived:**
+- At 5.14V and an estimated stall current of ~2.0A, the servo dissipates roughly `P = V × I = 5.14 × 2.0 ≈ 10.3W` as heat.
+- That is a large amount of heat for a small servo body and internal coil volume.
+- In a compact servo with limited airflow, 10W of internal dissipation can plausibly raise the internal temperature tens of degrees above ambient.
+- Therefore, the values `60–75°C`, `85–100°C` and higher are theoretical internal heating estimates under sustained stall, not direct temperature measurements.
+
+These temperature numbers are used only to explain how a stall condition can become dangerous; they are not measured values from this specific unit.
 
 ---
 
@@ -113,9 +121,9 @@ The power supply **must** deliver stable 5.14V in this system. The datasheet lis
 ```
 1. Connect multimeter to servo power pins
 2. Send servo to 50% position (neutral)
-   → Expected: 6.0V ±0.1V
+   → Expected: 5.14V ±0.1V
 3. Send servo to full deflection (100% steering)
-   → Expected: 6.0V ±0.1V
+   → Expected: 5.14V ±0.1V
 4. Hold servo at full deflection for 10 seconds
    → Expected: Must NOT drop below 4.8V
 ```
