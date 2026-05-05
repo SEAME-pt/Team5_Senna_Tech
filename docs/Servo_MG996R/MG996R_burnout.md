@@ -32,8 +32,6 @@ The MG996R servo has failed repeatedly due to **stall current overheating**. In 
 | **Stall begins** | **~2.0 A** | 0 sec | Gears locked at limit | **35°C (estimated)** |
 | **Early overheating** | ~2.0 A | ~5 sec | Coil resistance heating | **60–75°C (estimated)** |
 | **Critical heating** | ~2.0 A | ~10 sec | Insulation degrading | **85–100°C (estimated)** |
-| **Thermal runaway** | ~2.0 A | ~15–30 sec | Coil winding short | **>120°C (estimated)** |
-| **Servo destroyed** | – | After 30 sec | Internal coil melted | **Failure** |
 
 ### Root Cause
 
@@ -48,7 +46,7 @@ The MG996R servo has failed repeatedly due to **stall current overheating**. In 
 | Range Type | Raw Values | Movement Range | Status |
 |-----------|------------|-----------------|--------|
 | Full Mechanical | 205 – 410 | 100% | ❌ Unsafe – causes stall |
-| **Safe Operating** | **240 – 375** | **85%** | ✅ **Implemented** |
+| **Safe Operating** | **230 – 385** | **85%** | ✅ **Implemented** |
 
 **Benefit:** The servo now operates at 85% of its mechanical capacity, preventing hard mechanical stops that trigger stall current. This safety margin eliminates the worst-case 2.5A stall scenario while maintaining full steering responsiveness.
 
@@ -84,9 +82,7 @@ The power supply **must** deliver stable 5.14V in this system. The datasheet lis
 - At 5.14V and an estimated stall current of ~2.0A, the servo dissipates roughly `P = V × I = 5.14 × 2.0 ≈ 10.3W` as heat.
 - That is a large amount of heat for a small servo body and internal coil volume.
 - In a compact servo with limited airflow, 10W of internal dissipation can plausibly raise the internal temperature tens of degrees above ambient.
-- Therefore, the values `60–75°C`, `85–100°C` and higher are theoretical internal heating estimates under sustained stall, not direct temperature measurements.
-
-These temperature numbers are used only to explain how a stall condition can become dangerous; they are not measured values from this specific unit.
+- Therefore, the values `60–75°C`, `85–100°C` are theoretical internal heating estimates under sustained stall.
 
 ---
 
@@ -130,58 +126,10 @@ These temperature numbers are used only to explain how a stall condition can bec
 
 **If voltage drops below 4.8V:** Power supply is inadequate – upgrade required.
 
-### Test 2: Thermal Stability
-```
-1. Start with servo at 0% (neutral position)
-2. Cycle steering 0% → 100% → 0% at 1 Hz for 2 minutes
-3. Hold servo at 100% deflection for 30 seconds
-4. Measure servo case temperature with IR thermometer
-   → Expected: <55°C
-   → WARNING: >60°C indicates problem
-   → CRITICAL: >75°C stop immediately
-```
-
-### Test 3: Stall Detection Firmware
-```
-1. Flash updated firmware
-2. Send UART monitor
-3. Manually hold servo at full right deflection
-4. Wait >5 seconds
-   → Expected: UART message appears
-      "WARNING: Servo at mechanical limit for >5s - HIGH STALL RISK!"
-```
-
 ---
 
-## 6. Recommended Improvements
+## 6. References
 
-### Immediate (Required)
-1. **Replace burned-out servo** with new MG996R
-2. **Upgrade power supply** if it's <3A rated
-3. **Add capacitor filtering** (100μF + 22μF) to servo power
-4. **Flash updated firmware** with stall detection
-5. **Perform all tests** before returning to operation
-
-### Medium-term (Recommended)
-1. Add current-limiting circuit (100mA fuse + TVS diode) on servo power line
-2. Implement servo temperature monitoring via thermistor (if available)
-3. Add watchdog timer to auto-neutral servo if control messages stop
-
-### Long-term (Nice-to-have)
-1. Replace MG996R with digital servo (has internal temperature monitoring)
-2. Add servo feedback angle sensor for closed-loop verification
-3. Implement CAN-based servo health monitoring
-
----
-
-## 7. References
-
-- **MG996R Datasheet:** Operating Voltage 4.8–7.2V, Stall Current 2.5A @ 6V
+- **MG996R Datasheet:** [MG996R] (./MG996R.PDF)
 - **Code Changes:** [car.h](../src/threadx/SennaTech/Core/Inc/car.h) and [car.c](../src/threadx/SennaTech/Core/Src/car.c)
-- **Team Contact:** Servo maintenance responsable
-
----
-
-**Last Updated:** May 5, 2026  
-**Status:** Preventative measures implemented – awaiting hardware verification
  
