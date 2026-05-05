@@ -3,7 +3,7 @@
 
 ## Executive Summary
 
-The MG996R servo has failed repeatedly due to **stall current overheating**. When the servo is held at mechanical limits, it draws **2.5A**, causing the internal coil to overheat and melt in as little as 5-10 seconds. This document outlines the root cause, implemented solutions, and hardware requirements to prevent future burnouts.
+The MG996R servo has failed repeatedly due to **stall current overheating**. In this system the servo is powered from **5.14V through the expansion board**, and when it reaches a mechanical limit it can still draw up to **about 2.0A** at that voltage. That current is still enough to overheat the internal coil quickly. This document outlines the root cause, implemented solutions, and hardware requirements to prevent future burnouts.
 
 ---
 
@@ -11,10 +11,11 @@ The MG996R servo has failed repeatedly due to **stall current overheating**. Whe
 
 | Parameter | Specification | Notes |
 |-----------|---------------|-------|
-| **Operating Voltage** | 4.8V – 7.2V | Safe operating range |
-| **Running Current** | 500mA (4.8-7.2V) | During normal movement |
-| **Running Current (Nominal)** | 900mA @ 6V | Peak running current at 6V |
-| **Stall Current** | **2.5A @ 6V** | ⚠️ **Critical – causes burnout** |
+| **Operating Voltage** | 4.8V – 7.2V | Datasheet safe operating range |
+| **System Voltage** | **5.14V** | Actual voltage supplied by the expansion board |
+| **Running Current** | ~500mA | During normal movement at 5.14V |
+| **Running Current (Nominal)** | ~750mA @ 5V | Estimated peak running current in this system |
+| **Stall Current** | **~2.0A @ 5V** | ⚠️ **Critical – causes burnout even at 5.14V** |
 | **Temperature Range** | 0°C – 55°C | Maximum safe operating temp |
 | **Stall Torque (6V)** | 11 kgf·cm | Force at mechanical limit |
 | **Response Time** | 0.14 s/60° @ 6V | Speed from neutral |
@@ -28,10 +29,10 @@ The MG996R servo has failed repeatedly due to **stall current overheating**. Whe
 | Stage | Current | Duration | Servo State | Temperature |
 |-------|---------|----------|-------------|-------------|
 | Normal operation | 500 mA | Continuous | Smooth movement | 25–35°C |
-| **Stall begins** | **2.5 A** | 0 sec | Gears locked at limit | **35°C** |
-| **Early overheating** | 2.5 A | ~5 sec | Coil resistance heating | **60–75°C** |
-| **Critical heating** | 2.5 A | ~10 sec | Insulation degrading | **85–100°C** |
-| **Thermal runaway** | 2.5 A | ~15–30 sec | Coil winding short | **>120°C** |
+| **Stall begins** | **~2.0 A** | 0 sec | Gears locked at limit | **35°C (estimated)** |
+| **Early overheating** | ~2.0 A | ~5 sec | Coil resistance heating | **60–75°C (estimated)** |
+| **Critical heating** | ~2.0 A | ~10 sec | Insulation degrading | **85–100°C (estimated)** |
+| **Thermal runaway** | ~2.0 A | ~15–30 sec | Coil winding short | **>120°C (estimated)** |
 | **Servo destroyed** | – | After 30 sec | Internal coil melted | **Failure** |
 
 ### Root Cause
@@ -51,23 +52,16 @@ The MG996R servo has failed repeatedly due to **stall current overheating**. Whe
 
 **Benefit:** The servo now operates at 85% of its mechanical capacity, preventing hard mechanical stops that trigger stall current. This safety margin eliminates the worst-case 2.5A stall scenario while maintaining full steering responsiveness.
 
-### 3.2 Software: Stall Detection & Warning System
-
-A real-time monitoring system now tracks servo position:
-- **Monitors** if servo is held at extreme limits
-- **Warns** via UART if servo is locked for >5 seconds
-- **Message:** `"WARNING: Servo at mechanical limit for >5s - HIGH STALL RISK!"`
-
 ### 3.3 Critical: Power Supply Verification & Voltage Stability
 
-The power supply **must** deliver:
+The power supply **must** deliver stable 5.14V in this system. The datasheet lists a 6.0V nominal value for best performance, but the current hardware uses a 5V supply from the expansion board.
 
 | Requirement | Value | Justification |
 |-------------|-------|----------------|
-| **Voltage (nominal)** | 6.0V | Servo datasheet nominal |
+| **System voltage** | 5.14V | Actual supply voltage from the expansion board |
 | **Voltage (minimum)** | 4.8V | Lowest acceptable voltage |
-| **Voltage under stall** | >4.8V | Must NOT sag below 4.8V during 2.5A draw |
-| **Current capacity** | ≥3.0A | Headroom above 2.5A stall current |
+| **Voltage under stall** | >4.8V | Must NOT sag below 4.8V during a 2.0A draw |
+| **Current capacity** | ≥2.5A | Headroom above the estimated 2.0A stall current at 5V |
 | **Cable impedance** | <0.1Ω | Short, thick-gauge wiring |
 
 #### Measured Voltage Stability (Verified Field Data)
@@ -84,7 +78,7 @@ The power supply **must** deliver:
 - Battery sag events: Servo voltage enters danger zone
 - Stall risk: ❌ **High** – servo constantly fighting mechanical limits
 
-**Real-World Impact:** The 85% soft limit prevents voltage collapse and eliminates the previous 4V sag condition, keeping the servo in the safe operating window even with partially depleted battery.
+**Real-World Impact:** The 85% soft limit prevents voltage collapse and eliminates the previous 4V sag condition, keeping the servo in the safe operating window even with partially depleted battery. The temperature values in the failure timeline are estimates based on expected power dissipation under stall conditions; they have not been directly measured in this hardware configuration.
 
 ---
 
