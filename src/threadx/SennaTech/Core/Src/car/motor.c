@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include <math.h>
 
-float percent_from_can_int16(uint8_t low_byte, uint8_t high_byte)
+float decode_can_percent(uint8_t low_byte, uint8_t high_byte)
 {
     // Intel (little endian)
     uint16_t u_combined = ((uint16_t)high_byte << 8) | low_byte;
@@ -51,7 +51,7 @@ void motors_thread_entry(ULONG thread_input)
             if (frame.dlc < 2)
                 percent = frame.data[0];
             else
-                percent = percent_from_can_int16(frame.data[0], frame.data[1]);
+                percent = decode_can_percent(frame.data[0], frame.data[1]);
 
             if (frame.id == CAN_ID_MODE)
             {
@@ -85,7 +85,7 @@ void motors_thread_entry(ULONG thread_input)
                 continue ;
             }
 
-            if (frame.id == CAN_ID_ESTOP)
+            if (frame.id == CAN_ID_AI_MOVEMENT)
             {
                 if (percent == 1 || percent == 5)
                 {

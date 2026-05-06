@@ -6,7 +6,7 @@
 #include "utils.h"
 
 // --- Definição dos IDs CAN  ---
-#define CAN_ID_ESTOP        0x001
+#define CAN_ID_AI_MOVEMENT  0x001
 #define CAN_ID_RESET        0x002
 #define CAN_ID_HEARTBEAT    0x005
 #define CAN_ID_SPEED        0x10
