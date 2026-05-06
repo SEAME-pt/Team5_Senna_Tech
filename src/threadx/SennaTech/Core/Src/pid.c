@@ -5,7 +5,7 @@ static float absf_local(float value)
     return (value < 0.0f) ? -value : value;
 }
 
-static float clamp_symmetric(float value, float limit)
+float clamp_symmetric(float value, float limit)
 {
     if (limit <= 0.0f)
         return 0.0f;

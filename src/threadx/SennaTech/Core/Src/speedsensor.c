@@ -71,12 +71,9 @@ void sensor_thread_entry(ULONG thread_input)
 			tx_mutex_put(&g_speed_mutex);
             // 4. Send
 
-			if (tx_queue_send(&g_tx_data_queue, &speed_frame, TX_NO_WAIT) != TX_SUCCESS) {
-				// Fila cheia: trate erro ou descarte
-				//log_debug("Error: TX queue full!");
-			} /* else {
-				log_debug("Frame added: speed=%u", speed_byte);
-			} */
+			if (tx_queue_send(&g_tx_data_queue, &speed_frame, TX_NO_WAIT) != TX_SUCCESS)
+				uart_send("Error: TX queue full!");
+
 		}
 
 /* 		if (MCP2515_ReceiveMessage(&rxFrame) == HAL_OK) {
@@ -98,7 +95,7 @@ void sensor_thread_entry2(ULONG thread_input)
     uint32_t acc_pulses = 0;
     uint32_t acc_ticks  = 0;
 
-    //log_debug("SENSOR THREAD2 STARTED");
+    uart_send("SENSOR THREAD2 STARTED");
 
     while (1)
     {

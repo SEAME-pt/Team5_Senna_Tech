@@ -3,7 +3,7 @@
 
 #include "main.h"
 #include "mcp2515.h"
-#include "app_threadx.h"
+#include "utils.h"
 
 // --- Definição dos IDs CAN  ---
 #define CAN_ID_ESTOP        0x001

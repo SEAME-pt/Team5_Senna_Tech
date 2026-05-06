@@ -15,7 +15,7 @@ void car_init(car_t *car, void *hi2c)
     PCA9685_SetPWMFreq(&car->throttle, PWM_FREQ_MOTOR_HZ);
 
     car_set_steering_percent(car, 0.0f);
-    car_set_throttle_percent(car, 0.0f);
+    car_set_throttle_percent(car, 0.0f, 0);
 
     tx_sleep(1);
 }
@@ -57,7 +57,7 @@ void car_set_steering_percent(car_t *car, float percent)
     PCA9685_SetPWM(&car->steering, PWM_STEERING_CHANNEL, 0, raw);
 }
 
-void car_set_throttle_percent(car_t *car, float percent)
+void car_set_throttle_percent(car_t *car, float percent, uint8_t brake)
 {
     if (percent > 1.0f)
         percent = 1.0f;

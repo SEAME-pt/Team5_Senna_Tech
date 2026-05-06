@@ -3,17 +3,6 @@
 #include "pid.h"
 #include <inttypes.h>
 
-static float clamp_symmetric_f(float value, float limit)
-{
-    if (limit <= 0.0f)
-        return 0.0f;
-    if (value > limit)
-        return limit;
-    if (value < -limit)
-        return -limit;
-    return value;
-}
-
 static float get_throttle_current_normalized(void)
 {
     float speed_abs_kmh;
@@ -22,7 +11,7 @@ static float get_throttle_current_normalized(void)
     speed_abs_kmh = speed_kmh;
     tx_mutex_put(&g_speed_mutex);
 
-    return clamp_symmetric_f(speed_abs_kmh / 10.0f, 1.0f);
+    return clamp_symmetric(speed_abs_kmh / 10.0f, 1.0f);
 }
 
 float percent_from_can_int16(uint8_t low_byte, uint8_t high_byte)
@@ -81,7 +70,7 @@ void motors_thread_entry(ULONG thread_input)
     car_init(&car, &hi2c1);
 
     pid_t throttle_pid;
-    pid_init(&throttle_pid, 0.82f, 1.11f, 0.01f);
+    pid_init(&throttle_pid, 0.92f, 1.11f, 0.01f);
     pid_set_integral_limit(&throttle_pid, 0.70f);
     pid_set_output_limit(&throttle_pid, 1.0f);
 
@@ -89,6 +78,7 @@ void motors_thread_entry(ULONG thread_input)
     ULONG last_tick = tx_time_get();
 
     UINT mode = 1U; // 0 = autonomous, 1 = manual, 2 = debug
+    uint8_t brake = 0;
 
     while (1)
     {
@@ -122,30 +112,32 @@ void motors_thread_entry(ULONG thread_input)
                     throttle_target = 0.0f;
                 }
 
-                continue;
+                continue ;
             }
 
-            if (frame.id == CAN_ID_STEER_CMD && (mode == 0U || mode == 2U || mode == 1U))
+            if (frame.id == CAN_ID_STEER_CMD)
             {
                 car_set_steering_percent(&car, percent);
-                continue;
+                continue ;
             }
 
-            if (frame.id == CAN_ID_MOTOR_CMD && (mode == 1U || mode == 2U))
+            if (frame.id == CAN_ID_MOTOR_CMD && (mode == 1U || mode == 0U))
             {
                 throttle_target = percent;
-                continue;
+                continue ;
+            }
+            else if (frame.id == CAN_ID_MOTOR_CMD && mode == 2U)
+            {
+                throttle_target = 0.09f;
+                continue ;
             }
         }
 
-        if (mode == 1U || mode == 2U)
-        {
-            float dt = get_delta_time_seconds(&last_tick);
-            if (dt <= 0.0f)
-                continue;
+        float dt = get_delta_time_seconds(&last_tick);
+        if (dt <= 0.0f)
+            continue ;
 
-            float throttle_cmd_percent = pidCalculation(&throttle_pid, throttle_target, dt);
-            car_set_throttle_percent(&car, throttle_cmd_percent);
-        }
+        float throttle_cmd_percent = pidCalculation(&throttle_pid, throttle_target, dt);
+        car_set_throttle_percent(&car, throttle_cmd_percent, 0);
     }
 }

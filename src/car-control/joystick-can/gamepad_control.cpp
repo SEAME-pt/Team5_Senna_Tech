@@ -73,9 +73,8 @@ int main()
             int16_t steering_can = raw_from_percent_int16(steering);
             int16_t throttle_can = raw_from_percent_int16(throttle);
             
-            if (!auto_mode) {
-                if (!debug)
-                    send_int16(sock, CAN_ID_STEERING, steering_can);
+            if (!auto_mode || !debug) {
+                send_int16(sock, CAN_ID_STEERING, steering_can);
                 send_int16(sock, CAN_ID_THROTTLE, throttle_can);
             }
 
