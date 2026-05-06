@@ -21,10 +21,8 @@
 #define SERVO_RAW_MIN_MECH 205
 #define SERVO_RAW_MAX_MECH 410
 
-/* Safe operating range for MG996R (reduces stall risk) */
-/* Limit to ~80% of full range to prevent mechanical hard-stops */
-#define SERVO_RAW_MIN 230   /* ~85% from center towards left */
-#define SERVO_RAW_MAX 385   /* ~85% from center towards right */
+#define SERVO_RAW_MIN 215
+#define SERVO_RAW_MAX 400
 
 typedef struct
 {

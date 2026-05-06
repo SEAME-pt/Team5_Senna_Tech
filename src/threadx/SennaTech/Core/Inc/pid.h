@@ -29,7 +29,6 @@ extern float speed_kmh;
 #endif
 
 /*
-
 Proportional gain -> reacts to current error
 Integral gain -> reacts to accumulated error over time
 Derivative gain -> reacts to the rate of change of error
