@@ -2,6 +2,7 @@
 #define PID_H
 
 #include <stdint.h>
+#include <utils.h>
 
 typedef struct
 {
@@ -19,7 +20,13 @@ float pid_update(pid_t *pid, float target, float current, float dt);
 void pid_reset(pid_t *pid);
 void pid_set_integral_limit(pid_t *pid, float limit);
 void pid_set_output_limit(pid_t *pid, float limit);
+
+//pid utils
+float absf_local(float value);
 float clamp_symmetric(float value, float limit);
+float get_throttle_current_normalized(void);
+float pidThrottleCalculation(pid_t *throttle_pid, float throttle_target, float dt);
+float get_delta_time_seconds(ULONG *last_tick);
 
 #define THROTTLE_PERIOD_TICKS 5
 

@@ -1,21 +1,5 @@
 #include "pid.h"
 
-static float absf_local(float value)
-{
-    return (value < 0.0f) ? -value : value;
-}
-
-float clamp_symmetric(float value, float limit)
-{
-    if (limit <= 0.0f)
-        return 0.0f;
-    if (value > limit)
-        return limit;
-    if (value < -limit)
-        return -limit;
-    return value;
-}
-
 void pid_init(pid_t *pid, float kp, float ki, float kd)
 {
     pid->kp = kp;

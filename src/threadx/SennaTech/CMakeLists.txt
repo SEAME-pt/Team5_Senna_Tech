@@ -55,6 +55,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/i2c/ina219.c
     Core/Src/i2c/pca9685.c
     Core/Src/pid/pid.c
+    Core/Src/pid/pid_utils.c
     Core/Src/sensor/odometer.c
     Core/Src/sensor/speedsensor.c
     Core/Src/utils/debug_utils.c
