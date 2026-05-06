@@ -27,8 +27,12 @@ fi
 
 rm -rf "$SRC_DIR"/*
 
-cp "$SCRIPT_DIR/../../../../src/threadx/SennaTech/Core/Src/"{pca9685.c,car.c} "$SRC_DIR/"
-cp "$SCRIPT_DIR/../../../../src/threadx/SennaTech/Core/Inc/"{pca9685.h,car.h,i2c_hal.h,sleep_hal.h} "$SRC_DIR/"
+cp "$SCRIPT_DIR/../../../../src/threadx/SennaTech/Core/Src/i2c/pca9685.c" "$SRC_DIR/"
+cp "$SCRIPT_DIR/../../../../src/threadx/SennaTech/Core/Src/car/car.c" "$SRC_DIR/"
+cp "$SCRIPT_DIR/../../../../src/threadx/SennaTech/Core/Inc/i2c/pca9685.h" "$SRC_DIR/"
+cp "$SCRIPT_DIR/../../../../src/threadx/SennaTech/Core/Inc/car/car.h" "$SRC_DIR/"
+cp "$SCRIPT_DIR/../../../../src/threadx/SennaTech/Core/Inc/i2c/i2c_hal.h" "$SRC_DIR/"
+cp "$SCRIPT_DIR/../../../../src/threadx/SennaTech/Core/Inc/utils/sleep_hal.h" "$SRC_DIR/"
 
 echo -e "${GREEN}ThreadX project files successfully copied. Ready to start unit test!${NC}"
 

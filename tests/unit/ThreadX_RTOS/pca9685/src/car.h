@@ -2,6 +2,7 @@
 #define CAR_H
 
 #include "pca9685.h"
+#include <math.h>
 
 #define PWM_RESOLUTION 12
 #define PWM_MAX_RAW_VALUE ((1 << PWM_RESOLUTION) - 1)  
@@ -16,8 +17,12 @@
 #define PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_2 2
 #define PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM 0
 
-#define SERVO_RAW_MIN 205
-#define SERVO_RAW_MAX 410
+/* Full mechanical range (avoid - causes stall) */
+#define SERVO_RAW_MIN_MECH 205
+#define SERVO_RAW_MAX_MECH 410
+
+#define SERVO_RAW_MIN 215
+#define SERVO_RAW_MAX 400
 
 typedef struct
 {
@@ -29,9 +34,5 @@ void car_init(car_t *car, void *hi2c);
 void car_set_steering_percent(car_t *car, float percent);
 void car_set_throttle_percent(car_t *car, float percent, uint8_t brake);
 int  calculateRaw(float percent);
-
-float car_get_battery_voltage(car_t *car);
-float car_get_battery_current(car_t *car);
-float car_get_battery_power(car_t *car);
 
 #endif
