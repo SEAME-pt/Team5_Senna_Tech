@@ -45,6 +45,7 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    Core/Src/heartbeat.c
     Core/Src/can/can_manager.c
     Core/Src/can/mcp2515.c
     Core/Src/car/car.c
@@ -64,6 +65,11 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
     Core/Inc
+    Core/Inc/can
+    Core/Inc/car
+    Core/Inc/i2c
+    Core/Inc/pid
+    Core/Inc/utils
 )
 
 # Add project symbols (macros)
