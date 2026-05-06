@@ -1,0 +1,31 @@
+O que pode ser alterado para que possamos melhorar (ou piorar) o nosso pos processamento
+!! por padrão quero dizer que é o original do codigo funcional
+
+
+Alteracao de PID:
+- Linha 72 do main.py
+
+--------------------------------------------
+
+Em LFA/geometry/bev_transform.py 
+DEFAULT_SRC (é o trapezio)
+--------------------------------------------
+
+Em LFA/tracking/lane_identity_tracker.py:
+ema_alpha (padrão: 0.25)
+O que faz: confiança no frame atual vs. histórico.
+Como testar: um alpha de 0.1 deixa as linhas hiper-suaves (demora a reagir, bom para retas).
+Um alpha de 0.6 deixa as linhas mais "nervosas" (reage rápido, bom para pista sinuosa).
+
+swap_confirm_frames (padrão: 8):
+O que faz: Quantos frames o sistema espera antes de aceitar que o carro cruzou a faixa (Identity Swap).
+
+--------------------------------------------
+
+Em LFA/geometry/sliding_windows.py
+lane_width_px (padrão: 170.0)
+min_pixels (padrão: 20)
+y_eval = int(h * 0.75)
+O que isso faz: A imagem vista de cima (BEV) tem uma altura h (ex: 360 pixels).
+O ponto 0 é o topo da tela (o "horizonte" longe do carro) e 360 é a base da tela (o capô do carro).
+O valor h * 0.75 significa 75% da altura da tela (mais perto do capô do carro).
