@@ -15,6 +15,36 @@ static float get_throttle_current_normalized(void)
     return clamp_symmetric(speed_abs_kmh / 10.0f, 1.0f);
 }
 
+static float pidThrottleCalculation(pid_t *throttle_pid, float throttle_target, float dt)
+{
+    float current = get_throttle_current_normalized();
+    if (throttle_target < 0.0f)
+        current = -current;
+
+    float throttle_cmd = pid_update(throttle_pid, throttle_target, current, dt);
+
+    if (throttle_target == 0.0f)
+    {
+        pid_reset(throttle_pid);
+        throttle_cmd = 0.0f;
+    }
+
+    return throttle_cmd;
+}
+
+static float get_delta_time_seconds(ULONG *last_tick)
+{
+    ULONG now_tick = tx_time_get();
+    ULONG elapsed_ticks = now_tick - *last_tick;
+
+    if (elapsed_ticks == 0U)
+        return 0.0f;
+
+    *last_tick = now_tick;
+
+    return (float)elapsed_ticks / (float)TX_TIMER_TICKS_PER_SECOND;
+}
+
 float percent_from_can_int16(uint8_t low_byte, uint8_t high_byte)
 {
     // Intel (little endian)
@@ -29,19 +59,6 @@ float percent_from_can_int16(uint8_t low_byte, uint8_t high_byte)
     if (percent < -1.0f) percent = -1.0f;
 
     return percent;
-}
-
-static float get_delta_time_seconds(ULONG *last_tick)
-{
-    ULONG now_tick = tx_time_get();
-    ULONG elapsed_ticks = now_tick - *last_tick;
-
-    if (elapsed_ticks == 0U)
-        return 0.0f;
-
-    *last_tick = now_tick;
-
-    return (float)elapsed_ticks / (float)TX_TIMER_TICKS_PER_SECOND;
 }
 
 static float steering_update(float target, float current, float dt)
@@ -83,23 +100,6 @@ static float steering_update(float target, float current, float dt)
     return clamp_symmetric(current + delta * minor_alpha, 1.0f);
 }
 
-static float pidCalculation(pid_t *throttle_pid, float throttle_target, float dt)
-{
-    float current = get_throttle_current_normalized();
-    if (throttle_target < 0.0f)
-        current = -current;
-
-    float throttle_cmd = pid_update(throttle_pid, throttle_target, current, dt);
-
-    if (throttle_target == 0.0f)
-    {
-        pid_reset(throttle_pid);
-        throttle_cmd = 0.0f;
-    }
-
-    return throttle_cmd;
-}
-
 void motors_thread_entry(ULONG thread_input)
 {
     uart_send("Motor Thread Entry\r\n");
@@ -128,10 +128,12 @@ void motors_thread_entry(ULONG thread_input)
     {
         if (tx_queue_receive(&g_rx_data_queue, &frame, THROTTLE_PERIOD_TICKS) == TX_SUCCESS)
         {
-            if (frame.dlc < 2)
-                continue;
+            float percent = -1;
 
-            float percent = percent_from_can_int16(frame.data[0], frame.data[1]);
+            if (frame.dlc < 2)
+                percent = frame.data[0];
+            else
+                percent = percent_from_can_int16(frame.data[0], frame.data[1]);
 
             if (frame.id == CAN_ID_MODE)
             {
@@ -170,7 +172,24 @@ void motors_thread_entry(ULONG thread_input)
                 continue ;
             }
 
-            if (frame.id == CAN_ID_MOTOR_CMD && (mode == 1U || mode == 0U))
+            if (frame.id == CAN_ID_ESTOP)
+            {
+                if (percent == 1 || percent == 5)
+                {
+                    throttle_target = 0.0f;
+                    brake = 1;
+                }
+                else if (percent == 0)
+                {
+                    throttle_target = 0.07f;
+                    brake = 0;
+                }
+                uart_send("percentage is: ");
+                uart_send_int(percent);
+                uart_send("\r\n");
+                continue ;
+            }
+            if (frame.id == CAN_ID_MOTOR_CMD && (mode == 1U))
             {
                 throttle_target = percent;
                 continue ;
@@ -186,8 +205,8 @@ void motors_thread_entry(ULONG thread_input)
         if (dt <= 0.0f)
             continue ;
 
-        float throttle_cmd_percent = pidCalculation(&throttle_pid, throttle_target, dt);
-        car_set_throttle_percent(&car, throttle_cmd_percent, 0);
+        float throttle_cmd_percent = pidThrottleCalculation(&throttle_pid, throttle_target, dt);
+        car_set_throttle_percent(&car, throttle_cmd_percent, brake);
 
         // Steering: use dynamic update to remove straight-line noise and speed up curves
         steering_current = steering_update(steering_target, steering_current, dt);
