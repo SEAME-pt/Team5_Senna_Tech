@@ -64,6 +64,6 @@ void battery_thread_entry(ULONG thread_input)
 		if (tx_queue_send(&g_tx_data_queue, &batteryFrame, TX_NO_WAIT) != TX_SUCCESS)
 			//log_debug("TX queue cheia! Frame descartado.");
 
-		tx_thread_sleep(150);
+		tx_thread_sleep(600);
 	}
 }
