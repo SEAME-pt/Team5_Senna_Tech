@@ -20,6 +20,24 @@ float decode_can_percent(uint8_t low_byte, uint8_t high_byte)
     return percent;
 }
 
+e_car_mode get_car_mode(int16_t mode_cmd)
+{
+    if (mode_cmd == 0) {
+        uart_send("Switched to AUTO mode\r\n");
+        return MODE_AUTONOMOUS;
+    }
+    else if (mode_cmd == 1) {
+        uart_send("Switched to MANUAL mode\r\n");
+        return MODE_MANUAL;
+    }
+    else if (mode_cmd == 2) {
+        uart_send("Switched to DEBUG mode\r\n");
+        return MODE_DEBUG;
+    }
+
+    return MODE_MANUAL; // default
+}
+
 void motors_thread_entry(ULONG thread_input)
 {
     uart_send("Motor Thread Entry\r\n");
@@ -38,8 +56,8 @@ void motors_thread_entry(ULONG thread_input)
     float steering_target = 0.0f; // normalized [-1, 1]
 
     ULONG last_tick = tx_time_get();
-
-    UINT mode = 1U; // 0 = autonomous, 1 = manual, 2 = debug
+    
+    e_car_mode mode = MODE_MANUAL;
     uint8_t brake = 0;
 
     float percent;
@@ -57,22 +75,19 @@ void motors_thread_entry(ULONG thread_input)
             {
                 int16_t mode_cmd = (int16_t)(((uint16_t)frame.data[1] << 8) | frame.data[0]);
 
+                mode = get_car_mode(mode_cmd, throttle_pid);
+                pid_reset(&throttle_pid);
+
                 if (mode_cmd == 0) {
-                    uart_send("Switched to AUTO mode\r\n");
-                    mode = 0;
-                    pid_reset(&throttle_pid);
+                    mode = MODE_AUTONOMOUS;
                     last_tick = tx_time_get();
                 }
                 else if (mode_cmd == 1) {
-                    uart_send("Switched to MANUAL mode\r\n");
-                    mode = 1;
-                    pid_reset(&throttle_pid);
+                    mode = MODE_MANUAL;
                     throttle_target = 0.0f;
                 }
                 else if (mode_cmd == 2) {
-                    uart_send("Switched to DEBUG mode\r\n");
-                    mode = 2;
-                    pid_reset(&throttle_pid);
+                    mode = MODE_DEBUG;
                     throttle_target = 0.0f;
                 }
 
@@ -87,25 +102,35 @@ void motors_thread_entry(ULONG thread_input)
 
             if (frame.id == CAN_ID_AI_MOVEMENT)
             {
-                if (percent == 1 || percent == 5)
+                if (percent == 0 || percent == 1)
                 {
                     throttle_target = 0.0f;
                     brake = 1;
                 }
-                else if (percent == 0)
+                else if (percent == 2) //slow mode
                 {
-                    throttle_target = 0.07f;
+                    throttle_target = 0.05f;
+                    brake = 0;
+                }
+                else if (percent == 3) //medium mode
+                {
+                    throttle_target = 0.09f;
+                    brake = 0;
+                }
+                else if (percent == 4) //fast mode
+                {
+                    throttle_target = 0.19f;
                     brake = 0;
                 }
             }
-            if (frame.id == CAN_ID_MOTOR_CMD && (mode == 1U))
+            if (frame.id == CAN_ID_MOTOR_CMD && (mode == MODE_MANUAL))
             {
                 throttle_target = percent;
                 continue ;
             }
-            else if (frame.id == CAN_ID_MOTOR_CMD && mode == 2U)
+            else if (frame.id == CAN_ID_MOTOR_CMD && mode == MODE_DEBUG)
             {
-                throttle_target = 0.07f;
+                throttle_target = 0.03f;
                 continue ;
             }
         }

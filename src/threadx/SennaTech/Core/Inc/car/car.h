@@ -29,6 +29,12 @@ typedef struct
     PCA9685_t throttle;
 } car_t;
 
+typedef enum car_mode {
+    MODE_AUTONOMOUS = 0,
+    MODE_MANUAL = 1,
+    MODE_DEBUG = 2
+} e_car_mode;
+
 void car_init(car_t *car, void *hi2c);
 void car_set_steering_percent(car_t *car, float percent);
 void car_set_throttle_percent(car_t *car, float percent, uint8_t brake);
