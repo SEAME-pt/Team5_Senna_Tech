@@ -32,5 +32,5 @@ find "$SOURCE_ROOT" -type f \( \
     -name "sleep_hal.h" \
 \) -exec cp {} "$SRC_DIR/" \;
 
-echo -e "${GREEN}ThreadX project files successfully copied. Ready to start unit test!${NC}"
+echo -e "${GREEN}ThreadX project files successfully copied. Ready to start unit test!!${NC}"
 
