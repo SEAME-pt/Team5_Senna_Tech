@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eux
+set -e
 
 GREEN="\033[0;32m"
 NC="\033[0m"
@@ -10,27 +10,27 @@ EXPECTED_SUFFIX="tests/unit/ThreadX_RTOS/pca9685"
 
 if [[ "$SCRIPT_DIR" != *"$EXPECTED_SUFFIX" ]]; then
     echo "❌ Safety check failed!"
-    echo "This script must run inside tests/unit/ThreadX_RTOS/pca9685"
-    echo "Current path: $SCRIPT_DIR"
     exit 1
 fi
 
 SRC_DIR="$SCRIPT_DIR/src"
-INC_DIR="$SCRIPT_DIR/inc"
+SOURCE_ROOT="$SCRIPT_DIR/../../../../src/threadx/SennaTech"
 
 if [[ ! -d "$SRC_DIR" || "$SRC_DIR" == "/" ]]; then
     echo "❌ Invalid src directory"
     exit 1
 fi
 
-mkdir -p "$SRC_DIR"
-mkdir -p "$INC_DIR"
-
 rm -rf "$SRC_DIR"/*
-rm -rf "$INC_DIR"/*
 
-cp -rf "$SCRIPT_DIR/../../../../src/threadx/SennaTech/Core/Src/." "$SRC_DIR/"
-cp -rf "$SCRIPT_DIR/../../../../src/threadx/SennaTech/Core/Inc/." "$INC_DIR/"
+find "$SOURCE_ROOT" -type f \( \
+    -name "pca9685.c" -o \
+    -name "car.c" -o \
+    -name "pca9685.h" -o \
+    -name "car.h" -o \
+    -name "i2c_hal.h" -o \
+    -name "sleep_hal.h" \
+\) -exec cp {} "$SRC_DIR/" \;
 
 echo -e "${GREEN}ThreadX project files successfully copied. Ready to start unit test!${NC}"
 
