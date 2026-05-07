@@ -2,19 +2,9 @@
 #include "car.h"
 #include "pid.h"
 #include <inttypes.h>
+#include <math.h>
 
-static float get_throttle_current_normalized(void)
-{
-    float speed_abs_kmh;
-
-    tx_mutex_get(&g_speed_mutex, TX_WAIT_FOREVER);
-    speed_abs_kmh = speed_kmh;
-    tx_mutex_put(&g_speed_mutex);
-
-    return clamp_symmetric(speed_abs_kmh / 10.0f, 1.0f);
-}
-
-float percent_from_can_int16(uint8_t low_byte, uint8_t high_byte)
+float decode_can_percent(uint8_t low_byte, uint8_t high_byte)
 {
     // Intel (little endian)
     uint16_t u_combined = ((uint16_t)high_byte << 8) | low_byte;
@@ -28,36 +18,6 @@ float percent_from_can_int16(uint8_t low_byte, uint8_t high_byte)
     if (percent < -1.0f) percent = -1.0f;
 
     return percent;
-}
-
-static float get_delta_time_seconds(ULONG *last_tick)
-{
-    ULONG now_tick = tx_time_get();
-    ULONG elapsed_ticks = now_tick - *last_tick;
-
-    if (elapsed_ticks == 0U)
-        return 0.0f;
-
-    *last_tick = now_tick;
-
-    return (float)elapsed_ticks / (float)TX_TIMER_TICKS_PER_SECOND;
-}
-
-static float pidCalculation(pid_t *throttle_pid, float throttle_target, float dt)
-{
-    float current = get_throttle_current_normalized();
-    if (throttle_target < 0.0f)
-        current = -current;
-
-    float throttle_cmd = pid_update(throttle_pid, throttle_target, current, dt);
-
-    if (throttle_target == 0.0f)
-    {
-        pid_reset(throttle_pid);
-        throttle_cmd = 0.0f;
-    }
-
-    return throttle_cmd;
 }
 
 void motors_thread_entry(ULONG thread_input)
@@ -75,19 +35,23 @@ void motors_thread_entry(ULONG thread_input)
     pid_set_output_limit(&throttle_pid, 1.0f);
 
     float throttle_target = 0.0f; // normalized [-1, 1]
+    float steering_target = 0.0f; // normalized [-1, 1]
+
     ULONG last_tick = tx_time_get();
 
     UINT mode = 1U; // 0 = autonomous, 1 = manual, 2 = debug
     uint8_t brake = 0;
+
+    float percent;
 
     while (1)
     {
         if (tx_queue_receive(&g_rx_data_queue, &frame, THROTTLE_PERIOD_TICKS) == TX_SUCCESS)
         {
             if (frame.dlc < 2)
-                continue;
-
-            float percent = percent_from_can_int16(frame.data[0], frame.data[1]);
+                percent = frame.data[0];
+            else
+                percent = decode_can_percent(frame.data[0], frame.data[1]);
 
             if (frame.id == CAN_ID_MODE)
             {
@@ -117,18 +81,31 @@ void motors_thread_entry(ULONG thread_input)
 
             if (frame.id == CAN_ID_STEER_CMD)
             {
-                car_set_steering_percent(&car, percent);
+                steering_target = percent;
                 continue ;
             }
 
-            if (frame.id == CAN_ID_MOTOR_CMD && (mode == 1U || mode == 0U))
+            if (frame.id == CAN_ID_AI_MOVEMENT)
+            {
+                if (percent == 1 || percent == 5)
+                {
+                    throttle_target = 0.0f;
+                    brake = 1;
+                }
+                else if (percent == 0)
+                {
+                    throttle_target = 0.07f;
+                    brake = 0;
+                }
+            }
+            if (frame.id == CAN_ID_MOTOR_CMD && (mode == 1U))
             {
                 throttle_target = percent;
                 continue ;
             }
             else if (frame.id == CAN_ID_MOTOR_CMD && mode == 2U)
             {
-                throttle_target = 0.09f;
+                throttle_target = 0.07f;
                 continue ;
             }
         }
@@ -137,7 +114,9 @@ void motors_thread_entry(ULONG thread_input)
         if (dt <= 0.0f)
             continue ;
 
-        float throttle_cmd_percent = pidCalculation(&throttle_pid, throttle_target, dt);
-        car_set_throttle_percent(&car, throttle_cmd_percent, 0);
+        float throttle_cmd_percent = pidThrottleCalculation(&throttle_pid, throttle_target, dt);
+        car_set_throttle_percent(&car, throttle_cmd_percent, brake);
+
+        car_set_steering_percent(&car, steering_target);
     }
 }
