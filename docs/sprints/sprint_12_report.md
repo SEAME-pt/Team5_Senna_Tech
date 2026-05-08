@@ -7,9 +7,9 @@
 |-----------------| ---------------------|
 | Hellom        | Documentation and study of the codebase |
 | Marcelo       | QT upgrade |
-| Jose          | Velocity Serpervisor maker |
+| Jose          | Velocity Serpervisor maker (MCU) |
 | Vinicius      | Optimiziation of object detection  |
-| Yasmine       | Velocity Serpervisor maker |
+| Yasmine       | Velocity Serpervisor maker (rasp) |
 
 ---
 
@@ -33,7 +33,8 @@ of obejct detection codebase. **Jose:** MCU codebase review & refactor |
 | **30/04** | **Vini & jose:** Preparation of the meeting and planings discussion |
 | **04/05** | **Hellom:** Code study and documentation. **Vini:** Servo study and inicialization script of the program. **jose:** Velocity maker on the MCU |
 | **05/05** | **Hellom:** Code study and documentation. **Vini:** Object detection optimization. **Yasmine:** Imaginary line optimization. **Jose:** Velocity modes and finalization of code structure |
-| **07/05** | **Hellom:** Code study and documentation. **Vini:** Object detection. 
+| **07/05** | **Hellom:** Code study and documentation. **Vini:** Object detection. **Yasmine:** Imaginary line optimization and canvas apresentation for restrospective. **Jose:** Final pull requests and signal traffic tests. |
+| **08/05** | Discussion of the current sprint and some ideas for the next sprint |
 
 
 
