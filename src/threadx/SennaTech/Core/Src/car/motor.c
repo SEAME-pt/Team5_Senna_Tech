@@ -51,7 +51,7 @@ static float switch_trottle_mode(float percent, uint8_t *brake)
         case 4:
             uart_send("Full speed\r\n");
             *brake = 0;
-            return 0.12f;
+            return 0.11f;
         default:
             return 0.0f;
     }
@@ -122,18 +122,15 @@ void motors_thread_entry(ULONG thread_input)
                 continue ;
             }
     
-            if (frame.id == CAN_ID_AI_MOVEMENT) {
+            if (frame.id == CAN_ID_AI_MOVEMENT)
+
                 throttle_target = switch_trottle_mode(percent, &brake);
-                continue ;
-            }
-            else if (frame.id == CAN_ID_MOTOR_CMD && (mode == MODE_MANUAL)) {
+            else if (frame.id == CAN_ID_MOTOR_CMD && (mode == MODE_MANUAL))
                 throttle_target = percent;
-                continue ;
-            }
-            else if (frame.id == CAN_ID_MOTOR_CMD && mode == MODE_DEBUG) {
+
+            else if (frame.id == CAN_ID_MOTOR_CMD && mode == MODE_DEBUG)
                 throttle_target = 0.07f;
-                continue ;
-            }
+
             continue ;
         }
 
