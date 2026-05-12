@@ -32,7 +32,7 @@ from LFA.geometry.bev_transform import BEVTransform
 from LFA.geometry.sliding_windows import SlidingWindowsLaneFitter
 from LFA.visualization.lane_visualiser import draw_lane_overlay, draw_text_overlay
 from object.perception_objects import EnvironmentState, Detection, ClassID
-from decision.decision_fsm import VehicleFSM
+from decision.decision_fsm import VehicleFSM 
 from object.corridor_check import CorridorChecker
 from kuksa_publish.kuksa_publish import KuksaClient
 
@@ -49,7 +49,7 @@ except ImportError:
         def send_fsm_state(self, *args): pass
         def close(self): pass
 
-CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 30 #640x360
+CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 60 #640x360
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
 
 
@@ -81,8 +81,8 @@ def main():
     #   Ki = ganho integral     (corrige erros acumulados ao longo do tempo)
     #   Kd = ganho derivativo   (suaviza oscilações prevendo a tendência do erro)
     #  !!! (kp, ki, kd) alterar aqui
-    pid = PID(0.9, 0.2, 0.6)
-    can = CanSender(channel="can0") #CanSender()
+    pid = PID(1.2, 0.4, 0.35)
+    can = CanSender(channel="can0")#CanSender()
     bev = BEVTransform(CAM_WIDTH, CAM_HEIGHT)
     fitter = SlidingWindowsLaneFitter(cam_height=CAM_HEIGHT)
     kuksa_channel = KuksaClient()
@@ -100,7 +100,7 @@ def main():
             cam_cmd = [
                 "rpicam-vid", "-t", "0", "--codec", "yuv420",
                 "--width", str(CAM_WIDTH), "--height", str(CAM_HEIGHT),
-                "--framerate", str(CAM_FPS), "--mode", "640:360:8:P", #"2304:1296:8:P"
+                "--framerate", str(CAM_FPS), "--mode", "2304:1296:12:P",
                 "--vflip", "--hflip", "-o", "-", "--nopreview"
             ]
 
@@ -125,7 +125,7 @@ def main():
             last_valid_pid = 0.0
             last_valid_cte = 0.0
             last_valid_state = 0
-            can.send_fsm_state(0x001, 2)
+            can.send_fsm_state(0x001, 0)
 
             try:
                 while True:
@@ -153,12 +153,10 @@ def main():
                     # RUN LANE MODEL 
                     outputs_lane = engine_lane.infer(bgr)
 
-                    inf_lane_ms = (time.perf_counter() - t0) * 1000 # GET TIME TO RUN BOTH INFERENCES
-                    t0 = time.perf_counter() # START FPS COUNT
-                    
                     # RUN OBJECT MODEL
                     outputs_obj = engine_obj.infer(bgr)
-                    inf_obj_ms = (time.perf_counter() - t0) * 1000 # GET TIME TO RUN BOTH INFERENCES
+
+                    inf_ms = (time.perf_counter() - t0) * 1000 # GET TIME TO RUN BOTH INFERENCES
 
                     # ======================
                     # LANE PIPELINE POST PROCESS
@@ -203,7 +201,7 @@ def main():
                         # Se for um carro ou obstáculo E estiver no corredor, marca via como bloqueada
                         if in_corridor and cid in (ClassID.CAR, ClassID.OBSTACLE):
                             env_state.corridor_clear = False
-
+                            
                     bgr = detector.draw(bgr, detections)
                     
                     t_post = (time.perf_counter() - t0) * 1000
@@ -222,6 +220,7 @@ def main():
                     current_state = fsm.process(env_state)
 
                     frame_count += 1
+                    fps = frame_count / (time.perf_counter() - t_start)
 
                     current_time = time.perf_counter()
                     dt = current_time - last_time
@@ -231,21 +230,25 @@ def main():
                     # PID CONTROL 
                     # ======================
                     cte = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0
-                    pid_return = pid.update(0.0, cte, dt)
-                    pid_return = round(pid_return, 2)
+                    #pid_return = pid.update(0.0, cte, dt)
+
+
+                    t_decision = (time.perf_counter() - t0) * 1000
 
                     if not args.virtual:
-                        # if abs(last_valid_pid - pid_return) <= 0.5:
-                        can.send_steering_percent(0x110, pid_return * (-1))
+                        diff = abs(last_valid_cte - cte)
+
+                        if diff <= 0.5:
+                            can.send_steering_percent(0x110, cte)
+                        
+                    print("MODE: ")
+                    print(current_state.value)
                     if current_state.value != last_valid_state:
                         can.send_fsm_state(0x001, current_state.value)
                         last_valid_state = current_state.value
-                    print("NEW MODE: ")
-                    print(current_state.value)
-                    last_valid_pid = pid_return
-                    t_decision = (time.perf_counter() - t0) * 1000
 
-                    fps = frame_count / (time.perf_counter() - t_start)
+                    last_valid_cte = cte
+
                     t0 = time.perf_counter()
                     if not args.no_display:
                         res = draw_lane_overlay(bgr, fit_result, bev)
@@ -261,16 +264,15 @@ def main():
                             display.stdin.flush()
 
                     t_display = (time.perf_counter() - t0) * 1000
-                    #print(
-                    #    f"FPS: {fps:.1f} | "
-                    #    f"Cam: {t_camera:.1f}ms | "
-                    #    f"Lane model: {inf_lane_ms:.1f}ms | "
-                    #    f"Obj model: {inf_obj_ms:.1f}ms | "
-                    #    f"Post: {t_post:.1f}ms | "
-                    #    f"Kuksa: {t_kuksa:.1f}ms | "
-                    #    f"Decision: {t_decision:.1f}ms | "
-                    #    f"Display: {t_display:.1f}ms | "
-                    #)
+                    print(
+                        f"FPS: {fps:.1f} | "
+                        f"Cam: {t_camera:.1f}ms | "
+                        f"Infer: {inf_ms:.1f}ms | "
+                        f"Post: {t_post:.1f}ms | "
+                        f"Kuksa: {t_kuksa:.1f}ms | "
+                        f"Decision: {t_decision:.1f}ms | "
+                        f"Display: {t_display:.1f}ms | "
+                    )
 
             except KeyboardInterrupt:
                 print("\nShutting down...")

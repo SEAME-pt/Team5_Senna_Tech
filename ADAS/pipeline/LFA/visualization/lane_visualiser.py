@@ -54,10 +54,10 @@ def draw_lane_overlay(frame_bgr, fit_result, bev):
 
     return result
 
-def draw_text_overlay(frame, fit_result, model_name=None, fps=None, inf_ms=None):
+def draw_text_overlay(frame, fit_result, fps=None, inf_ms=None):
     h, w = frame.shape[:2]
     result = frame 
-
+    '''
     def put(txt, pos, color, scale=1.2, thick=2):
         cv2.putText(result, txt, pos, cv2.FONT_HERSHEY_SIMPLEX, scale, color, thick)
 
@@ -91,9 +91,8 @@ def draw_text_overlay(frame, fit_result, model_name=None, fps=None, inf_ms=None)
     if cte_val is not None:
         dx = int(bm - cte_val * 100)
         cv2.circle(result, (np.clip(dx, bm-100, bm+100), 70), 7, color, -1)
+    '''
 
-    if model_name: put(model_name, (w - 250, 30), (200, 200, 200), scale=0.5, thick=1)
-    
     label = ""
     if inf_ms is not None: label += f"Hailo: {inf_ms:.1f}ms  "
     if fps is not None: label += f"FPS: {fps:.1f}"
