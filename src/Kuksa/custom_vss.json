@@ -8,6 +8,26 @@
         "type": "sensor",
         "description": "Vehicle movement status"
       },
+      "ADAS": {
+        "type": "branch",
+        "description": "ADAS traffic signals from object detection",
+        "children": {
+          "TrafficSign": {
+            "datatype": "uint8",
+            "type": "sensor",
+            "description": "Detected traffic sign type enum",
+            "min": 0,
+            "max": 255
+          },
+          "SpeedLimitSign": {
+            "datatype": "uint8",
+            "type": "sensor",
+            "description": "Detected speed limit sign enum",
+            "min": 0,
+            "max": 255
+          }
+        }
+      },
       "Speed": {
         "datatype": "float",
         "type": "sensor",
