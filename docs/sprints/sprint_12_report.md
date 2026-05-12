@@ -1,4 +1,4 @@
-# 🚀 Sprint [Number] Report – Team5: Senna Tech
+# 🚀 Sprint 12 Report – Team5: Senna Tech
 
 **Duration:** [27/04/2026] → [08/05/2025]
 **Sprint Goal:** Lane and object detection integration
