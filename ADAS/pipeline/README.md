@@ -110,7 +110,7 @@ Technically, the file:
 - Provides a close() method to safely terminate the gRPC connection.
 ---
 
-## 🔄 **6. The Orchestrator (main.py)**
+## 🔄 **7. The Orchestrator (main.py)**
 
 The `main.py` script ties all modules together into a continuous data flow. It handles CLI arguments (camera vs. image mode, thresholds, display options) and executes the main while loop.
 
