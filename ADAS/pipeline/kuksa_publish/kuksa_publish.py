@@ -2,7 +2,7 @@ from kuksa.val.v1 import val_pb2 as val_v1
 from kuksa.val.v1 import types_pb2 as types_v1
 from kuksa.val.v1 import val_pb2_grpc as val_grpc_v1
 import grpc
-from object.perception_objects import Detection
+from object.perception_objects import Detection, ClassID
 
 class KuksaClient:
     def __init__(self, address="localhost:55555"):
@@ -13,9 +13,9 @@ class KuksaClient:
     # Speed Signal Mappins
     # ---------------------------
     def detect_speed_signal(self, id):
-        if id == 0:
+        if id == ClassID.SIGN_50:
             return 11
-        elif id == 1:
+        elif id == ClassID.SIGN_80:
             return 12
         return 10
 
@@ -24,13 +24,13 @@ class KuksaClient:
     # ---------------------------
     def detect_traffic_signal(self, id):
         mapping = {
-            3: 3,
-            4: 1,
-            5: 4,
-            7: 2,
-            9: 7,
-            11: 5,
-            12: 6
+            ClassID.CROSSWALK_SIGN: 3,
+            ClassID.STOP_SIGN: 1,
+            ClassID.YIELD_SIGN: 4,
+            ClassID.DANGER_SIGN: 2,
+            ClassID.LIGHT_GREEN: 7,
+            ClassID.LIGHT_RED: 5,
+            ClassID.LIGHT_YELLOW: 6
         }
         return mapping.get(id, 0)
 
