@@ -3,6 +3,7 @@ import time
 from enum import Enum
 from collections import deque
 from object.perception_objects import EnvironmentState, ClassID
+from decision.decision_fsm import VehicleFSM, State
 
 # Logger para debug de transições
 log = logging.getLogger("FSM")
@@ -49,6 +50,7 @@ class Thresholds:
     AREA_SIGN = 0.004
     AREA_TRAFFIC_LIGHT = 0.004
     AREA_CAR = 0.004
+    AREA_FOLLOW = 0.02
 
 
 class VehicleFSM:
@@ -88,6 +90,20 @@ class VehicleFSM:
                 )
 
                 self._reset_buffers()
+
+            return self.state
+
+        # ─────────────────────────────
+        # FOLLOW
+        # ─────────────────────────────
+        if self.state == State.FOLLOW:
+
+            if not cond["follow"]:
+
+                self._transition(
+                    State.SPEED_50,
+                    "Lead car gone"
+                )
 
             return self.state
 
@@ -208,7 +224,7 @@ class VehicleFSM:
         elif cond["follow"]:
             self._transition(
                 State.FOLLOW,
-                "Following lead car"
+                "Following vehicle"
             )
 
         return self.state
@@ -269,7 +285,7 @@ class VehicleFSM:
             if (d.in_corridor):
                 if (d.relative_area >= Thresholds.AREA_EMERGENCY and d.class_id == ClassID.OBSTACLE):
                     cond["emergency"] = True
-                if (d.relative_area >= Thresholds.AREA_FOLLOW):
+                if (d.relative_area >= Thresholds.AREA_FOLLOW and d.class_id == ClassID.CAR):
                     cond["follow"] = True
         # ─────────────────────────────
         # Crosswalk geometry

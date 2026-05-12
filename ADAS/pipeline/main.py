@@ -45,7 +45,7 @@ except ImportError:
         def __init__(self, *args): pass
         def update(self, _, cte, dt): return cte * 0.5
     class CanSender:
-        def send_steering_percent(self, *args): pass
+        def send_can_percent(self, *args): pass
         def send_fsm_state(self, *args): pass
         def close(self): pass
 
@@ -203,12 +203,12 @@ def main():
                         # Detects either car or obstacle in corridor
                         if in_corridor and cid == ClassID.OBSTACLE:
                             env_state.corridor_clear = False
-                        else if (in_corridor and cid == ClassID.CAR):
-                            env_state.lead_car_detected = True
 
-                        # keep closest car
-                        if rel_area > env_state.lead_car_area:
-                           env_state.lead_car_area = rel_area
+                        elif in_corridor and cid == ClassID.CAR:
+                            env_state.lead_car_detected = True
+                            # keep closest car
+                            if rel_area > env_state.lead_car_area:
+                            env_state.lead_car_area = rel_area
 
                     bgr = detector.draw(bgr, detections)
                     
@@ -242,10 +242,17 @@ def main():
 
                     if not args.virtual:
                         # if abs(last_valid_pid - pid_return) <= 0.5:
-                        can.send_steering_percent(0x110, pid_return * (-1))
-                    if current_state.value != last_valid_state:
+                        can.send_can_percent(0x110, pid_return * (-1))
+
+                    if current_state == State.FOLLOW:
+                        throttle_cte = compute_follow_error(env_state.lead_car_area)
+                        can.send_can_percent(0x100, throttle_cte)
+
+                    elif current_state.value != last_valid_state:
                         can.send_fsm_state(0x001, current_state.value)
                         last_valid_state = current_state.value
+                        
+
                     print("NEW MODE: ")
                     print(current_state.value)
                     last_valid_pid = pid_return
