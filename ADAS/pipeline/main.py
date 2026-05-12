@@ -200,9 +200,15 @@ def main():
                         d = Detection(class_id=cid, in_corridor=in_corridor, relative_area=rel_area)
                         env_state.detections.append(d)
                         
-                        # Se for um carro ou obstáculo E estiver no corredor, marca via como bloqueada
-                        if in_corridor and cid in (ClassID.CAR, ClassID.OBSTACLE):
+                        # Detects either car or obstacle in corridor
+                        if in_corridor and cid == ClassID.OBSTACLE:
                             env_state.corridor_clear = False
+                        else if (in_corridor and cid == ClassID.CAR):
+                            env_state.lead_car_detected = True
+
+                        # keep closest car
+                        if rel_area > env_state.lead_car_area:
+                           env_state.lead_car_area = rel_area
 
                     bgr = detector.draw(bgr, detections)
                     

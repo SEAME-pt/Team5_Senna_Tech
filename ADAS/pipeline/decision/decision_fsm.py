@@ -46,10 +46,9 @@ class ConfirmationBuffer:
 
 class Thresholds:
     AREA_EMERGENCY = 0.05
-    AREA_SLOW = 0.08
-    AREA_FOLLOW = 0.02
     AREA_SIGN = 0.004
     AREA_TRAFFIC_LIGHT = 0.004
+    AREA_CAR = 0.004
 
 
 class VehicleFSM:
@@ -206,6 +205,12 @@ class VehicleFSM:
                 "Speed 80"
             )
 
+        elif cond["follow"]:
+            self._transition(
+                State.FOLLOW,
+                "Following lead car"
+            )
+
         return self.state
 
     def _evaluate_environment(
@@ -261,19 +266,11 @@ class VehicleFSM:
             # Obstáculos no corredor
             # ─────────────────────────
 
-            if (
-                d.in_corridor
-                and d.class_id in (
-                    ClassID.CAR,
-                    ClassID.OBSTACLE
-                )
-            ):
-                if (
-                    d.relative_area
-                    >= Thresholds.AREA_EMERGENCY
-                ):
+            if (d.in_corridor):
+                if (d.relative_area >= Thresholds.AREA_EMERGENCY and d.class_id == ClassID.OBSTACLE):
                     cond["emergency"] = True
-
+                if (d.relative_area >= Thresholds.AREA_FOLLOW):
+                    cond["follow"] = True
         # ─────────────────────────────
         # Crosswalk geometry
         # ─────────────────────────────
