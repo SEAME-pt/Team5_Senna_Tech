@@ -1,114 +1,314 @@
 import logging
-from enum import Enum, auto
+import time
+from enum import Enum
 from collections import deque
-from dataclasses import dataclass
-from ..object.perception_objects import EnvironmentState, ClassID
+from object.perception_objects import EnvironmentState, ClassID
 
+# Logger para debug de transições
 log = logging.getLogger("FSM")
 
-class State(Enum):
-    FREE = 0
-    FOLLOW = 1
-    SLOW = 2
-    STOP = 3
-    EMERGENCY = 4
 
-@dataclass
-class MotorIntent:
-    target_speed_pct: float  # -1.0 (100% Reverse) a 1.0 (100% Forward)
-    estop_trigger: bool = False
+# Os estados vão ser enviados diretamente pelo valor para o CAN
+class State(Enum):
+    EMERGENCY = 0
+    STOP = 1
+    SPEED_SLOW = 2
+    SPEED_50 = 3
+    SPEED_80 = 4
+    FOLLOW = 5
+
+
+class StopReason(Enum):
+    NONE = 0
+    RED_LIGHT = 1
+    STOP_SIGN = 2
+
 
 class ConfirmationBuffer:
     def __init__(self, size: int):
         self._buf = deque(maxlen=size)
         self._size = size
+
     def update(self, condition: bool) -> bool:
-        if condition: self._buf.append(condition)
-        else: self.reset()
-        return len(self._buf) == self._size and all(self._buf)
-    def reset(self): self._buf.clear()
+        if condition:
+            self._buf.append(True)
+        else:
+            self.reset()
+
+        return (
+            len(self._buf) == self._size
+            and all(self._buf)
+        )
+
+    def reset(self):
+        self._buf.clear()
+
 
 class Thresholds:
-    AREA_EMERGENCY = 0.20
-    AREA_SLOW      = 0.08
-    AREA_FOLLOW    = 0.02
-    
-    SPEED_FREE   = 0.80  # 80% Throttle
-    SPEED_FOLLOW = 0.40  # 40% Throttle
-    SPEED_SLOW   = 0.25  # 25% Throttle
-    SPEED_STOP   = 0.00  # Coast/Brake
+    AREA_EMERGENCY = 0.05
+    AREA_SLOW = 0.08
+    AREA_FOLLOW = 0.02
+    AREA_SIGN = 0.004
+    AREA_TRAFFIC_LIGHT = 0.004
+
 
 class VehicleFSM:
     def __init__(self):
-        self.state = State.FREE
-        self._buf_emergency = ConfirmationBuffer(2)
-        self._buf_stop      = ConfirmationBuffer(5)
-        self._buf_slow      = ConfirmationBuffer(4)
-        self._buf_clear     = ConfirmationBuffer(15)
+        self.state = State.SPEED_50
 
-    def process(self, env: EnvironmentState) -> tuple[State, MotorIntent]:
-        """A FSM avalia o estado do mundo e devolve (NovoEstado, IntençõesDeMotor)"""
+        # motivo do STOP
+        self.stop_reason = StopReason.NONE
+
+        # timestamp usado para STOP_SIGN
+        self.stop_timestamp = None
+        self.stop_sign_ignore_until = 0
+        self.STOP_SIGN_COOLDOWN = 5
+
+        # buffers de confirmação
+        self._buf_emergency = ConfirmationBuffer(1)
+        self._buf_stop_red = ConfirmationBuffer(2)
+        self._buf_stop_sign = ConfirmationBuffer(2)
+        self._buf_slow = ConfirmationBuffer(2)
+        self._buf_speed_50 = ConfirmationBuffer(2)
+        self._buf_speed_80 = ConfirmationBuffer(2)
+        self._buf_clear = ConfirmationBuffer(15)
+
+    def process(self, env: EnvironmentState) -> State:
+
         cond = self._evaluate_environment(env)
-        
-        # ── EMERGENCY (Latching) ──
+
+        # ─────────────────────────────
+        # EMERGENCY (latching)
+        # ─────────────────────────────
         if self.state == State.EMERGENCY:
+
             if self._buf_clear.update(env.corridor_clear):
-                self._transition(State.FREE, "Corridor finally clear")
-            else:
-                return self.state, MotorIntent(target_speed_pct=0.0, estop_trigger=True)
+                self._transition(
+                    State.SPEED_50,
+                    "Corridor clear"
+                )
 
-        # ── Transições Normais ──
+                self._reset_buffers()
+
+            return self.state
+
+        # ─────────────────────────────
+        # STOP logic
+        # ─────────────────────────────
+        if self.state == State.STOP:
+
+            # STOP causado por semáforo vermelho
+            if self.stop_reason == StopReason.RED_LIGHT:
+
+                if cond["green_light"]:
+                    self._transition(
+                        State.SPEED_50,
+                        "Green light detected"
+                    )
+
+                    self.stop_reason = StopReason.NONE
+                    self.stop_timestamp = None
+
+                    self._reset_buffers()
+
+                return self.state
+
+            # STOP causado por placa STOP
+            elif self.stop_reason == StopReason.STOP_SIGN:
+
+                if (
+                    self.stop_timestamp is not None
+                    and time.time() - self.stop_timestamp >= 5
+                ):
+                    self._transition(
+                        State.SPEED_50,
+                        "5 seconds completed"
+                    )
+
+                    self.stop_reason = StopReason.NONE
+                    self.stop_timestamp = None
+
+                    # ignora novas STOP_SIGN por 5s
+                    self.stop_sign_ignore_until = (
+                        time.time() + self.STOP_SIGN_COOLDOWN
+                    )
+
+                    self._reset_buffers()
+
+                return self.state
+
+        # ─────────────────────────────
+        # NORMAL transitions
+        # ─────────────────────────────
+
+        # EMERGENCY
         if self._buf_emergency.update(cond["emergency"]):
-            self._transition(State.EMERGENCY, "Critical Obstacle!")
+
+            self._transition(
+                State.EMERGENCY,
+                "Critical obstacle"
+            )
+
             self._reset_buffers()
-            return self.state, MotorIntent(target_speed_pct=0.0, estop_trigger=True)
 
-        elif self._buf_stop.update(cond["stop"]):
-            self._transition(State.STOP, "Red Light / Stop Sign")
+            return self.state
+
+        # RED LIGHT
+        elif self._buf_stop_red.update(cond["stop_red"]):
+
+            self._transition(
+                State.STOP,
+                "Red light"
+            )
+
+            self.stop_reason = StopReason.RED_LIGHT
+            self.stop_timestamp = None
+
+            self._reset_buffers()
+
+        # STOP SIGN
+        elif (
+            time.time() >= self.stop_sign_ignore_until
+            and self._buf_stop_sign.update(cond["stop_sign"])
+        ):
+
+            self._transition(
+                State.STOP,
+                "Stop sign"
+            )
+
+            self.stop_reason = StopReason.STOP_SIGN
+            self.stop_timestamp = time.time()
+
+            self._reset_buffers()
+
+        # SLOW
         elif self._buf_slow.update(cond["slow"]):
-            self._transition(State.SLOW, "Hazard / Crosswalk ahead")
-        elif self._buf_clear.update(env.corridor_clear):
-            self._transition(State.FREE, "Path Clear")
 
-        return self.state, self._get_motor_intent()
+            self._transition(
+                State.SPEED_SLOW,
+                "Slow zone"
+            )
 
-    def _evaluate_environment(self, env: EnvironmentState) -> dict:
-        cond = {"emergency": False, "stop": False, "slow": False, "follow": False}
-        
+        # SPEED 50
+        elif self._buf_speed_50.update(cond["speed_50"]):
+
+            self._transition(
+                State.SPEED_50,
+                "Speed 50"
+            )
+
+        # SPEED 80
+        elif self._buf_speed_80.update(cond["speed_80"]):
+
+            self._transition(
+                State.SPEED_80,
+                "Speed 80"
+            )
+
+        return self.state
+
+    def _evaluate_environment(
+        self,
+        env: EnvironmentState
+    ) -> dict:
+
+        cond = {
+            "emergency": False,
+            "stop_red": False,
+            "stop_sign": False,
+            "green_light": False,
+            "slow": False,
+            "follow": False,
+            "speed_50": False,
+            "speed_80": False
+        }
+
         for d in env.detections:
-            if not d.in_corridor: continue
+
+            # ─────────────────────────
+            # Traffic lights / signs
+            # ─────────────────────────
+
+            print(
+                f"[DEBUG] class={d.class_id.name} "
+                f"(id={d.class_id.value}) | "
+                f"area={d.relative_area:.4f}"
+            )
             
-            if d.class_id in (ClassID.CAR, ClassID.OBSTACLE) and d.relative_area >= Thresholds.AREA_EMERGENCY:
-                cond["emergency"] = True
-            elif d.class_id in (ClassID.TRAFFIC_LIGHT_RED, ClassID.STOP_SIGN, ClassID.GATE):
-                cond["stop"] = True
-            elif d.class_id in (ClassID.TRAFFIC_LIGHT_YELLOW, ClassID.CROSSWALK_SIGN):
+            if d.class_id == ClassID.LIGHT_RED and d.relative_area > Thresholds.AREA_TRAFFIC_LIGHT:
+                cond["stop_red"] = True
+
+            elif d.class_id == ClassID.STOP_SIGN and d.relative_area > Thresholds.AREA_SIGN:
+                cond["stop_sign"] = True
+
+            elif d.class_id == ClassID.LIGHT_GREEN and d.relative_area > Thresholds.AREA_TRAFFIC_LIGHT:
+                cond["green_light"] = True
+
+            elif d.class_id in (
+                ClassID.LIGHT_YELLOW,
+                ClassID.CROSSWALK_SIGN
+            ):
                 cond["slow"] = True
-                
-        # Injectar a lógica da distância da passadeira (Vinda das Linhas!)
+
+            elif d.class_id == ClassID.SIGN_50 and d.relative_area > Thresholds.AREA_SIGN:
+                cond["speed_50"] = True
+
+            elif d.class_id == ClassID.SIGN_80 and d.relative_area > Thresholds.AREA_SIGN:
+                cond["speed_80"] = True
+
+            # ─────────────────────────
+            # Obstáculos no corredor
+            # ─────────────────────────
+
+            if (
+                d.in_corridor
+                and d.class_id in (
+                    ClassID.CAR,
+                    ClassID.OBSTACLE
+                )
+            ):
+                if (
+                    d.relative_area
+                    >= Thresholds.AREA_EMERGENCY
+                ):
+                    cond["emergency"] = True
+
+        # ─────────────────────────────
+        # Crosswalk geometry
+        # ─────────────────────────────
+
         if env.crosswalk_distance_m is not None:
+
             if env.crosswalk_distance_m < 3.0:
-                cond["stop"] = True  # Perto demais, parar.
+                cond["stop_sign"] = True
+
             elif env.crosswalk_distance_m < 10.0:
-                cond["slow"] = True  # Reduzir velocidade.
-                
+                cond["slow"] = True
+
         return cond
 
-    def _get_motor_intent(self) -> MotorIntent:
-        speed_map = {
-            State.FREE: Thresholds.SPEED_FREE,
-            State.FOLLOW: Thresholds.SPEED_FOLLOW,
-            State.SLOW: Thresholds.SPEED_SLOW,
-            State.STOP: Thresholds.SPEED_STOP,
-            State.EMERGENCY: 0.0
-        }
-        return MotorIntent(target_speed_pct=speed_map[self.state])
+    def _transition(
+        self,
+        new_state: State,
+        reason: str
+    ):
 
-    def _transition(self, new_state: State, reason: str):
         if self.state != new_state:
-            log.info(f"FSM Transition: {self.state.name} -> {new_state.name} [{reason}]")
+
+            log.info(
+                f"FSM Transition: "
+                f"{self.state.name} -> "
+                f"{new_state.name} "
+                f"[{reason}]"
+            )
+
             self.state = new_state
 
     def _reset_buffers(self):
-        self._buf_stop.reset()
+
+        self._buf_stop_red.reset()
+        self._buf_stop_sign.reset()
         self._buf_slow.reset()
+        self._buf_speed_50.reset()
+        self._buf_speed_80.reset()

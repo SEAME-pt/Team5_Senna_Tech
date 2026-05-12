@@ -16,12 +16,15 @@ pipeline/
 ├── post_processing/            # Neural Network tensor decoding
 │   ├── mask_filters.py         # Morphological filters (OpenCV)
 │   └── yolo_decoder.py         # YOLOv8/v11-seg decoder
+├─── kuksa_publish/             # Kuksa publish Logic
+│   └── kuksa_publish.py/       # Publish detected signals logic to kuksa databroker
 ├─── LFA/                       # Domain Logic: Lane Following Assist
 │   ├── geometry/               # BEV Transform and Sliding Windows
 │   ├── tracking/               # Short-term memory and smoothing
 │   └── visualization/          # HUD and telemetry rendering
 ├── object/                     #  Domain Logic: object detection
-│   └── object_detection.py     # State machine
+│   ├── ObjectDetector.py       # Object detection model post porocessing
+│   └── corritdor_check.py/     # Logic to calculate if a object is inside drivible area
 ├── decision/                   # Decision & control logic
 │   ├── PID_steering.py         # PID controller for steering
 │   └── decision_fsm.py         # State machine
@@ -46,6 +49,7 @@ This layer translates raw, multi-dimensional mathematical tensors outputted by t
 
 `mask_filters.py`: Applies morphological operations (OpenCV MORPH_CLOSE and MORPH_OPEN) to the raw neural network mask to remove noise, fill gaps in the lane lines, and smooth the edges.
 
+
 ## 📂 3. Feature Modules: LFA (modules/LFA/)
 
 This is the domain-specific layer. Everything here understands the physics and geometry of driving, roads, and lanes.
@@ -66,7 +70,18 @@ Acts as the system's short-term memory. It maintains an **Exponential Moving Ave
 ### `visualization/lane_visualiser.py`
 Handles all HUD (Heads-Up Display) overlays. Draws the lane polygon, unwarps it back to the camera perspective, and renders telemetry text (CTE, FPS, Curvature Direction, Hardware Stats) on the screen for debugging.
 
-## 📂 4. Decision & Utilities (decision/ & utils/)
+## 📂 4. Object Perception Modules (object/)
+
+### `corridor_check.py`
+- Checks whether detected objects are inside the driving corridor using the Birds-Eye-View (BEV) transformation.
+
+### `ObjectDetector.py`
+- Processes YOLO outputs to detect traffic signs, vehicles, obstacles, and traffic lights using decoding and NMS filtering.
+
+### `perception_objects.py`
+- Defines the perception data structures and enums used to represent detected objects and environment state.
+
+## 📂 5. Decision & Utilities (decision/ & utils/)
 
 ### `decision/PID_steering.py`
 Implements a Proportional-Integral-Derivative (PID) controller. It takes the `cte_norm` (error) from the LFA module and calculates the optimal steering correction.
@@ -77,9 +92,25 @@ Interfaces with the vehicle's physical CAN bus to send the calculated steering c
 ### `utils/hw_monitor.py`
 Monitors Raspberry Pi system health, reading CPU usage from `/proc/stat` and thermal data from `/sys/class/thermal`.
 
+
+## 📂 6. Kuksa_publish (kuksa_publish/)
+
+`kuksa_publish.py`: file is responsible for sending detected traffic and speed signs to the KUKSA Vehicle Signal Server (VSS) using gRPC communication.
+
+Technically, the file:
+
+- Creates a gRPC client connection with the KUKSA Data Broker.
+- Receives a list of detected objects (detections) from the perception system.
+- Selects the closest speed sign and traffic sign based on the largest relative_area detected in the image.
+- Maps internal detection IDs to VSS-compatible signal values using predefined mapping functions.
+- Builds a SetRequest message containing:
+- Vehicle.ADAS.SpeedLimitSign
+- Vehicle.ADAS.TrafficSign
+- Publishes these values to the vehicle data layer through the KUKSA VAL API.
+- Provides a close() method to safely terminate the gRPC connection.
 ---
 
-## 🔄 **5. The Orchestrator (main.py)**
+## 🔄 **6. The Orchestrator (main.py)**
 
 The `main.py` script ties all modules together into a continuous data flow. It handles CLI arguments (camera vs. image mode, thresholds, display options) and executes the main while loop.
 
