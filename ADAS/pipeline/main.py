@@ -35,6 +35,7 @@ from object.perception_objects import EnvironmentState, Detection, ClassID
 from decision.decision_fsm import VehicleFSM
 from object.corridor_check import CorridorChecker
 from kuksa_publish.kuksa_publish import KuksaClient
+from decision.adaptive_cruise import AdaptiveCruiseControl
 
 try:
     from decision.PID_steering import PID
@@ -88,6 +89,7 @@ def main():
     kuksa_channel = KuksaClient()
     checker = CorridorChecker(bev)
     fsm = VehicleFSM()
+    adaptive_cruise = AdaptiveCruiseControl()
 
     with VDevice() as target: # Get Hailo Device and define as 'target'
         with HailoEngine(lane_hef_path, target) as engine_lane, \
@@ -245,7 +247,7 @@ def main():
                         can.send_can_percent(0x110, pid_return * (-1))
 
                     if current_state == State.FOLLOW:
-                        throttle_cte = compute_follow_error(env_state.lead_car_area)
+                        throttle_cte = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
                         can.send_can_percent(0x100, throttle_cte)
 
                     elif current_state.value != last_valid_state:
