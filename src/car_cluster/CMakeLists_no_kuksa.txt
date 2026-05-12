@@ -1,4 +1,4 @@
-# PARA COMPILAR NO PC TEAM-5 UTILIZAR O COMANDO: cmake .. -DCMAKE_PREFIX_PATH=/home/team5/qt-everywhere-src-6.8.3/qt-host-build/qtbase/lib/cmake/Qt6/
+# To compile in PC Team 5 Use: cmake .. -DCMAKE_PREFIX_PATH=/home/team5/qt-everywhere-src-6.8.3/qt-host-build/qtbase/lib/cmake/Qt6/
 
 cmake_minimum_required(VERSION 3.16)
 
@@ -12,7 +12,7 @@ find_package(Qt6 REQUIRED COMPONENTS Quick QuickControls2 Core)
 
 
 # ---------------------------------------------------------
-# 5. EXECUTÁVEL
+# 5. EXECUTABLE
 # ---------------------------------------------------------
 qt_add_executable(appcar_cluster
     main.cpp
@@ -66,20 +66,20 @@ qt_add_qml_module(appcar_cluster
         assets/warnings/warning_temp_rising.png
 )
 
-# Incluir diretórios
+# INCLUDE DIRECTORIES
 target_include_directories(appcar_cluster PRIVATE 
     ${CMAKE_CURRENT_BINARY_DIR}
     /opt/qt-cross-build/include
 )
 
-# Propriedades
+# PROPERTIES
 set_target_properties(appcar_cluster PROPERTIES
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
 
 # ---------------------------------------------------------
-# 6. LINKAGEM (A parte importante)
+# 6. LINKING (MOST IMPORTANT STEP)
 # ---------------------------------------------------------
 # Pega TODAS as bibliotecas estáticas que compilamos e copiamos
 file(GLOB ALL_STATIC_LIBS "/opt/qt-cross-build/lib/*.a")
