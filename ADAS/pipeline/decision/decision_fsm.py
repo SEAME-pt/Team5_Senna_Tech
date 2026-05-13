@@ -3,7 +3,6 @@ import time
 from enum import Enum
 from collections import deque
 from object.perception_objects import EnvironmentState, ClassID
-from decision.decision_fsm import VehicleFSM, State
 
 # Logger para debug de transições
 log = logging.getLogger("FSM")

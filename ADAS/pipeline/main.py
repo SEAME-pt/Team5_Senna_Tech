@@ -36,6 +36,7 @@ from decision.decision_fsm import VehicleFSM
 from object.corridor_check import CorridorChecker
 from kuksa_publish.kuksa_publish import KuksaClient
 from decision.adaptive_cruise import AdaptiveCruiseControl
+from decision.decision_fsm import VehicleFSM, State
 
 try:
     from decision.PID_steering import PID
@@ -210,7 +211,7 @@ def main():
                             env_state.lead_car_detected = True
                             # keep closest car
                             if rel_area > env_state.lead_car_area:
-                            env_state.lead_car_area = rel_area
+                                env_state.lead_car_area = rel_area
 
                     bgr = detector.draw(bgr, detections)
                     
