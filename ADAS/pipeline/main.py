@@ -57,16 +57,16 @@ CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 60
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
 
 STATE_THROTTLE = {
-    State.EMERGENCY: 0, 
-    State.STOP: 2,
-    State.SPEED_SLOW: 5,
-    State.SPEED_50: 7,
-    State.SPEED_80: 9,
-    State.FOLLOW: 0, # Calculado dinamicamente pelo ACC
-    State.PREPARE_AVOID: 5, # Velocidade lenta durante desvio
-    State.AVOIDING: 5,      # Velocidade lenta durante desvio
-    State.BLIND_WAIT: 5,    # Velocidade lenta durante desvio
-    State.RETURNING: 5      # Velocidade lenta durante desvio
+    State.EMERGENCY:     200,
+    State.STOP:          0,
+    State.SPEED_SLOW:    5,
+    State.SPEED_50:      7,
+    State.SPEED_80:      9,
+    State.FOLLOW:        0,   # calculado pelo ACC
+    State.PREPARE_AVOID: 5,
+    State.AVOIDING:      5,
+    State.BLIND_WAIT:    5,
+    State.RETURNING:     5,
 }
 
 def main():
@@ -303,7 +303,9 @@ def main():
                     #print(current_state.value)
                     throttle = STATE_THROTTLE.get(current_state, 0)
                     if current_state == State.FOLLOW and hasattr(env_state, "lead_car_area"):
-                        throttle = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
+                        # ACC retorna float -1.0 a 1.0, converter para o range do MCU (* 100)
+                        acc_value = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
+                        throttle = int(acc_value * 100)
 
                     if not args.virtual:
                         can.send_can_percent(0x001, throttle)

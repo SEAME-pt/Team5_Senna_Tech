@@ -28,7 +28,7 @@ static e_car_mode get_car_mode(int16_t mode_cmd, ULONG *last_tick, float *thrott
     return MODE_MANUAL; // default
 }
 
-static float switch_trottle_mode(float percent, uint8_t *brake)
+/* static float switch_trottle_mode(float percent, uint8_t *brake)
 {
     switch ((int)percent)
     {
@@ -55,7 +55,7 @@ static float switch_trottle_mode(float percent, uint8_t *brake)
         default:
             return 0.0f;
     }
-}
+} */
 
 static float decode_can_percent(uint8_t low_byte, uint8_t high_byte, uint8_t *brake)
 {
@@ -64,12 +64,12 @@ static float decode_can_percent(uint8_t low_byte, uint8_t high_byte, uint8_t *br
 
     int16_t raw = (int16_t)u_combined;
 
-    float percent = raw * 0.01f;
-
-    if (percent == 2.0f)
+    if (raw == 2.0f)
         *brake = 1;
     else
         *brake = 0;
+
+    float percent = raw * 0.01f;
 
     // safety clamp
     if (percent > 1.0f)  percent = 1.0f;

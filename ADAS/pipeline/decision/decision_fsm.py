@@ -10,7 +10,7 @@ log = logging.getLogger("FSM")
 # Os estados vão ser enviados diretamente pelo valor para o CAN
 class State(Enum):
     EMERGENCY = 200
-    STOP = 200
+    STOP = 0
     SPEED_SLOW = 5
     SPEED_50 = 7
     SPEED_80 = 9
