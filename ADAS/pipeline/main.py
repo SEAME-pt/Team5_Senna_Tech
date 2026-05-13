@@ -53,6 +53,14 @@ except ImportError:
 CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 30 #640x360
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
 
+STATE_THROTTLE = {
+    State.STOP:       0.0,
+    State.EMERGENCY:  2.0,
+    State.SPEED_SLOW: 0.05,
+    State.SPEED_50:   0.07,
+    State.SPEED_80:   0.09,
+    State.FOLLOW:     None,  # ACC
+}
 
 def main():
     parser = argparse.ArgumentParser()
@@ -126,7 +134,7 @@ def main():
             last_time = t_start
             last_valid_pid = 0.0
             last_valid_state = 0
-            can.send_fsm_state(0x001, 2)
+            # can.send_fsm_state(0x001, 2)
 
             try:
                 while True:
@@ -210,7 +218,7 @@ def main():
                             env_state.lead_car_detected = True
                             if rel_area > env_state.lead_car_area:
                                 env_state.lead_car_area = rel_area
-                            print(f"[ACC] Car in corridor | area={rel_area:.4f} | follow threshold={0.02} | target_area={0.035}")
+                            print(f"[ACC] Car in corridor | area={rel_area:.4f} | follow threshold={0.018} | target_area={0.033}")
 
                     bgr = detector.draw(bgr, detections)
                     
@@ -242,18 +250,17 @@ def main():
                     pid_return = pid.update(0.0, cte, dt)
                     pid_return = round(pid_return, 2)
 
-                    if not args.virtual:
-                        # if abs(last_valid_pid - pid_return) <= 0.5:
-                        can.send_can_percent(0x110, pid_return * (-1))
-
+                    throttle = STATE_THROTTLE[current_state]
                     if current_state == State.FOLLOW:
-                        throttle_cte = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
-                        can.send_can_percent(0x100, throttle_cte)
+                        throttle = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
+
+                    if not args.virtual:
+                        can.send_can_percent(0x001, throttle)
+                        can.send_can_percent(0x110, pid_return * -1)
 
                     if current_state.value != last_valid_state:
-                        can.send_fsm_state(0x001, current_state.value)
                         last_valid_state = current_state.value
-                        print(f"NEW MODE: {current_state.name}")
+                        print(f"NEW MODE: {current_state.name} | throttle={throttle}")
 
                     last_valid_pid = pid_return
                     t_decision = (time.perf_counter() - t0) * 1000
