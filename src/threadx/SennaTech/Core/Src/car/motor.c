@@ -66,6 +66,9 @@ static float decode_can_percent(uint8_t low_byte, uint8_t high_byte)
 
     float percent = raw * 0.01f;
 
+    if (percent == 2.0f)
+        return 2.0f; // special value for brake
+
     // safety clamp
     if (percent > 1.0f)  percent = 1.0f;
     if (percent < -1.0f) percent = -1.0f;
@@ -123,8 +126,18 @@ void motors_thread_entry(ULONG thread_input)
             }
     
             if (frame.id == CAN_ID_AI_MOVEMENT)
-
-                throttle_target = switch_trottle_mode(percent, &brake);
+            {
+                steering_target = percent;
+                uart_send("Received AI movement command\r\n");
+                uart_send_int(percent);
+                uart_send("\r\n");
+                if (percent == 2.0f)
+                    brake = 1;
+                else
+                    brake = 0;
+                // throttle_target = switch_trottle_mode(percent, &brake);
+                continue ;
+            }
             else if (frame.id == CAN_ID_MOTOR_CMD && (mode == MODE_MANUAL))
                 throttle_target = percent;
 

@@ -33,3 +33,6 @@ class EnvironmentState:
     detections: List[Detection]
     corridor_clear: bool
     crosswalk_distance_m: Optional[float] = None
+    # ACC
+    lead_car_detected: bool = False
+    lead_car_area: float = 0.0

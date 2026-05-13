@@ -35,8 +35,11 @@ from object.perception_objects import EnvironmentState, Detection, ClassID, Obst
 from decision.decision_fsm import VehicleFSM, State, AVOIDANCE_STATES
 from decision.path_planner import PathPlanner
 from object.obstacle_tracker import ObstacleTracker
+from object.perception_objects import EnvironmentState, Detection, ClassID
 from object.corridor_check import CorridorChecker
 from kuksa_publish.kuksa_publish import KuksaClient
+from decision.adaptive_cruise import AdaptiveCruiseControl
+from decision.decision_fsm import VehicleFSM, State
 
 try:
     from decision.PID_steering import PID
@@ -47,12 +50,21 @@ except ImportError:
         def __init__(self, *args): pass
         def update(self, _, cte, dt): return cte * 0.5
     class CanSender:
-        def send_steering_percent(self, *args): pass
+        def send_can_percent(self, *args): pass
         def send_fsm_state(self, *args): pass
         def close(self): pass
 
 CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 60
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
+
+STATE_THROTTLE = {
+    State.STOP:       0.0,
+    State.EMERGENCY:  2.0,
+    State.SPEED_SLOW: 0.05,
+    State.SPEED_50:   0.07,
+    State.SPEED_80:   0.09,
+    State.FOLLOW:     None,  # ACC
+}
 
 def main():
     parser = argparse.ArgumentParser()
@@ -100,6 +112,7 @@ def main():
         frames_to_confirm    = 4,
         frame_width_bev      = CAM_WIDTH,
     )
+    adaptive_cruise = AdaptiveCruiseControl()
 
     with VDevice() as target: # Get Hailo Device and define as 'target'
         with HailoEngine(lane_hef_path, target) as engine_lane, \
@@ -135,9 +148,8 @@ def main():
             t_start = time.perf_counter()
             last_time = t_start
             last_valid_pid = 0.0
-            last_valid_cte = 0.0
             last_valid_state = 0
-            can.send_fsm_state(0x001, 2)
+            # can.send_fsm_state(0x001, 2)
 
             try:
                 while True:
@@ -212,9 +224,16 @@ def main():
                         d = Detection(class_id=cid, in_corridor=in_corridor, relative_area=rel_area)
                         env_state.detections.append(d)
                         
-                        # Se for um carro ou obstáculo E estiver no corredor, marca via como bloqueada
-                        if in_corridor and cid in (ClassID.CAR, ClassID.OBSTACLE):
+                        # Detects either car or obstacle in corridor
+                        if in_corridor and cid == ClassID.OBSTACLE:
                             env_state.corridor_clear = False
+
+                        # If car is detected in the corridor,start adaptive cruise control logic
+                        elif in_corridor and cid == ClassID.CAR:
+                            env_state.lead_car_detected = True
+                            if rel_area > env_state.lead_car_area:
+                                env_state.lead_car_area = rel_area
+                            print(f"[ACC] Car in corridor | area={rel_area:.4f} | follow threshold={0.018} | target_area={0.033}")
 
                     bgr = detector.draw(bgr, detections)
                     
@@ -304,6 +323,18 @@ def main():
 
                     #print("NEW MODE: ")
                     #print(current_state.value)
+                    throttle = STATE_THROTTLE[current_state]
+                    if current_state == State.FOLLOW:
+                        throttle = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
+
+                    if not args.virtual:
+                        can.send_can_percent(0x001, throttle)
+                        can.send_can_percent(0x110, pid_return * -1)
+
+                    if current_state.value != last_valid_state:
+                        last_valid_state = current_state.value
+                        print(f"NEW MODE: {current_state.name} | throttle={throttle}")
+
                     last_valid_pid = pid_return
                     t_decision = (time.perf_counter() - t0) * 1000
 

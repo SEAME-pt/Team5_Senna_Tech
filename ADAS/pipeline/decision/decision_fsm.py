@@ -54,12 +54,13 @@ class ConfirmationBuffer:
 
 class Thresholds:
     AREA_EMERGENCY = 0.05
-    AREA_SLOW = 0.08
-    AREA_FOLLOW = 0.02
     AREA_SIGN = 0.004
     AREA_TRAFFIC_LIGHT = 0.004
     AREA_AVOIDANCE = 0.015 # to initiate avoidance maneuver(PREPARE_AVOID)
     AREA_CRITICAL  = 0.15
+    AREA_CAR = 0.004
+    AREA_FOLLOW = 0.02
+
 
 class VehicleFSM:
     def __init__(self):
@@ -144,6 +145,20 @@ class VehicleFSM:
                 self._pre_avoidance_state = self.state
             self._transition(State.PREPARE_AVOID, "Obstáculo detetado à frente")
             self._reset_buffers()
+            return self.state
+
+        # ─────────────────────────────
+        # FOLLOW
+        # ─────────────────────────────
+        if self.state == State.FOLLOW:
+
+            if not cond["follow"]:
+
+                self._transition(
+                    State.SPEED_50,
+                    "Lead car gone"
+                )
+
             return self.state
 
         # ─────────────────────────────
@@ -275,6 +290,12 @@ class VehicleFSM:
                 self.frames_without_obstacle = 0
                 self._reset_buffers()
 
+        elif cond["follow"]:
+            self._transition(
+                State.FOLLOW,
+                "Following vehicle"
+            )
+
         return self.state
     
     def signal_blind_wait_timeout(self):
@@ -345,19 +366,11 @@ class VehicleFSM:
             # Obstáculos no corredor 
             # ─────────────────────────
 
-            if (
-                d.in_corridor
-                and d.class_id in (
-                    ClassID.CAR,
-                    ClassID.OBSTACLE
-                )
-            ):
-                if (
-                    d.relative_area
-                    >= Thresholds.AREA_EMERGENCY
-                ):
+            if (d.in_corridor):
+                if (d.relative_area >= Thresholds.AREA_EMERGENCY and d.class_id == ClassID.OBSTACLE):
                     cond["emergency"] = True
-
+                if (d.relative_area >= Thresholds.AREA_FOLLOW and d.class_id == ClassID.CAR):
+                    cond["follow"] = True
         # ─────────────────────────────
         # Crosswalk geometry
         # ─────────────────────────────
