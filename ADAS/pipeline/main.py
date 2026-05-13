@@ -31,11 +31,14 @@ from post_processing.mask_filters import MaskFilters
 from LFA.geometry.bev_transform import BEVTransform
 from LFA.geometry.sliding_windows import SlidingWindowsLaneFitter
 from LFA.visualization.lane_visualiser import draw_lane_overlay, draw_text_overlay
+from object.perception_objects import EnvironmentState, Detection, ClassID, ObstacleSituation
+from decision.decision_fsm import VehicleFSM, State, AVOIDANCE_STATES
+from decision.path_planner import PathPlanner
+from object.obstacle_tracker import ObstacleTracker
 from object.perception_objects import EnvironmentState, Detection, ClassID
 from object.corridor_check import CorridorChecker
 from kuksa_publish.kuksa_publish import KuksaClient
 from decision.adaptive_cruise import AdaptiveCruiseControl
-from decision.decision_fsm import VehicleFSM, State
 
 try:
     from decision.PID_steering import PID
@@ -50,16 +53,20 @@ except ImportError:
         def send_fsm_state(self, *args): pass
         def close(self): pass
 
-CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 30 #640x360
+CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 60
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
 
 STATE_THROTTLE = {
-    State.STOP:       0.0,
-    State.EMERGENCY:  2.0,
-    State.SPEED_SLOW: 0.05,
-    State.SPEED_50:   0.07,
-    State.SPEED_80:   0.09,
-    State.FOLLOW:     None,  # ACC
+    State.EMERGENCY: 0, 
+    State.STOP: 2,
+    State.SPEED_SLOW: 5,
+    State.SPEED_50: 7,
+    State.SPEED_80: 9,
+    State.FOLLOW: 0, # Calculado dinamicamente pelo ACC
+    State.PREPARE_AVOID: 5, # Velocidade lenta durante desvio
+    State.AVOIDING: 5,      # Velocidade lenta durante desvio
+    State.BLIND_WAIT: 5,    # Velocidade lenta durante desvio
+    State.RETURNING: 5      # Velocidade lenta durante desvio
 }
 
 def main():
@@ -97,6 +104,17 @@ def main():
     kuksa_channel = KuksaClient()
     checker = CorridorChecker(bev)
     fsm = VehicleFSM()
+    planner      = PathPlanner(
+        lane_offset       = 0.80,   # ~65 px em 170 px de faixa
+        blind_wait_time   = 2.5,    # segundos em BLIND_WAIT
+        return_duration_s = 1.5,    # duração da interpolação de retorno
+    )
+    obs_tracker  = ObstacleTracker(
+        area_brake_threshold = 0.060,
+        area_avoidance_min   = 0.010,
+        frames_to_confirm    = 4,
+        frame_width_bev      = CAM_WIDTH,
+    )
     adaptive_cruise = AdaptiveCruiseControl()
 
     with VDevice() as target: # Get Hailo Device and define as 'target'
@@ -110,8 +128,8 @@ def main():
             cam_cmd = [
                 "rpicam-vid", "-t", "0", "--codec", "yuv420",
                 "--width", str(CAM_WIDTH), "--height", str(CAM_HEIGHT),
-                "--framerate", str(CAM_FPS), "--mode", "640:360:8:P", #"2304:1296:8:P"
-                "--vflip", "--hflip", "-o", "-", "--nopreview"
+                "--framerate", str(CAM_FPS), "--mode", "2304:1296:8:P", #"2304:1296:8:P"
+                "--shutter", "5000", "--vflip", "--hflip", "-o", "-", "--nopreview"
             ]
 
             camera = subprocess.Popen(cam_cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -227,6 +245,19 @@ def main():
                     t0 = time.perf_counter()
                     kuksa_channel.send(env_state.detections)
                     t_kuksa = (time.perf_counter() - t0) * 1000
+
+                    # ===== OBSTACLE TRACKER ========
+                    obs_info = obs_tracker.update(detections)
+
+                    # ===== BLIND WAIT TIMER =======
+                    # Verificar timeout ANTES de chamar fsm.process()
+                    if fsm.state == State.BLIND_WAIT:
+                        if planner.check_blind_wait_timeout():
+                            fsm.signal_blind_wait_timeout()
+                            planner.reset_blind_timer()
+                    else:
+                        planner.reset_blind_timer()
+
                     # ======================
                     # FSM DECISION
                     # ======================
@@ -235,7 +266,15 @@ def main():
                     print("ENV STATE. DETECTIONS: \n")
                     print(env_state.detections) """
                     t0 = time.perf_counter()
-                    current_state = fsm.process(env_state)
+                    current_state = fsm.process(
+                        env_state,
+                        obstacle_situation = obs_info.situation,
+                        planner_return_complete = planner.return_complete(),
+                    )
+
+                    # Reset do tracker quando a manobra termina
+                    if current_state not in AVOIDANCE_STATES:
+                        obs_tracker.reset()
 
                     frame_count += 1
 
@@ -246,19 +285,31 @@ def main():
                     # ======================
                     # PID CONTROL 
                     # ======================
-                    cte = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0
-                    pid_return = pid.update(0.0, cte, dt)
+                    cte_actual = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0
+                    target_cte = planner.calculate_target_cte(
+                        current_state,
+                        obstacle_side = obs_info.side,
+                    )
+
+                    pid_return = pid.update(target_cte, cte_actual, dt)
                     pid_return = round(pid_return, 2)
 
-                    throttle = STATE_THROTTLE[current_state]
-                    if current_state == State.FOLLOW:
+                    #cte = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0
+                    #pid_return = pid.update(0.0, cte, dt)
+                    #pid_return = round(pid_return, 2)
+
+                    # ===== CAN ====
+                    #print("NEW MODE: ")
+                    #print(current_state.value)
+                    throttle = STATE_THROTTLE.get(current_state, 0)
+                    if current_state == State.FOLLOW and hasattr(env_state, "lead_car_area"):
                         throttle = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
 
                     if not args.virtual:
                         can.send_can_percent(0x001, throttle)
                         can.send_can_percent(0x110, pid_return * -1)
 
-                    if current_state.value != last_valid_state:
+                    if last_valid_state is None or current_state.value != last_valid_state:
                         last_valid_state = current_state.value
                         print(f"NEW MODE: {current_state.name} | throttle={throttle}")
 
@@ -267,6 +318,8 @@ def main():
 
                     fps = frame_count / (time.perf_counter() - t_start)
                     t0 = time.perf_counter()
+
+                    # ==== DISPLAY ====
                     if not args.no_display:
                         res = draw_lane_overlay(bgr, fit_result, bev)
                         display_frame = cv2.resize(res, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
