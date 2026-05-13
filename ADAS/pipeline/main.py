@@ -305,7 +305,7 @@ def main():
                     throttle = STATE_THROTTLE.get(current_state, 0)
                     if current_state == State.FOLLOW:
                         acc_value = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
-                        throttle = int(acc_value * 100)
+                        throttle = acc_value
 
                     if not args.virtual:
                         can.send_int16(0x001, throttle)

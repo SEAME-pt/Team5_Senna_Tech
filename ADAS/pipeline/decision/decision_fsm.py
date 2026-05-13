@@ -240,6 +240,13 @@ class VehicleFSM:
                 State.SPEED_80,
                 "Speed 80"
             )
+
+        elif self._buf_follow.update(cond["follow"]):
+            self._transition(
+                State.FOLLOW,
+                "Following vehicle"
+            )
+    
         return self.state
     
     def _handle_avoidance_sequence(
