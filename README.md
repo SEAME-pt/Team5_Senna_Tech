@@ -83,16 +83,16 @@ All documentation is kept inside the [docs/](docs/) folder.
 👥 Team
 | Name            | Responsibilities                                 |
 |-----------------|--------------------------------------------------|
-| Hellom          | Energy and Hardware                              |
-| Vinicius        | PID + Lane Detection Integration                 |
-| Jose            | PID + Lane Detection Integration                 |
-| Yasmine         | Lane Detection Model                             |
-| Marcelo         | PID + Lane Detection Integration (Scrum Master)  | 
+| Hellom          | Execution pipeline refactoring                   |
+| Vinicius        | Object detection refinement                      |
+| Jose            | Adaptive Cruise Control (ACC) implementation     |
+| Yasmine         | Obstacle Avoidance implementation                |
+| Marcelo         | ---                                              |
 
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 ## 🗓️ Sprint Status
-- **Current sprint**: Sprint 11
-- **Period**: April 13 to April 24, 2026  [13/04/2026] → [24/04/2026]
-- **Current Status**: Finished
-- **Goals**: Integrate PID (steering) with Lane Detection Model and perform a live demo.
+- **Current sprint**: Sprint 13
+- **Period**: May 11 to May 22, 2026  [11/05/2026] → [22/05/2026]
+- **Current Status**: In Progress
+- **Goals**: Refine object detection, implement ACC and Obstacle Avoidance, and refactor the execution pipeline.
