@@ -35,6 +35,7 @@ from object.perception_objects import EnvironmentState, Detection, ClassID
 from decision.decision_fsm import VehicleFSM
 from object.corridor_check import CorridorChecker
 from kuksa_publish.kuksa_publish import KuksaClient
+from camera.CameraReader import CameraReader
 
 try:
     from decision.PID_steering import PID
@@ -49,9 +50,17 @@ except ImportError:
         def send_fsm_state(self, *args): pass
         def close(self): pass
 
-CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 30 #640x360
+CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 60 #640x360
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
 
+def read_exact(pipe, size):
+    buf = b''
+    while len(buf) < size:
+        chunk = pipe.read(size - len(buf))
+        if not chunk:
+            return None
+        buf += chunk
+    return buf
 
 def main():
     parser = argparse.ArgumentParser()
@@ -101,10 +110,11 @@ def main():
                 "rpicam-vid", "-t", "0", "--codec", "yuv420",
                 "--width", str(CAM_WIDTH), "--height", str(CAM_HEIGHT),
                 "--framerate", str(CAM_FPS), "--mode", "640:360:8:P", #"2304:1296:8:P"
-                "--vflip", "--hflip", "-o", "-", "--nopreview"
+                "--exposure", "sport", "--denoise", "off",
+                "--shutter", "3500", "--vflip", "--hflip", "-o", "-", "--nopreview"
             ]
 
-            camera = subprocess.Popen(cam_cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            camera = CameraReader(cam_cmd, CAM_WIDTH, CAM_HEIGHT)
 
             if args.remote or args.no_display:
                 display = None
@@ -117,7 +127,7 @@ def main():
                 )
                 display = subprocess.Popen(gst_cmd, stdin=subprocess.PIPE, env=gst_env, shell=True)
 
-            raw_frame_size = CAM_WIDTH * CAM_HEIGHT * 3 // 2
+            raw_frame_size = CAM_WIDTH * CAM_HEIGHT * 3 // 2    
 
             frame_count = 0
             t_start = time.perf_counter()
@@ -125,7 +135,7 @@ def main():
             last_valid_pid = 0.0
             last_valid_cte = 0.0
             last_valid_state = 0
-            can.send_fsm_state(0x001, 2)
+            #can.send_fsm_state(0x001, 2)
 
             try:
                 while True:
@@ -136,12 +146,14 @@ def main():
                     # ======================
                     t0 = time.perf_counter()
 
-                    raw = camera.stdout.read(raw_frame_size)
-                    if len(raw) < raw_frame_size:
-                        break
+                    #raw = camera.stdout.read(raw_frame_size)
+                    bgr = camera.get_frame()
 
-                    yuv = np.frombuffer(raw, dtype=np.uint8).reshape((CAM_HEIGHT * 3 // 2, CAM_WIDTH))
-                    bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
+                    if bgr is None:
+                        continue
+
+                    #yuv = np.frombuffer(raw, dtype=np.uint8).reshape((CAM_HEIGHT * 3 // 2, CAM_WIDTH))
+                    #bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
 
                     t_camera = (time.perf_counter() - t0) * 1000
 
@@ -275,7 +287,7 @@ def main():
             except KeyboardInterrupt:
                 print("\nShutting down...")
             finally:
-                camera.terminate()
+                camera.stop()
                 can.close()
 
 if __name__ == "__main__":
