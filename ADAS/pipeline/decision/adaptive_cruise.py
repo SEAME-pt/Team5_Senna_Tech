@@ -2,7 +2,7 @@ class AdaptiveCruiseControl:
 
     def __init__(self):
 
-        self.target_area = 0.035
+        self.target_area = 0.033  # target relative area of the lead car (~60cm distance)
         self.max_cte = 1.0
         self.gain = 20.0          # scales area error → throttle percent
 
