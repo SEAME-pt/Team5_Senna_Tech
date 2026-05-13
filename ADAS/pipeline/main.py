@@ -39,7 +39,6 @@ from object.perception_objects import EnvironmentState, Detection, ClassID
 from object.corridor_check import CorridorChecker
 from kuksa_publish.kuksa_publish import KuksaClient
 from decision.adaptive_cruise import AdaptiveCruiseControl
-from decision.decision_fsm import VehicleFSM, State
 
 try:
     from decision.PID_steering import PID
@@ -58,12 +57,16 @@ CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 60
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
 
 STATE_THROTTLE = {
-    State.STOP:       0.0,
-    State.EMERGENCY:  2.0,
-    State.SPEED_SLOW: 0.05,
-    State.SPEED_50:   0.07,
-    State.SPEED_80:   0.09,
-    State.FOLLOW:     None,  # ACC
+    State.EMERGENCY: 0, 
+    State.STOP: 2,
+    State.SPEED_SLOW: 5,
+    State.SPEED_50: 7,
+    State.SPEED_80: 9,
+    State.FOLLOW: 0, # Calculado dinamicamente pelo ACC
+    State.PREPARE_AVOID: 5, # Velocidade lenta durante desvio
+    State.AVOIDING: 5,      # Velocidade lenta durante desvio
+    State.BLIND_WAIT: 5,    # Velocidade lenta durante desvio
+    State.RETURNING: 5      # Velocidade lenta durante desvio
 }
 
 def main():
@@ -296,42 +299,17 @@ def main():
                     #pid_return = round(pid_return, 2)
 
                     # ===== CAN ====
-                    if not args.virtual:
-                        # if abs(last_valid_pid - pid_return) <= 0.5:
-                        can.send_steering_percent(0x110, pid_return * (-1))
-
-                    if current_state != last_valid_state:
-                        # Durante avoidance envia SPEED_SLOW ao MCU;
-                        # nos restantes estados envia o valor real da FSM
-                        cmd_vel = (
-                            State.SPEED_SLOW.value
-                            if current_state in AVOIDANCE_STATES
-                            else current_state.value
-                        )
-                        can.send_fsm_state(0x001, cmd_vel)
-                        last_valid_state = current_state
-                    
-                    #DEBUG APAGAR DEPOIS
-                    logging.info(
-                        f"STATE={current_state.name} | "
-                        f"OBS={obs_info.situation.value} | "
-                        f"SIDE={obs_info.side} | "
-                        f"TGT_CTE={target_cte:+.3f} | "
-                        f"ACT_CTE={cte_actual:+.3f} | "
-                        f"STEER={pid_return:+.2f}"
-                    )
-
                     #print("NEW MODE: ")
                     #print(current_state.value)
-                    throttle = STATE_THROTTLE[current_state]
-                    if current_state == State.FOLLOW:
+                    throttle = STATE_THROTTLE.get(current_state, 0)
+                    if current_state == State.FOLLOW and hasattr(env_state, "lead_car_area"):
                         throttle = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
 
                     if not args.virtual:
                         can.send_can_percent(0x001, throttle)
                         can.send_can_percent(0x110, pid_return * -1)
 
-                    if current_state.value != last_valid_state:
+                    if last_valid_state is None or current_state.value != last_valid_state:
                         last_valid_state = current_state.value
                         print(f"NEW MODE: {current_state.name} | throttle={throttle}")
 

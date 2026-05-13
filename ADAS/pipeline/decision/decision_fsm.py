@@ -9,16 +9,16 @@ log = logging.getLogger("FSM")
 
 # Os estados vão ser enviados diretamente pelo valor para o CAN
 class State(Enum):
-    EMERGENCY = 0
-    STOP = 1
-    SPEED_SLOW = 2
-    SPEED_50 = 3
-    SPEED_80 = 4
-    FOLLOW = 5
-    PREPARE_AVOID = 6
-    AVOIDING = 7
-    BLIND_WAIT = 8
-    RETURNING = 9
+    EMERGENCY = 200
+    STOP = 200
+    SPEED_SLOW = 5
+    SPEED_50 = 7
+    SPEED_80 = 9
+    FOLLOW = None
+    PREPARE_AVOID = 100
+    AVOIDING = 101
+    BLIND_WAIT = 102
+    RETURNING = 103
 
 AVOIDANCE_STATES = (
     State.PREPARE_AVOID,
@@ -42,12 +42,10 @@ class ConfirmationBuffer:
             self._buf.append(True)
         else:
             self.reset()
-
         return (
             len(self._buf) == self._size
             and all(self._buf)
         )
-
     def reset(self):
         self._buf.clear()
 
@@ -83,7 +81,8 @@ class VehicleFSM:
         self._buf_speed_80 = ConfirmationBuffer(2)
         self._buf_clear = ConfirmationBuffer(15)
         self._buf_avoid = ConfirmationBuffer(5) # confirmation for initiation of avoidance maneuver
-        
+        self._buf_follow = ConfirmationBuffer(3)
+
         # obstacle avoidance
         self._prepare_buf = ConfirmationBuffer(4)
         self.frames_without_obstacle = 0
@@ -155,7 +154,7 @@ class VehicleFSM:
             if not cond["follow"]:
 
                 self._transition(
-                    State.SPEED_50,
+                    State.SPEED_SLOW,
                     "Lead car gone"
                 )
 
