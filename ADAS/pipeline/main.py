@@ -32,7 +32,6 @@ from LFA.geometry.bev_transform import BEVTransform
 from LFA.geometry.sliding_windows import SlidingWindowsLaneFitter
 from LFA.visualization.lane_visualiser import draw_lane_overlay, draw_text_overlay
 from object.perception_objects import EnvironmentState, Detection, ClassID
-from decision.decision_fsm import VehicleFSM
 from object.corridor_check import CorridorChecker
 from kuksa_publish.kuksa_publish import KuksaClient
 from decision.adaptive_cruise import AdaptiveCruiseControl
@@ -126,7 +125,6 @@ def main():
             t_start = time.perf_counter()
             last_time = t_start
             last_valid_pid = 0.0
-            last_valid_cte = 0.0
             last_valid_state = 0
             can.send_fsm_state(0x001, 2)
 
@@ -207,11 +205,12 @@ def main():
                         if in_corridor and cid == ClassID.OBSTACLE:
                             env_state.corridor_clear = False
 
+                        # If car is detected in the corridor,start adaptive cruise control logic
                         elif in_corridor and cid == ClassID.CAR:
                             env_state.lead_car_detected = True
-                            # keep closest car
                             if rel_area > env_state.lead_car_area:
                                 env_state.lead_car_area = rel_area
+                            print(f"[ACC] Car in corridor | area={rel_area:.4f} | follow threshold={0.02} | target_area={0.035}")
 
                     bgr = detector.draw(bgr, detections)
                     
@@ -251,13 +250,11 @@ def main():
                         throttle_cte = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
                         can.send_can_percent(0x100, throttle_cte)
 
-                    elif current_state.value != last_valid_state:
+                    if current_state.value != last_valid_state:
                         can.send_fsm_state(0x001, current_state.value)
                         last_valid_state = current_state.value
-                        
+                        print(f"NEW MODE: {current_state.name}")
 
-                    print("NEW MODE: ")
-                    print(current_state.value)
                     last_valid_pid = pid_return
                     t_decision = (time.perf_counter() - t0) * 1000
 
