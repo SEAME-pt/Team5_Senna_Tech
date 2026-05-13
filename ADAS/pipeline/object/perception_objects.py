@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import IntEnum, Enum
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -16,6 +16,11 @@ class ClassID(IntEnum):
     LIGHT_OFF = 10
     LIGHT_RED = 11
     LIGHT_YELLOW = 12
+
+class ObstacleSituation(Enum):
+    CLEAR     = "clear"
+    AVOIDANCE = "avoidance"
+    BRAKE     = "brake"
 
 @dataclass
 class Detection:

@@ -31,8 +31,10 @@ from post_processing.mask_filters import MaskFilters
 from LFA.geometry.bev_transform import BEVTransform
 from LFA.geometry.sliding_windows import SlidingWindowsLaneFitter
 from LFA.visualization.lane_visualiser import draw_lane_overlay, draw_text_overlay
-from object.perception_objects import EnvironmentState, Detection, ClassID
-from decision.decision_fsm import VehicleFSM
+from object.perception_objects import EnvironmentState, Detection, ClassID, ObstacleSituation
+from decision.decision_fsm import VehicleFSM, State, AVOIDANCE_STATES
+from decision.path_planner import PathPlanner
+from object.obstacle_tracker import ObstacleTracker
 from object.corridor_check import CorridorChecker
 from kuksa_publish.kuksa_publish import KuksaClient
 
@@ -49,9 +51,8 @@ except ImportError:
         def send_fsm_state(self, *args): pass
         def close(self): pass
 
-CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 30 #640x360
+CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 60
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -88,6 +89,17 @@ def main():
     kuksa_channel = KuksaClient()
     checker = CorridorChecker(bev)
     fsm = VehicleFSM()
+    planner      = PathPlanner(
+        lane_offset       = 0.80,   # ~65 px em 170 px de faixa
+        blind_wait_time   = 2.5,    # segundos em BLIND_WAIT
+        return_duration_s = 1.5,    # duração da interpolação de retorno
+    )
+    obs_tracker  = ObstacleTracker(
+        area_brake_threshold = 0.060,
+        area_avoidance_min   = 0.010,
+        frames_to_confirm    = 4,
+        frame_width_bev      = CAM_WIDTH,
+    )
 
     with VDevice() as target: # Get Hailo Device and define as 'target'
         with HailoEngine(lane_hef_path, target) as engine_lane, \
@@ -100,8 +112,8 @@ def main():
             cam_cmd = [
                 "rpicam-vid", "-t", "0", "--codec", "yuv420",
                 "--width", str(CAM_WIDTH), "--height", str(CAM_HEIGHT),
-                "--framerate", str(CAM_FPS), "--mode", "640:360:8:P", #"2304:1296:8:P"
-                "--vflip", "--hflip", "-o", "-", "--nopreview"
+                "--framerate", str(CAM_FPS), "--mode", "2304:1296:8:P", #"2304:1296:8:P"
+                "--shutter", "5000", "--vflip", "--hflip", "-o", "-", "--nopreview"
             ]
 
             camera = subprocess.Popen(cam_cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -211,6 +223,19 @@ def main():
                     t0 = time.perf_counter()
                     kuksa_channel.send(env_state.detections)
                     t_kuksa = (time.perf_counter() - t0) * 1000
+
+                    # ===== OBSTACLE TRACKER ========
+                    obs_info = obs_tracker.update(detections)
+
+                    # ===== BLIND WAIT TIMER =======
+                    # Verificar timeout ANTES de chamar fsm.process()
+                    if fsm.state == State.BLIND_WAIT:
+                        if planner.check_blind_wait_timeout():
+                            fsm.signal_blind_wait_timeout()
+                            planner.reset_blind_timer()
+                    else:
+                        planner.reset_blind_timer()
+
                     # ======================
                     # FSM DECISION
                     # ======================
@@ -219,7 +244,15 @@ def main():
                     print("ENV STATE. DETECTIONS: \n")
                     print(env_state.detections) """
                     t0 = time.perf_counter()
-                    current_state = fsm.process(env_state)
+                    current_state = fsm.process(
+                        env_state,
+                        obstacle_situation = obs_info.situation,
+                        planner_return_complete = planner.return_complete(),
+                    )
+
+                    # Reset do tracker quando a manobra termina
+                    if current_state not in AVOIDANCE_STATES:
+                        obs_tracker.reset()
 
                     frame_count += 1
 
@@ -230,23 +263,54 @@ def main():
                     # ======================
                     # PID CONTROL 
                     # ======================
-                    cte = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0
-                    pid_return = pid.update(0.0, cte, dt)
+                    cte_actual = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0
+                    target_cte = planner.calculate_target_cte(
+                        current_state,
+                        obstacle_side = obs_info.side,
+                    )
+
+                    pid_return = pid.update(target_cte, cte_actual, dt)
                     pid_return = round(pid_return, 2)
 
+                    #cte = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0
+                    #pid_return = pid.update(0.0, cte, dt)
+                    #pid_return = round(pid_return, 2)
+
+                    # ===== CAN ====
                     if not args.virtual:
                         # if abs(last_valid_pid - pid_return) <= 0.5:
                         can.send_steering_percent(0x110, pid_return * (-1))
-                    if current_state.value != last_valid_state:
-                        can.send_fsm_state(0x001, current_state.value)
-                        last_valid_state = current_state.value
-                    print("NEW MODE: ")
-                    print(current_state.value)
+
+                    if current_state != last_valid_state:
+                        # Durante avoidance envia SPEED_SLOW ao MCU;
+                        # nos restantes estados envia o valor real da FSM
+                        cmd_vel = (
+                            State.SPEED_SLOW.value
+                            if current_state in AVOIDANCE_STATES
+                            else current_state.value
+                        )
+                        can.send_fsm_state(0x001, cmd_vel)
+                        last_valid_state = current_state
+                    
+                    #DEBUG APAGAR DEPOIS
+                    logging.info(
+                        f"STATE={current_state.name} | "
+                        f"OBS={obs_info.situation.value} | "
+                        f"SIDE={obs_info.side} | "
+                        f"TGT_CTE={target_cte:+.3f} | "
+                        f"ACT_CTE={cte_actual:+.3f} | "
+                        f"STEER={pid_return:+.2f}"
+                    )
+
+                    #print("NEW MODE: ")
+                    #print(current_state.value)
                     last_valid_pid = pid_return
                     t_decision = (time.perf_counter() - t0) * 1000
 
                     fps = frame_count / (time.perf_counter() - t_start)
                     t0 = time.perf_counter()
+
+                    # ==== DISPLAY ====
                     if not args.no_display:
                         res = draw_lane_overlay(bgr, fit_result, bev)
                         display_frame = cv2.resize(res, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
