@@ -38,7 +38,7 @@ void    test_car_throttle_half_forward(void)
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_PWM,  0, pwm);
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM, 0, pwm);
 
-    car_set_throttle_percent(&car, 0.5f);
+    car_set_throttle_percent(&car, 0.5f, 0);
 }
 
 // THROTTLE 100% SPEED FORWARD TEST
@@ -55,7 +55,7 @@ void    test_car_throttle_max_forward(void)
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_PWM,  0, pwm);
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM, 0, pwm);
 
-    car_set_throttle_percent(&car, 1.0f);
+    car_set_throttle_percent(&car, 1.0f, 0);
 }
 
 // THROTTLE OVERFLOW SPEED FORWARD TEST
@@ -72,7 +72,7 @@ void    test_car_throttle_overflow_forward(void)
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_PWM,  0, pwm);
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM, 0, pwm);
 
-    car_set_throttle_percent(&car, 1.1f);
+    car_set_throttle_percent(&car, 1.1f, 0);
 }
 
 
@@ -90,7 +90,7 @@ void    test_car_throttle_half_back(void)
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_PWM,  0, pwm);
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM, 0, pwm);
 
-    car_set_throttle_percent(&car, -0.5f);
+    car_set_throttle_percent(&car, -0.5f, 0);
 }
 
 // THROTTLE 100% SPEED BACK TEST
@@ -107,7 +107,7 @@ void    test_car_throttle_max_back(void)
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_PWM,  0, pwm);
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM, 0, pwm);
 
-    car_set_throttle_percent(&car, -1.0f);
+    car_set_throttle_percent(&car, -1.0f, 0);
 }
 
 // THROTTLE OVERFLOW SPEED BACK TEST
@@ -124,7 +124,7 @@ void    test_car_throttle_overflow_back(void)
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_PWM,  0, pwm);
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM, 0, pwm);
 
-    car_set_throttle_percent(&car, -1.1f);
+    car_set_throttle_percent(&car, -1.1f, 0);
 }
 
 // STOP CAR
@@ -141,7 +141,7 @@ void    test_car_throttle_stop(void)
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_LEFT_MOTOR_IN_PWM,  0, pwm);
     PCA9685_SetPWM_Expect(&car.throttle, PWM_THROTTLE_CHANNEL_RIGHT_MOTOR_IN_PWM, 0, pwm);
 
-    car_set_throttle_percent(&car, 0.0f);
+    car_set_throttle_percent(&car, 0.0f, 0);
 }
 
 

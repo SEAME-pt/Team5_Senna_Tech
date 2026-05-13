@@ -1,0 +1,45 @@
+# 🚀 Sprint 12 Report – Team5: Senna Tech
+
+**Duration:** [27/04/2026] → [08/05/2025]
+**Sprint Goal:** Lane and object detection integration
+**Team Roles:** :
+| Name            | Responsibilities     |
+|-----------------| ---------------------|
+| Hellom        | Documentation and study of the codebase |
+| Marcelo       | QT upgrade |
+| Jose          | Velocity Serpervisor maker (MCU) |
+| Vinicius      | Optimiziation of object detection  |
+| Yasmine       | Velocity Serpervisor maker (rasp) |
+
+---
+
+## 🎯 Objectives for this Sprint
+
+- Lane and object detection integration
+- Fully complete the autonomous car
+- CTE stabilization
+- Upgrade Qt Traffic signs
+
+---
+
+## 🗣️ Daily Standup Logs
+
+| Data | Progress Summary and Plan | Obstacles? |
+| :--- | :--- | :--- |
+| **27/04** | Objectives planing for the whole sprint |
+| **28/04** | **Hellom** Code study and documentation. **Vini:** Integration of both AI models into a single program. **Yasmine:** Code base cleanup and helped vini. **Jose:** Transcendence :C |
+| **29/04** | **Vini:** Optimization of obejct detection codebase. **Jose:** MCU codebase review & refactor |
+| **30/04** | **Vini & jose:** Preparation of the meeting and planings discussion
+| **04/05** | **Hellom:** Code study and documentation. **Vini:** Servo study and inicialization script of the program. **jose:** Velocity maker on the MCU | Servo burnout |
+| **05/05** | **Hellom:** Code study and documentation. **Vini:** Object detection optimization. **Yasmine:** Imaginary line optimization. **Jose:** Velocity modes and finalization of code structure | Servo burnout
+| **07/05** | **Hellom:** Code study and documentation. **Vini:** Object detection. **Yasmine:** Imaginary line optimization and canvas apresentation for restrospective. **Jose:** Final pull requests and signal traffic tests. |
+| **08/05** | Discussion of the current sprint and some ideas for the next sprint |
+
+
+
+## 🧠 Key Achievements
+
+- Every goal was completed, please refer to "Objectives for this Sprint"
+
+---
+
