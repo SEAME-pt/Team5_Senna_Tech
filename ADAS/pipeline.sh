@@ -16,30 +16,18 @@ if [ ! -d "$PIPELINE_DIR" ]; then
     exit 1
 fi
 
-# Find all .py files under pipeline/
-FILES=$(find "$PIPELINE_DIR" -name "*.py")
+echo "Syncing pipeline to $RASP_USER@$RASP_IP:$RASP_DEST"
+echo "------------------------------------------------------"
 
-if [ -z "$FILES" ]; then
-    echo -e "${RED}No .py files found under '$PIPELINE_DIR'.${NC}"
-    exit 1
+rsync -avz \
+    --include='*/' \
+    --include='*.py' \
+    --exclude='*' \
+    "$PIPELINE_DIR/" \
+    "$RASP_USER@$RASP_IP:$RASP_DEST/"
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}Sync completed successfully.${NC}"
+else
+    echo -e "${RED}Sync failed.${NC}"
 fi
-
-echo "Syncing .py files to $RASP_USER@$RASP_IP:$RASP_DEST"
-echo "------------------------------------------------------"
-
-SUCCESS=0
-FAIL=0
-
-for FILE in $FILES; do
-    scp "$FILE" "$RASP_USER@$RASP_IP:$RASP_DEST" 2>/dev/null
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}[OK]${NC}   $FILE"
-        ((SUCCESS++))
-    else
-        echo -e "${RED}[FAIL]${NC} $FILE"
-        ((FAIL++))
-    fi
-done
-
-echo "------------------------------------------------------"
-echo "Done: $SUCCESS sent, $FAIL failed."
