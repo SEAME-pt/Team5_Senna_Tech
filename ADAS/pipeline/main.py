@@ -233,6 +233,7 @@ def main():
 
                         # If car is detected in the corridor,start adaptive cruise control logic
                         elif in_corridor and cid == ClassID.CAR:
+                            env_state.corridor_clear = False
                             env_state.lead_car_detected = True
                             if rel_area > env_state.lead_car_area:
                                 env_state.lead_car_area = rel_area
@@ -302,13 +303,12 @@ def main():
                     #print("NEW MODE: ")
                     #print(current_state.value)
                     throttle = STATE_THROTTLE.get(current_state, 0)
-                    if current_state == State.FOLLOW and hasattr(env_state, "lead_car_area"):
-                        # ACC retorna float -1.0 a 1.0, converter para o range do MCU (* 100)
+                    if current_state == State.FOLLOW:
                         acc_value = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
                         throttle = int(acc_value * 100)
 
                     if not args.virtual:
-                        can.send_can_percent(0x001, throttle)
+                        can.send_int16(0x001, throttle)
                         can.send_can_percent(0x110, pid_return * -1)
 
                     if last_valid_state is None or current_state.value != last_valid_state:

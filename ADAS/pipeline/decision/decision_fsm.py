@@ -353,7 +353,7 @@ class VehicleFSM:
                 cond["speed_80"] = True
 
             # Lógica Separada: Emergência vs Preparar Desvio
-            if d.in_corridor and d.class_id in (ClassID.CAR, ClassID.OBSTACLE):
+            if d.in_corridor and d.class_id == ClassID.OBSTACLE:
                 if d.relative_area >= Thresholds.AREA_CRITICAL:
                     cond["critical"] = True
                 elif d.relative_area >= Thresholds.AREA_EMERGENCY:
@@ -365,10 +365,8 @@ class VehicleFSM:
             # Obstáculos no corredor 
             # ─────────────────────────
 
-            if (d.in_corridor):
-                if (d.relative_area >= Thresholds.AREA_EMERGENCY and d.class_id == ClassID.OBSTACLE):
-                    cond["emergency"] = True
-                if (d.relative_area >= Thresholds.AREA_FOLLOW and d.class_id == ClassID.CAR):
+            if d.in_corridor and d.class_id == ClassID.CAR:
+                if d.relative_area >= Thresholds.AREA_FOLLOW:
                     cond["follow"] = True
         # ─────────────────────────────
         # Crosswalk geometry
