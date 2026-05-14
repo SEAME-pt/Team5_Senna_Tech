@@ -15,10 +15,10 @@ class State(Enum):
     SPEED_50 = 7
     SPEED_80 = 9
     FOLLOW = None
-    PREPARE_AVOID = 100
-    AVOIDING = 101
-    BLIND_WAIT = 102
-    RETURNING = 103
+    PREPARE_AVOID = 10
+    AVOIDING = 11
+    BLIND_WAIT = 12
+    RETURNING = 13
 
 AVOIDANCE_STATES = (
     State.PREPARE_AVOID,
@@ -99,17 +99,19 @@ class VehicleFSM:
 
         cond = self._evaluate_environment(env)
 
-        if cond.get("critical", False):
+        # ==== CRITICAL IMPACT =====
+        if cond["critical"]:
             self._transition(State.EMERGENCY, "Impacto Crítico Iminente")
             self._reset_buffers()
             return self.state
-
+        
+        # ===== AVOIDANCE SEQUENCE =====
         if self.state in AVOIDANCE_STATES:
-            return self._handle_avoidance_sequence(env, obstacle_situation, planner_return_complete)
-
-        # ─────────────────────────────
-        # EMERGENCY (latching)
-        # ─────────────────────────────
+            return self._handle_avoidance_sequence(
+                env, obstacle_situation, planner_return_complete, cond
+            )
+        
+        # ===== EMERGENCY ======
         if self.state == State.EMERGENCY:
             if self._buf_clear.update(env.corridor_clear):
                 self._transition(
@@ -126,19 +128,13 @@ class VehicleFSM:
             )
             self._reset_buffers()
             return self.state
-        
-        # ─────────────────────────────
-        # OBSTACLE AVOIDANCE (blocks normal transitions)
-        # ─────────────────────────────
-
-        if self.state in AVOIDANCE_STATES:
-            return self._handle_avoidance_sequence(env, obstacle_situation, planner_return_complete)
 
         # trigger for obstacle avoidance
         avoidance_detected = (
             obstacle_situation == ObstacleSituation.AVOIDANCE
             or cond["obstacle_ahead"]
         )
+
         if self._buf_avoid.update(avoidance_detected):
             if self.state in (State.SPEED_50, State.SPEED_80, State.SPEED_SLOW):
                 self._pre_avoidance_state = self.state
@@ -146,25 +142,17 @@ class VehicleFSM:
             self._reset_buffers()
             return self.state
 
-        # ─────────────────────────────
-        # FOLLOW
-        # ─────────────────────────────
+        # ===== FOLLOW =====
         if self.state == State.FOLLOW:
-
             if not cond["follow"]:
-
                 self._transition(
                     State.SPEED_SLOW,
                     "Lead car gone"
                 )
-
             return self.state
 
-        # ─────────────────────────────
-        # STOP logic
-        # ─────────────────────────────
+        # ===== STOP logic =====
         if self.state == State.STOP:
-            # STOP causado por semáforo vermelho
             if self.stop_reason == StopReason.RED_LIGHT:
                 if cond["green_light"]:
                     self._transition(
@@ -176,7 +164,6 @@ class VehicleFSM:
                     self._reset_buffers()
                 return self.state
 
-            # STOP causado por placa STOP
             elif self.stop_reason == StopReason.STOP_SIGN:
                 if (
                     self.stop_timestamp is not None
@@ -188,19 +175,17 @@ class VehicleFSM:
                     )
                     self.stop_reason = StopReason.NONE
                     self.stop_timestamp = None
-                    # ignora novas STOP_SIGN por 5s
                     self.stop_sign_ignore_until = (
                         time.time() + self.STOP_SIGN_COOLDOWN
                     )
                     self._reset_buffers()
+                return
 
+            else:
                 return self.state
 
-        # ─────────────────────────────
-        # NORMAL transitions
-        # ─────────────────────────────
-        # RED LIGHT
-        elif self._buf_stop_red.update(cond["stop_red"]):
+        # ===== NORMAL transitions =====
+        if self._buf_stop_red.update(cond["stop_red"]):
             self._transition(
                 State.STOP,
                 "Red light"
@@ -209,7 +194,6 @@ class VehicleFSM:
             self.stop_timestamp = None
             self._reset_buffers()
 
-        # STOP SIGN
         elif (
             time.time() >= self.stop_sign_ignore_until
             and self._buf_stop_sign.update(cond["stop_sign"])
@@ -222,19 +206,18 @@ class VehicleFSM:
             self.stop_timestamp = time.time()
             self._reset_buffers()
 
-        # SLOW
         elif self._buf_slow.update(cond["slow"]):
             self._transition(
                 State.SPEED_SLOW,
                 "Slow zone"
             )
-        # SPEED 50
+
         elif self._buf_speed_50.update(cond["speed_50"]):
             self._transition(
                 State.SPEED_50,
                 "Speed 50"
             )
-        # SPEED 80
+
         elif self._buf_speed_80.update(cond["speed_80"]):
             self._transition(
                 State.SPEED_80,
@@ -256,7 +239,6 @@ class VehicleFSM:
         planner_return_complete: bool,
     ) -> State:
 
-        # BRAKE durante qualquer fase → EMERGENCY imediato
         if obstacle_situation == ObstacleSituation.BRAKE:
             self._transition(State.EMERGENCY, "Brake durante avoidance")
             self._reset_buffers()
@@ -296,12 +278,6 @@ class VehicleFSM:
                 self.frames_without_obstacle = 0
                 self._reset_buffers()
 
-        elif cond["follow"]:
-            self._transition(
-                State.FOLLOW,
-                "Following vehicle"
-            )
-
         return self.state
     
     def signal_blind_wait_timeout(self):
@@ -327,11 +303,6 @@ class VehicleFSM:
         }
 
         for d in env.detections:
-
-            # ─────────────────────────
-            # Traffic lights / signs
-            # ─────────────────────────
-
             print(
                 f"[DEBUG] class={d.class_id.name} "
                 f"(id={d.class_id.value}) | "
@@ -368,22 +339,14 @@ class VehicleFSM:
                 elif d.relative_area >= Thresholds.AREA_AVOIDANCE:
                     cond["obstacle_ahead"] = True
 
-            # ─────────────────────────
             # Obstáculos no corredor 
-            # ─────────────────────────
-
             if d.in_corridor and d.class_id == ClassID.CAR:
                 if d.relative_area >= Thresholds.AREA_FOLLOW:
                     cond["follow"] = True
-        # ─────────────────────────────
-        # Crosswalk geometry
-        # ─────────────────────────────
 
         if env.crosswalk_distance_m is not None:
-
             if env.crosswalk_distance_m < 3.0:
                 cond["stop_sign"] = True
-
             elif env.crosswalk_distance_m < 10.0:
                 cond["slow"] = True
 
@@ -394,16 +357,13 @@ class VehicleFSM:
         new_state: State,
         reason: str
     ):
-
         if self.state != new_state:
-
             log.info(
                 f"FSM Transition: "
                 f"{self.state.name} -> "
                 f"{new_state.name} "
                 f"[{reason}]"
             )
-
             self.state = new_state
 
     def _reset_buffers(self):

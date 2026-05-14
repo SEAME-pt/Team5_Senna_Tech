@@ -85,17 +85,11 @@ def main():
     lane_hef_path = args.lane   # get lane .hef path
     obj_hef_path = args.object   # get object .hef path
 
-    # 1. Init useful instancies
-    
+    # Init useful instancies
     threshold = 0.25
     decoder = YoloSegDecoder(score_threshold=threshold)
     detector = ObjectDetector()
-
     mask_filters = MaskFilters()
-    # O PID ajusta o volante com base no erro lateral (CTE):
-    #   Kp = ganho proporcional (reação imediata ao erro)
-    #   Ki = ganho integral     (corrige erros acumulados ao longo do tempo)
-    #   Kd = ganho derivativo   (suaviza oscilações prevendo a tendência do erro)
     #  !!! (kp, ki, kd) alterar aqui
     pid = PID(0.9, 0.2, 0.6)
     can = CanSender(channel="can0") #CanSender()
@@ -158,9 +152,7 @@ def main():
                 while True:
                     t_frame_start = time.perf_counter()
 
-                    # ======================
-                    # 1. CAMERA
-                    # ======================
+                    # ==== CAMERA =====
                     t0 = time.perf_counter()
 
                     raw = camera.stdout.read(raw_frame_size)
@@ -172,9 +164,7 @@ def main():
 
                     t_camera = (time.perf_counter() - t0) * 1000
 
-                    # ======================
-                    # INFERENCE
-                    # ======================
+                    # ==== INFERENCE ====
                     t0 = time.perf_counter() # START FPS COUNT
 
                     # RUN LANE MODEL 
@@ -187,31 +177,23 @@ def main():
                     outputs_obj = engine_obj.infer(bgr)
                     inf_obj_ms = (time.perf_counter() - t0) * 1000 # GET TIME TO RUN BOTH INFERENCES
 
-                    # ======================
-                    # LANE PIPELINE POST PROCESS
-                    # ======================
+                    # ==== LANE PIPELINE POST PROCESS ======
                     t0 = time.perf_counter() # START FPS COUNT
                     binary_mask = decoder.decode_to_mask(outputs_lane, CAM_HEIGHT, CAM_WIDTH)
                     clean_mask = mask_filters.process(binary_mask)
                     bev_mask = bev.warp(clean_mask)
                     fit_result = fitter.fit(bev_mask)
 
-                    # ======================
-                    # OBJECT DETECTION PIPELINE POST PROCESS
-                    # ======================
-
+                    # ==== OBJECT ======
                     detections = detector.process(outputs_obj, bgr.shape)
-                    
                     #bgr = detector.draw(bgr, detections) # draw detections on frame
 
-                    # ======================
-                    # OBJ + LFA
-                    # ======================
                     env_state = EnvironmentState(detections=[], corridor_clear=True)
-                    
+                    env_state.lead_car_detected = False
+                    env_state.lead_car_area     = 0.0
+
                     for det_dict in detections:
                         db_info = checker.check_and_debug(det_dict["bbox"], fit_result, bgr.shape)
-                        # Passamos o bbox e as linhas para o checker saber se está à nossa frente
                         in_corridor = db_info["in_corridor"]
                         rel_area = db_info["rel_area"]
                         
@@ -224,8 +206,11 @@ def main():
                         except ValueError:
                             continue
 
-                        d = Detection(class_id=cid, in_corridor=in_corridor, relative_area=rel_area)
-                        env_state.detections.append(d)
+                        #d = Detection(class_id=cid, in_corridor=in_corridor, relative_area=rel_area)
+                        #env_state.detections.append(d)
+                        env_state.detections.append(
+                            Detection(class_id=cid, in_corridor=in_corridor, relative_area=rel_area)
+                        )
                         
                         # Detects either car or obstacle in corridor
                         if in_corridor and cid == ClassID.OBSTACLE:
@@ -242,7 +227,7 @@ def main():
                     bgr = detector.draw(bgr, detections)
                     
                     t_post = (time.perf_counter() - t0) * 1000
-                    #enviar dados para kuksa
+                    #enviar dados para kuksa (!!!! pendente de troca, colocar depois do can !!!!!)
                     t0 = time.perf_counter()
                     kuksa_channel.send(env_state.detections)
                     t_kuksa = (time.perf_counter() - t0) * 1000
@@ -259,9 +244,7 @@ def main():
                     else:
                         planner.reset_blind_timer()
 
-                    # ======================
-                    # FSM DECISION
-                    # ======================
+                    # ==== FSM DECISION ====
                     """                     print("STATE: \n")
                     print(env_state)
                     print("ENV STATE. DETECTIONS: \n")
@@ -283,9 +266,7 @@ def main():
                     dt = current_time - last_time
                     last_time = current_time
 
-                    # ======================
-                    # PID CONTROL 
-                    # ======================
+                    # ==== PID + CTE ====
                     cte_actual = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0
                     target_cte = planner.calculate_target_cte(
                         current_state,
@@ -295,18 +276,12 @@ def main():
                     pid_return = pid.update(target_cte, cte_actual, dt)
                     pid_return = round(pid_return, 2)
 
-                    #cte = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0
-                    #pid_return = pid.update(0.0, cte, dt)
-                    #pid_return = round(pid_return, 2)
-
-                    # ===== CAN ====
-                    #print("NEW MODE: ")
-                    #print(current_state.value)
                     throttle = STATE_THROTTLE.get(current_state, 0)
                     if current_state == State.FOLLOW:
                         acc_value = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
                         throttle = acc_value
 
+                    # ===== CAN ====
                     if not args.virtual:
                         can.send_int16(0x001, throttle)
                         can.send_can_percent(0x110, pid_return * -1)
