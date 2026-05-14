@@ -55,7 +55,10 @@ class Thresholds:
     AREA_SIGN = 0.004
     AREA_TRAFFIC_LIGHT = 0.004
     AREA_CAR = 0.004
-    AREA_FOLLOW = 0.02
+
+    # hysteresis FOLLOW
+    AREA_FOLLOW_ENTER = 0.022
+    AREA_FOLLOW_EXIT  = 0.017
 
 
 class VehicleFSM:
@@ -141,7 +144,7 @@ class VehicleFSM:
         if self.state == State.FOLLOW:
             if not cond["follow"]:
                 self._transition(
-                    State.SPEED_SLOW,
+                    State.SPEED_50,
                     "Lead car gone"
                 )
             return self.state
@@ -342,7 +345,11 @@ class VehicleFSM:
                     cond["obstacle_ahead"] = True
 
             if d.in_corridor and d.class_id == ClassID.CAR:
-                if d.relative_area >= Thresholds.AREA_FOLLOW:
+                # enter in follow with area >= ~0.022
+                if (self.state != State.FOLLOW and d.relative_area >= Thresholds.AREA_FOLLOW_ENTER):
+                    cond["follow"] = True
+                # continue in follow until area
+                elif (self.state == State.FOLLOW and d.relative_area >= Thresholds.AREA_FOLLOW_EXIT):
                     cond["follow"] = True
 
         if env.crosswalk_distance_m is not None:
