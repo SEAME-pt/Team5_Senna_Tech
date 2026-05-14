@@ -26,6 +26,18 @@ Nenhum — é a origem do fluxo.
 - `_check_existing()` — método privado que verifica se já existe um processo `rpicam-vid` a correr antes de iniciar, avisa com o PID e não mata automaticamente
 - `debug=False` — parâmetro opcional que activa logs detalhados por frame (`[CAMERA] rgb shape: ...`)
 
+## Papel no fluxo e na inicialização
+No fluxo de dados da pipeline, a câmera é a primeira etapa funcional, porque é ela que origina os frames consumidos pelas etapas seguintes.
+
+No entanto, isso não significa que ela precise ser sempre o primeiro recurso a ser inicializado na execução da aplicação. Em cenários onde a inferência depende de hardware dedicado, como a Hailo, pode fazer sentido inicializar primeiro a infraestrutura de inferência e abrir a câmera apenas depois que o sistema estiver pronto para consumir os frames.
+
+Essa distinção é importante:
+
+- no fluxo de dados, a câmera vem primeiro;
+- na ordem de inicialização dos recursos, ela pode vir depois da preparação da inferência.
+
+Essa escolha evita abrir a captura contínua sem que o restante da pipeline esteja preparado para processar os dados gerados.
+
 ## Configuração
 | Parâmetro | Valor | Descrição |
 |---|---|---|
