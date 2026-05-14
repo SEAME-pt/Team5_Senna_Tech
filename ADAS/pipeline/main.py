@@ -144,8 +144,11 @@ def main():
             frame_count = 0
             t_start = time.perf_counter()
             last_time = t_start
-            last_valid_pid = 0.0
             last_valid_state = 0
+
+            # vars to avoid spamming commands when not necessary
+            last_sent_throttle = None
+            last_sent_steering = None
 
             try:
                 while True:
@@ -224,7 +227,7 @@ def main():
                             #print(f"[ACC] Car in corridor | area={rel_area:.4f} | follow threshold={0.018} | target_area={0.033}")
 
                     bgr = detector.draw(bgr, detections)
-                    
+
                     t_post = (time.perf_counter() - t0) * 1000
                     #enviar dados para kuksa (!!!! pendente de troca, colocar depois do can !!!!!)
                     t0 = time.perf_counter()
@@ -280,14 +283,19 @@ def main():
 
                     # ===== CAN ====
                     if not args.virtual:
-                        can.send_int16(0x001, throttle)
-                        can.send_can_percent(0x110, pid_return * -1)
+                        if throttle != last_sent_throttle:
+                            can.send_int16(0x001, throttle)
+                            last_sent_throttle = throttle
+
+                    steering = round(pid_return * -1, 2)
+                    if steering != last_sent_steering:
+                        can.send_can_percent(0x110, steering)
+                        last_sent_steering = steering
 
                     if last_valid_state is None or current_state.value != last_valid_state:
                         last_valid_state = current_state.value
                         print(f"NEW MODE: {current_state.name} | throttle={throttle}")
 
-                    last_valid_pid = pid_return
                     t_decision = (time.perf_counter() - t0) * 1000
 
                     fps = frame_count / (time.perf_counter() - t_start)
