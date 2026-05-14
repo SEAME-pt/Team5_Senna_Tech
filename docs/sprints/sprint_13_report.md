@@ -36,6 +36,7 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | **11/05** | Sprint 13 planning and goal definition. | - |
 | **12/05** | Team members started working on their respective defined tasks. | - |
 | **13/05** | Work has been initiated for everyone across all planned fronts. | - |
+| **14/05** | **Jose:** Worked on Adaptive Cruise Control (ACC). The car already recognizes another car and stops at a safe distance. Next, he will advance to the tracking logic so the car can follow the vehicle ahead. **Yasmine:** Ran the first Obstacle Avoidance tests, but without major results so far. **Hellom:** Worked on the study and documentation of the inference part of the pipeline. **Vinicius:** Pending. | Another servo motor burned out. |
 
 ---
 
