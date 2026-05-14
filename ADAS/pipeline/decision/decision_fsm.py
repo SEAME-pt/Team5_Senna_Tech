@@ -7,14 +7,13 @@ from object.perception_objects import EnvironmentState, ClassID, ObstacleSituati
 # Logger para debug de transições
 log = logging.getLogger("FSM")
 
-# Os estados vão ser enviados diretamente pelo valor para o CAN
 class State(Enum):
     EMERGENCY = 200
     STOP = 0
     SPEED_SLOW = 5
     SPEED_50 = 7
     SPEED_80 = 9
-    FOLLOW = None
+    FOLLOW = 4
     PREPARE_AVOID = 10
     AVOIDING = 11
     BLIND_WAIT = 12
@@ -52,10 +51,9 @@ class ConfirmationBuffer:
 
 class Thresholds:
     AREA_EMERGENCY = 0.05
+    AREA_AVOIDANCE = 0.015
     AREA_SIGN = 0.004
     AREA_TRAFFIC_LIGHT = 0.004
-    AREA_AVOIDANCE = 0.015 # to initiate avoidance maneuver(PREPARE_AVOID)
-    AREA_CRITICAL  = 0.15
     AREA_CAR = 0.004
     AREA_FOLLOW = 0.02
 
@@ -63,31 +61,28 @@ class Thresholds:
 class VehicleFSM:
     def __init__(self):
         self.state = State.SPEED_50
-
-        # motivo do STOP
         self.stop_reason = StopReason.NONE
 
-        # timestamp usado para STOP_SIGN
+        # timestamp for STOP_SIGN
         self.stop_timestamp = None
         self.stop_sign_ignore_until = 0
         self.STOP_SIGN_COOLDOWN = 5
 
-        # buffers de confirmação
-        self._buf_emergency = ConfirmationBuffer(1)
+        # confirmation buffers
+        self._buf_emergency = ConfirmationBuffer(3)
         self._buf_stop_red = ConfirmationBuffer(2)
         self._buf_stop_sign = ConfirmationBuffer(2)
         self._buf_slow = ConfirmationBuffer(2)
         self._buf_speed_50 = ConfirmationBuffer(2)
         self._buf_speed_80 = ConfirmationBuffer(2)
         self._buf_clear = ConfirmationBuffer(15)
-        self._buf_avoid = ConfirmationBuffer(5) # confirmation for initiation of avoidance maneuver
+        self._buf_avoid = ConfirmationBuffer(5)
         self._buf_follow = ConfirmationBuffer(3)
 
         # obstacle avoidance
-        self._prepare_buf = ConfirmationBuffer(4)
+        self._prepare_buf = ConfirmationBuffer(2)
         self.frames_without_obstacle = 0
         self.OBSTACLE_LOST_THRESHOLD = 10
-        #MODIFICAR ESSA REFERENCIA, GUARDAR O QUE ELE TINHA COMO MODO ANTERIOR???
         self._pre_avoidance_state = State.SPEED_50
 
     def process(
@@ -99,9 +94,9 @@ class VehicleFSM:
 
         cond = self._evaluate_environment(env)
 
-        # ==== CRITICAL IMPACT =====
-        if cond["critical"]:
-            self._transition(State.EMERGENCY, "Impacto Crítico Iminente")
+        # ==== CRITICAL IMPACT IN AVOIDENCE STATE =====
+        if obstacle_situation == ObstacleSituation.BRAKE:
+            self._transition(State.EMERGENCY, "Brake súbito detetado pelo tracker")
             self._reset_buffers()
             return self.state
         
@@ -179,7 +174,7 @@ class VehicleFSM:
                         time.time() + self.STOP_SIGN_COOLDOWN
                     )
                     self._reset_buffers()
-                return
+                return self.state
 
             else:
                 return self.state
@@ -238,19 +233,25 @@ class VehicleFSM:
         obstacle_situation,
         planner_return_complete: bool,
     ) -> State:
+        """
+        Manage the 4 phases of the evasive maneuver.
+        Called ONLY when self.state is in AVOIDANCE_STATES.
+        Traffic and area emergency signs are ignored here!
+        the maneuver is only interrupted by BRAKE (handled before entering here).
+        """
 
-        if obstacle_situation == ObstacleSituation.BRAKE:
-            self._transition(State.EMERGENCY, "Brake durante avoidance")
-            self._reset_buffers()
-            return self.state
-
+        # == PREPARE_AVOID ==========
+        # Wait 2 confirmation frames (5 already done in _buf_avoid).
+        # The PathPlanner is already moving the CTE in this phase.
         if self.state == State.PREPARE_AVOID:
-            # Aguarda prepare_frames para confirmar antes de manobrar
             if self._prepare_buf.update(True):
-                self._transition(State.AVOIDING, "Início da ultrapassagem")
+                self._transition(State.AVOIDING, "Beginning of evasive maneuver")
                 self.frames_without_obstacle = 0
                 self._prepare_buf.reset()
 
+        # == AVOIDING ==========
+        # Stay here while the obstacle is visible.
+        # When it disappears for OBSTACLE_LOST_THRESHOLD frames -> BLIND_WAIT.
         elif self.state == State.AVOIDING:
             obstacle_visible = any(
                 d.class_id == ClassID.OBSTACLE and d.in_corridor
@@ -262,18 +263,23 @@ class VehicleFSM:
                 self.frames_without_obstacle += 1
 
             if self.frames_without_obstacle >= self.OBSTACLE_LOST_THRESHOLD:
-                self._transition(State.BLIND_WAIT, "Obstáculo no ponto cego")
+                self._transition(State.BLIND_WAIT, "Obstacle lost, entering blind wait")
                 self.frames_without_obstacle = 0
 
+        # == BLIND_WAIT ==========
+        # externaly managed by the main via signal_blind_wait_timeout().
+        # The PathPlanner keeps the CTE displaced during this state.
         elif self.state == State.BLIND_WAIT:
-            # Transição gerida pelo main via signal_blind_wait_timeout()
             pass
 
+         # == RETURNING ==========
+        # The PathPlanner interpolates CTE -> 0.0 smoothly.
+        # when it finishes, the FSM restores the pre-avoidance speed.
         elif self.state == State.RETURNING:
             if planner_return_complete:
                 self._transition(
                     self._pre_avoidance_state,
-                    f"Manobra concluída — restaurando {self._pre_avoidance_state.name}"
+                    f"Maneuver completed, restoring {self._pre_avoidance_state.name}"
                 )
                 self.frames_without_obstacle = 0
                 self._reset_buffers()
@@ -299,7 +305,6 @@ class VehicleFSM:
             "follow": False,
             "speed_50": False,
             "speed_80": False,
-            "critical": False
         }
 
         for d in env.detections:
@@ -330,16 +335,12 @@ class VehicleFSM:
             elif d.class_id == ClassID.SIGN_80 and d.relative_area > Thresholds.AREA_SIGN:
                 cond["speed_80"] = True
 
-            # Lógica Separada: Emergência vs Preparar Desvio
             if d.in_corridor and d.class_id == ClassID.OBSTACLE:
-                if d.relative_area >= Thresholds.AREA_CRITICAL:
-                    cond["critical"] = True
-                elif d.relative_area >= Thresholds.AREA_EMERGENCY:
+                if d.relative_area >= Thresholds.AREA_EMERGENCY:
                     cond["emergency"] = True
                 elif d.relative_area >= Thresholds.AREA_AVOIDANCE:
                     cond["obstacle_ahead"] = True
 
-            # Obstáculos no corredor 
             if d.in_corridor and d.class_id == ClassID.CAR:
                 if d.relative_area >= Thresholds.AREA_FOLLOW:
                     cond["follow"] = True

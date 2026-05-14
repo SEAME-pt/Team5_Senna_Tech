@@ -1,15 +1,15 @@
 """
-Pipeline completo de deteção de faixas de rodagem para condução autónoma.
- 
-Fluxo principal:
-  1. Câmara (ou imagem) → pré-processamento
-  2. Inferência na Hailo-8 (acelerador NPU) com modelo YOLO26-seg
-  3. Pós-processamento → máscara binária das faixas
-  4. Bird's-Eye View (BEV) → vista de cima da estrada
-  5. Sliding Windows → deteção e ajuste polinomial das linhas
-  6. CTE (Cross-Track Error) → erro lateral do veículo em relação ao centro
-  7. PID → cálculo do ângulo de direção
-  8. CAN Bus → envio do comando de direção para o veículo
+Complete lane departure detection pipeline for autonomous driving.
+
+Main flow:
+1. Camera (or image) → pre-processing
+2. Inference on the Hailo-8 (NPU accelerator) with YOLO26-sec model
+3. Post-processing → binary lane masking
+4. Bird's-Eye View (BEV) → top-down view of the road
+5. Sliding Windows → polynomial line detection and adjustment
+6. CTE (Cross-Track Error) → lateral error of the vehicle relative to the center
+7. PID → steering angle calculation
+8. CAN Bus → sending steering commands to the vehicle
 """
 
 import sys
@@ -92,21 +92,21 @@ def main():
     mask_filters = MaskFilters()
     #  !!! (kp, ki, kd) alterar aqui
     pid = PID(0.9, 0.2, 0.6)
-    can = CanSender(channel="can0") #CanSender()
+    can = CanSender(channel="can0")
     bev = BEVTransform(CAM_WIDTH, CAM_HEIGHT)
     fitter = SlidingWindowsLaneFitter(cam_height=CAM_HEIGHT)
     kuksa_channel = KuksaClient()
     checker = CorridorChecker(bev)
     fsm = VehicleFSM()
     planner      = PathPlanner(
-        lane_offset       = 0.80,   # ~65 px em 170 px de faixa
-        blind_wait_time   = 2.5,    # segundos em BLIND_WAIT
-        return_duration_s = 1.5,    # duração da interpolação de retorno
+        lane_offset       = 0.80,   # ~65 px in 170 px road width
+        blind_wait_time   = 2.5,    # seconds in BLIND_WAIT
+        return_duration_s = 1.5,    # return interpolation duration
     )
     obs_tracker  = ObstacleTracker(
-        area_brake_threshold = 0.060,
-        area_avoidance_min   = 0.010,
-        frames_to_confirm    = 4,
+        area_brake_threshold = 0.060,# area delta in a frame that triggers BRAKE
+        area_avoidance_min   = 0.010,# minimum area for counting avoidance frames
+        frames_to_confirm    = 4, # frames in tracker before reporting AVOIDANCE
         frame_width_bev      = CAM_WIDTH,
     )
     adaptive_cruise = AdaptiveCruiseControl()
@@ -146,7 +146,6 @@ def main():
             last_time = t_start
             last_valid_pid = 0.0
             last_valid_state = 0
-            # can.send_fsm_state(0x001, 2)
 
             try:
                 while True:
@@ -236,7 +235,6 @@ def main():
                     obs_info = obs_tracker.update(detections)
 
                     # ===== BLIND WAIT TIMER =======
-                    # Verificar timeout ANTES de chamar fsm.process()
                     if fsm.state == State.BLIND_WAIT:
                         if planner.check_blind_wait_timeout():
                             fsm.signal_blind_wait_timeout()
@@ -256,7 +254,6 @@ def main():
                         planner_return_complete = planner.return_complete(),
                     )
 
-                    # Reset do tracker quando a manobra termina
                     if current_state not in AVOIDANCE_STATES:
                         obs_tracker.reset()
 
