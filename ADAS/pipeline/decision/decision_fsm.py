@@ -103,7 +103,7 @@ class VehicleFSM:
         # ===== AVOIDANCE SEQUENCE =====
         if self.state in AVOIDANCE_STATES:
             return self._handle_avoidance_sequence(
-                env, obstacle_situation, planner_return_complete, cond
+                env, obstacle_situation, planner_return_complete
             )
         
         # ===== EMERGENCY ======
@@ -133,7 +133,7 @@ class VehicleFSM:
         if self._buf_avoid.update(avoidance_detected):
             if self.state in (State.SPEED_50, State.SPEED_80, State.SPEED_SLOW):
                 self._pre_avoidance_state = self.state
-            self._transition(State.PREPARE_AVOID, "Obstáculo detetado à frente")
+            self._transition(State.PREPARE_AVOID, "Obstacle detected ahead.")
             self._reset_buffers()
             return self.state
 
@@ -308,11 +308,11 @@ class VehicleFSM:
         }
 
         for d in env.detections:
-            print(
-                f"[DEBUG] class={d.class_id.name} "
-                f"(id={d.class_id.value}) | "
-                f"area={d.relative_area:.4f}"
-            )
+            #print(
+            #    f"[DEBUG] class={d.class_id.name} "
+            #    f"(id={d.class_id.value}) | "
+            #    f"area={d.relative_area:.4f}"
+            #)
             
             if d.class_id == ClassID.LIGHT_RED and d.relative_area > Thresholds.AREA_TRAFFIC_LIGHT:
                 cond["stop_red"] = True
@@ -338,7 +338,7 @@ class VehicleFSM:
             if d.in_corridor and d.class_id == ClassID.OBSTACLE:
                 if d.relative_area >= Thresholds.AREA_EMERGENCY:
                     cond["emergency"] = True
-                elif d.relative_area >= Thresholds.AREA_AVOIDANCE:
+                if d.relative_area >= Thresholds.AREA_AVOIDANCE:
                     cond["obstacle_ahead"] = True
 
             if d.in_corridor and d.class_id == ClassID.CAR:

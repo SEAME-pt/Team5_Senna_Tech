@@ -221,7 +221,7 @@ def main():
                             env_state.lead_car_detected = True
                             if rel_area > env_state.lead_car_area:
                                 env_state.lead_car_area = rel_area
-                            print(f"[ACC] Car in corridor | area={rel_area:.4f} | follow threshold={0.018} | target_area={0.033}")
+                            #print(f"[ACC] Car in corridor | area={rel_area:.4f} | follow threshold={0.018} | target_area={0.033}")
 
                     bgr = detector.draw(bgr, detections)
                     
