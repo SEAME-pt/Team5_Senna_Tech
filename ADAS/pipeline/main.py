@@ -57,12 +57,12 @@ CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 60
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
 
 STATE_THROTTLE = {
-    State.EMERGENCY:     200,
+    State.EMERGENCY:     200, # abstract value to represent emergency break on the microcontroller
     State.STOP:          0,
     State.SPEED_SLOW:    5,
     State.SPEED_50:      7,
     State.SPEED_80:      9,
-    State.FOLLOW:        0,   # calculado pelo ACC
+    State.FOLLOW:        0,   # ACC
     State.PREPARE_AVOID: 5,
     State.AVOIDING:      5,
     State.BLIND_WAIT:    5,
@@ -218,13 +218,12 @@ def main():
                         if in_corridor and cid == ClassID.OBSTACLE:
                             env_state.corridor_clear = False
 
-                        # If car is detected in the corridor,start adaptive cruise control logic
+                        # If car is detected in the corridor, start adaptive cruise control
                         elif in_corridor and cid == ClassID.CAR:
                             env_state.corridor_clear = False
                             env_state.lead_car_detected = True
                             if rel_area > env_state.lead_car_area:
                                 env_state.lead_car_area = rel_area
-                            #print(f"[ACC] Car in corridor | area={rel_area:.4f} | follow threshold={0.018} | target_area={0.033}")
 
                     bgr = detector.draw(bgr, detections)
 

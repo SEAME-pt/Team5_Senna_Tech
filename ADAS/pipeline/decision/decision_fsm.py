@@ -348,7 +348,7 @@ class VehicleFSM:
                 # enter in follow with area >= ~0.022
                 if (self.state != State.FOLLOW and d.relative_area >= Thresholds.AREA_FOLLOW_ENTER):
                     cond["follow"] = True
-                # continue in follow until area
+                # continue in follow until area < ~0.017 (hysteresis to avoid flickering)
                 elif (self.state == State.FOLLOW and d.relative_area >= Thresholds.AREA_FOLLOW_EXIT):
                     cond["follow"] = True
 
