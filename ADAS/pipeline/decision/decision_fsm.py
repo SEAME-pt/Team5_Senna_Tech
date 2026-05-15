@@ -11,13 +11,13 @@ class State(Enum):
     EMERGENCY = 200
     STOP = 0
     SPEED_SLOW = 5
-    SPEED_50 = 7
-    SPEED_80 = 9
+    SPEED_50 = 8
+    SPEED_80 = 10
     FOLLOW = 4
-    PREPARE_AVOID = 10
-    AVOIDING = 11
-    BLIND_WAIT = 12
-    RETURNING = 13
+    PREPARE_AVOID = 11
+    AVOIDING = 12
+    BLIND_WAIT = 13
+    RETURNING = 14
 
 AVOIDANCE_STATES = (
     State.PREPARE_AVOID,
@@ -71,16 +71,18 @@ class VehicleFSM:
         self.stop_sign_ignore_until = 0
         self.STOP_SIGN_COOLDOWN = 5
 
-        # confirmation buffers
+        # confirmation buffers, this means the amount of consecutive frames 
+        # a condition must be met to trigger the transition.
         self._buf_emergency = ConfirmationBuffer(3)
         self._buf_stop_red = ConfirmationBuffer(2)
         self._buf_stop_sign = ConfirmationBuffer(2)
         self._buf_slow = ConfirmationBuffer(2)
         self._buf_speed_50 = ConfirmationBuffer(2)
         self._buf_speed_80 = ConfirmationBuffer(2)
-        self._buf_clear = ConfirmationBuffer(15)
+        self._buf_clear = ConfirmationBuffer(8)
         self._buf_avoid = ConfirmationBuffer(5)
-        self._buf_follow = ConfirmationBuffer(3)
+        self._buf_follow = ConfirmationBuffer(5)
+        self._buf_follow_exit = ConfirmationBuffer(15)
 
         # obstacle avoidance
         self._prepare_buf = ConfirmationBuffer(2)
@@ -143,10 +145,11 @@ class VehicleFSM:
         # ===== FOLLOW =====
         if self.state == State.FOLLOW:
             if not cond["follow"]:
-                self._transition(
-                    State.SPEED_50,
-                    "Lead car gone"
-                )
+                if self._buf_follow_exit.update(True):
+                    self._transition(State.SPEED_50,"Lead car gone")
+                    self._buf_follow_exit.reset()
+            else:
+                self._buf_follow_exit.reset()
             return self.state
 
         # ===== STOP logic =====
@@ -382,3 +385,4 @@ class VehicleFSM:
         self._buf_speed_50.reset()
         self._buf_speed_80.reset()
         self._buf_avoid.reset()
+        self._buf_follow_exit.reset()

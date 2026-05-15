@@ -60,8 +60,8 @@ STATE_THROTTLE = {
     State.EMERGENCY:     200, # abstract value to represent emergency break on the microcontroller
     State.STOP:          0,
     State.SPEED_SLOW:    5,
-    State.SPEED_50:      7,
-    State.SPEED_80:      9,
+    State.SPEED_50:      8,
+    State.SPEED_80:      10,
     State.FOLLOW:        0,   # ACC
     State.PREPARE_AVOID: 5,
     State.AVOIDING:      5,
