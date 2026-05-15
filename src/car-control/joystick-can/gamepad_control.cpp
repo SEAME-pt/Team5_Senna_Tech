@@ -53,6 +53,8 @@ int main()
 
         bool auto_mode = false;
         bool debug = false;
+        static int16_t last_throttle = 0;
+        static int16_t last_steering = 0;
 
         while (true)
         {
@@ -91,7 +93,17 @@ int main()
 
             // ===== DRIVE =====
             if (!auto_mode) {
-                send_drive(sock, CAN_ID_JOY_MOVEMENT, throttle_can, steering_can);
+
+                bool changed =
+                    (throttle_can != last_throttle ||
+                     steering_can != last_steering);
+
+                if (changed) {
+                    send_drive(sock, CAN_ID_JOY_MOVEMENT, throttle_can, steering_can);
+
+                    last_throttle = throttle_can;
+                    last_steering = steering_can;
+                }
             }
 
             const char* current_mode =
@@ -104,7 +116,7 @@ int main()
                 throttle, throttle_can
             );
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            std::this_thread::sleep_for(std::chrono::milliseconds(15));
         }
 
     } catch (const std::exception& e) {
