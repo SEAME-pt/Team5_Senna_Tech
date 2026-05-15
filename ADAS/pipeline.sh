@@ -2,7 +2,7 @@
 
 RASP_USER="root"
 RASP_IP="10.21.220.158"
-RASP_DEST="/home/pipeline_jose"
+RASP_DEST="/home/pipeline_yasmine"
 PIPELINE_DIR="pipeline"
 
 # Colors
