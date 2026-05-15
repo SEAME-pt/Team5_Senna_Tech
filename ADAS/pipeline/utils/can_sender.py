@@ -48,14 +48,38 @@ class CanSender:
         except can.CanError:
             print("CAN send failed (FSM State)")
 
-    #Ainda não está a ser utilizado, aguardando mudança do PID para o MCU
-    def send_cte(self, can_id: int, cte: float):
-        """ Envia o CTE multiplicando por um fator para enviar como int16 """
-        # Multiplicamos por 1000 para preservar 3 casas decimais (ex: 0.125 -> 125)
-        # O MCU terá de dividir por 1000.0
-        value = int(cte * 1000)
-        self.send_int16(can_id, value)
-
     def close(self):
         if self.bus:
             self.bus.shutdown()
+
+    def send_drive_command(self, can_id: int, throttle: int, steering: float):
+    """
+    Sends throttle + steering in a single CAN frame.
+
+    Payload:
+    bytes 0-1 -> throttle (int16)
+    bytes 2-3 -> steering (int16 scaled by 100)
+    """
+
+    # clamp throttle & steering
+    throttle = max(-32768, min(32767, throttle))
+    steering = max(-1.0, min(1.0, steering))
+
+    # preserve 2 decimal places
+    steering_i16 = int(steering * 100)
+
+    # pack both int16 values
+    data = struct.pack("<hh", throttle, steering_i16)
+
+    msg = can.Message(
+        arbitration_id=can_id,
+        data=data,
+        dlc=4,
+        is_extended_id=False
+    )
+
+    try:
+        self.bus.send(msg)
+
+    except can.CanError:
+        print("CAN send failed (drive command)")

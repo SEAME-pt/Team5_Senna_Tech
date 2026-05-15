@@ -281,15 +281,17 @@ def main():
                         throttle = acc_value
 
                     # ===== CAN ====
-                    if not args.virtual:
-                        if throttle != last_sent_throttle:
-                            can.send_int16(0x001, throttle)
-                            last_sent_throttle = throttle
-
+                    # Both commands are sent together
                     steering = round(pid_return * -1, 2)
-                    if steering != last_sent_steering:
-                        can.send_can_percent(0x110, steering)
-                        last_sent_steering = steering
+                    if not args.virtual:
+                        if (throttle != last_sent_throttle orsteering != last_sent_steering):
+                            can.send_drive_command(
+                                0x002,      # CAN ID for AI movement commands
+                                throttle,
+                                steering
+                            )
+                            last_sent_throttle = throttle
+                            last_sent_steering = steering
 
                     if last_valid_state is None or current_state.value != last_valid_state:
                         last_valid_state = current_state.value

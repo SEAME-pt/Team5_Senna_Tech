@@ -6,16 +6,16 @@
 #include "utils.h"
 
 // --- Definição dos IDs CAN  ---
-#define CAN_ID_AI_MOVEMENT  0x001
-#define CAN_ID_RESET        0x002
-#define CAN_ID_HEARTBEAT    0x005
-#define CAN_ID_SPEED        0x10
-#define CAN_ID_MOTOR_CMD    0x100
-#define CAN_ID_MODE         0x105
-#define CAN_ID_STEER_CMD    0x110
-#define CAN_ID_BATTERY      0x200
-#define CAN_ID_TEMP         0x210
-#define CAN_ID_ODOMETER     0x220
+#define CAN_ID_JOY_MOVEMENT     0x001
+#define CAN_ID_AI_MOVEMENT      0x002
+#define CAN_ID_MODE_MOVEMENT    0x003
+#define CAN_ID_HEARTBEAT        0x005
+#define CAN_ID_SPEED            0x10
+#define CAN_ID_MOTOR_CMD        0x100
+#define CAN_ID_STEER_CMD        0x110
+#define CAN_ID_BATTERY          0x200
+#define CAN_ID_TEMP             0x210
+#define CAN_ID_ODOMETER         0x220
 
 // --- Estrutura global ---
 typedef struct {
