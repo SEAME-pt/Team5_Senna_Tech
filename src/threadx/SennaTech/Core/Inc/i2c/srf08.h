@@ -13,9 +13,9 @@
 // SRF08 requires ~65ms after trigger before the result is ready
 #define SRF08_RANGING_DELAY_MS  70
 
-#endif
-
-UINT    srf08_init(UINT addr);
-ULONG   srf08_read_cm(UINT addr, ULONG *distance_cm);
+UINT    srf08_trigger(uint16_t addr);
+ULONG   srf08_read_cm(uint16_t addr, ULONG *distance_cm);
 
 // very useful documentation: https://www.robot-electronics.co.uk/htm/srf08tech.html
+
+#endif
