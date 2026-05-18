@@ -1,8 +1,7 @@
 #ifndef SRF08_H
 #define SRF08_H
 
-#include "app_threadx.h"
-#include "can_manager.h"
+#include "utils.h"
 #include "i2c.h"
 
 #define SRF08_DEFAULT_ADDR      0xE0  // 8-bit address (shifted: 0x70 << 1)
@@ -17,6 +16,6 @@
 #endif
 
 UINT    srf08_init(UINT addr);
-UINT    srf08_read_cm(UINT addr, uint16_t *distance_cm);
+ULONG   srf08_read_cm(UINT addr, ULONG *distance_cm);
 
 // very useful documentation: https://www.robot-electronics.co.uk/htm/srf08tech.html

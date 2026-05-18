@@ -10,3 +10,20 @@ UINT    srf08_init(UINT addr)
         return TX_TIMER_ERROR;
     return TX_SUCCESS;
 }
+
+ULONG    srf08_read_cm(UINT addr, ULONG *distance_cm)
+{
+    uint8_t reg  = SRF08_REG_RANGE_HIGH;
+    uint8_t data[2];
+    
+    // Read the high byte of the range
+    if (HAL_I2C_Master_Transmit(&hi2c3, addr, &reg, 1, 100) != HAL_OK)
+        return TX_TIMER_ERROR;
+
+    // Read 2 bytes (high, low)
+    if (HAL_I2C_Master_Receive(&hi2c3, addr, data, 2, 100) != HAL_OK)
+        return TX_TIMER_ERROR;
+    
+    *distance_cm = (ULONG)((data[0] << 8) | data[1]);
+    return TX_SUCCESS;
+}

@@ -3,5 +3,5 @@
 
 void ultrasonic_thread_entry(ULONG thread_input)
 {
-
+    
 }
