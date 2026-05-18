@@ -9,7 +9,7 @@ class CanSender:
         )
 
     def send_int16(self, can_id: int, value: int):
-        # limita e empacota int16 little-endian
+        # little-endian
         value = max(-32768, min(32767, value))
         data = struct.pack("<h", value)
 
@@ -48,38 +48,38 @@ class CanSender:
         except can.CanError:
             print("CAN send failed (FSM State)")
 
+    def send_drive_command(self, can_id: int, throttle: int, steering: float):
+        """
+        Sends throttle + steering in a single CAN frame.
+
+        Payload:
+        bytes 0-1 -> throttle (int16)
+        bytes 2-3 -> steering (int16 scaled by 100)
+        """
+
+        # clamp throttle & steering
+        throttle = max(-32768, min(32767, throttle))
+        steering = max(-1.0, min(1.0, steering))
+
+        # preserve 2 decimal places
+        steering_i16 = int(steering * 100)
+
+        # pack both int16 values
+        data = struct.pack("<hh", throttle, steering_i16)
+
+        msg = can.Message(
+            arbitration_id=can_id,
+            data=data,
+            dlc=4,
+            is_extended_id=False
+        )
+        try:
+            self.bus.send(msg)
+    
+        except can.CanError:
+            print("CAN send failed (drive command)")
+
     def close(self):
         if self.bus:
             self.bus.shutdown()
 
-    def send_drive_command(self, can_id: int, throttle: int, steering: float):
-    """
-    Sends throttle + steering in a single CAN frame.
-
-    Payload:
-    bytes 0-1 -> throttle (int16)
-    bytes 2-3 -> steering (int16 scaled by 100)
-    """
-
-    # clamp throttle & steering
-    throttle = max(-32768, min(32767, throttle))
-    steering = max(-1.0, min(1.0, steering))
-
-    # preserve 2 decimal places
-    steering_i16 = int(steering * 100)
-
-    # pack both int16 values
-    data = struct.pack("<hh", throttle, steering_i16)
-
-    msg = can.Message(
-        arbitration_id=can_id,
-        data=data,
-        dlc=4,
-        is_extended_id=False
-    )
-
-    try:
-        self.bus.send(msg)
-
-    except can.CanError:
-        print("CAN send failed (drive command)")

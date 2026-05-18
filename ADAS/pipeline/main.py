@@ -298,7 +298,7 @@ def main():
                     # Both commands are sent together
                     steering = round(pid_return * -1, 2)
                     if not args.virtual:
-                        if (throttle != last_sent_throttle orsteering != last_sent_steering):
+                        if (throttle != last_sent_throttle or steering != last_sent_steering):
                             can.send_drive_command(
                                 0x002,      # CAN ID for AI movement commands
                                 throttle,
