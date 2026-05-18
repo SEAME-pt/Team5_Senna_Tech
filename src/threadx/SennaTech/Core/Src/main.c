@@ -46,6 +46,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 I2C_HandleTypeDef hi2c1;
+I2C_HandleTypeDef hi2c3;
 
 SPI_HandleTypeDef hspi1;
 
@@ -76,6 +77,7 @@ static void MX_I2C1_Init(void);
 static void MX_ICACHE_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_I2C3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -131,129 +133,21 @@ int main(void)
   MX_ICACHE_Init();
   MX_USART1_UART_Init();
   MX_SPI1_Init();
+  MX_I2C3_Init();
   /* USER CODE BEGIN 2 */
-  	//just for debugging, delete afterwards
-/*     printf("\n--- Sensor initialization check ---\n");
 
-    uint32_t primask = __get_PRIMASK();
-    printf("PRIMASK: %lu (It should be 0. If it's 1, interrupts are globally disabled.)\n", primask);
-    printf("SCB->VTOR: 0x%08lX (should be 0x08000000)\n", SCB->VTOR);
-    printf("ISER[0] final: 0x%08lX\n", NVIC->ISER[0]);
+  /* WARNING */
+  // Do not delete
+  EXTI->SWIER1 = (1 << 0);
 
-    printf("SWIER Direct Test...\n");
-
-    uint32_t count_antes = pulse_count; */
-
-    // !!!!!!!!!!!NAO APAGAR ESSA LINHA!!!!!!!!!!!!!
-    EXTI->SWIER1 = (1 << 0);
-
-//    HAL_Delay(100);
-
-/*     if (pulse_count > count_antes) {
-        printf("!!! SUCCESS !!! The sensor code entered the interrupt.\n");
-    } else {
-        printf("TOTAL FAILURE. The processor refuses to jump to the address. \n");
-    } */
-    // -----------------------------------------------------
-
-//  printf("Initializing MCP2515...\r\n");
-//
-//  // Reset inicial
-//  printf("Calling MCP2515_Reset...\n");
-//  MCP2515_Reset();
-//  printf("Calling MCP2515_Reset...\n");
-////  HAL_Delay(10);
-//
-//  // Configure bitrate - THIS FUNCTION ALREADY PUTS YOU IN CONFIG MODE
-//  if (MCP2515_SetBitrate(CAN_500KBPS, MCP_8MHZ) != HAL_OK) {
-//      printf("ERROR: Bit rate\n");
-//  }
-//
-//  // Configure filters
-//  // Here we have to change things later
-//  //there's no standard for arbitration, security, or priority.
-//  //We receive everything that comes via the can.
-//  //I'll switch after studying the Uprotocol.
-//  MCP2515_WriteByte(MCP_RXB0CTRL, 0x60); // Receive all messages
-//  MCP2515_WriteByte(MCP_RXM0SIDH, 0x00);
-//  MCP2515_WriteByte(MCP_RXM0SIDL, 0x00);
-//  MCP2515_WriteByte(MCP_RXM1SIDH, 0x00);
-//  MCP2515_WriteByte(MCP_RXM1SIDL, 0x00);
-//
-//  // enable interrupts
-//  // Receive Buffer 0 Interrupt (RX0IE) to trigger MCU IRQ on new data
-//  MCP2515_WriteByte(MCP_CANINTE, 0x01);
-//
-//  // Clear all pending interrupt flags to ensure a clean start state
-//  MCP2515_WriteByte(MCP_CANINTF, 0x00);
-//
-//  // Switch from configuration mode to normal Mode to start bus communication
-//  MCP2515_WriteByte(MCP_CANCTRL, MODE_NORMAL);
-////  HAL_Delay(10);
-//
-//  // Final verification
-//  uint8_t check_inte = MCP2515_ReadByte(MCP_CANINTE);
-//  uint8_t check_intf = MCP2515_ReadByte(MCP_CANINTF);
-//  uint8_t final_canstat = MCP2515_ReadByte(MCP_CANSTAT);
-//
-//  printf("Final check - CANINTE: 0x%02X, CANINTF: 0x%02X, CANSTAT: 0x%02X\n",
-//         check_inte, check_intf, final_canstat);
-//
-//  if (check_inte == 0x01) {
-//      printf("SUCCESS: MCP2515 initialized - interrupts ENABLED\n");
-//  } else {
-//      printf("ERROR: Interrupts not enabled! CANINTE=0x%02X\n", check_inte);
-//  }
-//
-//  printf("MCP2515 in NORMAL mode and ready\n");
   /* USER CODE END 2 */
 
   MX_ThreadX_Init();
-
-  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	  // Check if 100ms have passed (Non-blocking delay)
-//	  if (HAL_GetTick() - last_print > 100) {
-//		  last_print = HAL_GetTick();
-//		  printf("pulse counting: %lu\n", pulse_count);
-//
-//          CAN_Frame frame_envio;
-//          frame_envio.id = 0x123; // ID agreed with Raspberry Pi // Ver Padrão OBD-II
-//          frame_envio.dlc = 2;    // Sending 2 bytes
-//
-//          // 3. pulse Packaging (Big Endian - Most common in networks)
-//          // Byte 0: High range
-//          // Byte 1: Low range
-//          // cleansing mask & 0xFF
-//          frame_envio.data[0] = (pulse_count >> 8) & 0xFF;
-//          frame_envio.data[1] = (pulse_count) & 0xFF;
-//
-//          // 4. Send
-//          if (MCP2515_SendMessage(&frame_envio) == HAL_OK) {
-//              // dubug
-//              printf("TX CAN OK: pulse_count=%d\n", pulse_count);
-//          } else {
-//              printf("TX CAN FALHOU\n");
-//          }
-//	  }
-//
-//	  if (flag_mensagem_recebida == 1)
-//	  {
-//		  flag_mensagem_recebida = 0;
-//
-//		  if (MCP2515_ReceiveMessage(&rxFrame) == HAL_OK) {
-//			  printf("RX CAN ID=0x%03lX DLC=%d Data=", rxFrame.id, rxFrame.dlc);
-//			  for(int i = 0; i < rxFrame.dlc; i++) {
-//				  printf("%02X ", rxFrame.data[i]);
-//			  }
-//	          printf("\n");
-//		  }
-//	  }
-//	  HAL_Delay(10);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -384,6 +278,54 @@ static void MX_I2C1_Init(void)
   /* USER CODE BEGIN I2C1_Init 2 */
 
   /* USER CODE END I2C1_Init 2 */
+
+}
+
+/**
+  * @brief I2C3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C3_Init(void)
+{
+
+  /* USER CODE BEGIN I2C3_Init 0 */
+
+  /* USER CODE END I2C3_Init 0 */
+
+  /* USER CODE BEGIN I2C3_Init 1 */
+
+  /* USER CODE END I2C3_Init 1 */
+  hi2c3.Instance = I2C3;
+  hi2c3.Init.Timing = 0x30909DEC;
+  hi2c3.Init.OwnAddress1 = 0;
+  hi2c3.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c3.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c3.Init.OwnAddress2 = 0;
+  hi2c3.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c3.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c3.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Analogue filter
+  */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c3, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Digital filter
+  */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c3, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C3_Init 2 */
+
+  /* USER CODE END I2C3_Init 2 */
 
 }
 
