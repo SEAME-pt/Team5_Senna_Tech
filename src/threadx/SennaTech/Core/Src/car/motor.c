@@ -28,27 +28,6 @@ static e_car_mode get_car_mode(int16_t mode_cmd, ULONG *last_tick, float *thrott
     return MODE_MANUAL; // default
 }
 
-static float decode_can_percent(uint8_t low_byte, uint8_t high_byte)
-{
-    // Intel (little endian)
-    uint16_t u_combined = ((uint16_t)high_byte << 8) | low_byte;
-    int16_t raw = (int16_t)u_combined;
-
-    if (raw == 200)
-    {
-        uart_send("EMERGENCY BRAKE\r\n");
-        return 2.0f;
-    }
-
-    float percent = raw * 0.01f;
-
-    // safety clamp
-    if (percent > 1.0f)  percent = 1.0f;
-    if (percent < -1.0f) percent = -1.0f;
-
-    return percent;
-}
-
 static void decode_drive_frame(CAN_Frame *frame, float *throttle_target, float *steering_target)
 {
     int16_t throttle_raw = (int16_t)((uint16_t)frame->data[1] << 8 | frame->data[0]);
@@ -80,11 +59,8 @@ void motors_thread_entry(ULONG thread_input)
     float steering_target = 0.0f; // normalized [-1, 1]
 
     ULONG last_tick = tx_time_get();
-    
-    e_car_mode mode = MODE_MANUAL;
     UINT brake = 0;
-
-    float percent;
+    e_car_mode mode = MODE_MANUAL;
 
     while (1)
     {
@@ -94,7 +70,6 @@ void motors_thread_entry(ULONG thread_input)
             if (frame.id == CAN_ID_MODE_MOVEMENT)
             {
                 int16_t mode_cmd = (int16_t)frame.data[0];
-
                 mode = get_car_mode(mode_cmd, &last_tick, &throttle_target);
                 pid_reset(&throttle_pid);
                 continue ;
@@ -111,21 +86,17 @@ void motors_thread_entry(ULONG thread_input)
                 {
                     float joy_throttle, joy_steering;
                     decode_drive_frame(&frame, &joy_throttle, &joy_steering);
-                    
+
                     if (fabsf(joy_throttle) > 0.05f || fabsf(joy_steering) > 0.05f)
                     {
-                        uart_send("Joystick override: AUTO -> MANUAL\r\n");
                         mode = MODE_MANUAL;
                         pid_reset(&throttle_pid);
                         throttle_target = joy_throttle;
                         steering_target = joy_steering;
                     }
                 }
-                // else: joystick idle while in AUTO, ignore it
                 else if (mode == MODE_MANUAL)
-                {
                     decode_drive_frame(&frame, &throttle_target, &steering_target);
-                }
                 continue ;
             }
         }
