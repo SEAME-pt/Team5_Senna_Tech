@@ -329,10 +329,10 @@ class VehicleFSM:
             elif d.class_id == ClassID.LIGHT_GREEN and d.relative_area > Thresholds.AREA_TRAFFIC_LIGHT:
                 cond["green_light"] = True
 
-            elif d.class_id in (
-                ClassID.LIGHT_YELLOW,
-                ClassID.CROSSWALK_SIGN
-            ):
+            elif d.class_id == ClassID.CROSSWALK_SIGN and d.relative_area > Thresholds.AREA_SIGN:
+                cond["slow"] = True
+            
+            elif d.class_id == ClassID.LIGHT_YELLOW and d.relative_area > Thresholds.AREA_TRAFFIC_LIGHT:
                 cond["slow"] = True
 
             elif d.class_id == ClassID.SIGN_50 and d.relative_area > Thresholds.AREA_SIGN:
@@ -354,12 +354,6 @@ class VehicleFSM:
                 # continue in follow until area < ~0.017 (hysteresis to avoid flickering)
                 elif (self.state == State.FOLLOW and d.relative_area >= Thresholds.AREA_FOLLOW_EXIT):
                     cond["follow"] = True
-
-        if env.crosswalk_distance_m is not None:
-            if env.crosswalk_distance_m < 3.0:
-                cond["stop_sign"] = True
-            elif env.crosswalk_distance_m < 10.0:
-                cond["slow"] = True
 
         return cond
 
