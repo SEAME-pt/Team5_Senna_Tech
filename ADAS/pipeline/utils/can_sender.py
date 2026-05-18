@@ -25,7 +25,7 @@ class CanSender:
         except can.CanError:
             print("CAN send failed")
 
-    def send_steering_percent(self, can_id: int, percent: float):
+    def send_can_percent(self, can_id: int, percent: float):
         # clamp -1.0 a 1.0
         percent = max(-1.0, min(1.0, percent))
 

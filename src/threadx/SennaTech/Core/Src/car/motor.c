@@ -28,41 +28,17 @@ static e_car_mode get_car_mode(int16_t mode_cmd, ULONG *last_tick, float *thrott
     return MODE_MANUAL; // default
 }
 
-static float switch_trottle_mode(float percent, uint8_t *brake)
-{
-    switch ((int)percent)
-    {
-        case 0:
-            uart_send("Stop car\r\n");
-            *brake = 1;
-            return 0.0f;
-        case 1:
-            uart_send("Stop car\r\n");
-            *brake = 1;
-            return 0.00f;
-        case 2:
-            uart_send("Slow speed\r\n");
-            *brake = 0;
-            return 0.05f;
-        case 3:
-            uart_send("Medium speed\r\n");
-            *brake = 0;
-            return 0.09f;
-        case 4:
-            uart_send("Full speed\r\n");
-            *brake = 0;
-            return 0.11f;
-        default:
-            return 0.0f;
-    }
-}
-
 static float decode_can_percent(uint8_t low_byte, uint8_t high_byte)
 {
     // Intel (little endian)
     uint16_t u_combined = ((uint16_t)high_byte << 8) | low_byte;
-
     int16_t raw = (int16_t)u_combined;
+
+    if (raw == 200)
+    {
+        uart_send("EMERGENCY BRAKE\r\n");
+        return 2.0f;
+    }
 
     float percent = raw * 0.01f;
 
@@ -93,7 +69,7 @@ void motors_thread_entry(ULONG thread_input)
     ULONG last_tick = tx_time_get();
     
     e_car_mode mode = MODE_MANUAL;
-    uint8_t brake = 0;
+    UINT brake = 0;
 
     float percent;
 
@@ -123,8 +99,13 @@ void motors_thread_entry(ULONG thread_input)
             }
     
             if (frame.id == CAN_ID_AI_MOVEMENT)
-
-                throttle_target = switch_trottle_mode(percent, &brake);
+            {
+                throttle_target = percent;
+                uart_send("Received AI MOVEMENT command\r\n");
+                uart_send_int(throttle_target * 100);
+                uart_send("%\r\n");
+                continue ;
+            }
             else if (frame.id == CAN_ID_MOTOR_CMD && (mode == MODE_MANUAL))
                 throttle_target = percent;
 
@@ -133,6 +114,11 @@ void motors_thread_entry(ULONG thread_input)
 
             continue ;
         }
+
+        if (throttle_target == 2.0f) // Emergency brake
+            brake = 1;
+        else
+            brake = 0;
 
         float dt = get_delta_time_seconds(&last_tick);
         if (dt <= 0.0f)
