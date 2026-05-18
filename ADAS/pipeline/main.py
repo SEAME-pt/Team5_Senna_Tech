@@ -39,6 +39,7 @@ from object.perception_objects import EnvironmentState, Detection, ClassID
 from object.corridor_check import CorridorChecker
 from kuksa_publish.kuksa_publish import KuksaClient
 from decision.adaptive_cruise import AdaptiveCruiseControl
+from camera.CameraReader import CameraReader
 
 try:
     from decision.PID_steering import PID
@@ -53,7 +54,7 @@ except ImportError:
         def send_fsm_state(self, *args): pass
         def close(self): pass
 
-CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 60
+CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 15
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
 
 STATE_THROTTLE = {
@@ -68,6 +69,15 @@ STATE_THROTTLE = {
     State.BLIND_WAIT:    5,
     State.RETURNING:     5,
 }
+
+def read_exact(pipe, size):
+    buf = b''
+    while len(buf) < size:
+        chunk = pipe.read(size - len(buf))
+        if not chunk:
+            return None
+        buf += chunk
+    return buf
 
 def main():
     parser = argparse.ArgumentParser()
@@ -91,7 +101,7 @@ def main():
     detector = ObjectDetector()
     mask_filters = MaskFilters()
     #  !!! (kp, ki, kd) alterar aqui
-    pid = PID(0.9, 0.2, 0.6)
+    pid = PID(1.3, 0.1, 0.1)#0.9, 0.2, 0.6
     can = CanSender(channel="can0")
     bev = BEVTransform(CAM_WIDTH, CAM_HEIGHT)
     fitter = SlidingWindowsLaneFitter(cam_height=CAM_HEIGHT)
@@ -122,11 +132,12 @@ def main():
             cam_cmd = [
                 "rpicam-vid", "-t", "0", "--codec", "yuv420",
                 "--width", str(CAM_WIDTH), "--height", str(CAM_HEIGHT),
-                "--framerate", str(CAM_FPS), "--mode", "2304:1296:8:P", #"2304:1296:8:P"
-                "--shutter", "5000", "--vflip", "--hflip", "-o", "-", "--nopreview"
+                "--framerate", str(CAM_FPS), "--mode", "640:360:8:P", #"2304:1296:8:P"
+                "--exposure", "sport", "--denoise", "off",
+                "--shutter", "3500", "--vflip", "--hflip", "-o", "-", "--nopreview"
             ]
 
-            camera = subprocess.Popen(cam_cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            camera = CameraReader(cam_cmd, CAM_WIDTH, CAM_HEIGHT)
 
             if args.remote or args.no_display:
                 display = None
@@ -139,7 +150,7 @@ def main():
                 )
                 display = subprocess.Popen(gst_cmd, stdin=subprocess.PIPE, env=gst_env, shell=True)
 
-            raw_frame_size = CAM_WIDTH * CAM_HEIGHT * 3 // 2
+            raw_frame_size = CAM_WIDTH * CAM_HEIGHT * 3 // 2    
 
             frame_count = 0
             t_start = time.perf_counter()
@@ -149,6 +160,7 @@ def main():
             # vars to avoid spamming commands when not necessary
             last_sent_throttle = None
             last_sent_steering = None
+            #can.send_fsm_state(0x001, 2)
 
             try:
                 while True:
@@ -157,12 +169,14 @@ def main():
                     # ==== CAMERA =====
                     t0 = time.perf_counter()
 
-                    raw = camera.stdout.read(raw_frame_size)
-                    if len(raw) < raw_frame_size:
-                        break
+                    #raw = camera.stdout.read(raw_frame_size)
+                    bgr = camera.get_frame()
 
-                    yuv = np.frombuffer(raw, dtype=np.uint8).reshape((CAM_HEIGHT * 3 // 2, CAM_WIDTH))
-                    bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
+                    if bgr is None:
+                        continue
+
+                    #yuv = np.frombuffer(raw, dtype=np.uint8).reshape((CAM_HEIGHT * 3 // 2, CAM_WIDTH))
+                    #bgr = cv2.cvtColor(yuv, cv2.COLOR_YUV2BGR_I420)
 
                     t_camera = (time.perf_counter() - t0) * 1000
 
@@ -317,22 +331,23 @@ def main():
                             display.stdin.flush()
 
                     t_display = (time.perf_counter() - t0) * 1000
-                    #print(
-                    #    f"FPS: {fps:.1f} | "
-                    #    f"Cam: {t_camera:.1f}ms | "
-                    #    f"Lane model: {inf_lane_ms:.1f}ms | "
-                    #    f"Obj model: {inf_obj_ms:.1f}ms | "
-                    #    f"Post: {t_post:.1f}ms | "
-                    #    f"Kuksa: {t_kuksa:.1f}ms | "
-                    #    f"Decision: {t_decision:.1f}ms | "
-                    #    f"Display: {t_display:.1f}ms | "
-                    #)
+                    print(
+                        f"FPS: {fps:.1f} | "
+                        f"Cam: {t_camera:.1f}ms | "
+                        f"Lane model: {inf_lane_ms:.1f}ms | "
+                        f"Obj model: {inf_obj_ms:.1f}ms | "
+                        f"Post: {t_post:.1f}ms | "
+                        f"Kuksa: {t_kuksa:.1f}ms | "
+                        f"Decision: {t_decision:.1f}ms | "
+                        f"Display: {t_display:.1f}ms | "
+                    )
 
             except KeyboardInterrupt:
                 print("\nShutting down...")
             finally:
-                camera.terminate()
+                camera.stop()
                 can.close()
 
 if __name__ == "__main__":
     main()
+
