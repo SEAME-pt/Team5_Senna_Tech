@@ -105,16 +105,29 @@ void motors_thread_entry(ULONG thread_input)
                 decode_drive_frame(&frame, &throttle_target, &steering_target);
                 continue ;
             }
-            else if (frame.id == CAN_ID_JOY_MOVEMENT && mode == MODE_MANUAL)
+            else if (frame.id == CAN_ID_JOY_MOVEMENT)
             {
-                decode_drive_frame(&frame, &throttle_target, &steering_target);
+                if (mode == MODE_AUTONOMOUS)
+                {
+                    float joy_throttle, joy_steering;
+                    decode_drive_frame(&frame, &joy_throttle, &joy_steering);
+                    
+                    if (fabsf(joy_throttle) > 0.05f || fabsf(joy_steering) > 0.05f)
+                    {
+                        uart_send("Joystick override: AUTO -> MANUAL\r\n");
+                        mode = MODE_MANUAL;
+                        pid_reset(&throttle_pid);
+                        throttle_target = joy_throttle;
+                        steering_target = joy_steering;
+                    }
+                }
+                // else: joystick idle while in AUTO, ignore it
+                else if (mode == MODE_MANUAL)
+                {
+                    decode_drive_frame(&frame, &throttle_target, &steering_target);
+                }
                 continue ;
             }
-
-            else if (mode == MODE_DEBUG)
-                throttle_target = 0.07f;
-
-            continue ;
         }
 
         if (throttle_target == 2.0f) // Emergency brake
