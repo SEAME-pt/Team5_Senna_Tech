@@ -270,28 +270,28 @@ static UINT App_CreateThreads(void)
 	}
 
 	ret = tx_thread_create(&threads[5].thread,
-				       "Odometer Thread",
-				       odometer_thread_entry,
-				       1,
-				       threads[5].stack,
-				       sizeof(threads[5].stack),
-				       17, 17,
-					   TX_NO_TIME_SLICE, TX_AUTO_START);
-	if (ret != TX_SUCCESS) {
-		uart_send("Failed to create Odometer thread!\r\n");
-		return ret;
-	}
-
-	ret = tx_thread_create(&threads[6].thread,
 				       "Heartbeat Thread",
 				       heartbeat_thread_entry,
 				       0,
-				       threads[6].mini_stack,
-				       sizeof(threads[6].mini_stack),
+				       threads[5].mini_stack,
+				       sizeof(threads[5].mini_stack),
 				       16, 16,
 					   TX_NO_TIME_SLICE, TX_AUTO_START);
 	if (ret != TX_SUCCESS) {
 		uart_send("Failed to create Heartbeat thread!\r\n");
+		return ret;
+	}
+
+	ret = tx_thread_create(&threads[6].thread,
+				       "ultrasonic Thread",
+				       ultrasonic_thread_entry,
+				       0,
+				       threads[6].mini_stack,
+				       sizeof(threads[6].mini_stack),
+				       12, 12,
+					   TX_NO_TIME_SLICE, TX_AUTO_START);
+	if (ret != TX_SUCCESS) {
+		uart_send("Failed to create ultrasonic thread!\r\n");
 		return ret;
 	}
 

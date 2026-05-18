@@ -144,6 +144,8 @@ int main(void)
 
   MX_ThreadX_Init();
 
+  /* We should never get here as control is now taken by the scheduler */
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
