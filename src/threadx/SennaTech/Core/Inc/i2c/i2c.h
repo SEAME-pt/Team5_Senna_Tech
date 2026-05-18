@@ -11,5 +11,6 @@
 #include "stm32u5xx_hal.h"
 
 extern I2C_HandleTypeDef hi2c1;
+extern I2C_HandleTypeDef hi2c3;
 
 #endif
