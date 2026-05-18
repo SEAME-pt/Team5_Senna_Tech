@@ -4,7 +4,7 @@ from enum import Enum
 from collections import deque
 from object.perception_objects import EnvironmentState, ClassID, ObstacleSituation
 
-# Logger para debug de transições
+#Logger for debugging transitions
 log = logging.getLogger("FSM")
 
 class State(Enum):
@@ -314,12 +314,6 @@ class VehicleFSM:
         }
 
         for d in env.detections:
-            #print(
-            #    f"[DEBUG] class={d.class_id.name} "
-            #    f"(id={d.class_id.value}) | "
-            #    f"area={d.relative_area:.4f}"
-            #)
-            
             if d.class_id == ClassID.LIGHT_RED and d.relative_area > Thresholds.AREA_TRAFFIC_LIGHT:
                 cond["stop_red"] = True
 

@@ -64,7 +64,7 @@ Camera Frame
 
 ## Module Breakdown
 
-### 1. Object Detection (`ObjectDetector.py`)
+### 1. Object Detection (`object_detector.py`)
 
 Runs a custom YOLO model (YOLO26-sec) on the Hailo-8 NPU. Produce a list of detections, each with:
 
