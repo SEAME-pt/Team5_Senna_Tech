@@ -4,8 +4,8 @@
 
 | Etapa | Módulo | Input | Output |
 |---|---|---|---|
-| 01 | Camera | — | `bgr (H, W, 3) uint8` |
-| 02 | Inference | `bgr` | `outputs_lane (dict)`, `outputs_obj (dict)` |
+| 01 | Camera | — | `rgb (H, W, 3) uint8` |
+| 02 | Inference | `rgb` | `outputs_lane (dict)`, `outputs_obj (dict)` |
 | 03 | Post-Processing | `outputs_lane` | `binary_mask (H, W) uint8` |
 | 04 | BEV Transform | `binary_mask` | `bev_mask (H, W) uint8` |
 | 05 | Sliding Windows | `bev_mask` | `fit_result (LaneFitResult)` |
@@ -14,11 +14,10 @@
 | 08 | CAN Bus | `pid_return`, `current_state` | comando CAN `0x110`, `0x001` |
 
 ## Documentação por módulo
-- [01 — Camera](01_camera.md)
-- [02 — Inference](02_inference.md)
-- [03 — Post-Processing](03_postprocess.md)
-- [04 — BEV Transform](04_bev.md)
-- [05 — Sliding Windows](05_sliding_windows.md)
-- [06 — CTE](06_cte.md)
-- [07 — PID](07_pid.md)
-- [08 — CAN Bus](08_can.md)
+- [Camera](../camera/README.md)
+- [Inference](../inference/README.md)
+- [Post-Processing](../post_processing/README.md)
+- [LFA Geometry](../LFA/geometry/README.md)
+- [LFA](../LFA/README.md)
+- [Decision](../decision/README.md)
+- [Utils](../utils/README.md)
