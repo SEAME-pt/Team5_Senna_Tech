@@ -13,6 +13,19 @@ Execution pipeline for the ADAS prototype running on Raspberry Pi 5 + Hailo-8. E
 
 Entry point: `main.py`
 
+## Usage
+
+To execute the pipeline, provide the paths to the Lane Detection and Object Detection HEF models:
+
+```bash
+python3 main.py <lane_model.hef> <object_model.hef> [options]
+```
+
+### Options
+- `--remote`: Enables remote streaming of the display output via stdout.
+- `--no-display`: Disables the display output, useful for running on headless systems.
+- `--virtual`: Runs in virtual mode, preventing physical commands (steering/throttle) from being sent to the vehicle.
+
 ## Data Flow
 
 | Step | Module | Input | Output |

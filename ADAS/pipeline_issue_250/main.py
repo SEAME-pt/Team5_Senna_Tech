@@ -1,5 +1,3 @@
-import cv2
-import time
 import argparse
 import logging
 
@@ -11,6 +9,7 @@ from post_processing import YoloSegDecoder, MaskFilters, ObjectDetector, Corrido
 from LFA import BEVTransform, SlidingWindowsLaneFitter, draw_lane_overlay
 from decision import VehicleFSM, State, AVOIDANCE_STATES, STATE_THROTTLE, PathPlanner, AdaptiveCruiseControl, PID
 from kuksa_publish import KuksaClient
+from utils import CanSender, Display, Timer
 
 try:
     from utils import CanSender, Display
@@ -32,9 +31,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("lane",   help="Path to Lane Detection HEF model")
     parser.add_argument("object", help="Path to Object Detection HEF model")
-    parser.add_argument("--remote",     action="store_true")
-    parser.add_argument("--no-display", action="store_true")
-    parser.add_argument("--virtual",    action="store_true")
+    parser.add_argument("--remote",     action="store_true", help="Enable remote display streaming")
+    parser.add_argument("--no-display", action="store_true", help="Disable display output")
+    parser.add_argument("--virtual",    action="store_true", help="Enable virtual mode (no physical CAN commands)")
     args = parser.parse_args()
 
     decoder        = YoloSegDecoder(score_threshold=0.25)
@@ -75,33 +74,28 @@ def main():
 
             logging.info("Models loaded. Engines ready.")
 
-            last_time        = time.perf_counter()
-            last_valid_state = None
-            last_sent_throttle = None
-            last_sent_steering = None
-
             try:
                 while True:
-                    t_frame_start = time.perf_counter()
+                    t_loop_start = Timer.start_loop()
 
                     # ── CAMERA ──────────────────────────────────────────
-                    t0  = time.perf_counter()
+                    Timer.start_stage("Camera")
                     rgb = cam.get_frame()
                     if rgb is None:
                         continue
-                    t_camera = (time.perf_counter() - t0) * 1000
+                    Timer.end_stage("Camera")
 
                     # ── INFERENCE ────────────────────────────────────────
-                    t0 = time.perf_counter()
+                    Timer.start_stage("Inf_Lane")
                     outputs_lane = engine_lane.infer(rgb)
-                    inf_lane_ms  = (time.perf_counter() - t0) * 1000
+                    Timer.end_stage("Inf_Lane")
 
-                    t0 = time.perf_counter()
+                    Timer.start_stage("Inf_Obj")
                     outputs_obj  = engine_obj.infer(rgb)
-                    inf_obj_ms   = (time.perf_counter() - t0) * 1000
+                    Timer.end_stage("Inf_Obj")
 
                     # ── LANE POST-PROCESSING ─────────────────────────────
-                    t0 = time.perf_counter()
+                    Timer.start_stage("Post")
                     binary_mask = decoder.decode_to_mask(outputs_lane, CAM_HEIGHT, CAM_WIDTH)
                     clean_mask  = mask_filters.process(binary_mask)
                     bev_mask    = bev.warp(clean_mask)
@@ -110,16 +104,13 @@ def main():
                     # ── OBJECT DETECTION ─────────────────────────────────
                     detections = detector.process(outputs_obj, rgb.shape)
                     env_state  = build_environment_state(detections, fit_result, checker, rgb.shape)
-
-                    # draw detections on RGB frame
                     rgb = detector.draw(rgb, detections)
-
-                    t_post = (time.perf_counter() - t0) * 1000
+                    Timer.end_stage("Post")
 
                     # ── KUKSA ────────────────────────────────────────────
-                    t0 = time.perf_counter()
+                    Timer.start_stage("Kuksa")
                     kuksa_channel.send(env_state.detections)
-                    t_kuksa = (time.perf_counter() - t0) * 1000
+                    Timer.end_stage("Kuksa")
 
                     # ── OBSTACLE TRACKER ─────────────────────────────────
                     obs_info = obs_tracker.update(detections)
@@ -133,20 +124,14 @@ def main():
                         planner.reset_blind_timer()
 
                     # ── FSM DECISION ─────────────────────────────────────
-                    t0 = time.perf_counter()
+                    Timer.start_stage("Decision")
                     current_state = fsm.process(
                         env_state,
                         obstacle_situation      = obs_info.situation,
                         planner_return_complete = planner.return_complete(),
                     )
-
                     if current_state not in AVOIDANCE_STATES:
                         obs_tracker.reset()
-
-                    frame_count  += 1
-                    current_time  = time.perf_counter()
-                    dt            = current_time - last_time
-                    last_time     = current_time
 
                     # ── PID + CTE ────────────────────────────────────────
                     cte_actual = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0
@@ -154,9 +139,7 @@ def main():
                         current_state,
                         obstacle_side = obs_info.side,
                     )
-
-                    pid_return = round(pid.update(target_cte, cte_actual, dt), 2)
-
+                    pid_return = round(pid.update(target_cte, cte_actual, 0.1), 2) # simplified dt for now
                     throttle = STATE_THROTTLE.get(current_state, 0)
                     if current_state == State.FOLLOW:
                         throttle = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
@@ -173,24 +156,22 @@ def main():
                         last_valid_state = current_state.value
                         logging.info("NEW MODE: %s | throttle=%s", current_state.name, throttle)
 
-                    t_decision = (time.perf_counter() - t0) * 1000
-                    fps        = hw_monitor.get_fps()
-                    cpu_temp   = hw_monitor.read_temp()
+                    Timer.end_stage("Decision")
 
                     # ── DISPLAY ──────────────────────────────────────────
-                    t0 = time.perf_counter()
+                    Timer.start_stage("Display")
                     if display_mode != "none":
                         res = draw_lane_overlay(rgb, fit_result, bev)
                         display.show(res)
+                    Timer.end_stage("Display")
 
-                    t_display = (time.perf_counter() - t0) * 1000
-                    total_cycle_time = (time.perf_counter() - t_frame_start) * 1000
+                    fps = Timer.get_fps()
+                    cpu_temp = Timer.read_temp()
+                    total_cycle_time = Timer.end_loop()
 
                     logging.info(
-                        "FPS: %.1f | Temp: %.1fC | Cycle: %.1fms | Cam: %.1fms | Lane: %.1fms | Obj: %.1fms | "
-                        "Post: %.1fms | Kuksa: %.1fms | Decision: %.1fms | Display: %.1fms",
-                        fps, cpu_temp, total_cycle_time, t_camera, inf_lane_ms, inf_obj_ms,
-                        t_post, t_kuksa, t_decision, t_display,
+                        "FPS: %.1f | Temp: %.1fC | Cycle: %.1fms | %s",
+                        fps, cpu_temp, total_cycle_time, Timer.get_report(),
                     )
 
             except KeyboardInterrupt:
