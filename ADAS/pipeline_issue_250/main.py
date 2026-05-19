@@ -184,11 +184,12 @@ def main():
                         display.show(res)
 
                     t_display = (time.perf_counter() - t0) * 1000
+                    total_cycle_time = (time.perf_counter() - t_frame_start) * 1000
 
                     logging.info(
-                        "FPS: %.1f | Temp: %.1fC | Cam: %.1fms | Lane: %.1fms | Obj: %.1fms | "
+                        "FPS: %.1f | Temp: %.1fC | Cycle: %.1fms | Cam: %.1fms | Lane: %.1fms | Obj: %.1fms | "
                         "Post: %.1fms | Kuksa: %.1fms | Decision: %.1fms | Display: %.1fms",
-                        fps, cpu_temp, t_camera, inf_lane_ms, inf_obj_ms,
+                        fps, cpu_temp, total_cycle_time, t_camera, inf_lane_ms, inf_obj_ms,
                         t_post, t_kuksa, t_decision, t_display,
                     )
 
