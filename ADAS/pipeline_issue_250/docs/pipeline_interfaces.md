@@ -11,7 +11,7 @@
 | 05 | Sliding Windows | `bev_mask` | `fit_result (LaneFitResult)` |
 | 06 | CTE | `fit_result.cte_norm` | `cte (float [-1, 1])` |
 | 07 | PID | `cte`, `dt` | `pid_return (float [-1, 1])` |
-| 08 | CAN Bus | `pid_return`, `current_state` | comando CAN `0x110`, `0x001` |
+| 08 | CAN Bus | `pid_return`, `current_state` |  CAN command `0x110`, `0x001` |
 
 ## Documentação por módulo
 - [Camera](../camera/README.md)

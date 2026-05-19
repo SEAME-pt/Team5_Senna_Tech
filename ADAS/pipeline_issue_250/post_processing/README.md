@@ -8,11 +8,11 @@
 - [Notes](#notes)
 
 ## Overview
-Esta camada traduz os outputs crus da inferência para estruturas de domínio usadas pelo restante da pipeline.
+This layer translates raw inference outputs into domain structures used by the rest of the pipeline.
 
-Ela está dividida em dois subdomínios:
-- `lane` para segmentação de faixa e limpeza de máscara
-- `object` para detecção de objetos e verificação de corredor
+It is divided into two subdomains:
+- `lane` for lane segmentation and mask cleanup
+- `object` for object detection and corridor verification
 
 ## Submodules
 - [Lane Post-Processing](lane/README.md)
