@@ -45,25 +45,32 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
-    Core/Src/battery.c
-    Core/Src/can_manager.c
-    Core/Src/car.c
-    Core/Src/debug_utils.c
     Core/Src/heartbeat.c
-    Core/Src/i2c_hal.c
-    Core/Src/ina219.c
-    Core/Src/mcp2515.c
-    Core/Src/motor.c
-    Core/Src/pid.c
-    Core/Src/odometer.c
-    Core/Src/pca9685.c
-    Core/Src/sleep_hal.c
-    Core/Src/speedsensor.c
+    Core/Src/can/can_manager.c
+    Core/Src/can/mcp2515.c
+    Core/Src/car/car.c
+    Core/Src/car/motor.c
+    Core/Src/i2c/battery.c
+    Core/Src/i2c/i2c_hal.c
+    Core/Src/i2c/ina219.c
+    Core/Src/i2c/pca9685.c
+    Core/Src/pid/pid.c
+    Core/Src/pid/pid_utils.c
+    Core/Src/sensor/odometer.c
+    Core/Src/sensor/speedsensor.c
+    Core/Src/utils/debug_utils.c
+    Core/Src/utils/sleep_hal.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
+    Core/Inc
+    Core/Inc/can
+    Core/Inc/car
+    Core/Inc/i2c
+    Core/Inc/pid
+    Core/Inc/utils
 )
 
 # Add project symbols (macros)

@@ -2,34 +2,32 @@ import QtQuick 2.15
 
 Item {
     id: root
-    width: 90
-    height: 90
+    width: 100
+    height: 100
     
     property bool showSign: true
-    property var currentTrafficSign: ""  // Aceitar QVariant
-    
+    property var currentTrafficSign: ""  
     
     function getTrafficSignImage() {
-        if (currentTrafficSign == "stop")
+        if (currentTrafficSign == 1)
             return "../assets/traffic/stop.png"
-        else if (currentTrafficSign == "50")
+        else if (currentTrafficSign == 11)
             return "../assets/traffic/50.png"
-        else if (currentTrafficSign == "80")
+        else if (currentTrafficSign == 12)
             return "../assets/traffic/80.png"
-        else if (currentTrafficSign == "pedestrian")
-            return "../assets/traffic/pedestrian.png"
-        else if (currentTrafficSign == "danger")
+        else if (currentTrafficSign == 3)
+            return "../assets/traffic/crosswalk.png"
+        else if (currentTrafficSign == 2)
             return "../assets/traffic/danger.png"
-        else if (currentTrafficSign == "yield")
+        else if (currentTrafficSign == 4)
             return "../assets/traffic/yield.png"
-        else if (currentTrafficSign == "red")
-            return "../assets/traffic/traffic-light-red.png"
-        else if (currentTrafficSign == "yellow")
-            return "../assets/traffic/traffic-light-yellow.png"
-        else if (currentTrafficSign == "green")
-            return "../assets/traffic/traffic-light-green.png"
-        else 
-            return ""
+        else if (currentTrafficSign == 5)
+            return "../assets/traffic/red.png"
+        else if (currentTrafficSign == 6)
+            return "../assets/traffic/yellow.png"
+        else if (currentTrafficSign == 7)
+            return "../assets/traffic/green.png"
+        return ""
     }
     // Exibir/ocultar com animação
     opacity: showSign ? 1.0 : 0.0
