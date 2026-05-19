@@ -3,13 +3,13 @@ import time
 
 class HardwareMonitor:
     def __init__(self):
-        # Inicializa o estado da CPU no momento em que a classe é instanciada
+        """Initializes the CPU state and frame timing."""
         self._cpu_stat_prev = self._read_cpu_stat()
         self._inf_start_time = None
         self._last_frame_time = time.perf_counter()
 
     def _read_cpu_stat(self):
-        """Lê o arquivo /proc/stat e retorna (user, system, idle, total) em jiffies."""
+        """Reads /proc/stat and returns (user, system, idle, total) in jiffies."""
         try:
             with open("/proc/stat") as f:
                 r = f.readline().split()
@@ -19,20 +19,20 @@ class HardwareMonitor:
                 total  = sum(int(x) for x in r[1:])
                 return user, system, idle, total
         except Exception:
-            # Fallback caso não esteja em um sistema Linux compatível
+            # Fallback if not on a compatible Linux system
             return 0, 0, 0, 1 
 
     def read_temp(self):
-        """Lê a temperatura da CPU em graus Celsius."""
+        """Reads CPU temperature in degrees Celsius."""
         try:
             with open("/sys/class/thermal/thermal_zone0/temp") as f:
                 return int(f.read().strip()) / 1000.0
         except Exception:
-            # Fallback caso o sensor não seja encontrado
+            # Fallback if sensor not found
             return 0.0
 
     def get_cpu_usage(self):
-        """Calcula e retorna a porcentagem de CPU usada e livre desde a última chamada."""
+        """Calculates and returns the percentage of CPU used and free since the last call."""
         user_now, sys_now, idle_now, total_now = self._read_cpu_stat()
         user_prev, sys_prev, idle_prev, total_prev = self._cpu_stat_prev
 
@@ -48,17 +48,17 @@ class HardwareMonitor:
         cpu_used = cpu_pct_user + cpu_pct_sys
         cpu_free = cpu_pct_idle
 
-        # Atualiza o estado anterior para a próxima leitura
+        # Update previous state for next reading
         self._cpu_stat_prev = (user_now, sys_now, idle_now, total_now)
 
         return cpu_used, cpu_free
 
     def start_inference(self):
-        """Marca o início da tarefa de inferência."""
+        """Marks the start of an inference task."""
         self._inf_start_time = time.perf_counter()
 
     def end_inference(self):
-        """Finaliza a cronometragem e retorna a latência em ms."""
+        """Finalizes timing and returns latency in ms."""
         if self._inf_start_time is None:
             return 0.0
         latency = (time.perf_counter() - self._inf_start_time) * 1000
@@ -66,7 +66,7 @@ class HardwareMonitor:
         return latency
 
     def get_fps(self):
-        """Calcula o FPS baseado no tempo decorrido desde a última chamada a este método."""
+        """Calculates FPS based on elapsed time since the last call to this method."""
         now = time.perf_counter()
         dt = now - self._last_frame_time
         self._last_frame_time = now

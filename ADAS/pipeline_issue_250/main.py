@@ -75,9 +75,7 @@ def main():
 
             logging.info("Models loaded. Engines ready.")
 
-            frame_count      = 0
-            t_start          = time.perf_counter()
-            last_time        = t_start
+            last_time        = time.perf_counter()
             last_valid_state = None
             last_sent_throttle = None
             last_sent_steering = None
@@ -176,7 +174,8 @@ def main():
                         logging.info("NEW MODE: %s | throttle=%s", current_state.name, throttle)
 
                     t_decision = (time.perf_counter() - t0) * 1000
-                    fps = frame_count / (time.perf_counter() - t_start)
+                    fps        = hw_monitor.get_fps()
+                    cpu_temp   = hw_monitor.read_temp()
 
                     # ── DISPLAY ──────────────────────────────────────────
                     t0 = time.perf_counter()
@@ -187,9 +186,9 @@ def main():
                     t_display = (time.perf_counter() - t0) * 1000
 
                     logging.info(
-                        "FPS: %.1f | Cam: %.1fms | Lane: %.1fms | Obj: %.1fms | "
+                        "FPS: %.1f | Temp: %.1fC | Cam: %.1fms | Lane: %.1fms | Obj: %.1fms | "
                         "Post: %.1fms | Kuksa: %.1fms | Decision: %.1fms | Display: %.1fms",
-                        fps, t_camera, inf_lane_ms, inf_obj_ms,
+                        fps, cpu_temp, t_camera, inf_lane_ms, inf_obj_ms,
                         t_post, t_kuksa, t_decision, t_display,
                     )
 
