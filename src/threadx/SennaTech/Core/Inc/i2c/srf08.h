@@ -13,8 +13,11 @@
 // SRF08 requires ~65ms after trigger before the result is ready
 #define SRF08_RANGING_DELAY_MS  70
 
-UINT    srf08_trigger(uint16_t addr);
-ULONG   srf08_read_cm(uint16_t addr, ULONG *distance_cm);
+#define ULTRASONIC_PERIOD_MS    100
+#define ULTRASONIC_PERIOD_TICKS (ULTRASONIC_PERIOD_MS * TX_TIMER_TICKS_PER_SECOND / 1000)
+
+UINT    srf08_trigger(I2C_HandleTypeDef *hi2c, uint16_t addr);
+ULONG   srf08_read_cm(I2C_HandleTypeDef *hi2c, uint16_t addr, ULONG *distance_cm);
 
 #endif
 
