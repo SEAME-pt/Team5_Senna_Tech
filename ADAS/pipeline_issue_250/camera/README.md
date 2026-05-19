@@ -8,7 +8,7 @@
 - [Notes](#notes)
 
 ## Overview
-Captures video frames and provides them to the pipeline in RGB format.
+Captures video frames in a background thread and provides them to the pipeline in RGB format via a non-blocking interface.
 
 ## Hardware
 - **Model:** Raspberry Pi Camera Module 3 (Wide NoIR)
@@ -26,42 +26,64 @@ Stores the camera configuration and calculates the expected size of each frame i
 - `debug` enables additional logs per frame.
 
 #### Effects
-- Initializes `self.process` as `None`.
+- Initializes `self.process`, `self._thread`, and `self._latest_frame` as `None`.
 - Prepares the YUV420 frame size used for pipe reading.
 
+### `Camera._read_exact(pipe, size)`
+Reads exactly `size` bytes from `pipe`, blocking until all bytes are available.
+
+#### Behavior
+- Loops until the full frame is accumulated in a buffer.
+- Returns `None` if the pipe closes before delivering the expected number of bytes.
+
+#### Output
+- `bytes` of length `size`, or `None` on pipe EOF.
+
+### `Camera._capture_loop()`
+Background thread loop that continuously reads and decodes frames from the camera pipe.
+
+#### Behavior
+- Runs while `self._running` is `True`.
+- Calls `_read_exact()` to get a raw YUV420 frame.
+- Converts to RGB and stores the result in `self._latest_frame` under a lock.
+- Skips silently on incomplete reads (`None`).
+
+#### Effects
+- Keeps `self._latest_frame` updated with the most recent frame at all times.
+
 ### `Camera.__enter__()`
-Starts the `rpicam-vid` process and prepares continuous capture.
+Starts the `rpicam-vid` process and launches the background capture thread.
 
 #### Behavior
 - Checks if another `rpicam-vid` process is already active.
 - If it exists, does not start a second process and simply returns the instance.
 - If it does not exist, executes `rpicam-vid` with output directed to the pipe (`stdout`).
+- Starts a daemon thread (`_capture_loop`) that continuously reads and decodes frames.
 
 #### Effects
 - Creates `self.process` using `subprocess.Popen`.
-- Makes frames available for `read_frame()`.
+- Starts `self._thread` — frames are available immediately via `get_frame()`.
 
-### `Camera.read_frame()`
-Reads a raw frame from the pipe, converts it from YUV420 to RGB, and returns the frame ready for the pipeline.
+### `Camera.get_frame()`
+Returns the latest decoded frame. Non-blocking — always returns immediately.
 
 #### Behavior
-- Fails safely if the camera is not active.
-- Reads exactly the number of bytes expected per frame.
-- Returns `None` if the pipe does not produce a complete frame.
-- Converts the buffer to a `numpy.ndarray` and then to RGB.
+- Thread-safe: uses a lock to access the latest frame.
+- Returns `None` if no frame has been captured yet.
+- Returns a copy of the latest frame to avoid race conditions.
 
 #### Output
-- `numpy.ndarray` in RGB with shape `(height, width, 3)`, or `None` in case of failure/incomplete reading.
+- `numpy.ndarray` in RGB with shape `(height, width, 3)`, or `None` if no frame is available yet.
 
-### `Camera.__exit__(exc_type, exc_val, exc_tb)`
-Terminates the camera process upon exiting the context.
+### `Camera.stop()`
+Stops the background thread and terminates the camera process.
 
 #### Behavior
-- Terminates the `rpicam-vid` process if it exists.
-- Waits for the process to finish before exiting.
+- Sets `self._running = False` to signal the capture thread to exit.
+- Terminates the `rpicam-vid` process and waits for it to finish.
 
-#### Effects
-- Releases process resources captured by the context.
+### `Camera.__exit__(exc_type, exc_val, exc_tb)`
+Calls `stop()` upon exiting the context, ensuring all resources are released.
 
 ## Data Contract
 | Field | Type | Shape | Meaning |
@@ -70,25 +92,17 @@ Terminates the camera process upon exiting the context.
 
 > The native camera format is `YUV420`. The module internally converts to RGB before delivering to the pipeline.
 
-## Notes
-In the pipeline data flow, the camera is the first functional stage, as it originates the frames consumed by subsequent stages.
-
-However, this does not mean it must always be the first resource initialized during application execution. In scenarios where inference depends on dedicated hardware like Hailo, it may make sense to initialize the inference infrastructure first and open the camera only after the system is ready to consume frames.
-
-This distinction is important:
-
-- In the data flow, the camera comes first;
-- In the resource initialization order, it may come after inference preparation.
-
-This choice avoids opening continuous capture before the rest of the pipeline is ready to process the generated data.
-
 ## Configuration
 | Parameter | Value | Description |
 |---|---|---|
 | `width` | `640` | Frame width |
 | `height` | `360` | Frame height |
-| `fps` | `60` | Frames per second |
+| `fps` | `15` | Frames per second |
 | `frame_size` | `width * height * 3 // 2` | YUV420 size in bytes |
+| `--mode` | `640:360:8:P` | Sensor crop mode |
+| `--exposure` | `sport` | Fast shutter exposure mode |
+| `--shutter` | `3500` | Fixed shutter speed in microseconds |
+| `--denoise` | `off` | Disables denoising for lower latency |
 
 ## YUV420 Format
 The sensor captures in YUV420 — a raw format that separates brightness (Y) from color (U, V):
@@ -104,8 +118,43 @@ We use RGB because it is the format expected by YOLO models on Hailo.
 
 > For more info: [YUV420 format](https://en.wikipedia.org/wiki/YUV#Y%E2%80%B2UV420p_and_Y%E2%80%B2V12_or_YV12_to_RGB888_conversion)
 
+## Threading Architecture
+The capture runs in a background daemon thread (`_capture_loop`). This ensures:
+- The main pipeline loop is never blocked waiting for a frame.
+- `get_frame()` always returns the most recent available frame instantly.
+- A `threading.Lock` protects `_latest_frame` from concurrent access.
+
+## Debug
+
+The module has two levels of logging that work independently:
+
+### Lifecycle logs (always active)
+These logs are always emitted regardless of the `debug` flag:
+
+| Event | Level | Message |
+|---|---|---|
+| Camera started | `INFO` | `[CAMERA] Started 640x360 @ 15fps` |
+| Camera stopped | `INFO` | `[CAMERA] Stopped` |
+| Stuck process detected | `WARNING` | `[CAMERA] rpicam-vid already running with PID=<pid>. If safe, run: kill <pid>` |
+
+### Per-frame logs (`debug=True`)
+Only emitted when `Camera(..., debug=True)`:
+
+| Event | Level | Message |
+|---|---|---|
+| Frame decoded | `DEBUG` | `[CAMERA] frame shape=(360, 640, 3) dtype=uint8` |
+
+### How to enable
+```python
+cam = Camera(640, 360, 15, debug=True)
+```
+And ensure the logging level is set to `DEBUG`:
+```python
+logging.basicConfig(level=logging.DEBUG)
+```
+
 ## Notes
 - The first frame takes ~400ms (camera initialization), subsequent ones ~17ms (~60 FPS)
-- Dynamic FPS could be implemented via a `@property` setter by restarting the process
 - If the pipeline crashes abruptly, the `rpicam-vid` process might stay stuck — check with `pgrep -f rpicam-vid` and terminate with `kill <PID>`
 - The module automatically detects stuck processes and warns in the log — it does not kill them without user confirmation
+- Camera parameters (`--mode`, `--exposure`, `--shutter`, `--denoise`) were validated on the RPi and should not be changed without testing
