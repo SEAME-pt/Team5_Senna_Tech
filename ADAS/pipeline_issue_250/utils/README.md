@@ -1,32 +1,106 @@
-# Utils
+# Utils Module
 
-## Responsibility
-Gathers infrastructure and external integration utilities used by the pipeline.
+## Index
+- [Overview](#overview)
+- [Classes](#classes)
+  - [CanSender](#cansender)
+  - [Display](#display)
+  - [HardwareMonitor](#hardwaremonitor)
+- [Debug](#debug)
+- [Notes](#notes)
 
-## Components
-- `CanSender` - CAN interface via `socketcan`
-- `hw_monitor` - hardware monitoring
+## Overview
+Shared utilities for hardware communication, display output, and system monitoring. These modules have no ADAS domain logic — they are infrastructure used by `main.py` to interface with external systems.
 
-## Internal Documentation
+## Classes
 
-### 08 - CAN Bus
-Sends the steering command to the vehicle via the CAN bus.
+### `CanSender`
+Sends commands to the vehicle microcontroller over the CAN bus via SocketCAN.
 
-#### Input
-| Field | Type | Description |
+#### `__init__(channel="can0", bitrate=500000)`
+Opens a SocketCAN interface on the specified channel.
+
+#### `send_drive_command(can_id, throttle, steering)`
+Sends throttle and steering in a single 4-byte CAN frame.
+
+| Parameter | Type | Description |
 |---|---|---|
-| `pid_return` | `float` | Normalized steering angle `[-1, 1]` |
-| `current_state` | `FSMState` | Current state of the state machine |
+| `can_id` | `int` | CAN arbitration ID (e.g. `0x002`) |
+| `throttle` | `int` | Throttle value (`int16`) |
+| `steering` | `float [-1, 1]` | Steering angle, scaled by 100 and packed as `int16` |
 
-#### Output
-| Address | Description |
-|---|---|
-| `0x110` | Steering command (`pid_return * -1`) |
-| `0x001` | FSM State |
+**Payload layout:** `[throttle int16 LE][steering×100 int16 LE]`
 
-#### Behavior
-- Safety check: only sends if `abs(last_valid_pid - pid_return) <= 0.4`
-- Does not send if the `--virtual` flag is active
+#### `send_int16(can_id, value)`
+Sends a single `int16` value in a 2-byte CAN frame.
 
-#### Notes
-- To be filled during testing
+#### `send_steering_percent(can_id, percent)`
+Clamps `percent` to `[-1.0, 1.0]`, scales by 100, and sends as `int16`.
+
+#### `send_fsm_state(can_id, state_value)`
+Sends the FSM state as a single unsigned byte.
+
+#### `close()`
+Shuts down the CAN bus interface. Must be called on pipeline exit.
+
+---
+
+### `Display`
+Manages the visual output of the pipeline. Supports three modes: local (GStreamer Wayland), remote (JPEG over stdout), and none.
+
+#### `__init__(width, height, fps, mode="local")`
+
+| Parameter | Default | Description |
+|---|---|---|
+| `width`, `height` | `1260`, `400` | Output resolution |
+| `fps` | `15` | Frame rate for the GStreamer pipeline |
+| `mode` | `"local"` | `"local"` / `"remote"` / `"none"` |
+
+#### `__enter__() / __exit__()`
+Context Manager. On `__enter__`, starts the GStreamer process if mode is `"local"`. On `__exit__`, calls `close()`.
+
+#### `show(frame)`
+Resizes the frame to `(width, height)` and sends it to the configured output.
+
+- `"local"` → writes raw RGB bytes to the GStreamer stdin pipe
+- `"remote"` → encodes as JPEG (quality 80) and writes to `sys.stdout.buffer`
+- `"none"` → no-op
+
+#### `close()`
+Terminates the GStreamer process if running.
+
+---
+
+### `HardwareMonitor`
+Reads system metrics from the Raspberry Pi: CPU temperature, CPU usage, and per-task latency.
+
+#### `__init__()`
+Initialises CPU stat baseline from `/proc/stat`.
+
+#### `read_temp() → float`
+Returns CPU temperature in °C from `/sys/class/thermal/thermal_zone0/temp`.
+
+#### `get_cpu_usage() → (float, float)`
+Returns `(cpu_used_%, cpu_free_%)` since the last call. Reads from `/proc/stat`.
+
+#### `start_inference()` / `end_inference() → float`
+Timer pair for measuring task latency. `end_inference()` returns elapsed time in ms.
+
+#### `get_fps() → float`
+Returns FPS based on time elapsed since the last call to this method.
+
+## Debug
+
+### Lifecycle logs (always active)
+| Event | Level | Message |
+|---|---|---|
+| Display started (local) | `INFO` | `[DISPLAY] Started local display WxH @ Xfps` |
+| Display started (remote) | `INFO` | `[DISPLAY] Started remote display (JPEG stdout)` |
+| Display stopped | `INFO` | `[DISPLAY] Stopped` |
+| CAN send failure | `print` | `CAN send failed` / `CAN send failed (drive command)` |
+
+## Notes
+- `CanSender` requires the `can0` interface to be up before instantiation: `ip link set can0 up type can bitrate 500000`.
+- `Display` in `"local"` mode requires a running Wayland compositor (`WAYLAND_DISPLAY=wayland-1`, `XDG_RUNTIME_DIR=/run/user/200`).
+- `HardwareMonitor` reads from `/proc/stat` and `/sys/class/thermal/` — only available on Linux.
+- `Display.show()` performs a `cv2.resize()` on every frame — if performance is critical, pre-resize before calling.

@@ -60,3 +60,13 @@ class CanSender:
     def close(self):
         if self.bus:
             self.bus.shutdown()
+    def send_drive_command(self, can_id: int, throttle: int, steering: float):
+        throttle    = max(-32768, min(32767, throttle))
+        steering    = max(-1.0, min(1.0, steering))
+        steering_i16 = int(steering * 100)
+        data = struct.pack("<hh", throttle, steering_i16)
+        msg  = can.Message(arbitration_id=can_id, data=data, dlc=4, is_extended_id=False)
+        try:
+            self.bus.send(msg)
+        except can.CanError:
+            print("CAN send failed (drive command)")
