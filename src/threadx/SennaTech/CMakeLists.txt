@@ -56,9 +56,11 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/i2c/srf08.c
     Core/Src/pid/pid.c
     Core/Src/pid/pid_utils.c
+    Core/Src/sensor/ultrasonic/thread_ultrasonic.c
+    Core/Src/sensor/ultrasonic/front_ultrasonic.c
+    Core/Src/sensor/ultrasonic/back_ultrasonic.c
     Core/Src/sensor/odometer.c
     Core/Src/sensor/speedsensor.c
-    Core/Src/sensor/ultrasonic.c
     Core/Src/utils/debug_utils.c
     Core/Src/utils/sleep_hal.c
     Core/Src/heartbeat.c
@@ -72,6 +74,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Inc/car
     Core/Inc/i2c
     Core/Inc/pid
+    Core/Inc/sensors
     Core/Inc/utils
 )
 
