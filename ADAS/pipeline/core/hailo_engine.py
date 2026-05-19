@@ -49,7 +49,7 @@ class HailoEngine:
     def infer(self, img_bgr):
         input_np = self.preprocess(img_bgr)
 
-        # ativa só durante inferência
+        # active only during inference
         with self._ng.activate(self._ng.create_params()):
             outputs = self.pipeline.infer({self.input_name: input_np})
 

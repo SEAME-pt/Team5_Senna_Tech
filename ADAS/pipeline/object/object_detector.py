@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-class ObjectDetector:
+class object_detector:
 
     def __init__(self):
         self.class_names = [
@@ -155,21 +155,17 @@ class ObjectDetector:
             rel_area = det.get("relative_area", 0.0)
             db = det.get("debug_info", None)
 
-            # vermelho para objetos na nossa faixa, verde para os de fora
+            # Red for objects within our zone, green for those outside it.
             color = (0, 0, 255) if in_corr else (0, 100, 0)
             thickness = 2 if in_corr else 1
 
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
             
-            # texto com o valor da área relativa da baounding
+            # text with the relative area value of the scaling
             text = f"{label} | A:{(rel_area * 100):.1f}%"
             cv2.putText(frame, text, (x1, max(y1 - 25, 15)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness)
 
-            #if db:
-            #    text1 = f"Lx:{db['l_x']:.0f} | X:{db['bev_x']:.0f} | Rx:{db['r_x']:.0f}"
-            #    cv2.putText(frame, text1, (x1, max(y1 - 5, 30)), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255,255,255), 1)
-
-            # desenhar a base da bounding box
+            # draw the base of the bounding box
             bottom_center_x = int((x1 + x2) / 2)
             cv2.circle(frame, (bottom_center_x, y2), 5, (255, 0, 255), -1) 
 
