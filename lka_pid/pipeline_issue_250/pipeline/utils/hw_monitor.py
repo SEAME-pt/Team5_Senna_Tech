@@ -1,9 +1,12 @@
 import os
+import time
 
 class HardwareMonitor:
     def __init__(self):
         # Inicializa o estado da CPU no momento em que a classe é instanciada
         self._cpu_stat_prev = self._read_cpu_stat()
+        self._inf_start_time = None
+        self._last_frame_time = time.perf_counter()
 
     def _read_cpu_stat(self):
         """Lê o arquivo /proc/stat e retorna (user, system, idle, total) em jiffies."""
@@ -32,20 +35,39 @@ class HardwareMonitor:
         """Calcula e retorna a porcentagem de CPU usada e livre desde a última chamada."""
         user_now, sys_now, idle_now, total_now = self._read_cpu_stat()
         user_prev, sys_prev, idle_prev, total_prev = self._cpu_stat_prev
-        
+
         d_total  = total_now - total_prev
         d_user   = user_now  - user_prev
         d_sys    = sys_now   - sys_prev
         d_idle   = idle_now  - idle_prev
-        
+
         cpu_pct_user   = d_user  / d_total * 100 if d_total > 0 else 0.0
         cpu_pct_sys    = d_sys   / d_total * 100 if d_total > 0 else 0.0
         cpu_pct_idle   = d_idle  / d_total * 100 if d_total > 0 else 0.0
-        
+
         cpu_used = cpu_pct_user + cpu_pct_sys
         cpu_free = cpu_pct_idle
-        
+
         # Atualiza o estado anterior para a próxima leitura
         self._cpu_stat_prev = (user_now, sys_now, idle_now, total_now)
-        
+
         return cpu_used, cpu_free
+
+    def start_inference(self):
+        """Marca o início da tarefa de inferência."""
+        self._inf_start_time = time.perf_counter()
+
+    def end_inference(self):
+        """Finaliza a cronometragem e retorna a latência em ms."""
+        if self._inf_start_time is None:
+            return 0.0
+        latency = (time.perf_counter() - self._inf_start_time) * 1000
+        self._inf_start_time = None
+        return latency
+
+    def get_fps(self):
+        """Calcula o FPS baseado no tempo decorrido desde a última chamada a este método."""
+        now = time.perf_counter()
+        dt = now - self._last_frame_time
+        self._last_frame_time = now
+        return 1.0 / dt if dt > 0 else 0.0
