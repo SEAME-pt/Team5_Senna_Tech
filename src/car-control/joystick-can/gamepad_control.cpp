@@ -6,6 +6,7 @@
 
 #define CAN_ID_JOY_MOVEMENT   0x001
 #define CAN_ID_MODE_MOVEMENT  0x003
+#define CAN_ID_MODE_PARKING   0x004
 
 void send_drive(int socket, uint32_t can_id, int16_t throttle, int16_t steering)
 {
@@ -51,21 +52,19 @@ int main()
 
         int sock = can.getSock();
 
-        bool auto_mode = false;
-        bool debug = false;
+        bool auto_mode  = false;
+        bool debug      = false;
         static int16_t last_throttle = 0;
         static int16_t last_steering = 0;
 
         while (true)
         {
             ShanWanGamepadInput input = gamepad.read_data();
-
             float steering = input.analog_stick_right.x;
             float throttle = input.analog_stick_left.y;
 
             int16_t steering_can = raw_from_percent_int16(steering);
             int16_t throttle_can = raw_from_percent_int16(throttle);
-
             bool joystick_active =
                 (std::abs(steering) > 0.05f || std::abs(throttle) > 0.05f);
 
@@ -81,6 +80,12 @@ int main()
                 debug = true;
                 auto_mode = false;
                 printf("Mode: DEBUG\n");
+            }
+            else if (input.button_l1) {
+                send_int16(sock, CAN_ID_MODE_PARKING, 1); // Parking (Y)
+                debug = false;
+                auto_mode = false;
+                printf("Mode: PARKING\n");
             }
 
             // joystick overrides AUTO → MANUAL

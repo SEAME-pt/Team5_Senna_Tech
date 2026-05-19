@@ -99,6 +99,15 @@ void motors_thread_entry(ULONG thread_input)
                     decode_drive_frame(&frame, &throttle_target, &steering_target);
                 continue ;
             }
+
+            if (frame.id == CAN_ID_MODE_PARKING)
+            {
+                throttle_target = 0.0f;
+                steering_target = 0.0f;
+                brake = 1;
+                uart_send("Mode: PARKING\r\n");
+                continue ;
+            }
         }
 
         if (throttle_target == 2.0f) // Emergency brake

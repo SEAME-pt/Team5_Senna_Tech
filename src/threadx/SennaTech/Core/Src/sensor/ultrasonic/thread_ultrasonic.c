@@ -8,6 +8,7 @@ void ultrasonic_thread_entry(ULONG thread_input)
     ULONG front_distance_cm = 0;
     while (1)
     {
+        
         // ~1 second between measurements to avoid flooding queues traffic
         tx_thread_sleep(ULTRASONIC_PERIOD_TICKS * 10);
 
