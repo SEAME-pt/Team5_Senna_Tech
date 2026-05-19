@@ -21,29 +21,29 @@ It is divided into two subdomains:
 ## Input
 | Field | Type | Meaning |
 |---|---|---|
-| `outputs_lane` | `dict` | Tensores crus do modelo de lane segmentation |
-| `outputs_obj` | `dict` | Tensores crus do modelo de object detection |
+| `outputs_lane` | `dict` | Raw tensors from the lane segmentation model |
+| `outputs_obj` | `dict` | Raw tensors from the object detection model |
 
 ## Output
 | Field | Type | Meaning |
 |---|---|---|
-| `binary_mask` | `numpy.ndarray uint8` | Máscara binária tratada para LFA |
-| `detections` | `list[dict]` | Lista de detecções estruturadas para decisão |
+| `binary_mask` | `numpy.ndarray uint8` | Cleaned binary mask passed to LFA |
+| `detections` | `list[dict]` | Structured detections passed to decision |
 
 ## Data Contract
 | Field | Type | Meaning |
 |---|---|---|
-| `outputs_lane` | `dict` | Entrada da subcamada `lane` |
-| `outputs_obj` | `dict` | Entrada da subcamada `object` |
-| `binary_mask` | `numpy.ndarray uint8` | Saída da subcamada `lane` |
-| `detections` | `list[dict]` | Saída da subcamada `object` |
+| `outputs_lane` | `dict` | Input to the `lane` submodule |
+| `outputs_obj` | `dict` | Input to the `object` submodule |
+| `binary_mask` | `numpy.ndarray uint8` | Output of the `lane` submodule |
+| `detections` | `list[dict]` | Output of the `object` submodule |
 
 ## Execution Flow
-- `outputs_lane` -> `lane/YoloSegDecoder.decode_to_mask(...)`
-- `binary_mask` -> `lane/MaskFilters.process(...)`
-- `outputs_obj` -> `object/ObjectDetector.process(...)`
-- `detections` -> `object/CorridorChecker.check_and_debug(...)`
+- `outputs_lane` → `lane/YoloSegDecoder.decode_to_mask(...)`
+- `binary_mask` → `lane/MaskFilters.process(...)`
+- `outputs_obj` → `object/ObjectDetector.process(...)`
+- `detections` → `object/CorridorChecker.check_and_debug(...)`
 
 ## Notes
-- Esta camada fica entre `inference` e os módulos de geometria/decisão.
-- Os detalhes de cada modelo ficam encapsulados nos submódulos correspondentes.
+- This layer sits between `inference` and the geometry/decision modules.
+- Model-specific details are encapsulated in the corresponding submodules.

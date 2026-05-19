@@ -75,6 +75,35 @@ Applies morphological closing and opening to reduce noise and fill gaps.
 | `outputs_lane` | `dict` | Raw tensors from the lane segmentation model |
 | `binary_mask` | `numpy.ndarray uint8` | Lane binary mask |
 
+## Debug
+
+Both classes accept a `debug=False` flag in their constructors.
+
+### Lifecycle logs
+None — this module does not emit lifecycle logs.
+
+### Per-frame logs (`debug=True`)
+
+#### `YoloSegDecoder`
+| Event | Level | Message |
+|---|---|---|
+| Mask threshold applied | `DEBUG` | `[YoloSegDecoder] Mask mean: X.XXXX, threshold: X.XXXX` |
+
+#### `MaskFilters`
+| Event | Level | Message |
+|---|---|---|
+| Filtered mask stats | `DEBUG` | `[MaskFilters] Post-filter non-zero pixels: XXXX` |
+
+### How to enable
+```python
+decoder = YoloSegDecoder(score_threshold=0.3, debug=True)
+filters = MaskFilters(debug=True)
+```
+And ensure the logging level is set to `DEBUG`:
+```python
+logging.basicConfig(level=logging.DEBUG)
+```
+
 ## Notes
 - This layer acts as the bridge between `inference` and `LFA`.
 - Tensor format details are encapsulated here.
