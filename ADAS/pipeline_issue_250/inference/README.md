@@ -12,9 +12,7 @@
 ## Overview
 Executes models on the Hailo-8 accelerator and returns raw tensors for the subsequent pipeline stages.
 
-Initially, the inference implementation was inside `core/hailo_engine.py`. During pipeline restructuring, the name was revised because `core` implies central utilities and shared contracts, while inference is a concrete functional stage of the execution flow.
-
-For this reason, the responsibility is now represented by the `inference/` module.
+The `HailoEngine` class was originally located in `core/hailo_engine.py`. During pipeline restructuring, it was moved to `inference/` because inference is a concrete functional stage of the execution flow, not a shared utility — which is the role of `core/`.
 
 ## Hardware
 - **Accelerator:** Hailo-8 NPU
@@ -163,6 +161,34 @@ In practice, the distinction is as follows:
 - resource initialization order: `VDevice -> HailoEngine(lane) -> HailoEngine(object) -> Camera -> loop`
 
 This separation improves application robustness and allows for early failure if there is an issue with Hailo hardware or loading the `.hef` model.
+
+## Debug
+
+The module has two levels of logging that work independently:
+
+### Lifecycle logs (always active)
+None — the inference module does not emit lifecycle logs by default.
+
+### Per-operation logs (`debug=True`)
+Only emitted when `HailoEngine(..., debug=True)`:
+
+| Event | Level | Message |
+|---|---|---|
+| HEF loading | `DEBUG` | `[INFERENCE] loading HEF: <path>` |
+| Engine ready | `DEBUG` | `[INFERENCE] engine ready input_name=<name> net_size=640` |
+| Frame preprocessed | `DEBUG` | `[INFERENCE] preprocess rgb=<shape> resized=<shape> batch=<shape> dtype=uint8` |
+| Inference output | `DEBUG` | `[INFERENCE] output keys=[...]` |
+| Output shapes | `DEBUG` | `[INFERENCE] output shapes={...}` |
+| Engine closing | `DEBUG` | `[INFERENCE] closing engine: <path>` |
+
+### How to enable
+```python
+engine = HailoEngine("model.hef", target, debug=True)
+```
+And ensure the logging level is set to `DEBUG`:
+```python
+logging.basicConfig(level=logging.DEBUG)
+```
 
 ## Notes
 - The module uses Hailo's `VDevice` to share the device between multiple engines when necessary.
