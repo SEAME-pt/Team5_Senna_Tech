@@ -151,7 +151,7 @@ class ObjectDetector:
             rel_area = det.get("relative_area", 0.0)
             db = det.get("debug_info", None)
 
-            color = (0, 0, 255) if in_corr else (0, 100, 0)
+            color = (255, 0, 0) if in_corr else (0, 100, 0)
             thickness = 2 if in_corr else 1
 
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)

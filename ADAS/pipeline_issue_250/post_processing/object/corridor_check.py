@@ -1,5 +1,39 @@
 import cv2
 import numpy as np
+from .perception_objects import EnvironmentState, Detection, ClassID
+
+
+def build_environment_state(detections, fit_result, checker, frame_shape) -> EnvironmentState:
+    env_state = EnvironmentState(detections=[], corridor_clear=True)
+
+    for det_dict in detections:
+        db_info     = checker.check_and_debug(det_dict["bbox"], fit_result, frame_shape)
+        in_corridor = db_info["in_corridor"]
+        rel_area    = db_info["rel_area"]
+
+        det_dict["in_corridor"]   = in_corridor
+        det_dict["relative_area"] = rel_area
+        det_dict["debug_info"]    = db_info
+
+        try:
+            cid = ClassID(det_dict["class_id"])
+        except ValueError:
+            continue
+
+        env_state.detections.append(
+            Detection(class_id=cid, in_corridor=in_corridor, relative_area=rel_area)
+        )
+
+        if in_corridor and cid == ClassID.OBSTACLE:
+            env_state.corridor_clear = False
+
+        elif in_corridor and cid == ClassID.CAR:
+            env_state.corridor_clear = False
+            env_state.lead_car_detected = True
+            if rel_area > env_state.lead_car_area:
+                env_state.lead_car_area = rel_area
+
+    return env_state
 
 
 class CorridorChecker:
