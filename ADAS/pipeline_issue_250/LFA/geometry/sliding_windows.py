@@ -16,7 +16,7 @@ from typing import Optional, Tuple
 from core.data_types import LaneFitResult
 
 class SlidingWindowsLaneFitter:
-    def __init__(self, cam_height: int = 360, n_windows: int = 12, margin: int = 40, min_pixels: int = 20, lane_width_px: float = 170.0):
+    def __init__(self, cam_height: int = 360, n_windows: int = 12, margin: int = 40, min_pixels: int = 20, lane_width_px: float = 180.0):
         self.n_windows     = n_windows
         self.margin        = margin
         self.min_pixels    = min_pixels
@@ -81,7 +81,7 @@ class SlidingWindowsLaneFitter:
             r_x = right_fit[0]*(h-1)**2 + right_fit[1]*(h-1) + right_fit[2]
             current_width = abs(r_x - l_x)
             is_straight   = abs(left_fit[0]) < 0.0004 and abs(right_fit[0]) < 0.0004
-            is_sane_width = (self.tracked_lane_width_px * 0.70) < current_width < (self.tracked_lane_width_px * 1.30)
+            is_sane_width = (self.tracked_lane_width_px * 0.50) < current_width < (self.tracked_lane_width_px * 1.50)
             # Update the calibrated width only in reliable sections.
             if is_straight and is_sane_width:
                 self.tracked_lane_width_px = 0.95 * self.tracked_lane_width_px + 0.05 * current_width
