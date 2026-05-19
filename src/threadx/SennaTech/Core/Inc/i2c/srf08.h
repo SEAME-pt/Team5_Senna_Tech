@@ -16,6 +16,6 @@
 UINT    srf08_trigger(uint16_t addr);
 ULONG   srf08_read_cm(uint16_t addr, ULONG *distance_cm);
 
-// very useful documentation: https://www.robot-electronics.co.uk/htm/srf08tech.html
-
 #endif
+
+// very useful documentation: https://www.robot-electronics.co.uk/htm/srf08tech.html

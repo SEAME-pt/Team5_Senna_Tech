@@ -10,20 +10,21 @@ void ultrasonic_thread_entry(ULONG thread_input)
 
     while (1)
     {
-        tx_thread_sleep(ULTRASONIC_PERIOD_TICKS * 12);
+        // ~1 second between measurements to avoid flooding queues traffic
+        tx_thread_sleep(ULTRASONIC_PERIOD_TICKS * 10);
 
-        // 1. Trigger a new ranging cycle
+        // Trigger a new ranging cycle
         if (srf08_trigger(SRF08_DEFAULT_ADDR) != TX_SUCCESS)
         {
             uart_send("[SRF08] Trigger failed\r\n");
             tx_thread_sleep(ULTRASONIC_PERIOD_TICKS);
-            continue;
+            continue ;
         }
 
-        //  2. Wait for the sensor to finish ranging (~65ms minimum)
+        //  Wait for the sensor to finish ranging (~65ms minimum)
         tx_thread_sleep(SRF08_RANGING_DELAY_MS * TX_TIMER_TICKS_PER_SECOND / 1000);
 
-        // 3. Read the result
+        // Read the result
         ULONG distance_cm = 0;
         if (srf08_read_cm(SRF08_DEFAULT_ADDR, &distance_cm) != TX_SUCCESS)
         {
