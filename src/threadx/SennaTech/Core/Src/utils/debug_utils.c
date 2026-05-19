@@ -7,7 +7,7 @@ VOID    uart_send(const char *msg)
 }
 
 // Function to send an integer over UART
-VOID    uart_send_int(int32_t value) 
+VOID    uart_send_int(ULONG value) 
 {
     char buffer[12]; // capacity of -2147483648 + null terminator
     snprintf(buffer, sizeof(buffer), "%ld", value);
