@@ -22,8 +22,15 @@ void parking_mode_entry(car_t *car)
     while (1)
     {
         if (first_time_curving)
-            car_set_steering_percent(&car, 1.0f); // Full right curve
+            car_set_steering_percent(car, 1.0f); // Full right curve
 
-        parking_mode = park_first_maneuver(car, &parking_mode);
+        parking_mode = park_first_maneuver(car);
+
+        if (parking_mode == ERROR_MANEUVER)
+            uart_send("Error during parking maneuver, aborting parking mode\r\n");
+        else if (parking_mode == SECOND_MANEUVER)
+            uart_send("First maneuver complete, starting second maneuver\r\n");
+        
+        break ;
     }
 }
