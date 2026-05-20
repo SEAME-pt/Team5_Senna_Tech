@@ -98,6 +98,9 @@ void motors_thread_entry(ULONG thread_input)
 
             if (frame.id == CAN_ID_MODE_PARKING)
             {
+                uart_send("Entering PARKING mode\r\n");
+                throttle_target = 2.0f; // Full brake
+                steering_target = 0.0f;
                 parking_mode_entry(&car);
                 continue ;
             }

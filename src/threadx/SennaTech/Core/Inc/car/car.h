@@ -34,8 +34,8 @@ typedef struct
 
 typedef enum car_mode {
     MODE_AUTONOMOUS = 0,
-    MODE_MANUAL = 1,
-    MODE_DEBUG = 2
+    MODE_MANUAL     = 1,
+    MODE_DEBUG      = 2
 } e_car_mode;
 
 void car_init(car_t *car, void *hi2c);
