@@ -1,8 +1,4 @@
-#include "can_manager.h"
 #include "car.h"
-#include "pid.h"
-#include <inttypes.h>
-#include <math.h>
 
 static e_car_mode get_car_mode(int16_t mode_cmd, ULONG *last_tick, float *throttle_target)
 {
@@ -60,6 +56,7 @@ void motors_thread_entry(ULONG thread_input)
 
     ULONG last_tick = tx_time_get();
     UINT brake = 0;
+    UINT parking = 0;
     e_car_mode mode = MODE_MANUAL;
 
     while (1)
@@ -102,10 +99,7 @@ void motors_thread_entry(ULONG thread_input)
 
             if (frame.id == CAN_ID_MODE_PARKING)
             {
-                throttle_target = 0.0f;
-                steering_target = 0.0f;
-                brake = 1;
-                uart_send("Mode: PARKING\r\n");
+                parking_mode_entry(&car);
                 continue ;
             }
         }
@@ -120,7 +114,6 @@ void motors_thread_entry(ULONG thread_input)
             continue ;
 
         float throttle_cmd_percent = pidThrottleCalculation(&throttle_pid, throttle_target, dt);
-
         car_set_throttle_percent(&car, throttle_cmd_percent, brake);
         car_set_steering_percent(&car, steering_target);
     }

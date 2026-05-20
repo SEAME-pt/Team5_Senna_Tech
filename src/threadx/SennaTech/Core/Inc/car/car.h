@@ -3,6 +3,9 @@
 
 #include "pca9685.h"
 #include <math.h>
+#include "pid.h"
+#include <inttypes.h>
+#include "can_manager.h"
 
 #define PWM_RESOLUTION 12
 #define PWM_MAX_RAW_VALUE ((1 << PWM_RESOLUTION) - 1)  

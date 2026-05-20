@@ -87,6 +87,12 @@ typedef struct s_threads {
   UINT      mini_stack[512];
 } t_threads;
 
+// struct for ultrasonic data
+typedef struct {
+    ULONG back_distance_cm;
+    ULONG front_distance_cm;
+} t_ultrasonic_data;
+
 /* USER CODE END EFP */
 
 /* USER CODE BEGIN 1 */
@@ -108,6 +114,7 @@ extern t_threads threads[THREAD_COUNT];
 // QUEUES
 extern TX_QUEUE g_tx_data_queue;
 extern TX_QUEUE g_rx_data_queue;
+extern TX_QUEUE g_ultrasonic_data_queue;
 
 //MUTEXES
 extern TX_MUTEX g_speed_mutex;
