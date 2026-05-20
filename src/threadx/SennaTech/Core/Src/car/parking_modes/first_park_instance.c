@@ -26,9 +26,9 @@ e_parking_mode park_first_maneuver(car_t *car)
     while (tx_queue_receive(&g_ultrasonic_data_queue, &ultrasonic_data, TX_WAIT_FOREVER) == TX_SUCCESS)
     {
         if (!is_distance_safe(ultrasonic_data.back_distance_cm, 0))
-            return ERROR_MANEUVER;
+            break ;
 
-        car_set_throttle_percent(car, PARKING_REVERSE_TARGET, 0);
+        car_set_throttle_percent(car, CONSTANT_PARKING_VELOCITY, 0);
 
         if (confirm_first_maneuver(ultrasonic_data))
         {
