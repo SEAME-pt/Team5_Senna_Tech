@@ -3,6 +3,14 @@
 
 #include "car.h"
 
+// Parking mode refers to the state of parking the car, 
+// which can be either:
+// FIRST_MANEUVER  -> First stance of the parking maneuver, 
+//                      where the car is moving backwards towards the parking spot
+// SECOND_MANEUVER -> Second instance of the parking maneuver, 
+//                      where the car is as close to the back wall as possible
+// FINAL_MANEUVER  -> Final stance of the parking maneuver, 
+//                      where the car is moving forward to be perfectly parked in the spot
 typedef enum parking_mode {
     FIRST_MANEUVER  = 0,
     SECOND_MANEUVER = 1,
@@ -14,7 +22,8 @@ void parking_mode_entry(car_t *car);
 UINT is_distance_safe(ULONG back_distance_cm, ULONG front_distance_cm);
 
 // Parking modes
-UINT park_first_maneuver(car_t *car, UINT *parking_mode);
-
+e_parking_mode park_first_maneuver(car_t *car, UINT *parking_mode);
+e_parking_mode park_second_maneuver(car_t *car, UINT *parking_mode);
+e_parking_mode park_final_maneuver(car_t *car, UINT *parking_mode);
 
 #endif

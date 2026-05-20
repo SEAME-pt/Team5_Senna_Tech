@@ -14,14 +14,9 @@ UINT is_distance_safe(ULONG back_distance_cm, ULONG front_distance_cm)
     return 1; // Safe distance
 }
 
-// Parking mode refers to the state of parking the car, 
-// which can be either:
-// 0 -> First stance of the parking maneuver, where the car is moving backwards towards the parking spot
-// 1 -> Second instance of the parking maneuver, where the car is as close to the back wall as possible
-// 2 -> Final stance of the parking maneuver, where the car is moving forward to be perfectly parked in the spot
 void parking_mode_entry(car_t *car)
 {
-    UINT parking_mode = 0; // Start with the first stance of the parking maneuver
+    e_parking_mode parking_mode = FIRST_MANEUVER;
     UINT first_time_curving = 1;
 
     while (1)

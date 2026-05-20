@@ -1,6 +1,6 @@
 #include "car_modes.h"
 
-UINT park_first_maneuver(car_t *car, UINT *parking_mode)
+e_parking_mode park_first_maneuver(car_t *car, UINT *parking_mode)
 {
     t_ultrasonic_data ultrasonic_data;
     bzero(&ultrasonic_data, sizeof(ultrasonic_data));
