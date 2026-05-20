@@ -48,11 +48,9 @@ void motors_thread_entry(ULONG thread_input)
 
     pid_t throttle_pid;
     pid_init(&throttle_pid, 1.42f, 1.11f, 0.01f);
-    pid_set_integral_limit(&throttle_pid, 0.70f);
-    pid_set_output_limit(&throttle_pid, 1.0f);
 
-    float throttle_target = 0.0f; // normalized [-1, 1]
-    float steering_target = 0.0f; // normalized [-1, 1]
+    // normalized [-1, 1]
+    float throttle_target = 0.0f, steering_target = 0.0f;
 
     ULONG last_tick = tx_time_get();
     UINT brake = 0;
@@ -102,7 +100,7 @@ void motors_thread_entry(ULONG thread_input)
                 throttle_target = 2.0f; // Full brake
                 steering_target = 0.0f;
                 pid_reset(&throttle_pid);
-                parking_mode_entry(&car);
+                parking_mode_entry(&car, throttle_pid);
                 continue ;
             }
         }

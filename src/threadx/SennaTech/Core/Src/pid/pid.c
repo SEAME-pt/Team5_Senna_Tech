@@ -7,7 +7,7 @@ void pid_init(pid_t *pid, float kp, float ki, float kd)
     pid->kd = kd;
     pid->prev_error = 0.0f;
     pid->integral = 0.0f;
-    pid->integral_limit = 1.0f;
+    pid->integral_limit = 0.70f;
     pid->output_limit = 1.0f;
 }
 

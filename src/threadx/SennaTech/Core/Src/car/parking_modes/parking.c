@@ -1,6 +1,6 @@
 #include "car_modes.h"
 
-// If the distance is 0, it means i dont really care to measure it, so its considered safe.
+// If the distance is not positive, it means i dont really care to measure it, so its considered safe.
 UINT is_distance_safe(ULONG back_distance_cm, ULONG front_distance_cm)
 {
     const ULONG safe_distance_threshold_cm = 6; // cm
@@ -14,7 +14,7 @@ UINT is_distance_safe(ULONG back_distance_cm, ULONG front_distance_cm)
     return 1; // Safe distance
 }
 
-void parking_mode_entry(car_t *car)
+void parking_mode_entry(car_t *car, pid_t throttle_pid)
 {
     e_parking_mode parking_mode = FIRST_MANEUVER;
     UINT first_time_curving = 1;
@@ -24,7 +24,7 @@ void parking_mode_entry(car_t *car)
         if (first_time_curving)
             car_set_steering_percent(car, 1.0f); // Full right curve
 
-        parking_mode = park_first_maneuver(car);
+        parking_mode = park_first_maneuver(car, throttle_pid);
 
         if (parking_mode == ERROR_MANEUVER)
             uart_send("Error during parking maneuver, aborting parking mode\r\n");
