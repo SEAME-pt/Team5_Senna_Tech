@@ -6,6 +6,8 @@
   - [CanSender](#cansender)
   - [Display](#display)
   - [HardwareMonitor](#hardwaremonitor)
+  - [Timer](#timer)
+- [Telemetry](#telemetry)
 - [Debug](#debug)
 - [Notes](#notes)
 
@@ -72,7 +74,7 @@ Terminates the GStreamer process if running.
 ---
 
 ### `HardwareMonitor`
-Reads system metrics from the Raspberry Pi: CPU temperature, CPU usage, and per-task latency.
+Reads system metrics from the Raspberry Pi: CPU temperature and CPU usage.
 
 #### `__init__()`
 Initialises CPU stat baseline from `/proc/stat`.
@@ -83,11 +85,49 @@ Returns CPU temperature in °C from `/sys/class/thermal/thermal_zone0/temp`.
 #### `get_cpu_usage() → (float, float)`
 Returns `(cpu_used_%, cpu_free_%)` since the last call. Reads from `/proc/stat`.
 
-#### `start_inference()` / `end_inference() → float`
-Timer pair for measuring task latency. `end_inference()` returns elapsed time in ms.
+---
+
+### `Timer`
+Handles stage execution timing and FPS calculation for performance monitoring.
+
+#### `start_loop()`
+Starts the timer for the main loop cycle.
+
+#### `get_loop_duration() → float`
+Returns elapsed time since `start_loop` in ms.
+
+#### `start_stage(stage_name)`
+Starts timing a specific pipeline stage.
+
+#### `end_stage(stage_name) → float`
+Ends timing a stage and returns duration in ms.
 
 #### `get_fps() → float`
-Returns FPS based on time elapsed since the last call to this method.
+Returns FPS based on time elapsed since the last call.
+
+#### `get_report() → str`
+Returns a formatted string of all tracked stage timings.
+
+---
+
+## Telemetry
+
+The pipeline logs performance metrics every frame to the console.
+
+### FPS (Frames Per Second)
+Calculated using the `Timer.get_fps()` method, measuring the frequency based on the time elapsed between the current and the last frame processing cycle, providing an **instantaneous FPS** rather than a global average.
+
+### Cycle Time
+The Cycle Time (logged as `Cycle: Xms`) measures the **total time spent** to process a single frame, starting from the camera capture and ending after the display stage, managed by `Timer.get_loop_duration()`.
+
+This metric includes:
+- Camera input
+- Model inference (lane + object)
+- Post-processing (lane + object)
+- FSM processing
+- PID calculation
+- CAN command dispatch
+- Display overlay rendering
 
 ## Debug
 

@@ -76,7 +76,7 @@ def main():
 
             try:
                 while True:
-                    t_loop_start = Timer.start_loop()
+                    Timer.start_loop()
 
                     # ── CAMERA ──────────────────────────────────────────
                     Timer.start_stage("Camera")
@@ -167,7 +167,7 @@ def main():
 
                     fps = Timer.get_fps()
                     cpu_temp = Timer.read_temp()
-                    total_cycle_time = Timer.end_loop()
+                    total_cycle_time = Timer.get_loop_duration()
 
                     logging.info(
                         "FPS: %.1f | Temp: %.1fC | Cycle: %.1fms | %s",
