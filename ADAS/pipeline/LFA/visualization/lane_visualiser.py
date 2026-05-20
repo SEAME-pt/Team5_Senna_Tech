@@ -57,41 +57,6 @@ def draw_lane_overlay(frame_bgr, fit_result, bev):
 def draw_text_overlay(frame, fit_result, fps=None, inf_ms=None):
     h, w = frame.shape[:2]
     result = frame 
-    '''
-    def put(txt, pos, color, scale=1.2, thick=2):
-        cv2.putText(result, txt, pos, cv2.FONT_HERSHEY_SIMPLEX, scale, color, thick)
-
-    if fit_result.left_fit is not None or fit_result.right_fit is not None:
-        curv_val = getattr(fit_result, 'curvature_px', None)
-        curve_text = "Direction: Calculating..." 
-
-        if curv_val is not None:
-            a_coeff = fit_result.left_fit[0] if fit_result.left_fit is not None else fit_result.right_fit[0]
-            if curv_val > 10000: curve_text = "Direction: Straight"
-            elif a_coeff > 0.0001: curve_text = f"Curve: Right (R: {curv_val:.0f} px)"
-            elif a_coeff < -0.0001: curve_text = f"Curve: Left (R: {curv_val:.0f} px)"
-            else: curve_text = "Direction: Straight"
-        
-        put(curve_text, (20, 90), (255, 255, 255))
-    else:
-        cv2.putText(result, "NO LANES DETECTED", (w//2 - 200, h//2), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 3)
-
-    cte_val = getattr(fit_result, 'cte_norm', None) 
-    if cte_val is not None:
-        cte_txt = f"CTE Norm: {cte_val:+.3f}"
-        color = (0, 255, 0) if abs(cte_val) < 0.2 else (0, 165, 255)
-    else:
-        cte_txt = "CTE: Aguardando faixas..."
-        color = (128, 128, 128)
-    
-    put(cte_txt, (20, 50), color)
-
-    bm = w // 2
-    cv2.line(result, (bm - 100, 70), (bm + 100, 70), (200, 200, 200), 2)
-    if cte_val is not None:
-        dx = int(bm - cte_val * 100)
-        cv2.circle(result, (np.clip(dx, bm-100, bm+100), 70), 7, color, -1)
-    '''
 
     label = ""
     if inf_ms is not None: label += f"Hailo: {inf_ms:.1f}ms  "

@@ -23,7 +23,7 @@ import logging
 #para debug, apagar depois
 logging.basicConfig(level=logging.INFO)
 
-from object.ObjectDetector import ObjectDetector
+from object.object_detector import object_detector
 from core.hailo_engine import HailoEngine
 from core.hailo_engine import VDevice
 from post_processing.yolo_decoder import YoloSegDecoder
@@ -98,7 +98,7 @@ def main():
     # Init useful instancies
     threshold = 0.25
     decoder = YoloSegDecoder(score_threshold=threshold)
-    detector = ObjectDetector()
+    detector = object_detector()
     mask_filters = MaskFilters()
     #  !!! (kp, ki, kd) alterar aqui
     pid = PID(1.3, 0.1, 0.1)#0.9, 0.2, 0.6
