@@ -99,8 +99,7 @@ void motors_thread_entry(ULONG thread_input)
                 uart_send("Entering PARKING mode\r\n");
                 throttle_target = 2.0f; // Full brake
                 steering_target = 0.0f;
-                pid_reset(&throttle_pid);
-                parking_mode_entry(&car, throttle_pid);
+                parking_mode_entry(&car);
                 continue ;
             }
         }

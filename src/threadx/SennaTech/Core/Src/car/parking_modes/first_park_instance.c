@@ -7,7 +7,7 @@ static UINT confirm_first_maneuver(t_ultrasonic_data ultrasonic_data)
     return 1; // Close enough to the back wall
 }
 
-static move_backwards(car_t *car, pid_t *throttle_pid, ULONG *last_tick)
+/* static VOID move_backwards(car_t *car, pid_t *throttle_pid, ULONG *last_tick)
 {
     float dt = get_delta_time_seconds(last_tick);
     if (dt <= 0.0f)
@@ -15,9 +15,9 @@ static move_backwards(car_t *car, pid_t *throttle_pid, ULONG *last_tick)
 
     float throttle_cmd_percent = pidThrottleCalculation(throttle_pid, -0.05f, dt);
     car_set_throttle_percent(car, throttle_cmd_percent, 0); // Move backwards really slowly
-}
+} */
 
-e_parking_mode park_first_maneuver(car_t *car, pid_t throttle_pid)
+e_parking_mode park_first_maneuver(car_t *car)
 {
     t_ultrasonic_data ultrasonic_data;
     bzero(&ultrasonic_data, sizeof(ultrasonic_data));
@@ -28,10 +28,13 @@ e_parking_mode park_first_maneuver(car_t *car, pid_t throttle_pid)
         if (!is_distance_safe(ultrasonic_data.back_distance_cm, 0))
             return ERROR_MANEUVER;
 
-        move_backwards(car, &throttle_pid, &last_tick);
+        car_set_throttle_percent(car, PARKING_REVERSE_TARGET, 0);
 
         if (confirm_first_maneuver(ultrasonic_data))
+        {
+            car_set_throttle_percent(car, 0, 1);
             return SECOND_MANEUVER;
+        }
     }
     return ERROR_MANEUVER;
 }

@@ -14,17 +14,16 @@ UINT is_distance_safe(ULONG back_distance_cm, ULONG front_distance_cm)
     return 1; // Safe distance
 }
 
-void parking_mode_entry(car_t *car, pid_t throttle_pid)
+void parking_mode_entry(car_t *car)
 {
     e_parking_mode parking_mode = FIRST_MANEUVER;
-    UINT first_time_curving = 1;
+    //UINT first_time_curving = 1;
 
+    car_set_throttle_percent(car, 0, 1);
+    car_set_steering_percent(car, -1.0f); // Full right curve
     while (1)
     {
-        if (first_time_curving)
-            car_set_steering_percent(car, 1.0f); // Full right curve
-
-        parking_mode = park_first_maneuver(car, throttle_pid);
+        parking_mode = park_first_maneuver(car);
 
         if (parking_mode == ERROR_MANEUVER)
             uart_send("Error during parking maneuver, aborting parking mode\r\n");
