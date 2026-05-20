@@ -22,7 +22,6 @@ e_parking_mode park_first_maneuver(car_t *car)
     t_ultrasonic_data ultrasonic_data;
     bzero(&ultrasonic_data, sizeof(ultrasonic_data));
 
-    ULONG last_tick = tx_time_get();
     while (tx_queue_receive(&g_ultrasonic_data_queue, &ultrasonic_data, TX_WAIT_FOREVER) == TX_SUCCESS)
     {
         if (!is_distance_safe(ultrasonic_data.back_distance_cm, 0))

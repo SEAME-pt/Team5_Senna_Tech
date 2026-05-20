@@ -3,7 +3,7 @@
 // If the distance is not positive, it means i dont really care to measure it, so its considered safe.
 UINT is_distance_safe(ULONG back_distance_cm, ULONG front_distance_cm)
 {
-    const ULONG safe_distance_threshold_cm = 6; // cm
+    const ULONG safe_distance_threshold_cm = 2; // cm
 
     if (back_distance_cm && back_distance_cm < safe_distance_threshold_cm) 
         return 0;
@@ -27,7 +27,6 @@ void parking_mode_entry(car_t *car)
         return ;
     }
 
-    car_set_throttle_percent(car, 0, 1);
     car_set_steering_percent(car, 1.0f); // Full left
     parking_mode = park_second_maneuver(car);
     if (parking_mode == ERROR_MANEUVER)
@@ -36,7 +35,6 @@ void parking_mode_entry(car_t *car)
         return ;
     }
 
-    car_set_throttle_percent(car, 0, 1);
     car_set_steering_percent(car, 0.0f); // Centered
     parking_mode = park_final_maneuver(car);
     if (parking_mode == ERROR_MANEUVER)

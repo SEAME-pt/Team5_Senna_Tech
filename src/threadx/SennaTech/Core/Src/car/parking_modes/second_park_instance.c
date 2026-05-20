@@ -7,12 +7,11 @@ static UINT confirm_second_maneuver(t_ultrasonic_data ultrasonic_data)
     return 1; // Close enough to the back wall
 }
 
-e_parking_mode park_first_maneuver(car_t *car)
+e_parking_mode park_second_maneuver(car_t *car)
 {
     t_ultrasonic_data ultrasonic_data;
     bzero(&ultrasonic_data, sizeof(ultrasonic_data));
 
-    ULONG last_tick = tx_time_get();
     while (tx_queue_receive(&g_ultrasonic_data_queue, &ultrasonic_data, TX_WAIT_FOREVER) == TX_SUCCESS)
     {
         if (!is_distance_safe(ultrasonic_data.back_distance_cm, 0))
@@ -20,13 +19,14 @@ e_parking_mode park_first_maneuver(car_t *car)
 
         car_set_throttle_percent(car, CONSTANT_PARKING_VELOCITY, 0);
 
-        if (confirm_first_maneuver(ultrasonic_data))
+        if (confirm_second_maneuver(ultrasonic_data))
         {
             car_set_throttle_percent(car, 0, 1);
 
-            uart_send("Second maneuver complete, starting second maneuver\r\n");
+            uart_send("Second maneuver complete, starting final maneuver\r\n");
             return FINAL_MANEUVER;
         }
     }
+    car_set_throttle_percent(car, 0, 1);
     return ERROR_MANEUVER;
 }

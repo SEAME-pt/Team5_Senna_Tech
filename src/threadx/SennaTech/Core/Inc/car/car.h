@@ -23,8 +23,8 @@
 #define SERVO_RAW_MIN_MECH 205
 #define SERVO_RAW_MAX_MECH 410
 
-#define SERVO_RAW_MIN 215
-#define SERVO_RAW_MAX 400
+#define SERVO_RAW_MIN 205
+#define SERVO_RAW_MAX 410
 
 typedef struct
 {

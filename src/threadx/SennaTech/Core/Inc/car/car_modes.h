@@ -4,11 +4,12 @@
 #include "car.h"
 
 // Distances
-#define FIRST_MANEUVER_SAFE_DISTANCE_CM 33
-#define SECOND_MANEUVER_SAFE_DISTANCE_CM 10
+#define FIRST_MANEUVER_SAFE_DISTANCE_CM 27
+#define SECOND_MANEUVER_SAFE_DISTANCE_CM 14
+#define FINAL_MANEUVER_SAFE_DISTANCE_CM 10
 
 // Velocities
-#define CONSTANT_PARKING_VELOCITY -0.18f
+#define CONSTANT_PARKING_VELOCITY -0.17f
 
 // Parking mode refers to the state of parking the car, 
 // which can be either:
