@@ -63,6 +63,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/sensor/odometer.c
     Core/Src/sensor/speedsensor.c
     Core/Src/utils/debug_utils.c
+    Core/Src/utils/math_utils.c
     Core/Src/utils/sleep_hal.c
     Core/Src/heartbeat.c
 )

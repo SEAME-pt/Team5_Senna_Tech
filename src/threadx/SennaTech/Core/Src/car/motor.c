@@ -1,4 +1,4 @@
-#include "car.h"
+#include "car_modes.h"
 
 static e_car_mode get_car_mode(int16_t mode_cmd, ULONG *last_tick, float *throttle_target)
 {
@@ -56,7 +56,6 @@ void motors_thread_entry(ULONG thread_input)
 
     ULONG last_tick = tx_time_get();
     UINT brake = 0;
-    UINT parking = 0;
     e_car_mode mode = MODE_MANUAL;
 
     while (1)
