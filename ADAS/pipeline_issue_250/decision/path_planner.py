@@ -5,7 +5,7 @@ class PathPlanner:
 
     def __init__(
         self,
-        lane_offset:       float = 0.38,
+        lane_offset:       float = 0.80,
         blind_wait_time:   float = 2.5,
         return_duration_s: float = 1.5,
     ):

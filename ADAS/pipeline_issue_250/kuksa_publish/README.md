@@ -85,3 +85,4 @@ Closes the gRPC channel. Called at pipeline shutdown.
 - Speed signs (`class_id` 0–1) and traffic signs (`class_id` 3–12) are selected independently.
 - `class_id == 13` is used as a sentinel for "no detection" — it maps to code `0` in both signal types.
 - `KuksaClient.close()` must be called at pipeline shutdown to release the gRPC channel.
+- **Known import issue:** `kuksa_publish.py` imports `from object.perception_objects import Detection`, which assumes the working directory contains `object/`. When running from the pipeline root, this import fails. The correct import is `from post_processing.object.perception_objects import Detection`. The `Detection` type annotation is only used as documentation here; the method works with any list of objects with `class_id` and `relative_area` attributes.

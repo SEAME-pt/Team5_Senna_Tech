@@ -130,47 +130,27 @@ Closes the inference pipeline and releases resources associated with the context
 | `outputs_obj` | `dict` | 6 raw tensors from the Object Detection model |
 
 ## Execution Flow
-Before inference, the module executes:
 
-- `resize` to the size expected by the network;
-- addition of batch dimension;
-- final conversion to `uint8`.
+Pre-processing pipeline per frame:
+1. `cv2.resize(img_rgb, (640, 640))` — always 640×640 regardless of camera resolution.
+2. `np.expand_dims(..., axis=0).astype(np.uint8)` — adds batch dimension, keeps uint8.
+3. Input fed to `InferVStreams.infer()`. Outputs returned as `FLOAT32`.
 
-In `main2`, the camera already delivers frames in `RGB`, so the inference module no longer needs to convert `BGR -> RGB`. This behavior was removed to keep the contract between modules simple and coherent.
+The camera delivers RGB; no color conversion is performed here. Do not pass BGR frames.
 
-This behavior is encapsulated in the inference module so that `main` only acts as an orchestrator.
+## Initialization Order
 
-## Role in `main2`
-In `main2`, inference is integrated as the stage immediately following the camera. The goal of this phase is to validate the `camera -> inference` flow before attaching the decoder, geometry, and control.
+- Data flow order: `camera → inference → post_processing → …`
+- Resource initialization order: `VDevice → HailoEngine(lane) → HailoEngine(object) → Camera → loop`
 
-In this stage of restructuring, `main2` already prepares two pipeline models:
-
-- one `HailoEngine` for lane detection;
-- one `HailoEngine` for object detection.
-
-Both are initialized before the camera opens and share the same `VDevice`.
-
-## Initialization Order during Execution
-Although the camera is the first stage of the pipeline data flow, the inference infrastructure can be initialized before it during system execution.
-
-This initialization order makes sense because the `VDevice` and `HailoEngine` need to be ready before the camera starts producing frames continuously. This way, the system avoids starting capture without having the next stage ready to consume the data.
-
-In practice, the distinction is as follows:
-
-- data flow order: `camera -> inference -> post_processing -> ...`
-- resource initialization order: `VDevice -> HailoEngine(lane) -> HailoEngine(object) -> Camera -> loop`
-
-This separation improves application robustness and allows for early failure if there is an issue with Hailo hardware or loading the `.hef` model.
+Both engines share one `VDevice`. The engines must be ready before the camera loop starts to avoid producing frames before inference is available.
 
 ## Debug
-
-The module has two levels of logging that work independently:
 
 ### Lifecycle logs (always active)
 None — the inference module does not emit lifecycle logs by default.
 
 ### Per-operation logs (`debug=True`)
-Only emitted when `HailoEngine(..., debug=True)`:
 
 | Event | Level | Message |
 |---|---|---|
@@ -181,16 +161,12 @@ Only emitted when `HailoEngine(..., debug=True)`:
 | Output shapes | `DEBUG` | `[INFERENCE] output shapes={...}` |
 | Engine closing | `DEBUG` | `[INFERENCE] closing engine: <path>` |
 
-### How to enable
 ```python
 engine = HailoEngine("model.hef", target, debug=True)
-```
-And ensure the logging level is set to `DEBUG`:
-```python
 logging.basicConfig(level=logging.DEBUG)
 ```
 
 ## Notes
-- The module uses Hailo's `VDevice` to share the device between multiple engines when necessary.
-- `main2` already receives two `.hef` paths, one for lane detection and one for object detection.
-- At this stage, engines are already initialized in `main2`, even before per-frame inference is linked to the main loop.
+- `net_size` is hard-coded to 640. The model must have been compiled for 640×640 input.
+- A new `_ng.activate()` context is opened on every `infer()` call. This is the correct pattern for Hailo SDK v4.x synchronous inference.
+- Two `HailoEngine` instances sharing one `VDevice` is supported and is the pattern used in `main.py`.

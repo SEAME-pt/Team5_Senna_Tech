@@ -14,14 +14,14 @@ Renders lane detection results onto the original camera frame for visual debuggi
 
 ## Functions
 
-### `draw_lane_overlay(frame_bgr, fit_result, bev) → numpy.ndarray`
+### `draw_lane_overlay(frame_rgb, fit_result, bev) → numpy.ndarray`
 Draws the detected lane lines and corridor fill onto the original camera frame.
 
 **Behavior**
 1. Computes polynomial points for each y-value in the frame.
 2. If both lanes are found, fills the corridor between them with semi-transparent green.
 3. Draws a cyan centre line between the two lanes.
-4. Draws each lane line — blue for real lanes, cyan for virtual (estimated) lanes.
+4. Draws each lane line — red for real left lane, blue for real right lane, cyan for virtual (estimated) lanes.
 5. Unwarps the overlay from BEV back to camera perspective using `bev.unwarp()`.
 6. Blends the overlay with the original frame (`alpha=0.4`).
 7. Draws the BEV source trapezoid for calibration reference.
@@ -29,20 +29,20 @@ Draws the detected lane lines and corridor fill onto the original camera frame.
 **Inputs**
 | Field | Type | Description |
 |---|---|---|
-| `frame_bgr` | `numpy.ndarray` | Original BGR camera frame |
+| `frame_rgb` | `numpy.ndarray` | Original **RGB** camera frame |
 | `fit_result` | `LaneFitResult` or `TrackedLaneFit` | Lane polynomials |
 | `bev` | `BEVTransform` | Used to unwarp overlays back to camera view |
 
-**Output** — annotated BGR frame.
+**Output** — annotated **RGB** frame.
 
 #### Visual legend
 | Element | Color | Meaning |
 |---|---|---|
 | Lane fill | Semi-transparent green | Detected drivable corridor |
 | Centre line | Cyan | Midpoint between lanes |
-| Left lane | Blue | Directly detected |
-| Right lane | Red | Directly detected |
-| Virtual lane | Cyan | Estimated from the other lane |
+| Left lane | Blue `(0,0,255)` in RGB | Directly detected |
+| Right lane | Red `(255,0,0)` in RGB | Directly detected |
+| Virtual lane (either side) | Cyan `(0,255,255)` in RGB | Estimated from the other lane |
 | BEV trapezoid | Magenta | Calibration reference points |
 
 ---
@@ -65,7 +65,7 @@ Draws timing and performance metrics onto the frame. Currently only renders the 
 |---|---|---|
 | `fit_result` | `LaneFitResult` | Source of lane polynomials for rendering |
 | `bev` | `BEVTransform` | Provides `unwarp()` and `DEFAULT_SRC` for overlay |
-| Output frame | `numpy.ndarray BGR` | Frame with lane overlays blended in |
+| Output frame | `numpy.ndarray RGB` | Frame with lane overlays blended in |
 
 ## Debug
 No `debug` flag — visualisation is itself the debug output. Call `draw_lane_overlay()` to inspect what the geometry stage detected.

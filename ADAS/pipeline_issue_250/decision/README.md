@@ -84,7 +84,7 @@ Computes the target CTE to pass to the PID based on the current FSM state.
 #### `__init__(lane_offset, blind_wait_time, return_duration_s)`
 | Parameter | Default | Description |
 |---|---|---|
-| `lane_offset` | `0.38` | Normalised lateral offset during avoidance |
+| `lane_offset` | `0.38` (class default); `0.80` in `main.py` | Normalised lateral offset during avoidance |
 | `blind_wait_time` | `2.5` | Seconds to wait in `BLIND_WAIT` before returning |
 | `return_duration_s` | `1.5` | Duration of the return-to-centre interpolation |
 

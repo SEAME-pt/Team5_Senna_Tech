@@ -105,5 +105,8 @@ logging.basicConfig(level=logging.DEBUG)
 ```
 
 ## Notes
+- `YoloSegDecoder` auto-detects three tensor layout modes on first call and caches the result: `pre_concat4` (8400-flattened splits), `per_scale` (80/40/20 grids), and `concat4` (single concatenated tensor). Detection is based on shape heuristics, not tensor names, so it is model-agnostic.
+- If all candidate scores are nearly uniform (range < 0.01), the decoder falls back to using L2-norm of mask coefficients as a proxy score. This handles quantized models that suppress logit variance.
+- Binarization threshold is adaptive: `max(mean + 0.1×std, 0.3)`. A flat mask (no lane detected) returns all zeros.
+- The close kernel `(5, 15)` is wider vertically to bridge vertical lane gaps; the open kernel `(5, 5)` removes point noise without damaging lane continuity.
 - This layer acts as the bridge between `inference` and `LFA`.
-- Tensor format details are encapsulated here.

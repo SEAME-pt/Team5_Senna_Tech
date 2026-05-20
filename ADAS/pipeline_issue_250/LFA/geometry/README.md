@@ -67,8 +67,20 @@ Main entry point. Runs the full detection pipeline on a BEV binary mask.
 
 **Output** — `LaneFitResult` (see `core/README.md`).
 
-#### Sanity check on lane width
-The fitter validates that the detected lane width is within `50%–150%` of the tracked `lane_width_px`. Detections outside this range are rejected to avoid spurious fits from noise.
+#### Validation and rejection rules
+A both-lane detection is rejected (the weaker lane is discarded) if any of the following holds:
+- Lane width outside `60%–140%` of `tracked_lane_width_px`
+- Lanes crossed (`l_x > r_x - 10`)
+- Opposite curvatures (signs differ and `|a| > 0.001` on both)
+- Either lane has fewer than 40 pixels
+
+Polynomial acceptance requires ≥ 80 pixels, y-span ≥ 35% of image height, and `|a| ≤ 0.008`.
+
+#### CTE calculation and smoothing
+CTE is evaluated at `y = 0.60 × H`. Normalized to `[-1, +1]` relative to `tracked_lane_width_px / 2`. An EMA with `α = 0.35` smooths the CTE signal. A dead zone `|cte| < 0.02` snaps to zero for straight-line stability.
+
+#### Polynomial smoothing
+Coefficients are smoothed with EMA `α = 0.80` (high responsiveness, light smoothing). `tracked_lane_width_px` is updated incrementally with `α = 0.05` on straight-road detections only.
 
 ## Data Contract
 | Field | Type | Shape | Meaning |
@@ -78,10 +90,11 @@ The fitter validates that the detected lane width is within `50%–150%` of the 
 | `fit_result` | `LaneFitResult` | — | Polynomials, CTE, and debug image |
 
 ## Debug
-Neither class exposes a `debug` flag. Visual debug is available via `LaneFitResult.debug_image`, which contains the sliding windows drawn on the BEV mask when lanes are detected.
+Neither class exposes a `debug` flag. Visual debug is available via `LaneFitResult.debug_image`, which contains the sliding windows drawn on the BEV mask when `draw_debug=True` is passed to `fit()`. This flag is not currently set in `main.py`.
 
 ## Notes
-- `DEFAULT_SRC` calibration points were validated on the RPi — the commented-out values above them represent previous attempts kept for reference.
-- `lane_width_px=180.0` was tuned empirically. If the track changes, this value may need adjustment.
+- `DEFAULT_SRC` calibration points were validated on the RPi — the commented-out values above them represent a previous calibration attempt kept for reference.
+- `lane_width_px=180.0` was tuned empirically for the current track. Track changes require re-tuning.
 - CTE is normalised to `[-1.0, 1.0]` relative to half the lane width.
-- If neither lane is found, `fit_result.cte_norm` is `None` — `main` should fall back to `0.0`.
+- If neither lane is found, `fit_result.cte_norm` is `None` — `main` falls back to `0.0`.
+- The histogram search is constrained by anchor fits from the previous frame. Virtual lane detections use a wider search margin (`×4` vs `×2`) to allow recovery.

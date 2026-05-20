@@ -9,9 +9,26 @@
 - [Cross-Cutting Documentation](#cross-cutting-documentation)
 
 ## Overview
-Execution pipeline for the ADAS prototype running on Raspberry Pi 5 + Hailo-8. Each module is responsible for its own code and local documentation. The pipeline follows a layered architecture with a pipe-and-filter execution model — each stage receives a defined input, processes it, and produces an output consumed by the next stage.
+Execution pipeline for the ADAS prototype running on Raspberry Pi 5 + Hailo-8 NPU. Two YOLO models run in parallel on the same `VDevice`: `yolo26n_seg_640.hef` for lane segmentation and `yolo26n_v4.hef` for object/sign detection (13 custom classes). The pipeline is a synchronous main loop with real wall-clock `dt` fed to the PID on every cycle.
+
+**Color space invariant:** the entire pipeline uses **RGB**. `rpicam-vid` outputs YUV420; `camera/` converts to RGB immediately. All downstream modules — inference, post-processing, display — receive and return RGB frames. Do not insert BGR conversions.
 
 Entry point: `main.py`
+
+### Key Parameters (defined in `main.py`)
+
+| Parameter | Value | Description |
+|---|---|---|
+| Camera resolution | 640 × 360 | Input frame size; also BEV output size |
+| Camera FPS | 15 | `rpicam-vid` target frame rate |
+| Display resolution | 1260 × 400 | Output display / stream size |
+| PID gains | kp=1.3, ki=0.1, kd=0.1 | Steering controller; `dt` from real loop time |
+| `lane_offset` | 0.80 | Normalized CTE shift during avoidance maneuver |
+| `blind_wait_time` | 2.5 s | Time to wait after obstacle disappears before returning |
+| `return_duration_s` | 1.5 s | Duration of linear CTE lerp back to center |
+| `area_brake_threshold` | 0.060 | Frame-over-frame area delta that triggers EMERGENCY |
+| `area_avoidance_min` | 0.010 | Minimum obstacle BBox area (relative) to enter avoidance |
+| `frames_to_confirm` | 4 | Consecutive in-corridor frames before avoidance activates |
 
 ## Usage
 
@@ -22,9 +39,11 @@ python3 main.py <lane_model.hef> <object_model.hef> [options]
 ```
 
 ### Options
-- `--remote`: Enables remote streaming of the display output via stdout.
-- `--no-display`: Disables the display output, useful for running on headless systems.
-- `--virtual`: Runs in virtual mode, preventing physical commands (steering/throttle) from being sent to the vehicle.
+- `--remote`: Streams JPEG-encoded frames to stdout (80% quality). Useful over SSH.
+- `--no-display`: Headless mode — skips all display rendering (saves CPU).
+- `--virtual`: Skips CAN send. Throttle and steering are computed but not transmitted. Safe for bench testing.
+
+**Prerequisites:** HailoRT driver with `force_desc_page_size=4096` fix (see `docs/AGL/AGL_hailo_PCIe_config.md`), `can0` interface up, `rpicam-vid` available. Both HEF files must exist at the paths provided.
 
 ## Data Flow
 
@@ -42,8 +61,8 @@ python3 main.py <lane_model.hef> <object_model.hef> [options]
 | 10 | FSM | `EnvironmentState`, `ObstacleInfo` | `State` |
 | 11 | Path Planner | `State`, `obstacle_side` | `target_cte (float)` |
 | 12 | PID | `target_cte`, `cte_actual`, `dt` | `steering (float [-1, 1])` |
-| 13 | Adaptive Cruise Control | `lead_car_area` | `throttle (int [0, 8])` |
-| 14 | CAN Bus | `steering`, `throttle` | CAN command `0x002` |
+| 13 | Adaptive Cruise Control | `lead_car_area` | `throttle (int [0, 8])` — only in `FOLLOW` state |
+| 14 | CAN Bus | `steering`, `throttle` | CAN frame `0x002`: `[throttle int16 LE, steering×100 int16 LE]` (4 bytes) |
 
 ## Rules for `main`
 

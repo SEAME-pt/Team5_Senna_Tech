@@ -2,7 +2,7 @@ from kuksa.val.v1 import val_pb2 as val_v1
 from kuksa.val.v1 import types_pb2 as types_v1
 from kuksa.val.v1 import val_pb2_grpc as val_grpc_v1
 import grpc
-from object.perception_objects import Detection
+from post_processing.object.perception_objects import Detection
 
 class KuksaClient:
     def __init__(self, address="localhost:55555"):

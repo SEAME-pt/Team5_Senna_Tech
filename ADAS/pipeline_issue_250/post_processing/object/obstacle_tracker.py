@@ -17,7 +17,7 @@ class ObstacleInfo:
 class ObstacleTracker:
     def __init__(
         self,
-        area_brake_threshold:  float = 0.025,
+        area_brake_threshold:  float = 0.060,
         area_avoidance_min:    float = 0.010,
         frames_to_confirm:     int   = 4,
         frame_width_bev:       int   = 640,

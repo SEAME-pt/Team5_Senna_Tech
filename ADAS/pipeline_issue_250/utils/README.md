@@ -141,6 +141,7 @@ This metric includes:
 
 ## Notes
 - `CanSender` requires the `can0` interface to be up before instantiation: `ip link set can0 up type can bitrate 500000`.
+- `CanSender.send_cte()` and `send_fsm_state()` are implemented but not called in `main.py`. `send_cte()` is explicitly marked as pending MCU migration. `send_drive_command()` is the only method currently used.
 - `Display` in `"local"` mode requires a running Wayland compositor (`WAYLAND_DISPLAY=wayland-1`, `XDG_RUNTIME_DIR=/run/user/200`).
 - `HardwareMonitor` reads from `/proc/stat` and `/sys/class/thermal/` — only available on Linux.
 - `Display.show()` performs a `cv2.resize()` on every frame — if performance is critical, pre-resize before calling.

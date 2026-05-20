@@ -113,7 +113,7 @@ Tracks the most relevant obstacle in the corridor across frames. Classifies the 
 
 | Parameter | Default | Description |
 |---|---|---|
-| `area_brake_threshold` | `0.025` | Delta area per frame that triggers BRAKE |
+| `area_brake_threshold` | `0.025` (class default); `0.060` in `main.py` | Delta area per frame that triggers BRAKE |
 | `area_avoidance_min` | `0.010` | Minimum area to consider avoidance |
 | `frames_to_confirm` | `4` | Consecutive frames needed to confirm avoidance |
 | `frame_width_bev` | `640` | BEV image width in pixels |

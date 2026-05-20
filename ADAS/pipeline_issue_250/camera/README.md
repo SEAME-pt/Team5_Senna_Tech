@@ -103,6 +103,7 @@ Calls `stop()` upon exiting the context, ensuring all resources are released.
 | `--exposure` | `sport` | Fast shutter exposure mode |
 | `--shutter` | `3500` | Fixed shutter speed in microseconds |
 | `--denoise` | `off` | Disables denoising for lower latency |
+| `--vflip` / `--hflip` | enabled | Corrects physical mounting orientation of the camera |
 
 ## YUV420 Format
 The sensor captures in YUV420 — a raw format that separates brightness (Y) from color (U, V):

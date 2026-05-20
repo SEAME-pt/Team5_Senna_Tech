@@ -47,3 +47,5 @@ It is divided into two subdomains:
 ## Notes
 - This layer sits between `inference` and the geometry/decision modules.
 - Model-specific details are encapsulated in the corresponding submodules.
+- `EnvironmentState` and `ObstacleTracker` are built in the `object` submodule; their outputs feed directly into `decision/`.
+- The `object` submodule holds hardcoded output tensor keys (`yolo26n/conv61`, etc.) that are specific to `yolo26n_v4.hef`. Switching models requires updating `ObjectDetector.process()`.
