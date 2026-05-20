@@ -9,7 +9,7 @@ from post_processing import YoloSegDecoder, MaskFilters, ObjectDetector, Corrido
 from LFA import BEVTransform, SlidingWindowsLaneFitter, draw_lane_overlay
 from decision import VehicleFSM, State, AVOIDANCE_STATES, STATE_THROTTLE, PathPlanner, AdaptiveCruiseControl, PID
 from kuksa_publish import KuksaClient
-from utils import CanSender, Display, Timer
+from utils import CanSender, Display, HardwareMonitor, Timer
 
 try:
     from utils import CanSender, Display
@@ -58,6 +58,8 @@ def main():
         frame_width_bev      = CAM_WIDTH,
     )
     adaptive_cruise = AdaptiveCruiseControl()
+    hw_monitor      = HardwareMonitor()
+    timer           = Timer()
 
     if args.remote:
         display_mode = "remote"
@@ -74,28 +76,32 @@ def main():
 
             logging.info("Models loaded. Engines ready.")
 
+            last_valid_state = None
+            last_sent_throttle = None
+            last_sent_steering = None
+
             try:
                 while True:
-                    Timer.start_loop()
+                    timer.start_loop()
 
                     # ── CAMERA ──────────────────────────────────────────
-                    Timer.start_stage("Camera")
+                    timer.start_stage("Camera")
                     rgb = cam.get_frame()
                     if rgb is None:
                         continue
-                    Timer.end_stage("Camera")
+                    timer.end_stage("Camera")
 
                     # ── INFERENCE ────────────────────────────────────────
-                    Timer.start_stage("Inf_Lane")
+                    timer.start_stage("Inf_Lane")
                     outputs_lane = engine_lane.infer(rgb)
-                    Timer.end_stage("Inf_Lane")
+                    timer.end_stage("Inf_Lane")
 
-                    Timer.start_stage("Inf_Obj")
+                    timer.start_stage("Inf_Obj")
                     outputs_obj  = engine_obj.infer(rgb)
-                    Timer.end_stage("Inf_Obj")
+                    timer.end_stage("Inf_Obj")
 
                     # ── LANE POST-PROCESSING ─────────────────────────────
-                    Timer.start_stage("Post")
+                    timer.start_stage("Post")
                     binary_mask = decoder.decode_to_mask(outputs_lane, CAM_HEIGHT, CAM_WIDTH)
                     clean_mask  = mask_filters.process(binary_mask)
                     bev_mask    = bev.warp(clean_mask)
@@ -105,12 +111,12 @@ def main():
                     detections = detector.process(outputs_obj, rgb.shape)
                     env_state  = build_environment_state(detections, fit_result, checker, rgb.shape)
                     rgb = detector.draw(rgb, detections)
-                    Timer.end_stage("Post")
+                    timer.end_stage("Post")
 
                     # ── KUKSA ────────────────────────────────────────────
-                    Timer.start_stage("Kuksa")
+                    timer.start_stage("Kuksa")
                     kuksa_channel.send(env_state.detections)
-                    Timer.end_stage("Kuksa")
+                    timer.end_stage("Kuksa")
 
                     # ── OBSTACLE TRACKER ─────────────────────────────────
                     obs_info = obs_tracker.update(detections)
@@ -124,7 +130,7 @@ def main():
                         planner.reset_blind_timer()
 
                     # ── FSM DECISION ─────────────────────────────────────
-                    Timer.start_stage("Decision")
+                    timer.start_stage("Decision")
                     current_state = fsm.process(
                         env_state,
                         obstacle_situation      = obs_info.situation,
@@ -139,7 +145,11 @@ def main():
                         current_state,
                         obstacle_side = obs_info.side,
                     )
-                    pid_return = round(pid.update(target_cte, cte_actual, 0.1), 2) # simplified dt for now
+                    
+                    # Real dt from Timer for accurate PID control
+                    dt = timer.get_loop_duration() / 1000.0
+                    pid_return = round(pid.update(target_cte, cte_actual, dt), 2)
+                    
                     throttle = STATE_THROTTLE.get(current_state, 0)
                     if current_state == State.FOLLOW:
                         throttle = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
@@ -155,23 +165,23 @@ def main():
                     if last_valid_state is None or current_state.value != last_valid_state:
                         last_valid_state = current_state.value
                         logging.info("NEW MODE: %s | throttle=%s", current_state.name, throttle)
-
-                    Timer.end_stage("Decision")
+                    
+                    timer.end_stage("Decision")
 
                     # ── DISPLAY ──────────────────────────────────────────
-                    Timer.start_stage("Display")
+                    timer.start_stage("Display")
                     if display_mode != "none":
                         res = draw_lane_overlay(rgb, fit_result, bev)
                         display.show(res)
-                    Timer.end_stage("Display")
+                    timer.end_stage("Display")
 
-                    fps = Timer.get_fps()
-                    cpu_temp = Timer.read_temp()
-                    total_cycle_time = Timer.get_loop_duration()
+                    fps = timer.get_fps()
+                    cpu_temp = hw_monitor.read_temp()
+                    total_cycle_time = timer.get_loop_duration()
 
                     logging.info(
                         "FPS: %.1f | Temp: %.1fC | Cycle: %.1fms | %s",
-                        fps, cpu_temp, total_cycle_time, Timer.get_report(),
+                        fps, cpu_temp, total_cycle_time, timer.get_report(),
                     )
 
             except KeyboardInterrupt:

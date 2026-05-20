@@ -1,8 +1,6 @@
-import time
-
 class HardwareMonitor:
     def __init__(self):
-        """Initializes CPU state."""
+        """Initializes CPU state monitoring."""
         self._cpu_stat_prev = self._read_cpu_stat()
 
     def _read_cpu_stat(self):
@@ -27,7 +25,7 @@ class HardwareMonitor:
             return 0.0
 
     def get_cpu_usage(self):
-        """Calculates and returns the percentage of CPU used and free since the last call."""
+        """Calculates and returns the percentage of CPU used and free since last call."""
         user_now, sys_now, idle_now, total_now = self._read_cpu_stat()
         user_prev, sys_prev, idle_prev, total_prev = self._cpu_stat_prev
 
@@ -43,7 +41,6 @@ class HardwareMonitor:
         cpu_used = cpu_pct_user + cpu_pct_sys
         cpu_free = cpu_pct_idle
 
-        # Update previous state for next reading
         self._cpu_stat_prev = (user_now, sys_now, idle_now, total_now)
 
         return cpu_used, cpu_free

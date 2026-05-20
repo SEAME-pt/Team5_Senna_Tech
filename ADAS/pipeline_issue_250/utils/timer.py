@@ -2,10 +2,11 @@ import time
 
 class Timer:
     def __init__(self):
-        """Initializes the timer with internal start times for stages."""
+        """Initializes the timer with internal start times for stages and frames."""
         self._start_times = {}
         self._durations = {}
         self._loop_start = None
+        self._last_frame_time = time.perf_counter()
 
     def start_loop(self):
         """Starts the timer for the main loop cycle."""
@@ -28,6 +29,13 @@ class Timer:
         self._durations[stage_name] = duration
         return duration
 
+    def get_fps(self):
+        """Calculates instantaneous FPS based on elapsed time since last call."""
+        now = time.perf_counter()
+        dt = now - self._last_frame_time
+        self._last_frame_time = now
+        return 1.0 / dt if dt > 0 else 0.0
+
     def get_report(self):
-        """Returns a formatted string of the current stage timings."""
+        """Returns a formatted string of all tracked stage timings."""
         return " | ".join([f"{k}: {v:.1f}ms" for k, v in self._durations.items()])
