@@ -9,6 +9,7 @@
 #define CAN_ID_JOY_MOVEMENT     0x001
 #define CAN_ID_AI_MOVEMENT      0x002
 #define CAN_ID_MODE_MOVEMENT    0x003
+#define CAN_ID_MODE_PARKING     0x004
 #define CAN_ID_HEARTBEAT        0x005
 #define CAN_ID_SPEED            0x10
 #define CAN_ID_BATTERY          0x200

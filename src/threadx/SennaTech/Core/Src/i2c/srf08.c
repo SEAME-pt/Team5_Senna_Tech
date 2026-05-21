@@ -3,7 +3,7 @@
 UINT    srf08_trigger(I2C_HandleTypeDef *hi2c, uint16_t addr)
 {
     uint8_t   buff[2] = { SRF08_REG_CMD, SRF08_CMD_RANGE_CM };
-    
+
      // Write 0x51 to register 0x00 to start a ranging cycle in cm
     if (HAL_I2C_Master_Transmit(hi2c, addr, buff, 2, 100) != HAL_OK)
         return TX_TIMER_ERROR;

@@ -3,6 +3,9 @@
 
 #include "pca9685.h"
 #include <math.h>
+#include "pid.h"
+#include <inttypes.h>
+#include "can_manager.h"
 
 #define PWM_RESOLUTION 12
 #define PWM_MAX_RAW_VALUE ((1 << PWM_RESOLUTION) - 1)  
@@ -20,8 +23,8 @@
 #define SERVO_RAW_MIN_MECH 205
 #define SERVO_RAW_MAX_MECH 410
 
-#define SERVO_RAW_MIN 215
-#define SERVO_RAW_MAX 400
+#define SERVO_RAW_MIN 205
+#define SERVO_RAW_MAX 410
 
 typedef struct
 {
@@ -31,8 +34,8 @@ typedef struct
 
 typedef enum car_mode {
     MODE_AUTONOMOUS = 0,
-    MODE_MANUAL = 1,
-    MODE_DEBUG = 2
+    MODE_MANUAL     = 1,
+    MODE_DEBUG      = 2
 } e_car_mode;
 
 void car_init(car_t *car, void *hi2c);

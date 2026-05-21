@@ -6,6 +6,7 @@
 
 extern UART_HandleTypeDef   huart1;
 
+// Debug
 VOID    uart_send(const char *msg);
 VOID    uart_send_int(ULONG value);
 

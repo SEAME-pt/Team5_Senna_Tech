@@ -1,8 +1,4 @@
-#include "can_manager.h"
-#include "car.h"
-#include "pid.h"
-#include <inttypes.h>
-#include <math.h>
+#include "car_modes.h"
 
 static e_car_mode get_car_mode(int16_t mode_cmd, ULONG *last_tick, float *throttle_target)
 {
@@ -52,11 +48,9 @@ void motors_thread_entry(ULONG thread_input)
 
     pid_t throttle_pid;
     pid_init(&throttle_pid, 1.42f, 1.11f, 0.01f);
-    pid_set_integral_limit(&throttle_pid, 0.70f);
-    pid_set_output_limit(&throttle_pid, 1.0f);
 
-    float throttle_target = 0.0f; // normalized [-1, 1]
-    float steering_target = 0.0f; // normalized [-1, 1]
+    // normalized [-1, 1]
+    float throttle_target = 0.0f, steering_target = 0.0f;
 
     ULONG last_tick = tx_time_get();
     UINT brake = 0;
@@ -74,7 +68,7 @@ void motors_thread_entry(ULONG thread_input)
                 pid_reset(&throttle_pid);
                 continue ;
             }
-    
+
             if (frame.id == CAN_ID_AI_MOVEMENT && mode == MODE_AUTONOMOUS)
             {
                 decode_drive_frame(&frame, &throttle_target, &steering_target);
@@ -99,6 +93,13 @@ void motors_thread_entry(ULONG thread_input)
                     decode_drive_frame(&frame, &throttle_target, &steering_target);
                 continue ;
             }
+
+            if (frame.id == CAN_ID_MODE_PARKING)
+            {
+                uart_send("Entering PARKING mode\r\n");
+                parking_mode_entry(&car);
+                continue ;
+            }
         }
 
         if (throttle_target == 2.0f) // Emergency brake
@@ -111,7 +112,6 @@ void motors_thread_entry(ULONG thread_input)
             continue ;
 
         float throttle_cmd_percent = pidThrottleCalculation(&throttle_pid, throttle_target, dt);
-
         car_set_throttle_percent(&car, throttle_cmd_percent, brake);
         car_set_steering_percent(&car, steering_target);
     }

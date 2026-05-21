@@ -47,6 +47,10 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     Core/Src/can/can_manager.c
     Core/Src/can/mcp2515.c
+    Core/Src/car/parking_modes/final_park_instance.c
+    Core/Src/car/parking_modes/first_park_instance.c
+    Core/Src/car/parking_modes/parking.c
+    Core/Src/car/parking_modes/second_park_instance.c
     Core/Src/car/car.c
     Core/Src/car/motor.c
     Core/Src/i2c/battery.c

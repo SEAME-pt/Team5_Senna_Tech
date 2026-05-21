@@ -24,12 +24,8 @@ fi
 rm -rf "$SRC_DIR"/*
 
 find "$SOURCE_ROOT" -type f \( \
-    -name "pca9685.c" -o \
-    -name "car.c" -o \
-    -name "pca9685.h" -o \
-    -name "car.h" -o \
-    -name "i2c_hal.h" -o \
-    -name "sleep_hal.h" \
+    -name "*.h" -o \
+    -name "car.c" \
 \) -exec cp {} "$SRC_DIR/" \;
 
 echo -e "${GREEN}ThreadX project files successfully copied. Ready to start unit test!!${NC}"
