@@ -68,7 +68,7 @@ void motors_thread_entry(ULONG thread_input)
                 pid_reset(&throttle_pid);
                 continue ;
             }
-    
+
             if (frame.id == CAN_ID_AI_MOVEMENT && mode == MODE_AUTONOMOUS)
             {
                 decode_drive_frame(&frame, &throttle_target, &steering_target);
