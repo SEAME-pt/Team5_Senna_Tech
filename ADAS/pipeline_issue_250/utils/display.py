@@ -34,7 +34,7 @@ class Display:
         display_frame = cv2.resize(frame, (self.width, self.height))
 
         if self.mode == "remote":
-            _, buf = cv2.imencode('.jpg', display_frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+            _, buf = cv2.imencode('.jpg', cv2.cvtColor(display_frame, cv2.COLOR_RGB2BGR), [cv2.IMWRITE_JPEG_QUALITY, 80])
             sys.stdout.buffer.write(buf.tobytes())
             sys.stdout.buffer.flush()
 
