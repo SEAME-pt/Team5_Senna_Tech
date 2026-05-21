@@ -4,7 +4,6 @@
 - [Overview](#overview)
 - [Data Types](#data-types)
   - [LaneFitResult](#lanefitresult)
-  - [TrackedLaneFit](#trackedlanefit)
 - [Usage](#usage)
 - [Notes](#notes)
 
@@ -30,33 +29,15 @@ Contains all data resulting from lane detection and polynomial fitting for a sin
 | `debug_image` | `Optional[np.ndarray]` | Debug image with sliding windows drawn, or `None` |
 | `left_is_virtual` | `bool` | `True` if the left lane was estimated from the right |
 | `right_is_virtual` | `bool` | `True` if the right lane was estimated from the left |
-| `swap_pending` | `bool` | `True` if the tracker suspects the lanes were swapped |
+| `swap_pending` | `bool` | Reserved field — not actively used |
 
 **Produced by:** `LFA/geometry/sliding_windows.py`
 **Consumed by:** `LFA/visualization/`, `decision/`, `main.py`
 
----
-
-### `TrackedLaneFit`
-Result of the identity tracker — ensures the left lane is always on the left and the right lane is always on the right, frame by frame.
-
-| Field | Type | Description |
-|---|---|---|
-| `left_fit` | `Optional[np.ndarray]` | Stabilised polynomial for the left lane |
-| `right_fit` | `Optional[np.ndarray]` | Stabilised polynomial for the right lane |
-| `left_is_virtual` | `bool` | `True` if the left lane was estimated |
-| `right_is_virtual` | `bool` | `True` if the right lane was estimated |
-| `swap_pending` | `bool` | `True` if a lane swap is suspected |
-
-**Produced by:** `LFA/tracking/lane_identity_tracker.py`
-**Consumed by:** `LFA/visualization/`, `decision/`, `main.py`
-
 ## Usage
 ```python
-from core.data_types import LaneFitResult, TrackedLaneFit
+from core.data_types import LaneFitResult
 ```
-
-These types are instantiated by the LFA geometry and tracking modules and passed downstream to decision and visualisation.
 
 ## Notes
 - `core/` contains no hardware dependencies and no executable pipeline logic.

@@ -55,8 +55,8 @@ python3 main.py <lane_model.hef> <object_model.hef> [options]
 | 04 | Post-Processing — Lane | `outputs_lane` | `binary_mask (H, W) uint8` |
 | 05 | BEV Transform | `binary_mask` | `bev_mask (H, W) uint8` |
 | 06 | Sliding Windows | `bev_mask` | `fit_result (LaneFitResult)` |
-| 07 | Post-Processing — Object | `outputs_obj`, `fit_result` | `detections (list[dict])`, `EnvironmentState` |
-| 08 | Obstacle Tracker | `detections` | `ObstacleInfo` |
+| 07 | Post-Processing — Object | `outputs_obj`, `rgb.shape` | `detections (list[dict])` |
+| 08 | Object — CorridorChecker + ObstacleTracker | `detections`, `fit_result` | `EnvironmentState`, `ObstacleInfo` |
 | 09 | Kuksa Publish | `EnvironmentState.detections` | VSS signals (gRPC) |
 | 10 | FSM | `EnvironmentState`, `ObstacleInfo` | `State` |
 | 11 | Path Planner | `State`, `obstacle_side` | `target_cte (float)` |
@@ -102,11 +102,11 @@ The module must:
 - [camera](camera/README.md)
 - [inference](inference/README.md)
 - [post_processing](post_processing/README.md)
-- [post_processing — object](post_processing/object/README.md)
+- [post_processing — obj](post_processing/obj/README.md)
 - [post_processing — lane](post_processing/lane/README.md)
+- [object](object/README.md)
 - [LFA](LFA/README.md)
 - [LFA geometry](LFA/geometry/README.md)
-- [LFA tracking](LFA/tracking/README.md)
 - [LFA visualization](LFA/visualization/README.md)
 - [decision](decision/README.md)
 - [kuksa_publish](kuksa_publish/README.md)

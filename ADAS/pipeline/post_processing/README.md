@@ -12,11 +12,11 @@ This layer translates raw inference outputs into domain structures used by the r
 
 It is divided into two subdomains:
 - `lane` for lane segmentation and mask cleanup
-- `object` for object detection and corridor verification
+- `obj` for raw object detection decoding
 
 ## Submodules
 - [Lane Post-Processing](lane/README.md)
-- [Object Post-Processing](object/README.md)
+- [Object Post-Processing](obj/README.md)
 
 ## Input
 | Field | Type | Meaning |
@@ -28,24 +28,23 @@ It is divided into two subdomains:
 | Field | Type | Meaning |
 |---|---|---|
 | `binary_mask` | `numpy.ndarray uint8` | Cleaned binary mask passed to LFA |
-| `detections` | `list[dict]` | Structured detections passed to decision |
+| `detections` | `list[dict]` | Raw structured detections passed to `object/` |
 
 ## Data Contract
 | Field | Type | Meaning |
 |---|---|---|
 | `outputs_lane` | `dict` | Input to the `lane` submodule |
-| `outputs_obj` | `dict` | Input to the `object` submodule |
+| `outputs_obj` | `dict` | Input to the `obj` submodule |
 | `binary_mask` | `numpy.ndarray uint8` | Output of the `lane` submodule |
-| `detections` | `list[dict]` | Output of the `object` submodule |
+| `detections` | `list[dict]` | Output of the `obj` submodule |
 
 ## Execution Flow
 - `outputs_lane` → `lane/YoloSegDecoder.decode_to_mask(...)`
 - `binary_mask` → `lane/MaskFilters.process(...)`
-- `outputs_obj` → `object/ObjectDetector.process(...)`
-- `detections` → `object/CorridorChecker.check_and_debug(...)`
+- `outputs_obj` → `obj/ObjectDetector.process(...)`
 
 ## Notes
 - This layer sits between `inference` and the geometry/decision modules.
 - Model-specific details are encapsulated in the corresponding submodules.
-- `EnvironmentState` and `ObstacleTracker` are built in the `object` submodule; their outputs feed directly into `decision/`.
-- The `object` submodule holds hardcoded output tensor keys (`yolo26n/conv61`, etc.) that are specific to `yolo26n_v4.hef`. Switching models requires updating `ObjectDetector.process()`.
+- Corridor checking, obstacle tracking, and perception objects are handled by the top-level `object/` module.
+- The `obj` submodule holds hardcoded output tensor keys (`yolo26n/conv61`, etc.) that are specific to `yolo26n_v4.hef`. Switching models requires updating `ObjectDetector.process()`.

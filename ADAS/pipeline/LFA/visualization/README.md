@@ -30,7 +30,7 @@ Draws the detected lane lines and corridor fill onto the original camera frame.
 | Field | Type | Description |
 |---|---|---|
 | `frame_rgb` | `numpy.ndarray` | Original **RGB** camera frame |
-| `fit_result` | `LaneFitResult` or `TrackedLaneFit` | Lane polynomials |
+| `fit_result` | `LaneFitResult` | Lane polynomials |
 | `bev` | `BEVTransform` | Used to unwarp overlays back to camera view |
 
 **Output** — annotated **RGB** frame.

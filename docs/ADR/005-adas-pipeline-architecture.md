@@ -7,7 +7,7 @@ Date: 21-05-2026
 
 The ADAS pipeline grew organically, focused on functionality and immediate results. The initial code concentrated inference, post-processing, decision logic, and display in a single script, creating high coupling, difficult maintenance, and risk of regression with every new feature added.
 
-Current state: modular pipeline implemented in `pipeline_issue_250/` with modules `camera`, `inference`, `post_processing`, `LFA`, `decision`, `kuksa_publish`, and `utils`, orchestrated by a `main.py` with no business logic.
+Current state: modular pipeline implemented in `pipeline/` with modules `camera`, `inference`, `post_processing` (lane decoding), `object` (corridor checking, obstacle tracking, perception contracts), `LFA`, `decision`, `kuksa_publish`, and `utils`, orchestrated by a `main.py` with no business logic.
 
 Driver/Trigger: Need to scale the system with new features (obstacle avoidance, adaptive cruise, lane tracking) without degrading the existing structure or introducing regressions.
 
@@ -40,7 +40,6 @@ Chosen Option: Option B — Modular Layered Architecture with Pipe-and-Filter, b
 * Good: `main` acts as a pure orchestrator — easy to read and audit the full flow.
 * Good: Explicit data contracts (`LaneFitResult`, `EnvironmentState`) reduce ambiguity.
 * Good: Compatible with the real-time performance requirements of the Raspberry Pi 5 + Hailo-8.
-* Bad: Requires discipline to maintain module boundaries over time.
 * Bad: Higher initial organisation overhead compared to the monolithic approach.
 
 **Option C: Microservices with IPC/Sockets**

@@ -1,20 +1,9 @@
-"""
-Draw the detected bands over the original camera image.
-Process:
-1. Calculate the polynomial points for each y-axis.
-2. Fill the corridor between the bands with semi-transparent green.
-3. Draw the central line in cyan.
-4. Draw each band (blue = real, cyan = virtual).
-5. Unwarp everything back from BEV perspective to camera perspective.
-6. Blend with the original image.
-"""
-
 import cv2
 import numpy as np
 
-def draw_lane_overlay(frame_bgr, fit_result, bev):
-    h, w = frame_bgr.shape[:2]
-    result = frame_bgr.copy()
+def draw_lane_overlay(frame_rgb, fit_result, bev):
+    h, w = frame_rgb.shape[:2]
+    result = frame_rgb.copy()
     y_vals = np.arange(0, h)
 
     def poly_pts(f):
@@ -25,23 +14,23 @@ def draw_lane_overlay(frame_bgr, fit_result, bev):
     if fit_result.left_fit is None and fit_result.right_fit is None:
         return result
 
-    overlay = np.zeros_like(frame_bgr)
+    overlay = np.zeros_like(frame_rgb)
     lp = poly_pts(fit_result.left_fit)
     rp = poly_pts(fit_result.right_fit)
 
     if lp is not None and rp is not None:
         pts = np.vstack([lp, rp[::-1]])
-        cv2.fillPoly(overlay, [pts], (0, 150, 0))# Semi-transparent green fill for the lane corridor
+        cv2.fillPoly(overlay, [pts], (0, 150, 0))
         cx = (lp[:, 0] + rp[:, 0]) / 2
         cp = np.stack([cx, y_vals], axis=1).astype(np.int32)
-        cv2.polylines(overlay, [cp], False, (0, 255, 255), 2)# 
+        cv2.polylines(overlay, [cp], False, (0, 255, 255), 2)
 
     if lp is not None:
-        l_color = (0, 255, 255) if getattr(fit_result, 'left_is_virtual', False) else (255, 0, 0)
+        l_color = (0, 255, 255) if getattr(fit_result, 'left_is_virtual', False) else (0, 0, 255)
         cv2.polylines(overlay, [lp], False, l_color, 10)
-        
+
     if rp is not None:
-        r_color = (0, 255, 255) if getattr(fit_result, 'right_is_virtual', False) else (0, 0, 255)
+        r_color = (0, 255, 255) if getattr(fit_result, 'right_is_virtual', False) else (255, 0, 0)
         cv2.polylines(overlay, [rp], False, r_color, 10)
 
     unwarped = bev.unwarp(overlay)
@@ -50,13 +39,18 @@ def draw_lane_overlay(frame_bgr, fit_result, bev):
     try:
         src_pts = (bev.DEFAULT_SRC * [w, h]).astype(np.int32)
         cv2.polylines(result, [src_pts], True, (255, 0, 255), 2)
-    except: pass
+    except:
+        pass
 
     return result
 
+
 def draw_text_overlay(frame, fit_result, fps=None, inf_ms=None):
     h, w = frame.shape[:2]
-    result = frame 
+    result = frame
+
+    def put(txt, pos, color, scale=1.2, thick=2):
+        cv2.putText(result, txt, pos, cv2.FONT_HERSHEY_SIMPLEX, scale, color, thick)
 
     label = ""
     if inf_ms is not None: label += f"Hailo: {inf_ms:.1f}ms  "
