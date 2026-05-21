@@ -74,7 +74,14 @@ def main():
              Camera(CAM_WIDTH, CAM_HEIGHT, CAM_FPS) as cam, \
              Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, CAM_FPS, mode=display_mode) as display:
 
-            logging.info("Models loaded. Engines ready.")
+            logging.info("=" * 60)
+            logging.info("ADAS Pipeline — pipeline_issue_250")
+            logging.info("  Lane model   : %s", args.lane)
+            logging.info("  Object model : %s", args.object)
+            logging.info("  Resolution   : %dx%d @ %d fps", CAM_WIDTH, CAM_HEIGHT, CAM_FPS)
+            logging.info("  Display mode : %s", display_mode)
+            logging.info("  CAN output   : %s", "virtual (disabled)" if args.virtual else "can0")
+            logging.info("=" * 60)
 
             last_valid_state = None
             last_sent_throttle = None
@@ -175,6 +182,7 @@ def main():
                         display.show(res)
                     timer.end_stage("Display")
 
+                    timer.end_loop()
                     fps = timer.get_fps()
                     cpu_temp = hw_monitor.read_temp()
                     total_cycle_time = timer.get_loop_duration()
