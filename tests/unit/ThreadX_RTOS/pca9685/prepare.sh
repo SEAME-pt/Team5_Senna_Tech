@@ -25,6 +25,7 @@ rm -rf "$SRC_DIR"/*
 
 find "$SOURCE_ROOT" -type f \( \
     -name "car_modes.h" -o \
+    -name "utils.h" -o \
     -name "pid.h" -o \
     -name "pca9685.c" -o \
     -name "car.c" -o \
