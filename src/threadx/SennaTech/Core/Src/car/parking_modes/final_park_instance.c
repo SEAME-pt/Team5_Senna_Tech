@@ -31,7 +31,7 @@ e_parking_mode park_final_maneuver(car_t *car)
         car_set_throttle_percent(car, CONSTANT_PARKING_VELOCITY  * -1, 0);
 
         if (is_front_infinite(ultrasonic_data.front_distance_cm) || 
-        stabilizing_two_values(ultrasonic_data.back_distance_cm, ultrasonic_data.front_distance_cm))
+            stabilizing_two_values(ultrasonic_data.back_distance_cm, ultrasonic_data.front_distance_cm))
         {
             uart_send("Final maneuver complete, car is parked :)\r\n");
             return FINAL_MANEUVER;

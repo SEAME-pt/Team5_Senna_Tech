@@ -22,11 +22,11 @@ e_parking_mode park_second_maneuver(car_t *car)
         if (confirm_second_maneuver(ultrasonic_data))
         {
             car_set_throttle_percent(car, 0, 1);
-
             uart_send("Second maneuver complete, starting final maneuver\r\n");
             return FINAL_MANEUVER;
         }
     }
     car_set_throttle_percent(car, 0, 1);
+    car_set_steering_percent(car, 0.0f); // Centered
     return ERROR_MANEUVER;
 }
