@@ -32,6 +32,9 @@ static void decode_drive_frame(CAN_Frame *frame, float *throttle_target, float *
     *throttle_target = throttle_raw * 0.01f;
     *steering_target = steering_raw * 0.01f;
 
+    if (*throttle_target == 2.0f)
+        return ;
+
     // safety clamp
     if (*throttle_target > 1.0f)  *throttle_target = 1.0f;
     if (*steering_target < -1.0f) *steering_target = -1.0f;
@@ -103,7 +106,11 @@ void motors_thread_entry(ULONG thread_input)
         }
 
         if (throttle_target == 2.0f) // Emergency brake
+        {
+            throttle_target = 0.0f;
+            uart_send("Emergency brake activated!\r\n");
             brake = 1;
+        }
         else
             brake = 0;
 
