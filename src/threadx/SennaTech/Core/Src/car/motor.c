@@ -1,4 +1,5 @@
 #include "car_modes.h"
+#include "pid.h"
 
 static e_car_mode get_car_mode(int16_t mode_cmd, ULONG *last_tick, float *throttle_target)
 {
