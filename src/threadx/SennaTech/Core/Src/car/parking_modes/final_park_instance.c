@@ -1,12 +1,21 @@
 #include "car_modes.h"
 
-UINT stabilizing_two_values(ULONG value1, ULONG value2)
+// This function checks if the two values are within a certain distance of each other,
+// to detect when the car is in the middle of the parking slot
+static UINT stabilizing_two_values(ULONG value1, ULONG value2)
 {
-    if (value1 > value2 + FINAL_MANEUVER_SAFE_DISTANCE_CM)
+    if (value1 > value2 + FINAL_MANEUVER_THRESHOLD_CM)
         return 0;
-    if (value2 > value1 + FINAL_MANEUVER_SAFE_DISTANCE_CM)
+    if (value2 > value1 + FINAL_MANEUVER_THRESHOLD_CM)
         return 0;
     return 1;
+}
+
+static UINT is_front_infinite(ULONG front_distance_cm)
+{
+    if (front_distance_cm > FINAL_MANEUVER_THRESHOLD_CM * 2)
+        return 1;
+    return 0;
 }
 
 e_parking_mode park_final_maneuver(car_t *car)
@@ -21,15 +30,12 @@ e_parking_mode park_final_maneuver(car_t *car)
 
         car_set_throttle_percent(car, CONSTANT_PARKING_VELOCITY  * -1, 0);
 
-        if (stabilizing_two_values(ultrasonic_data.back_distance_cm, ultrasonic_data.front_distance_cm))
+        if (is_front_infinite(ultrasonic_data.front_distance_cm) || 
+        stabilizing_two_values(ultrasonic_data.back_distance_cm, ultrasonic_data.front_distance_cm))
         {
-            car_set_throttle_percent(car, 0, 1);
-
             uart_send("Final maneuver complete, car is parked :)\r\n");
             return FINAL_MANEUVER;
         }
     }
-
-    car_set_throttle_percent(car, 0, 1);
     return ERROR_MANEUVER;
 }

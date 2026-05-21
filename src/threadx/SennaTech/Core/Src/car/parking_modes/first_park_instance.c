@@ -7,16 +7,6 @@ static UINT confirm_first_maneuver(t_ultrasonic_data ultrasonic_data)
     return 1; // Close enough to the back wall
 }
 
-/* static VOID move_backwards(car_t *car, pid_t *throttle_pid, ULONG *last_tick)
-{
-    float dt = get_delta_time_seconds(last_tick);
-    if (dt <= 0.0f)
-        dt = 0.01f;
-
-    float throttle_cmd_percent = pidThrottleCalculation(throttle_pid, -0.05f, dt);
-    car_set_throttle_percent(car, throttle_cmd_percent, 0); // Move backwards really slowly
-} */
-
 e_parking_mode park_first_maneuver(car_t *car)
 {
     t_ultrasonic_data ultrasonic_data;

@@ -38,8 +38,6 @@ void parking_mode_entry(car_t *car)
     car_set_steering_percent(car, 0.0f); // Centered
     parking_mode = park_final_maneuver(car);
     if (parking_mode == ERROR_MANEUVER)
-    {
         uart_send("Error during final parking maneuver, aborting...\r\n");
-        return ;
-    }
+    car_set_throttle_percent(car, 0, 1);
 }

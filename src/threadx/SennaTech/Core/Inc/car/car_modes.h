@@ -6,10 +6,10 @@
 // Distances
 #define FIRST_MANEUVER_SAFE_DISTANCE_CM 27
 #define SECOND_MANEUVER_SAFE_DISTANCE_CM 14
-#define FINAL_MANEUVER_SAFE_DISTANCE_CM 10
+#define FINAL_MANEUVER_THRESHOLD_CM 12
 
 // Velocities
-#define CONSTANT_PARKING_VELOCITY -0.17f
+#define CONSTANT_PARKING_VELOCITY -0.18f
 
 // Parking mode refers to the state of parking the car, 
 // which can be either:
