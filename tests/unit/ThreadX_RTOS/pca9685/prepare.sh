@@ -25,7 +25,7 @@ rm -rf "$SRC_DIR"/*
 
 find "$SOURCE_ROOT" -type f \( \
     -name "*.h" -o \
-    -name "car.c" -o \
+    -name "car.c" \
 \) -exec cp {} "$SRC_DIR/" \;
 
 echo -e "${GREEN}ThreadX project files successfully copied. Ready to start unit test!!${NC}"
