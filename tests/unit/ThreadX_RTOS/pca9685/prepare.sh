@@ -28,6 +28,7 @@ find "$SOURCE_ROOT" -type f \( \
     -name "car.c" -o \
     -name "pca9685.h" -o \
     -name "car.h" -o \
+    -name "car_modes.h" -o \
     -name "i2c_hal.h" -o \
     -name "sleep_hal.h" \
 \) -exec cp {} "$SRC_DIR/" \;
