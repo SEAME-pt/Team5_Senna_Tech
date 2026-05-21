@@ -4,29 +4,92 @@ This directory contains all the technical and process-related documentation for 
 
 ---
 
-####  Table of Contents
+## 📚 Table of Contents
 
-**Git & Workflow**
-- [Rules and Best Practices for Git](git_guidelines.md) - Our standards for commit messages, pull requests, and branching.
-- [Git Workflow Guide](git_workflow_guide.md) - A detailed guide on our feature branching and release process.
-- [GitHub Actions Overview](git_actions_overview.md) - An overview of our CI/CD pipelines.
+---
 
-**Hardware & Setup**
-- [PiRacer Assembly Guide](piracer_assembly_guide.md) - Step-by-step instructions for assembling the PiRacer car.
-- [Raspberry Pi OS Installation in SSD NVMe](raspberry_Pi_system.md) - Guide for setting up the Raspberry Pi with an NVMe SSD.
-- [Initial Program Installation](install_initial_program.md) - Instructions for installing the necessary software to get started.
-- [VPN and Remote Server Access Guide via NetBird + TigerVNC](vpn_install_usage.md) - How to use NetBird and TigerVNC for remote access.
+### 🔧 Git & Workflow
+- [Git Guidelines](GITHUB/git_guidelines.md) - Standards for commit messages, branching strategy, and pull requests.
+- [Git Workflow Guide](GITHUB/git_workflow_guide.md) - Detailed feature branching and release workflow.
+- [GitHub Actions Overview](GITHUB/git_actions_overview.md) - CI/CD pipelines and automation overview.
+- [Pull Request Guide](GITHUB/pull_request_guide.md) - Best practices for PR creation and review process.
 
-**Car Control**
-- [Joystick Car Control - Python](joystick_control_python.md) - A Python-based implementation for joystick control.
-- [Joystick Car Control - C++](piracer-cpp.md) - A C++-based implementation for joystick control.
+---
 
-**Software Architecture & Frameworks**
-- [AGL](./AGL/README.md) - Documentation related to Automotive Grade Linux.
-- [Cross Compilation](./cross_compilation/README.md) - Guides and tools for cross-compiling code.
-- [Energy Management](./energy/README.md) - Analysis of energy consumption and power solutions.
-- [ThreadX](./ThreadX/README.md) - Documentation on using the ThreadX RTOS.
-- [TSF (Trustable Software Framework)](./TSF/README.md) - Our approach to implementing a trustable software framework.
+### 🧠 Hardware & Setup
+- [PiRacer Assembly Guide](piracer/piracer_assembly_guide.md) - Step-by-step guide to assemble the PiRacer vehicle.
+- [Initial Program Installation](piracer/install_initial_program.md) - Setup instructions for required software stack.
+- [Raspberry Pi System Setup](raspberry-pi-5/raspberry_Pi_system.md) - Configuration of Raspberry Pi OS and NVMe SSD setup.
+- [STM32 Motor Wiring](hardware/stm32_motor_wiring.md) - Wiring and hardware integration for motor control.
+- [VPN & Remote Access Guide](VPN/vpn_install_usage.md) - Remote access using NetBird and TigerVNC.
+
+---
+
+### 🎮 Car Control
+- [Joystick Control - Python](car_control/joystick_control_python.md) - Python-based joystick control implementation.
+- [Joystick Control - C++](piracer/piracer-cpp.md) - C++ implementation for vehicle control logic.
+- [Car Control Instructions](car_control/car_control_instructions.md) - General car control setup and usage guide.
+
+---
+
+### 🏁 ADR (ADAS & Autonomous Systems)
+- [Lane Detection Model ADR](ADR/001-model-lane-detection.md)
+- [Object Detection Model ADR](ADR/002-model-object-detection.md)
+- [FSM Design (Decision System)](ADR/003-FSM.md)
+- [Obstacle Avoidance ADR](ADR/004-obstacle-avoidence.md)
+- [Lane Following Assist (LFA)](ADAS/LFA.md)
+- [Obstacle Avoidance System](ADAS/obstacle_avoidence.md)
+
+---
+
+### 🏗️ Software Architecture & Frameworks
+- [AGL (Automotive Grade Linux)](AGL/readme.md) - Embedded Linux platform integration and setup.
+- [Cross Compilation](cross_compilation/README.md) - Toolchain and cross-build environment.
+- [Energy Management](energy/README.md) - Energy analysis, consumption modeling and optimization.
+- [KUKSA](KUKSA/README.md) - Vehicle signal and middleware integration.
+- [COVESA / VSS](COVESA/COVESA.md) - Vehicle Signal Specification and conventions.
+- [uProtocol](uProtocol/uProtocol.md) - Communication framework exploration.
+- [ThreadX RTOS](ThreadX/system_setup_and_LED_priority_demonstration.md) - Real-time operating system documentation.
+- [Odometer System](odometer/README.md) - Vehicle distance tracking system.
+- [Parking System](Parking/parking_system.md) - Autonomous parking logic and design.
+- [OTA / Instrument Cluster](OTA/InstrumentCluster.md) - Cluster and OTA-related systems.
+
+---
+
+### 🤖 AI / Simulation / ADAS Pipeline
+- [CARLA Simulator Setup](CARLA-Simulator/carla_initial_setup.md) - Setup and integration with CARLA simulator.
+
+---
+
+### 🧪 Testing & Validation
+- [C++ Linting Guide](Tests/cpp_linting.md) - Code quality and linting rules.
+- [C++ Tests](Tests/cpp_tests.md) - Unit and system testing guidelines.
+
+---
+
+### 📊 Trustable Software Framework (TSF)
+- [TSF Overview](TSF/README.md) - Introduction to TSF methodology.
+- [TSF Concepts](TSF/tutorials/TSF-concepts.md) - Core TSF concepts.
+- [TSF Applied Guide](TSF/tutorials/TSF-applying.md) - Practical application of TSF.
+- [ISO 26262 Structure](TSF/tutorials/ISO26262-structure-and-concepts.md) - Functional safety foundation.
+- [Requirements & Assumptions](TSF/reqs/) - System requirements
+- [Decision Support](TSF/Decision_support/) - Engineering decisions and hazard analysis.
+
+
+---
+
+### 🧱 Sprint & Agile Management
+- [Sprint Overview](sprints/README.md) - Agile sprint structure and tracking.
+- [Sprint Reports](sprints/) - Detailed reports for each sprint iteration.
+
+---
+
+### ⚡ Energy & Hardware Analysis
+- [Energy Consumption Analysis](energy/energy_consumption_analysis.md)
+- [Power Architecture Solution](energy/power_architecture_solution.md)
+- [Component Datasheets](energy/components_datasheet.md)
+- [Spreadsheet Guide](energy/spreadsheet_guide.md)
+
 
 **Sprints & Process**
 - [Sprints](./sprints/README.md) - Contains all sprint reports and goals.
@@ -42,4 +105,7 @@ This directory contains all the technical and process-related documentation for 
   - [Sprint 8 Report](./sprints/sprint_8_report.md)
   - [Sprint 9 Report](./sprints/sprint_9_report.md)
   - [Sprint 10 Report](./sprints/sprint_10_report.md)
+  - [Sprint 11 Report](./sprints/sprint_11_report.md)
+  - [Sprint 12 Report](./sprints/sprint_12_report.md)
+  - [Sprint 13 Report](./sprints/sprint_13_report.md)
   - [Sprint Template](./sprints/sprint_template.md)
