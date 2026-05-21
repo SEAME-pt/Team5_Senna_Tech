@@ -48,7 +48,7 @@ class LaneIdentityTracker:
         if lf is None and rf is None:
             return TrackedLaneFit(left_fit=None, right_fit=None, left_is_virtual=False, right_is_virtual=False)
 
-        # Usando o novo nome descritivo para inicialização
+        # Using the new descriptive name for initialisation
         if self._ema_left is None and self._ema_right is None:
             lf_out, rf_out, li_out, ri_out = self._initialize_first_frame(lf, rf, li, ri)
             self._update_ema(lf_out, rf_out)

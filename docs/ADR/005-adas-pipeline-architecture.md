@@ -1,53 +1,53 @@
-# [ADR-005] Arquitectura Modular da Pipeline ADAS
+# [ADR-005] Modular ADAS Pipeline Architecture
 Status: Accepted
 
 Date: 21-05-2026
 
-### 1. Contexto e Problema
+### 1. Context and Problem Statement
 
-A pipeline ADAS cresceu de forma orgânica, com foco em funcionalidade e resultados imediatos. O código inicial concentrava inferência, pós-processamento, lógica de decisão e display num único script, criando acoplamento elevado, dificuldade de manutenção e risco de regressão a cada nova feature adicionada.
+The ADAS pipeline grew organically, focused on functionality and immediate results. The initial code concentrated inference, post-processing, decision logic, and display in a single script, creating high coupling, difficult maintenance, and risk of regression with every new feature added.
 
-Estado actual: pipeline modular implementada em `pipeline_issue_250/` com módulos `camera`, `inference`, `post_processing`, `LFA`, `decision`, `kuksa_publish` e `utils`, orquestrados por um `main.py` sem lógica de negócio.
+Current state: modular pipeline implemented in `pipeline_issue_250/` with modules `camera`, `inference`, `post_processing`, `LFA`, `decision`, `kuksa_publish`, and `utils`, orchestrated by a `main.py` with no business logic.
 
-Driver/Trigger: Necessidade de escalar o sistema com novas features (obstacle avoidance, adaptive cruise, lane tracking) sem degradar a estrutura existente nem introduzir regressões.
+Driver/Trigger: Need to scale the system with new features (obstacle avoidance, adaptive cruise, lane tracking) without degrading the existing structure or introducing regressions.
 
-### 2. Opções Consideradas
+### 2. Considered Options
 
-Opção A: Pipeline Monolítica — manter toda a lógica num único script, crescendo por adição de funções e variáveis globais.
+Option A: Monolithic Pipeline — keep all logic in a single script, growing by adding functions and global variables.
 
-Opção B: Arquitectura Modular em Camadas com Pipe-and-Filter — organizar o sistema em módulos independentes com responsabilidades claras, contratos de dados definidos e `main` como orquestrador puro.
+Option B: Modular Layered Architecture with Pipe-and-Filter — organise the system into independent modules with clear responsibilities, defined data contracts, and `main` as a pure orchestrator.
 
-Opção C: Microserviços com IPC/Sockets — isolar cada módulo como processo independente com comunicação via sockets ou filas de mensagens.
+Option C: Microservices with IPC/Sockets — isolate each module as an independent process with communication via sockets or message queues.
 
-### 3. Decisão
+### 3. Decision Outcome
 
-Chosen Option: Opção B — Arquitectura Modular em Camadas com Pipe-and-Filter, porque equilibra separação de responsabilidades com performance real-time na Raspberry Pi 5 + Hailo-8, sem o overhead de comunicação inter-processo da Opção C.
+Chosen Option: Option B — Modular Layered Architecture with Pipe-and-Filter, because it balances separation of concerns with real-time performance on the Raspberry Pi 5 + Hailo-8, without the inter-process communication overhead of Option C.
 
-### 4. Pros e Cons das Opções
+### 4. Pros and Cons of the Options
 
-**Opção A: Pipeline Monolítica**
+**Option A: Monolithic Pipeline**
 
-* Good: Rápida de prototipar e simples de correr.
-* Good: Sem overhead de imports ou interfaces entre módulos.
-* Bad: Acoplamento total — uma alteração pode quebrar qualquer parte do sistema.
-* Bad: Impossível testar componentes em isolamento.
-* Bad: `main` torna-se um concentrador de lógica de negócio, difícil de ler e manter.
+* Good: Fast to prototype and simple to run.
+* Good: No overhead from imports or interfaces between modules.
+* Bad: Total coupling — one change can break any part of the system.
+* Bad: Impossible to test components in isolation.
+* Bad: `main` becomes a concentrator of business logic, hard to read and maintain.
 
-**Opção B: Arquitectura Modular em Camadas com Pipe-and-Filter**
+**Option B: Modular Layered Architecture with Pipe-and-Filter**
 
-* Good: Cada módulo tem responsabilidade única e interface clara.
-* Good: Permite substituir ou evoluir componentes sem impacto nos outros módulos.
-* Good: `main` actua como orquestrador puro — fácil de ler e auditar o fluxo completo.
-* Good: Contratos de dados explícitos (`LaneFitResult`, `EnvironmentState`) reduzem ambiguidade.
-* Good: Compatível com os requisitos de performance real-time do Raspberry Pi 5 + Hailo-8.
-* Bad: Requer disciplina para manter as fronteiras entre módulos ao longo do tempo.
-* Bad: Maior overhead inicial de organização comparado com a abordagem monolítica.
+* Good: Each module has a single responsibility and a clear interface.
+* Good: Allows replacing or evolving components without impact on other modules.
+* Good: `main` acts as a pure orchestrator — easy to read and audit the full flow.
+* Good: Explicit data contracts (`LaneFitResult`, `EnvironmentState`) reduce ambiguity.
+* Good: Compatible with the real-time performance requirements of the Raspberry Pi 5 + Hailo-8.
+* Bad: Requires discipline to maintain module boundaries over time.
+* Bad: Higher initial organisation overhead compared to the monolithic approach.
 
-**Opção C: Microserviços com IPC/Sockets**
+**Option C: Microservices with IPC/Sockets**
 
-* Good: Máximo isolamento — falha num processo não derruba os outros.
-* Bad: Latência de comunicação inter-processo inaceitável para pipeline real-time a 15+ FPS.
-* Bad: Complexidade operacional elevada (gestão de processos, sincronização, serialização).
+* Good: Maximum isolation — a failure in one process does not bring down others.
+* Bad: Inter-process communication latency unacceptable for a real-time pipeline at 15+ FPS.
+* Bad: High operational complexity (process management, synchronisation, serialisation).
 
 ### 5. Follow-up Tasks
 

@@ -1,7 +1,7 @@
 import time
 from collections import deque
 
-_FPS_WINDOW = 30  # frames para média deslizante
+_FPS_WINDOW = 30  # frames for sliding window average
 
 class Timer:
     def __init__(self):
