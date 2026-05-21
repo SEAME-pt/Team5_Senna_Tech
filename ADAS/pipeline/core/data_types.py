@@ -1,19 +1,20 @@
 """
-LaneFitResult Contém todos os dados resultantes da deteção e ajuste das faixas de rodagem.
- 
-Atributos:
-left_fit:        Coeficientes [a, b, c] do polinómio de 2º grau para a faixa esquerda
-                         (x = a*y² + b*y + c, onde y cresce para baixo)
-right_fit:       Mesmo para a faixa direita
-cte_pixels:      Erro lateral em píxeis (positivo = veículo à direita do centro)
-cte_norm:        Erro lateral normalizado entre -1.0 e +1.0
-curvature_px:    Raio de curvatura em píxeis (>10000 = reta)
-left_found:      True se a faixa esquerda foi detetada (não é virtual)
-right_found:     True se a faixa direita foi detetada (não é virtual)
-debug_image:     Imagem de depuração com as janelas deslizantes (ou None)
-left_is_virtual: True se a faixa esquerda foi estimada (não detetada diretamente)
-right_is_virtual:True se a faixa direita foi estimada
-swap_pending:    True se o tracker suspeita que as faixas foram trocadas
+LaneFitResult Contains all the data resulting from lane detection and adjustment.
+
+Attributes:
+left_fit: Coefficients [a, b, c] of the 2nd degree polynomial for the left lane
+
+(x = a*y² + b*y + c, where y increases downwards)
+right_fit: Same for the right lane
+cte_pixels: Lateral error in pixels (positive = vehicle to the right of center)
+cte_norm: Normalized lateral error between -1.0 and +1.0
+curvature_px: Radius of curvature in pixels (>10000 = straight)
+left_found: True if the left lane was detected (not virtual)
+right_found: True if the right lane was detected (not virtual)
+debug_image: Debug image with sliding windows (or None)
+left_is_virtual: True if the left lane was estimated (not detected) directly)
+right_is_virtual: True if the right lane was estimated
+swap_pending: True if the tracker suspects that the lanes have been swapped
 """
 
 from dataclasses import dataclass
