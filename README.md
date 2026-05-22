@@ -174,13 +174,13 @@ All documentation is kept inside the [docs/](docs/) folder.
 - **Tools:** GitHub Projects + Issues
 
 👥 Team
-| Name            |
-|-----------------|
-| Hellom          |
-| Vinicius        |
-| Jose            |
-| Yasmine         |
-| Marcelo         |
+| Name            | Responsibilities                                 |
+|-----------------|--------------------------------------------------|
+| Hellom          | Execution pipeline refactoring                   |
+| Vinicius        | Object detection refinement                      |
+| Jose            | Adaptive Cruise Control (ACC) implementation     |
+| Yasmine         | Obstacle Avoidance implementation                |
+| Marcelo         | ---                                              |
 
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
