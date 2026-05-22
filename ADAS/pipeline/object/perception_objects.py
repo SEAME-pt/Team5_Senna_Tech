@@ -2,7 +2,6 @@ from enum import IntEnum, Enum
 from dataclasses import dataclass
 from typing import List, Optional
 
-
 class ClassID(IntEnum):
     SIGN_50 = 0
     SIGN_80 = 1
@@ -18,12 +17,10 @@ class ClassID(IntEnum):
     LIGHT_RED = 11
     LIGHT_YELLOW = 12
 
-
 class ObstacleSituation(Enum):
     CLEAR     = "clear"
     AVOIDANCE = "avoidance"
     BRAKE     = "brake"
-
 
 @dataclass
 class Detection:
@@ -31,10 +28,10 @@ class Detection:
     in_corridor: bool
     relative_area: float
 
-
 @dataclass
 class EnvironmentState:
     detections: List[Detection]
     corridor_clear: bool
+    # ACC
     lead_car_detected: bool = False
     lead_car_area: float = 0.0

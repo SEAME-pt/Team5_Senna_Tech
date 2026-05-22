@@ -1,40 +1,5 @@
 import cv2
 import numpy as np
-from .perception_objects import EnvironmentState, Detection, ClassID
-
-
-def build_environment_state(detections, fit_result, checker, frame_shape) -> EnvironmentState:
-    env_state = EnvironmentState(detections=[], corridor_clear=True)
-
-    for det_dict in detections:
-        db_info     = checker.check_and_debug(det_dict["bbox"], fit_result, frame_shape)
-        in_corridor = db_info["in_corridor"]
-        rel_area    = db_info["rel_area"]
-
-        det_dict["in_corridor"]   = in_corridor
-        det_dict["relative_area"] = rel_area
-        det_dict["debug_info"]    = db_info
-
-        try:
-            cid = ClassID(det_dict["class_id"])
-        except ValueError:
-            continue
-
-        env_state.detections.append(
-            Detection(class_id=cid, in_corridor=in_corridor, relative_area=rel_area)
-        )
-
-        if in_corridor and cid == ClassID.OBSTACLE:
-            env_state.corridor_clear = False
-
-        elif in_corridor and cid == ClassID.CAR:
-            env_state.corridor_clear = False
-            env_state.lead_car_detected = True
-            if rel_area > env_state.lead_car_area:
-                env_state.lead_car_area = rel_area
-
-    return env_state
-
 
 class CorridorChecker:
     def __init__(self, bev_transform):
@@ -48,18 +13,19 @@ class CorridorChecker:
     def check_and_debug(self, bbox, fit_result, frame_shape):
         x1, y1, x2, y2 = bbox
         h_orig, w_orig = frame_shape[:2]
-
+        
         obj_area = float((x2 - x1) * (y2 - y1))
         total_area = float(w_orig * h_orig)
         rel_area = obj_area / total_area if total_area > 0 else 0.0
 
+        # BEV mapping of the bottom center of the bounding box
         bottom_center_x = (x1 + x2) / 2.0
         bottom_center_y = float(y2)
         bev_x, bev_y = self.map_point_to_bev(bottom_center_x, bottom_center_y)
 
         debug_info = {
             "bev_x": bev_x, "bev_y": bev_y,
-            "l_x": 0.0, "r_x": w_orig,
+            "l_x": 0.0, "r_x": w_orig, 
             "in_corridor": False, "rel_area": rel_area
         }
 
@@ -67,7 +33,8 @@ class CorridorChecker:
             debug_info["in_corridor"] = (w_orig * 0.35) < bev_x < (w_orig * 0.65)
             return debug_info
 
-        margin = 15
+        # intersection with the lines
+        margin = 15 
         in_left = True
         if fit_result.left_fit is not None:
             l_x = (fit_result.left_fit[0] * (bev_y**2) + fit_result.left_fit[1] * bev_y + fit_result.left_fit[2])

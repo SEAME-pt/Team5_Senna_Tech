@@ -1,14 +1,15 @@
 """
-Deteta as faixas de rodagem na imagem BEV usando o algoritmo de janelas deslizantes
-e ajusta um polinómio de 2º grau a cada faixa.
- 
-Algoritmo (resumo):
-1. Histograma: soma colunas na metade inferior → picos = posição das faixas
-2. Sliding windows: percorre de baixo para cima, coletando píxeis brancos
-3. Polyfit: ajusta y = a*x² + b*x + c a cada conjunto de píxeis
-4. Validação: descarta ajustes com largura estranha, faixas cruzadas, etc.
-5. Suavização EMA: suaviza os coeficientes entre frames consecutivos
-6. CTE: calcula o erro lateral do veículo
+Detects lane markings in BEV images using the sliding windows algorithm
+and fits a 2nd-degree polynomial to each lane.
+
+Algorithm (summary):
+
+1. Histogram: sums columns in the lower half → peaks = lane positions
+2. Sliding windows: traverses from bottom to top, collecting white pixels
+3. Polyfit: adjusts y = a*x² + b*x + c to each set of pixels
+4. Validation: discards adjustments with odd widths, crossed lanes, etc.
+5. EMA smoothing: smooths the coefficients between consecutive frames
+6. CTE: calculates the vehicle's lateral error
 """
 import cv2
 import numpy as np
@@ -81,7 +82,7 @@ class SlidingWindowsLaneFitter:
             r_x = right_fit[0]*(h-1)**2 + right_fit[1]*(h-1) + right_fit[2]
             current_width = abs(r_x - l_x)
             is_straight   = abs(left_fit[0]) < 0.0004 and abs(right_fit[0]) < 0.0004
-            is_sane_width = (self.tracked_lane_width_px * 0.50) < current_width < (self.tracked_lane_width_px * 1.50)
+            is_sane_width = (self.tracked_lane_width_px * 0.50) < current_width < (self.tracked_lane_width_px * 1.50) #original 0.70 e 1.30
             # Update the calibrated width only in reliable sections.
             if is_straight and is_sane_width:
                 self.tracked_lane_width_px = 0.95 * self.tracked_lane_width_px + 0.05 * current_width
@@ -205,6 +206,7 @@ class SlidingWindowsLaneFitter:
                 right_base = int(left_base + ref_width) if left_base else int(w * 0.75)
 
         return left_base, right_base
+        
     """
     After finding the base positions, the sliding windows algorithm collects white pixels in a
     series of horizontal windows moving upwards.
