@@ -57,12 +57,12 @@ python3 main.py <lane_model.hef> <object_model.hef> [options]
 | 06 | Sliding Windows | `bev_mask` | `fit_result (LaneFitResult)` |
 | 07 | Post-Processing — Object | `outputs_obj`, `rgb.shape` | `detections (list[dict])` |
 | 08 | Object — CorridorChecker + ObstacleTracker | `detections`, `fit_result` | `EnvironmentState`, `ObstacleInfo` |
-| 09 | Kuksa Publish | `EnvironmentState.detections` | VSS signals (gRPC) |
-| 10 | FSM | `EnvironmentState`, `ObstacleInfo` | `State` |
-| 11 | Path Planner | `State`, `obstacle_side` | `target_cte (float)` |
-| 12 | PID | `target_cte`, `cte_actual`, `dt` | `steering (float [-1, 1])` |
-| 13 | Adaptive Cruise Control | `lead_car_area` | `throttle (int [0, 8])` — only in `FOLLOW` state |
-| 14 | CAN Bus | `steering`, `throttle` | CAN frame `0x002`: `[throttle int16 LE, steering×100 int16 LE]` (4 bytes) |
+| 09 | FSM | `EnvironmentState`, `ObstacleInfo` | `State` |
+| 10 | Path Planner | `State`, `obstacle_side` | `target_cte (float)` |
+| 11 | PID | `target_cte`, `cte_actual`, `dt` | `steering (float [-1, 1])` |
+| 12 | Adaptive Cruise Control | `lead_car_area` | `throttle (int [0, 8])` — only in `FOLLOW` state |
+| 13 | CAN Bus | `steering`, `throttle` | CAN frame `0x002`: `[throttle int16 LE, steering×100 int16 LE]` (4 bytes) |
+| 14 | Kuksa Publish | `EnvironmentState.detections` | VSS signals (gRPC) |
 
 ## Rules for `main`
 
