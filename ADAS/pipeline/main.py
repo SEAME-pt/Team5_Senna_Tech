@@ -121,10 +121,6 @@ def main():
                     rgb = detector.draw(rgb, detections)
                     timer.end_stage("Post")
 
-                    # ── KUKSA ────────────────────────────────────────────
-                    timer.start_stage("Kuksa")
-                    kuksa_channel.send(env_state.detections)
-                    timer.end_stage("Kuksa")
 
                     # ── OBSTACLE TRACKER ─────────────────────────────────
                     obs_info = obs_tracker.update(detections)
@@ -176,6 +172,11 @@ def main():
                     
                     timer.end_stage("Decision")
 
+                    # ── KUKSA ────────────────────────────────────────────
+                    timer.start_stage("Kuksa")
+                    kuksa_channel.send(env_state.detections)
+                    timer.end_stage("Kuksa")
+    
                     # ── DISPLAY ──────────────────────────────────────────
                     timer.start_stage("Display")
                     if display_mode != "none":

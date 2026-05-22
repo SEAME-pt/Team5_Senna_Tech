@@ -62,8 +62,8 @@ class ConfirmationBuffer:
 class Thresholds:
     AREA_EMERGENCY      = 0.05
     AREA_AVOIDANCE      = 0.015
-    AREA_SIGN           = 0.004
-    AREA_TRAFFIC_LIGHT  = 0.004
+    AREA_SIGN           = 0.006
+    AREA_TRAFFIC_LIGHT  = 0.006
     AREA_CAR            = 0.004
     AREA_FOLLOW_ENTER   = 0.022
     AREA_FOLLOW_EXIT    = 0.017
