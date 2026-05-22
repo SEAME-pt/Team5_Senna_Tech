@@ -2,14 +2,13 @@ import cv2
 import numpy as np
 
 class BEVTransform:
-    #   !!!!!!!!!!  if changing these values, leave the old ones commented out — best calibration so far
+    #   !!!!!!!!!!  se for mudar os valores deixar esses comentados, foi o nosso melhor até o momento
     DEFAULT_SRC = np.float32([
         [0.10000000149011612, 0.5299999713897705], 
         [0.9200000166893005, 0.5299999713897705], 
         [1.309999942779541, 0.7599999904632568], 
         [-0.28999999165534973, 0.7599999904632568]
     ])
-    #DEFAULT_SRC = np.float32([[0.09000000357627869, 0.44999998807907104], [0.8700000047683716, 0.44999998807907104], [1.340000033378601, 0.9200000166893005], [-0.3799999952316284, 0.9200000166893005]])
 
     DEFAULT_DST = np.float32([
         [0.25, 0.00], [0.75, 0.00],
