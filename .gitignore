@@ -112,3 +112,6 @@ convert_hailo/.env.hailo
 convert_hailo/hailo-env/
 convert_hailo/shared_with_docker/*
 !convert_hailo/shared_with_docker/README.md
+
+# script
+pipeline.sh

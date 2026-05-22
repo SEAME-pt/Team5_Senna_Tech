@@ -2,40 +2,61 @@
 
 This guide explains how to control the car with the joystick after connecting to the Raspberry Pi 5.
 
-## Execution
+---
 
+## Programs
+
+### `./control` — Joystick Controller
+
+The main executable that reads joystick input and sends throttle and steering commands over CAN, depending on the active mode.
+
+**Execution:**
 1. Connect to the Raspberry Pi 5 through SSH.
-2. Go to the directory where the control executable is located (/home).
+2. Navigate to the directory where the executable is located (`/home`).
 3. Run:
-
 ```bash
 ./control
 ```
 
-After the program starts, the joystick can send throttle and steering commands over CAN, depending on the selected mode.
+### `run.py` — AI Autonomous Mode
 
-## Available modes
+A Python script that activates the full autonomous pipeline. When launched, it starts both `./control` and the AI model pipeline together. The joystick behaves exactly the same as when running `./control` directly — all mode logic, overrides, and button mappings still apply.
 
-### Autonomous mode (`0`) - button `A`
+**Execution:**
+```bash
+python3 run.py
+```
 
-- Joystick commands are ignored and are not sent through CAN.
-- The microcontroller remains available to receive commands on the same CAN IDs.
-- In this mode, commands must come from another source, such as the AI model, not from the joystick.
+---
 
-### Manual mode (`1`) - button `Y`
+## Available Modes
 
+### Manual Mode (`1`) — highest priority
 - All joystick commands are accepted and sent to the microcontroller.
-- Use this mode when the joystick should have full control of the car.
-- If the AI model also sends commands at the same time, undefined behavior may occur.
+- This is the **default mode** when any program starts.
+- **Moving any joystick axis immediately switches to Manual mode**, regardless of the current mode. Manual mode always takes priority.
 
-### Debug mode (`2`) - button `B`
+### Autonomous Mode (`0`) — button `A`
+- Joystick commands are ignored; all drive commands come from the AI model.
+- Press **A** to enter this mode.
+- Moving any joystick axis **instantly overrides** Autonomous mode and returns to Manual — no button press needed.
 
-- Joystick throttle is accepted and sent to the microcontroller.
-- Joystick steering is ignored.
-- This mode is useful when steering is being tested from the AI model while throttle is still controlled by the joystick.
+---
 
-## Notes
+## Mode Switching Summary
 
-- Make sure the joystick is connected before starting the executable.
-- Confirm the correct mode before driving the car.
-- Avoid sending commands from both the joystick and the AI model unless that behavior is intentional.
+| Trigger | Result |
+|---|---|
+| Program start | Manual mode |
+| Press **A** | Switch to Autonomous mode |
+| Move any joystick axis | Always switches to Manual mode (highest priority) |
+| Press **Y** | Send parking system signal |
+
+---
+
+## Button Reference
+
+| Button | Action |
+|---|---|
+| **A** | Activate Autonomous mode |
+| **Y** | Send parking system signal |

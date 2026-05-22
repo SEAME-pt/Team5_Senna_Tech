@@ -1,8 +1,4 @@
-#include "can_manager.h"
-#include "car.h"
-#include "pid.h"
-#include <inttypes.h>
-#include <math.h>
+#include "car_modes.h"
 
 static e_car_mode get_car_mode(int16_t mode_cmd, ULONG *last_tick, float *throttle_target)
 {
@@ -28,49 +24,20 @@ static e_car_mode get_car_mode(int16_t mode_cmd, ULONG *last_tick, float *thrott
     return MODE_MANUAL; // default
 }
 
-static float switch_trottle_mode(float percent, uint8_t *brake)
+static void decode_drive_frame(CAN_Frame *frame, float *throttle_target, float *steering_target)
 {
-    switch ((int)percent)
-    {
-        case 0:
-            uart_send("Stop car\r\n");
-            *brake = 1;
-            return 0.0f;
-        case 1:
-            uart_send("Stop car\r\n");
-            *brake = 1;
-            return 0.00f;
-        case 2:
-            uart_send("Slow speed\r\n");
-            *brake = 0;
-            return 0.05f;
-        case 3:
-            uart_send("Medium speed\r\n");
-            *brake = 0;
-            return 0.09f;
-        case 4:
-            uart_send("Full speed\r\n");
-            *brake = 0;
-            return 0.11f;
-        default:
-            return 0.0f;
-    }
-}
+    int16_t throttle_raw = (int16_t)((uint16_t)frame->data[1] << 8 | frame->data[0]);
+    int16_t steering_raw = (int16_t)((uint16_t)frame->data[3] << 8 | frame->data[2]);
 
-static float decode_can_percent(uint8_t low_byte, uint8_t high_byte)
-{
-    // Intel (little endian)
-    uint16_t u_combined = ((uint16_t)high_byte << 8) | low_byte;
+    *throttle_target = throttle_raw * 0.01f;
+    *steering_target = steering_raw * 0.01f;
 
-    int16_t raw = (int16_t)u_combined;
-
-    float percent = raw * 0.01f;
+    if (*throttle_target == 2.0f)
+        return ;
 
     // safety clamp
-    if (percent > 1.0f)  percent = 1.0f;
-    if (percent < -1.0f) percent = -1.0f;
-
-    return percent;
+    if (*throttle_target > 1.0f)  *throttle_target = 1.0f;
+    if (*steering_target < -1.0f) *steering_target = -1.0f;
 }
 
 void motors_thread_entry(ULONG thread_input)
@@ -84,62 +51,74 @@ void motors_thread_entry(ULONG thread_input)
 
     pid_t throttle_pid;
     pid_init(&throttle_pid, 1.42f, 1.11f, 0.01f);
-    pid_set_integral_limit(&throttle_pid, 0.70f);
-    pid_set_output_limit(&throttle_pid, 1.0f);
 
-    float throttle_target = 0.0f; // normalized [-1, 1]
-    float steering_target = 0.0f; // normalized [-1, 1]
+    // normalized [-1, 1]
+    float throttle_target = 0.0f, steering_target = 0.0f;
 
     ULONG last_tick = tx_time_get();
-    
+    UINT brake = 0;
     e_car_mode mode = MODE_MANUAL;
-    uint8_t brake = 0;
-
-    float percent;
 
     while (1)
     {
         if (tx_queue_receive(&g_rx_data_queue, &frame, THROTTLE_PERIOD_TICKS) == TX_SUCCESS)
         {
-            if (frame.dlc < 2)
-                percent = frame.data[0];
-            else
-                percent = decode_can_percent(frame.data[0], frame.data[1]);
-
             // Mode switching
-            if (frame.id == CAN_ID_MODE)
+            if (frame.id == CAN_ID_MODE_MOVEMENT)
             {
-                int16_t mode_cmd = (int16_t)(((uint16_t)frame.data[1] << 8) | frame.data[0]);
-
+                int16_t mode_cmd = (int16_t)frame.data[0];
                 mode = get_car_mode(mode_cmd, &last_tick, &throttle_target);
                 pid_reset(&throttle_pid);
                 continue ;
             }
 
-            if (frame.id == CAN_ID_STEER_CMD)
+            if (frame.id == CAN_ID_AI_MOVEMENT && mode == MODE_AUTONOMOUS)
             {
-                steering_target = percent;
+                decode_drive_frame(&frame, &throttle_target, &steering_target);
                 continue ;
             }
-    
-            if (frame.id == CAN_ID_AI_MOVEMENT)
+            else if (frame.id == CAN_ID_JOY_MOVEMENT)
+            {
+                if (mode == MODE_AUTONOMOUS)
+                {
+                    float joy_throttle, joy_steering;
+                    decode_drive_frame(&frame, &joy_throttle, &joy_steering);
 
-                throttle_target = switch_trottle_mode(percent, &brake);
-            else if (frame.id == CAN_ID_MOTOR_CMD && (mode == MODE_MANUAL))
-                throttle_target = percent;
+                    if (fabsf(joy_throttle) > 0.05f || fabsf(joy_steering) > 0.05f)
+                    {
+                        mode = MODE_MANUAL;
+                        pid_reset(&throttle_pid);
+                        throttle_target = joy_throttle;
+                        steering_target = joy_steering;
+                    }
+                }
+                else if (mode == MODE_MANUAL)
+                    decode_drive_frame(&frame, &throttle_target, &steering_target);
+                continue ;
+            }
 
-            else if (frame.id == CAN_ID_MOTOR_CMD && mode == MODE_DEBUG)
-                throttle_target = 0.07f;
-
-            continue ;
+            if (frame.id == CAN_ID_MODE_PARKING)
+            {
+                uart_send("Entering PARKING mode\r\n");
+                parking_mode_entry(&car);
+                continue ;
+            }
         }
+
+        if (throttle_target == 2.0f) // Emergency brake
+        {
+            throttle_target = 0.0f;
+            uart_send("Emergency brake activated!\r\n");
+            brake = 1;
+        }
+        else
+            brake = 0;
 
         float dt = get_delta_time_seconds(&last_tick);
         if (dt <= 0.0f)
             continue ;
 
         float throttle_cmd_percent = pidThrottleCalculation(&throttle_pid, throttle_target, dt);
-
         car_set_throttle_percent(&car, throttle_cmd_percent, brake);
         car_set_steering_percent(&car, steering_target);
     }

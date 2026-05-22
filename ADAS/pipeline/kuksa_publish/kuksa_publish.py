@@ -82,10 +82,5 @@ class KuksaClient:
 
         response = self.stub.Set(request)
 
-       # if response.error.code != 0:
-            #print(f"[KUKSA] Erro: {response.error.message}")
-       # else:
-            #print(f"[KUKSA] Speed={speed} Traffic={traffic}")
-
     def close(self):
         self.channel.close()
