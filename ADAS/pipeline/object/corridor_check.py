@@ -53,6 +53,7 @@ class CorridorChecker:
         total_area = float(w_orig * h_orig)
         rel_area = obj_area / total_area if total_area > 0 else 0.0
 
+        # BEV mapping of the bottom center of the bounding box
         bottom_center_x = (x1 + x2) / 2.0
         bottom_center_y = float(y2)
         bev_x, bev_y = self.map_point_to_bev(bottom_center_x, bottom_center_y)
@@ -67,6 +68,7 @@ class CorridorChecker:
             debug_info["in_corridor"] = (w_orig * 0.35) < bev_x < (w_orig * 0.65)
             return debug_info
 
+        # Intersection with the lane lines
         margin = 15
         in_left = True
         if fit_result.left_fit is not None:

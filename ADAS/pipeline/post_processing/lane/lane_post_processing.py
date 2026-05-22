@@ -169,6 +169,13 @@ class YoloSegDecoder:
 
 
 class MaskFilters:
+    """
+    Cleans and improves the binary mask of the tracks using morphological operations.
+    Operations applied sequentially:
+    1. CLOSE: fills small gaps and holes in the tracks
+    2. OPEN: removes noise and small isolated artifacts
+    Rectangular kernels are wider horizontally for vertical tracks.
+    """
     def __init__(self, close_kernel=(5, 15), open_kernel=(5, 5), debug=False):
         self.close_k = cv2.getStructuringElement(cv2.MORPH_RECT, close_kernel)
         self.open_k = cv2.getStructuringElement(cv2.MORPH_RECT, open_kernel)
