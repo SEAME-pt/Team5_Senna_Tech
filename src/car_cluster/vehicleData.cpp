@@ -1,12 +1,12 @@
 #include "vehicleData.hpp"
 #include <vector>
 #include <memory>
-#include "kuksa/val/v2/types.pb.h" // necessário para ler os tipos
+ #include "kuksa/val/v2/types.pb.h" // necessário para ler os tipos
 
 using grpc::ClientContext;
 using grpc::Status;
 using kuksa::val::v2::SubscribeRequest;
-using kuksa::val::v2::SubscribeResponse;
+using kuksa::val::v2::SubscribeResponse; 
 
 // Singleton implementation
 vehicleData *vehicleData::instance() {
@@ -15,7 +15,7 @@ vehicleData *vehicleData::instance() {
 }
 
 //Private constructor
-vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), odometer(0), trafficSign("") {
+vehicleData::vehicleData(QObject *parent) : speed(0), battery(0), temperature(50), odometer(0), trafficSign(TRAFFIC_SIGN::NONE), speedSign(SPEED_SIGN::NONE) {
     (void) parent;
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &vehicleData::updateTemperature);
@@ -32,7 +32,9 @@ int vehicleData::getTemperature() const{ return temperature;}
 
 uint16_t vehicleData::getOdometer() const{ return odometer;}
 
-QString vehicleData::getTrafficSign() const{ return trafficSign;}
+TRAFFIC_SIGN vehicleData::getTrafficSign() const{ return trafficSign;}
+
+SPEED_SIGN vehicleData::getSpeedSign() const{ return speedSign;}
 
 QString vehicleData::getGear() const{ return gear;}
 
@@ -75,11 +77,17 @@ void    vehicleData::setOdometer(uint16_t newOdometer){
     emit odometerChanged();
 }
 
-void    vehicleData::setTrafficSign(QString newTrafficSign){
+void    vehicleData::setTrafficSign(TRAFFIC_SIGN newTrafficSign){
     if (this->trafficSign == newTrafficSign)
         return ;
     this->trafficSign = newTrafficSign;
     emit trafficSignChanged();
+}
+void    vehicleData::setSpeedSign(SPEED_SIGN newSpeedSign){
+    if (this->speedSign == newSpeedSign)
+        return ;
+    this->speedSign = newSpeedSign;
+    emit speedSignChanged();
 }
 
 void    vehicleData::setGear(QString newGear){
@@ -115,18 +123,24 @@ void vehicleData::startBatterySimulation() {
 
 void vehicleData::startTrafficSignSimulation() {
     // Lista de sinais que serão exibidos em loop
-    std::vector<QString> signs = {"stop", "80", "50", "danger", "pedestrian", "yield", "red", "yellow", "green"};
+    std::vector<TRAFFIC_SIGN> trafficSigns = {TRAFFIC_SIGN::NONE, TRAFFIC_SIGN::STOP, TRAFFIC_SIGN::DANGER, TRAFFIC_SIGN::CROSSWALK, TRAFFIC_SIGN::YIELD, TRAFFIC_SIGN::RED, TRAFFIC_SIGN::YELLOW, TRAFFIC_SIGN::GREEN};
+    std::vector<SPEED_SIGN> speedSigns = {SPEED_SIGN::NONE, SPEED_SIGN::SIGNAL_50, SPEED_SIGN::SIGNAL_80};
 
-    if (!signs.empty())
-        this->setTrafficSign(signs[0]);
-
+    if (!trafficSigns.empty())
+        this->setTrafficSign(trafficSigns[0]);
+    if (!speedSigns.empty())
+        this->setSpeedSign(speedSigns[0]);
     // índice compartilhado entre chamadas do lambda para permanecer válido
-    auto index = std::make_shared<int>(0);
+    auto trafficIndex = std::make_shared<int>(0);
+    auto speedIndex = std::make_shared<int>(0);
 
     QTimer* timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, [this, signs, index]() mutable {
-        *index = (*index + 1) % static_cast<int>(signs.size());
-        this->setTrafficSign(signs[*index]);
+    connect(timer, &QTimer::timeout, this, [=]() mutable {
+        *trafficIndex = (*trafficIndex + 1) % static_cast<int>(trafficSigns.size());
+        *speedIndex = (*speedIndex + 1) % static_cast<int>(speedSigns.size());
+
+        this->setTrafficSign(trafficSigns[*trafficIndex]);
+        this->setSpeedSign(speedSigns[*speedIndex]);
     });
     timer->start(5000); // troca a cada 5 segundos
 }
@@ -173,7 +187,7 @@ void vehicleData::startTrafficSignSimulation() {
     timer->start(1000); // 1000 ms por tick -> 1 Hz
 }*/
 
-void vehicleData::startKuksaSubscriber() {
+ void vehicleData::startKuksaSubscriber() {
     // Inicia o loop do KUKSA em uma thread separada
     // Se rodarmos direto aqui, a GUI do Qt vai congelar!
     kuksaThread = std::thread(&vehicleData::kuksaLoop, this);
@@ -192,6 +206,8 @@ void vehicleData::kuksaLoop() {
     request.add_signal_paths("Vehicle.Speed");
     request.add_signal_paths("Vehicle.Powertrain.TractionBattery.StateOfCharge.Current");
     request.add_signal_paths("Vehicle.Powertrain.ElectricMotor.Power");
+    request.add_signal_paths("Vehicle.ADAS.TrafficSign");
+    request.add_signal_paths("Vehicle.ADAS.SpeedLimitSign");
 
     std::unique_ptr<grpc::ClientReader<SubscribeResponse>> reader(
         stub->Subscribe(&context, request));
@@ -209,7 +225,7 @@ void vehicleData::kuksaLoop() {
                 
                 // Atualiza a UI baseada no caminho recebido
                 // Nota: setSpeed e setBattery emitem sinais que o Qt entende
-                
+
                 if (path == "Vehicle.Speed") {
                     if (value.has_float_()) {
                         setSpeed((double)value.float_());
@@ -231,6 +247,16 @@ void vehicleData::kuksaLoop() {
                             setGear("N");
                         if (v > 0)
                             setGear("D");
+                    }
+                }
+                else if (path == "Vehicle.ADAS.TrafficSign") { 
+                    if (value.has_uint32()) {
+                        setTrafficSign((TRAFFIC_SIGN)value.uint32());
+                    }
+                }
+                else if (path == "Vehicle.ADAS.SpeedLimitSign") {
+                    if (value.has_uint32()) {
+                        setSpeedSign((SPEED_SIGN)value.uint32());
                     }
                 }
             }

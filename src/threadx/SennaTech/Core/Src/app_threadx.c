@@ -61,6 +61,7 @@ t_threads   threads[THREAD_COUNT];
 // QUEUES
 TX_QUEUE g_tx_data_queue;
 TX_QUEUE g_rx_data_queue;
+TX_QUEUE g_ultrasonic_data_queue;
 
 // MUTEXES
 TX_MUTEX g_speed_mutex;
@@ -73,6 +74,7 @@ TX_MUTEX g_odometer_mutex;
 
 ULONG tx_queue_buffer[QUEUE_LEN * sizeof(CAN_Frame) / sizeof(ULONG)];
 ULONG rx_queue_buffer[QUEUE_LEN * sizeof(CAN_Frame) / sizeof(ULONG)];
+ULONG ultrasonic_queue_buffer[QUEUE_LEN * sizeof(t_ultrasonic_data) / sizeof(ULONG)];
 
 /* USER CODE END PV */
 
@@ -139,7 +141,7 @@ void MX_ThreadX_Init(void)
 	  uart_send("MCP2515 init failed!\r\n");
 	  Error_Handler();
   }
-
+  
   /* USER CODE END Before_Kernel_Start */
 
   tx_kernel_enter();
@@ -197,6 +199,16 @@ static UINT App_CreateQueues(void)
 		return ret;
 	}
 
+	ret = tx_queue_create(&g_ultrasonic_data_queue,
+					  "Ultrasonic Queue",
+					  sizeof(t_ultrasonic_data) / sizeof(ULONG),
+					  ultrasonic_queue_buffer,
+					  sizeof(ultrasonic_queue_buffer));
+	if (ret != TX_SUCCESS) {
+		uart_send("Failed to create Ultrasonic queue!\r\n");
+		return ret;
+	}
+	
 	return TX_SUCCESS;
 }
 
@@ -210,7 +222,7 @@ static UINT App_CreateThreads(void)
 				       0,
 				       threads[0].stack,
 				       sizeof(threads[0].stack),
-				       10, 10, 
+				       14, 14, 
 					   TX_NO_TIME_SLICE, TX_AUTO_START);
 	if (ret != TX_SUCCESS) {
 		uart_send("Failed to create Sensor thread!\r\n");
@@ -270,28 +282,28 @@ static UINT App_CreateThreads(void)
 	}
 
 	ret = tx_thread_create(&threads[5].thread,
-				       "Odometer Thread",
-				       odometer_thread_entry,
-				       1,
-				       threads[5].stack,
-				       sizeof(threads[5].stack),
-				       17, 17,
-					   TX_NO_TIME_SLICE, TX_AUTO_START);
-	if (ret != TX_SUCCESS) {
-		uart_send("Failed to create Odometer thread!\r\n");
-		return ret;
-	}
-
-	ret = tx_thread_create(&threads[6].thread,
 				       "Heartbeat Thread",
 				       heartbeat_thread_entry,
 				       0,
-				       threads[6].mini_stack,
-				       sizeof(threads[6].mini_stack),
+				       threads[5].mini_stack,
+				       sizeof(threads[5].mini_stack),
 				       16, 16,
 					   TX_NO_TIME_SLICE, TX_AUTO_START);
 	if (ret != TX_SUCCESS) {
 		uart_send("Failed to create Heartbeat thread!\r\n");
+		return ret;
+	}
+
+	ret = tx_thread_create(&threads[6].thread,
+				       "ultrasonic Thread",
+				       ultrasonic_thread_entry,
+				       0,
+				       threads[6].stack,
+				       sizeof(threads[6].stack),
+				       12, 12,
+					   TX_NO_TIME_SLICE, TX_AUTO_START);
+	if (ret != TX_SUCCESS) {
+		uart_send("Failed to create ultrasonic thread!\r\n");
 		return ret;
 	}
 

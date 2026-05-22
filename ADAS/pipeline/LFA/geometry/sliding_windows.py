@@ -1,14 +1,15 @@
 """
-Deteta as faixas de rodagem na imagem BEV usando o algoritmo de janelas deslizantes
-e ajusta um polinómio de 2º grau a cada faixa.
- 
-Algoritmo (resumo):
-1. Histograma: soma colunas na metade inferior → picos = posição das faixas
-2. Sliding windows: percorre de baixo para cima, coletando píxeis brancos
-3. Polyfit: ajusta y = a*x² + b*x + c a cada conjunto de píxeis
-4. Validação: descarta ajustes com largura estranha, faixas cruzadas, etc.
-5. Suavização EMA: suaviza os coeficientes entre frames consecutivos
-6. CTE: calcula o erro lateral do veículo
+Detects lane markings in BEV images using the sliding windows algorithm
+and fits a 2nd-degree polynomial to each lane.
+
+Algorithm (summary):
+
+1. Histogram: sums columns in the lower half → peaks = lane positions
+2. Sliding windows: traverses from bottom to top, collecting white pixels
+3. Polyfit: adjusts y = a*x² + b*x + c to each set of pixels
+4. Validation: discards adjustments with odd widths, crossed lanes, etc.
+5. EMA smoothing: smooths the coefficients between consecutive frames
+6. CTE: calculates the vehicle's lateral error
 """
 import cv2
 import numpy as np
@@ -16,7 +17,7 @@ from typing import Optional, Tuple
 from core.data_types import LaneFitResult
 
 class SlidingWindowsLaneFitter:
-    def __init__(self, cam_height: int = 360, n_windows: int = 12, margin: int = 40, min_pixels: int = 20, lane_width_px: float = 170.0):
+    def __init__(self, cam_height: int = 360, n_windows: int = 12, margin: int = 40, min_pixels: int = 20, lane_width_px: float = 180.0):
         self.n_windows     = n_windows
         self.margin        = margin
         self.min_pixels    = min_pixels
@@ -29,19 +30,12 @@ class SlidingWindowsLaneFitter:
         self._anchor_right_fit = None # last "trusted" right fit
         self._left_was_virtual  = False # if the last left fit was virtual (not directly detected)
         self._right_was_virtual = False # if the last right fit was virtual
-        self._ema_curv_left:  Optional[float] = None #Exponential Moving Average (EMA) of the left lane curvature (a coefficient)
-        self._ema_curv_right: Optional[float] = None #EMA of the right lane curvature
-        self._curv_ema_alpha: float = 0.15 #Smoothing factor for curvature EMA (0.0 = no smoothing, 1.0 = only current value)
-        self._steering_hint: float = 0.0 # (!!! isso não esta a ser usado agora, mas quero implementar !!!)
+        #self._ema_curv_left:  Optional[float] = None #Exponential Moving Average (EMA) of the left lane curvature (a coefficient)
+        #self._ema_curv_right: Optional[float] = None #EMA of the right lane curvature
+        #self._curv_ema_alpha: float = 0.15 #Smoothing factor for curvature EMA (0.0 = no smoothing, 1.0 = only current value)
         self._ema_cte: Optional[float] = None # EMA of the CTE to smooth out the error signal for the PID controller
-        self._cte_alpha: float = 0.4 # Smoothing factor for CTE EMA 
+        #self._cte_alpha: float = 0.4 # Smoothing factor for CTE EMA 
 
-    def set_steering_hint(self, steering_norm: float):
-        """
-        Recebe o último comando de direção do PID (normalizado entre -1 e +1).
-        Pretendo usar para guiar a pesquisa das faixas em curvas apertadas, mas ainda não está implementado.
-        """
-        self._steering_hint = float(np.clip(steering_norm, -1.0, 1.0))
 
     #Executes the complete pipeline for detecting and adjusting the lanes.
     def fit(self, bev_mask: np.ndarray, draw_debug: bool = False) -> LaneFitResult:
@@ -63,7 +57,7 @@ class SlidingWindowsLaneFitter:
             
             actual_width = r_x - l_x
             expected_width = self.tracked_lane_width_px if self.tracked_lane_width_px is not None else self.lane_width_px
-            
+            ght   = abs(left_fit[0]) < 0.0004
             bad_width = actual_width < (expected_width * 0.60) or actual_width > (expected_width * 1.40)
             crossed = l_x > r_x - 10
             opposite_curves = (left_fit[0] * right_fit[0] < 0) and (abs(left_fit[0]) > 0.001) and (abs(right_fit[0]) > 0.001)
@@ -88,21 +82,23 @@ class SlidingWindowsLaneFitter:
             r_x = right_fit[0]*(h-1)**2 + right_fit[1]*(h-1) + right_fit[2]
             current_width = abs(r_x - l_x)
             is_straight   = abs(left_fit[0]) < 0.0004 and abs(right_fit[0]) < 0.0004
-            is_sane_width = (self.tracked_lane_width_px * 0.70) < current_width < (self.tracked_lane_width_px * 1.30)
+            is_sane_width = (self.tracked_lane_width_px * 0.50) < current_width < (self.tracked_lane_width_px * 1.50) #original 0.70 e 1.30
             # Update the calibrated width only in reliable sections.
             if is_straight and is_sane_width:
                 self.tracked_lane_width_px = 0.95 * self.tracked_lane_width_px + 0.05 * current_width
 
-            # Update curvature EMAs to smooth out the curvature estimates over time, which can help the PID controller react more
-            #consistently to curves.
-            α = self._curv_ema_alpha
-            if left_fit is not None:
-                self._ema_curv_left  = left_fit[0]  if self._ema_curv_left  is None else α * left_fit[0]  + (1-α) * self._ema_curv_left
-            if right_fit is not None:
-                self._ema_curv_right = right_fit[0] if self._ema_curv_right is None else α * right_fit[0] + (1-α) * self._ema_curv_right
-
         left_is_virtual  = False
         right_is_virtual = False
+
+        if self.tracked_lane_width_px is not None:
+            if left_fit is None and right_fit is not None:
+                left_fit = right_fit.copy()
+                left_fit[2] -= self.tracked_lane_width_px
+                left_is_virtual = True
+            elif right_fit is None and left_fit is not None:
+                right_fit = left_fit.copy()
+                right_fit[2] += self.tracked_lane_width_px
+                right_is_virtual = True
 
         left_found  = (left_fit  is not None) and not left_is_virtual
         right_found = (right_fit is not None) and not right_is_virtual
@@ -210,6 +206,7 @@ class SlidingWindowsLaneFitter:
                 right_base = int(left_base + ref_width) if left_base else int(w * 0.75)
 
         return left_base, right_base
+        
     """
     After finding the base positions, the sliding windows algorithm collects white pixels in a
     series of horizontal windows moving upwards.
@@ -272,7 +269,6 @@ class SlidingWindowsLaneFitter:
         right_pts = (nonzero_x[right_lane_inds], nonzero_y[right_lane_inds])
 
         return left_pts, right_pts, debug_img
-
 
     """
     Fits a polynomial to the given lane pixels.

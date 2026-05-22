@@ -125,10 +125,10 @@ qt_add_qml_module(appcar_cluster
         assets/traffic/stop.png
         assets/traffic/yield.png
         assets/traffic/danger.png
-        assets/traffic/pedestrian.png
-        assets/traffic/traffic-light-red.png
-        assets/traffic/traffic-light-green.png
-        assets/traffic/traffic-light-yellow.png
+        assets/traffic/crosswalk.png
+        assets/traffic/red.png
+        assets/traffic/green.png
+        assets/traffic/yellow.png
         assets/warnings/warning_estop.png
         assets/warnings/warning_low_battery.png
         assets/warnings/warning_temp_max.png
