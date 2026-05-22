@@ -1,7 +1,8 @@
 import numpy as np
 import cv2
 
-class object_detector:
+
+class ObjectDetector:
 
     def __init__(self):
         self.class_names = [
@@ -15,7 +16,6 @@ class object_detector:
         self.nms_thresh = 0.45
         self.num_classes = 13
 
-    # ---------------- UTIL ----------------
     def sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
 
@@ -23,7 +23,6 @@ class object_detector:
         y, x = np.meshgrid(np.arange(h), np.arange(w), indexing="ij")
         return np.stack((x, y), axis=-1)
 
-    # ---------------- DECODE ----------------
     def decode_output(self, bbox, cls, stride):
 
         cls = self.sigmoid(cls)
@@ -55,7 +54,6 @@ class object_detector:
 
         return boxes[mask], scores[mask], classes[mask]
 
-    # ---------------- NMS ----------------
     def nms(self, boxes, scores):
 
         if len(boxes) == 0:
@@ -87,7 +85,6 @@ class object_detector:
 
         return keep
 
-    # ---------------- MAIN PROCESS ----------------
     def process(self, outputs, frame_shape):
 
         h0, w0 = frame_shape[:2]
@@ -143,7 +140,6 @@ class object_detector:
 
         return detections
 
-    # ---------------- DRAW ----------------
     def draw(self, frame, detections):
 
         for det in detections:
@@ -155,18 +151,15 @@ class object_detector:
             rel_area = det.get("relative_area", 0.0)
             db = det.get("debug_info", None)
 
-            # Red for objects within our zone, green for those outside it.
-            color = (0, 0, 255) if in_corr else (0, 100, 0)
+            color = (255, 0, 0) if in_corr else (0, 100, 0)
             thickness = 2 if in_corr else 1
 
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
-            
-            # text with the relative area value of the scaling
+
             text = f"{label} | A:{(rel_area * 100):.1f}%"
             cv2.putText(frame, text, (x1, max(y1 - 25, 15)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness)
 
-            # draw the base of the bounding box
             bottom_center_x = int((x1 + x2) / 2)
-            cv2.circle(frame, (bottom_center_x, y2), 5, (255, 0, 255), -1) 
+            cv2.circle(frame, (bottom_center_x, y2), 5, (255, 0, 255), -1)
 
         return frame
