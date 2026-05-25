@@ -3,7 +3,6 @@ Detects lane markings in BEV images using the sliding windows algorithm
 and fits a 2nd-degree polynomial to each lane.
 
 Algorithm (summary):
-
 1. Histogram: sums columns in the lower half → peaks = lane positions
 2. Sliding windows: traverses from bottom to top, collecting white pixels
 3. Polyfit: adjusts y = a*x² + b*x + c to each set of pixels
@@ -37,8 +36,8 @@ class SlidingWindowsLaneFitter:
         #self._cte_alpha: float = 0.4 # Smoothing factor for CTE EMA 
 
 
-    #Executes the complete pipeline for detecting and adjusting the lanes.
     def fit(self, bev_mask: np.ndarray, draw_debug: bool = False) -> LaneFitResult:
+        """Executes the complete pipeline for detecting and adjusting the lanes."""
         h, w = bev_mask.shape[:2]
 
         left_base, right_base = self._histogram_peaks(bev_mask)
@@ -82,7 +81,7 @@ class SlidingWindowsLaneFitter:
             r_x = right_fit[0]*(h-1)**2 + right_fit[1]*(h-1) + right_fit[2]
             current_width = abs(r_x - l_x)
             is_straight   = abs(left_fit[0]) < 0.0004 and abs(right_fit[0]) < 0.0004
-            is_sane_width = (self.tracked_lane_width_px * 0.50) < current_width < (self.tracked_lane_width_px * 1.50) #original 0.70 e 1.30
+            is_sane_width = (self.tracked_lane_width_px * 0.50) < current_width < (self.tracked_lane_width_px * 1.50)
             # Update the calibrated width only in reliable sections.
             if is_straight and is_sane_width:
                 self.tracked_lane_width_px = 0.95 * self.tracked_lane_width_px + 0.05 * current_width
@@ -206,7 +205,6 @@ class SlidingWindowsLaneFitter:
                 right_base = int(left_base + ref_width) if left_base else int(w * 0.75)
 
         return left_base, right_base
-        
     """
     After finding the base positions, the sliding windows algorithm collects white pixels in a
     series of horizontal windows moving upwards.

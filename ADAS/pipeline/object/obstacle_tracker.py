@@ -20,6 +20,7 @@ from enum import Enum
 from typing import Optional
 from object.perception_objects import ClassID, ObstacleSituation
 
+
 @dataclass
 class ObstacleInfo:
     situation:          ObstacleSituation
@@ -52,9 +53,9 @@ class ObstacleTracker:
         self.frames_to_confirm     = frames_to_confirm
         self.frame_width_bev       = frame_width_bev
 
-        self._prev_area:         float = 0.0
-        self._frames_in_corridor: int  = 0
-        self._last_bev_x_norm:   float = 0.5
+        self._prev_area:          float = 0.0
+        self._frames_in_corridor: int   = 0
+        self._last_bev_x_norm:    float = 0.5
 
     # ------------------------------------------------------------------
     def update(self, detections_in_corridor: list) -> ObstacleInfo:
@@ -88,15 +89,14 @@ class ObstacleTracker:
             )
 
         # Get the obstacle with the largest area (most relevant)
-        best = max(obstacles, key=lambda d: d.get("relative_area", 0.0))
-        area     = best.get("relative_area", 0.0)
-        debug    = best.get("debug_info", {})
-        bev_x    = debug.get("bev_x", self.frame_width_bev * 0.5)
-        bev_x_norm = float(bev_x) / float(self.frame_width_bev)
-        bev_x_norm = max(0.0, min(1.0, bev_x_norm))
+        best       = max(obstacles, key=lambda d: d.get("relative_area", 0.0))
+        area       = best.get("relative_area", 0.0)
+        debug      = best.get("debug_info", {})
+        bev_x      = debug.get("bev_x", self.frame_width_bev * 0.5)
+        bev_x_norm = max(0.0, min(1.0, float(bev_x) / float(self.frame_width_bev)))
 
         if self._frames_in_corridor == 0:
-            delta_area = 0.0 # First frame seeing the object, no real delta
+            delta_area = 0.0  # First frame seeing the object, no real delta
         else:
             delta_area = area - self._prev_area
 
