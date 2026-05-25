@@ -36,7 +36,7 @@ Sends throttle and steering in a single 4-byte CAN frame.
 #### `send_int16(can_id, value)`
 Sends a single `int16` value in a 2-byte CAN frame.
 
-#### `send_steering_percent(can_id, percent)`
+#### `send_can_percent(can_id, percent)`
 Clamps `percent` to `[-1.0, 1.0]`, scales by 100, and sends as `int16`.
 
 #### `send_fsm_state(can_id, state_value)`

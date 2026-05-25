@@ -30,11 +30,11 @@ DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("lane",   help="Path to Lane Detection HEF model")
-    parser.add_argument("object", help="Path to Object Detection HEF model")
+    parser.add_argument("lane",   help="Path to Lane Detection HEF model") # get lane .hef path
+    parser.add_argument("object", help="Path to Object Detection HEF model")  # get object .hef path
     parser.add_argument("--remote",     action="store_true", help="Enable remote display streaming")
     parser.add_argument("--no-display", action="store_true", help="Disable display output")
-    parser.add_argument("--virtual",    action="store_true", help="Enable virtual mode (no physical CAN commands)")
+    parser.add_argument("--virtual",    action="store_true", help="Enable virtual mode (no physical CAN commands)")  ## To not move servo motor
     args = parser.parse_args()
 
     decoder        = YoloSegDecoder(score_threshold=0.25)
@@ -48,14 +48,14 @@ def main():
     checker        = CorridorChecker(bev)
     fsm            = VehicleFSM()
     planner        = PathPlanner(
-        lane_offset       = 0.80,
-        blind_wait_time   = 2.5,
-        return_duration_s = 1.5,
+        lane_offset       = 0.80,   # ~65 px in 170 px road width
+        blind_wait_time   = 2.5,    # seconds in BLIND_WAIT
+        return_duration_s = 1.5,    # return interpolation duration
     )
     obs_tracker    = ObstacleTracker(
-        area_brake_threshold = 0.060,
-        area_avoidance_min   = 0.010,
-        frames_to_confirm    = 4,
+        area_brake_threshold = 0.060,   # area delta in a frame that triggers BRAKE
+        area_avoidance_min   = 0.010,   # minimum area to consider for avoidance
+        frames_to_confirm    = 4,       # frames in tracker before reporting AVOIDANCE
         frame_width_bev      = CAM_WIDTH,
     )
     adaptive_cruise = AdaptiveCruiseControl()
@@ -69,7 +69,7 @@ def main():
     else:
         display_mode = "local"
 
-    with VDevice() as target:
+    with VDevice() as target:   # Get Hailo Device and define as 'target'
         with HailoEngine(args.lane, target) as engine_lane, \
              HailoEngine(args.object, target) as engine_obj, \
              Camera(CAM_WIDTH, CAM_HEIGHT, CAM_FPS) as cam, \
@@ -85,6 +85,7 @@ def main():
             logging.info("=" * 60)
 
             last_valid_state = None
+            # vars to avoid spamming commands when not necessary
             last_sent_throttle = None
             last_sent_steering = None
 
@@ -149,11 +150,11 @@ def main():
                         current_state,
                         obstacle_side = obs_info.side,
                     )
-                    
+
                     # Real dt from Timer for accurate PID control
                     dt = timer.get_loop_duration() / 1000.0
                     pid_return = round(pid.update(target_cte, cte_actual, dt), 2)
-                    
+
                     throttle = STATE_THROTTLE.get(current_state, 0)
                     if current_state == State.FOLLOW:
                         throttle = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
@@ -169,14 +170,14 @@ def main():
                     if last_valid_state is None or current_state.value != last_valid_state:
                         last_valid_state = current_state.value
                         logging.info("NEW MODE: %s | throttle=%s", current_state.name, throttle)
-                    
+
                     timer.end_stage("Decision")
 
                     # ── KUKSA ────────────────────────────────────────────
                     timer.start_stage("Kuksa")
                     kuksa_channel.send(env_state.detections)
                     timer.end_stage("Kuksa")
-    
+
                     # ── DISPLAY ──────────────────────────────────────────
                     timer.start_stage("Display")
                     if display_mode != "none":
