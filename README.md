@@ -176,16 +176,15 @@ All documentation is kept inside the [docs/](docs/) folder.
 👥 Team
 | Name            | Responsibilities                                 |
 |-----------------|--------------------------------------------------|
-| Hellom          | Execution pipeline refactoring                   |
-| Vinicius        | Object detection refinement                      |
-| Jose            | Adaptive Cruise Control (ACC) implementation     |
-| Yasmine         | Obstacle Avoidance implementation                |
-| Marcelo         | ---                                              |
+| Hellom          | Study of implementation of robotaxi              |
+| Vinicius        | Study of implementation of robotaxi              |
+| Jose            | Study of implementation of robotaxi              |
+| Yasmine         | Study of implementation of V2I / Scrum           |
 
 All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 
 ## 🗓️ Sprint Status
-- **Current sprint**: Sprint 13
-- **Period**: May 11 to May 22, 2026  [11/05/2026] → [22/11/2026]
-- **Current Status**: Finished
-- **Goals**: Finish the ADAS Module
+- **Current sprint**: Sprint 14
+- **Period**: Jun 01 to Jun 12, 2026  [01/06/2026] → [12/06/2026]
+- **Current Status**: In progress
+- **Goals**: Study of implementation of mobility scenarios

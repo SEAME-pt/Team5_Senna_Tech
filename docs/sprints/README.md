@@ -18,6 +18,10 @@ This document serves as a visual **report and planning tool** for Agile progress
 - [Sprint #8 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_8_report.md)
 - [Sprint #9 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_9_report.md)
 - [Sprint #10 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_10_report.md)
+- [Sprint #11 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_11_report.md)
+- [Sprint #12 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_12_report.md)
+- [Sprint #13 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_13_report.md)
+- [Sprint #14 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_14_report.md)
 
 ## 🏁 Sprint 0 — Setup & Fundamentals
 **Duration:** [13/10/2025] → [26/10/2025]
@@ -62,6 +66,22 @@ This document serves as a visual **report and planning tool** for Agile progress
 ## 🏁 Sprint 10 — Complete the pipeline from model inference to post-processed output for control integration
 **Duration:** [20/03/2026] → [02/04/2026]
 **Sprint 10:** [Sprint 10 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_10_report.md)
+
+## 🏁 Sprint 11 — Integrate PID (steering) with Lane Detection Model  and perform a Live Demo
+**Duration:** [13/04/2026] → [24/04/2026]
+**Sprint 11:** [Sprint 11 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_11_report.md)
+
+## 🏁 Sprint 12 — Lane and object detection integration
+**Duration:** [27/04/2026] → [08/05/2026]
+**Sprint 12:** [Sprint 12 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_12_report.md)
+
+## 🏁 Sprint 13 — Finish the ADAS module
+**Duration:** [11/05/2026] → [22/05/2026]
+**Sprint 13:** [Sprint 13 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_13_report.md)
+
+## 🏁 Sprint 14 — Study of implementation of mobility scenarios
+**Duration:** [01/06/2026] → [12/06/2026]
+**Sprint 14:** [Sprint 14 Report](https://github.com/SEAME-pt/Team5_Senna_Tech/blob/main/docs/sprints/sprint_14_report.md)
 
 ---
 
