@@ -1,7 +1,8 @@
 import numpy as np
 import cv2
 
-class object_detector:
+
+class ObjectDetector:
 
     def __init__(self):
         self.class_names = [
@@ -10,7 +11,6 @@ class object_detector:
             "obstacle", "light_green", "light_off",
             "light_red", "light_yellow"
         ]
-
         self.conf_thresh = 0.25
         self.nms_thresh = 0.45
         self.num_classes = 13
@@ -151,22 +151,22 @@ class object_detector:
             label = det["class_name"]
             score = det["score"]
 
-            in_corr = det.get("in_corridor", False)
+            in_corr  = det.get("in_corridor", False)
             rel_area = det.get("relative_area", 0.0)
-            db = det.get("debug_info", None)
+            db       = det.get("debug_info", None)
 
-            # Red for objects within our zone, green for those outside it.
-            color = (0, 0, 255) if in_corr else (0, 100, 0)
+            # Red for objects within our zone, green for those outside it
+            color     = (0, 0, 255) if in_corr else (0, 100, 0)
             thickness = 2 if in_corr else 1
 
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, thickness)
-            
-            # text with the relative area value of the scaling
+
+            # Text with the relative area value of the scaling
             text = f"{label} | A:{(rel_area * 100):.1f}%"
             cv2.putText(frame, text, (x1, max(y1 - 25, 15)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, thickness)
 
-            # draw the base of the bounding box
+            # Draw the base of the bounding box
             bottom_center_x = int((x1 + x2) / 2)
-            cv2.circle(frame, (bottom_center_x, y2), 5, (255, 0, 255), -1) 
+            cv2.circle(frame, (bottom_center_x, y2), 5, (255, 0, 255), -1)
 
         return frame

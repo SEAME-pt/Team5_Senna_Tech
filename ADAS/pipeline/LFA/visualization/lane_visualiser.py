@@ -31,15 +31,15 @@ def draw_lane_overlay(frame_bgr, fit_result, bev):
 
     if lp is not None and rp is not None:
         pts = np.vstack([lp, rp[::-1]])
-        cv2.fillPoly(overlay, [pts], (0, 150, 0))# Semi-transparent green fill for the lane corridor
+        cv2.fillPoly(overlay, [pts], (0, 150, 0))  # Semi-transparent green fill for the lane corridor
         cx = (lp[:, 0] + rp[:, 0]) / 2
         cp = np.stack([cx, y_vals], axis=1).astype(np.int32)
-        cv2.polylines(overlay, [cp], False, (0, 255, 255), 2)# 
+        cv2.polylines(overlay, [cp], False, (0, 255, 255), 2)  # Cyan centreline
 
     if lp is not None:
         l_color = (0, 255, 255) if getattr(fit_result, 'left_is_virtual', False) else (255, 0, 0)
         cv2.polylines(overlay, [lp], False, l_color, 10)
-        
+
     if rp is not None:
         r_color = (0, 255, 255) if getattr(fit_result, 'right_is_virtual', False) else (0, 0, 255)
         cv2.polylines(overlay, [rp], False, r_color, 10)
@@ -54,9 +54,13 @@ def draw_lane_overlay(frame_bgr, fit_result, bev):
 
     return result
 
+
 def draw_text_overlay(frame, fit_result, fps=None, inf_ms=None):
     h, w = frame.shape[:2]
-    result = frame 
+    result = frame
+
+    def put(txt, pos, color, scale=1.2, thick=2):
+        cv2.putText(result, txt, pos, cv2.FONT_HERSHEY_SIMPLEX, scale, color, thick)
 
     label = ""
     if inf_ms is not None: label += f"Hailo: {inf_ms:.1f}ms  "
