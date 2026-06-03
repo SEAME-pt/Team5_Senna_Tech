@@ -128,7 +128,6 @@ def main():
 
                     # ── ARUCO DETECTIONS ─────────────────────────────────
                     aruco_detection = aruco_worker.get_detections()
-                    print(aruco_detection)
 
                     # ── OBSTACLE TRACKER ─────────────────────────────────
                     obs_info = obs_tracker.update(detections)

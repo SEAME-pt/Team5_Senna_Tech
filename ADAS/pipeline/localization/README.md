@@ -7,7 +7,6 @@
 - [Data Contract](#data-contract)
 - [Calibration](#calibration)
 - [Return Format](#return-format)
-- [Notes](#notes)
 
 ---
 
@@ -36,7 +35,7 @@ Detects ArUco markers in the input frame and returns the closest marker based on
 ### Inputs
 | Field | Type | Description |
 | :--- | :--- | :--- |
-| `frame` | `numpy.ndarray` | Input camera frame (BGR or RGB depending on pipeline) |
+| `frame` | RGB | Input camera frame |
 
 ### Output
 Returns a **single dictionary** representing the closest detected marker:
