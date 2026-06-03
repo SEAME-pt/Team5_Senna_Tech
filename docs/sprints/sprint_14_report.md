@@ -31,6 +31,7 @@ See [Projects](https://github.com/orgs/SEAME-pt/projects/83)
 | :--- | :--- | :--- |
 | **01/06** | Sprint 13 planning and goal definition. | - |
 | **02/06** | **Vinicius, Hellom and José:** Initial planning for location recognition for robotaxi. **Vinicius:** implementation of requirement for stop sign **Hellom:** Transferring lost files to the SSD **Yasmine:** definition of the type of implementation that will be done in the communication V2I| - |
+| **03/06** | **Vinicius and Hellom:** Implementation of QR codes as location anchors. **Jose:** Robotaxi map matrix and display configuration for headlights **Yasmine:** Raspberry Pi 4 and micro:bit configuration for V2I communication. | - |
 
 
 ---
