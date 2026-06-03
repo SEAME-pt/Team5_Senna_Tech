@@ -177,3 +177,29 @@ void ssd1305_draw_line(uint8_t x, uint8_t y,
         i++;
     }
 }
+
+void ssd1305_fill_ellipse(uint8_t cx, uint8_t cy,
+        uint8_t rx, uint8_t ry, uint8_t color)
+{
+    int16_t x;
+    int16_t y;
+    int32_t dx;
+    int32_t dy;
+    int32_t limit;
+
+    y = -ry;
+    limit = (int32_t)rx * rx * ry * ry;
+    while (y <= ry)
+    {
+        x = -rx;
+        while (x <= rx)
+        {
+            dx = (int32_t)x * x * ry * ry;
+            dy = (int32_t)y * y * rx * rx;
+            if (dx + dy <= limit)
+                ssd1305_draw_pixel(cx + x, cy + y, color);
+            x++;
+        }
+        y++;
+    }
+}

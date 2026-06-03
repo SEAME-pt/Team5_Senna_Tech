@@ -17,9 +17,17 @@ void ssd1305_update(void);
 void ssd1305_draw_pixel(uint8_t x, uint8_t y, uint8_t color);
 void ssd1305_draw_line(uint8_t x, uint8_t y,
         uint8_t len, uint8_t color);
+void ssd1305_fill_ellipse(uint8_t cx, uint8_t cy,
+        uint8_t rx, uint8_t ry, uint8_t color);
 
 // oled designs
-void ssd1305_draw_headlights(void);
-void ssd1305_draw_cute_eyes(void)
+void ssd1305_draw_happy_eyes(uint8_t frame);
+
+// eyes
+void ssd1305_draw_cute_eyes(void);
+void ssd1305_draw_half_closed_eyes(void);
+void ssd1305_draw_closed_eyes(void);
+
+void ssd1305_draw_sleep_face(uint8_t frame);
 
 #endif
