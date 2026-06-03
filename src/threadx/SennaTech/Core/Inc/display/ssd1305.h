@@ -20,10 +20,9 @@ void ssd1305_draw_line(UINT x, UINT y,
 void ssd1305_fill_ellipse(UINT cx, UINT cy,
         UINT rx, UINT ry, UINT color);
 
-// oled designs
+// eye designs
 void ssd1305_draw_happy_eyes(UINT frame);
 
-// eyes
 void ssd1305_draw_cute_eyes(void);
 void ssd1305_draw_half_closed_eyes(void);
 void ssd1305_draw_closed_eyes(void);
