@@ -53,6 +53,9 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/car/parking_modes/second_park_instance.c
     Core/Src/car/car.c
     Core/Src/car/motor.c
+    Core/Src/display/oled_designs/cute_eyes.c
+    Core/Src/display/oled_designs/cute_smiling_eyes.c
+    Core/Src/display/oled_designs/sleeping_eyes.c
     Core/Src/display/ssd1305.c
     Core/Src/display/oled.c
     Core/Src/i2c/battery.c
@@ -67,9 +70,6 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/sensor/ultrasonic/back_ultrasonic.c
     Core/Src/sensor/odometer.c
     Core/Src/sensor/speedsensor.c
-    Core/Src/utils/oled_designs/cute_eyes.c
-    Core/Src/utils/oled_designs/cute_smiling_eyes.c
-    Core/Src/utils/oled_designs/sleeping_eyes.c
     Core/Src/utils/debug_utils.c
     Core/Src/utils/sleep_hal.c
     Core/Src/heartbeat.c

@@ -1,6 +1,6 @@
 #include "ssd1305.h"
 
-static void ssd1305_draw_dot_2x2(uint8_t x, uint8_t y, uint8_t color)
+static void ssd1305_draw_dot_2x2(UINT x, UINT y, UINT color)
 {
     ssd1305_draw_pixel(x, y, color);
     ssd1305_draw_pixel(x + 1, y, color);
@@ -8,11 +8,11 @@ static void ssd1305_draw_dot_2x2(uint8_t x, uint8_t y, uint8_t color)
     ssd1305_draw_pixel(x + 1, y + 1, color);
 }
 
-static void ssd1305_draw_happy_eye_up(uint8_t cx, int8_t bounce)
+static void ssd1305_draw_happy_eye_up(UINT cx, int8_t bounce)
 {
-    uint8_t i;
-    uint8_t x;
-    uint8_t y;
+    UINT i;
+    UINT x;
+    UINT y;
 
     i = 0;
     while (i <= 14)
@@ -33,7 +33,7 @@ static void ssd1305_draw_happy_eye_up(uint8_t cx, int8_t bounce)
     }
 }
 
-void ssd1305_draw_happy_eyes(uint8_t frame)
+void ssd1305_draw_happy_eyes(UINT frame)
 {
     int8_t bounce;
 

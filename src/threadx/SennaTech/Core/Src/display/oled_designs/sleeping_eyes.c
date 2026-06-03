@@ -1,16 +1,16 @@
 #include "ssd1305.h"
 
-static void ssd1305_draw_thick_hline(uint8_t x, uint8_t y,
-        uint8_t len, uint8_t color)
+static void ssd1305_draw_thick_hline(UINT x, UINT y,
+        UINT len, UINT color)
 {
     ssd1305_draw_line(x, y, len, color);
     ssd1305_draw_line(x, y + 1, len, color);
     ssd1305_draw_line(x, y - 1, len, color);
 }
 
-static void ssd1305_draw_z(uint8_t x, uint8_t y, uint8_t size)
+static void ssd1305_draw_z(UINT x, UINT y, UINT size)
 {
-    uint8_t i;
+    UINT i;
 
     ssd1305_draw_line(x, y, size, 1);
     ssd1305_draw_line(x, y + 1, size, 1);
@@ -27,9 +27,9 @@ static void ssd1305_draw_z(uint8_t x, uint8_t y, uint8_t size)
     ssd1305_draw_line(x, y + 8, size, 1);
 }
 
-void ssd1305_draw_sleep_face(uint8_t frame)
+void ssd1305_draw_sleep_face(UINT frame)
 {
-    uint8_t phase;
+    UINT phase;
 
     phase = frame % 4;
     ssd1305_clear();
