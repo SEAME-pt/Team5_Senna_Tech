@@ -28,6 +28,7 @@ void oled_thread_entry(ULONG thread_input)
 
     ssd1305_init();
     ssd1305_draw_cute_eyes();
+    uart_send("OLED Thread Entry\r\n");
 
     while (1)
     {
