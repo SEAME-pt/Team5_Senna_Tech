@@ -53,6 +53,9 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/car/parking_modes/second_park_instance.c
     Core/Src/car/car.c
     Core/Src/car/motor.c
+    Core/Src/display/display_design.c
+    Core/Src/display/ssd1305.c
+    Core/Src/display/oled.c
     Core/Src/i2c/battery.c
     Core/Src/i2c/i2c_hal.c
     Core/Src/i2c/ina219.c
@@ -76,6 +79,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Inc
     Core/Inc/can
     Core/Inc/car
+    Core/Inc/display
     Core/Inc/i2c
     Core/Inc/pid
     Core/Inc/sensors

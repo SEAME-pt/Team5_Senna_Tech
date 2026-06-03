@@ -106,8 +106,9 @@ Number of threads
 5 -> CAN_Rx_Thread_Entry
 6 -> heartbeat_thread_entry
 7 -> ultrasonic_thread_entry
+8 -> oled_thread_entry
 */
-#define THREAD_COUNT    7
+#define THREAD_COUNT    8
 
 extern t_threads threads[THREAD_COUNT];
 
@@ -129,6 +130,7 @@ void battery_thread_entry(ULONG thread_input);
 void motors_thread_entry(ULONG thread_input);
 void heartbeat_thread_entry(ULONG thread_input);
 void ultrasonic_thread_entry(ULONG thread_input);
+void oled_thread_entry(ULONG thread_input);
 //void sensor_thread_entry(ULONG thread_input);
 //void odometer_thread_entry(ULONG thread_input);
 
