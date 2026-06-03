@@ -205,6 +205,7 @@ def main():
                 logging.info("Shutting down...")
             finally:
                 cam.stop()
+                aruco_worker.stop()
                 can.close()
 
 
