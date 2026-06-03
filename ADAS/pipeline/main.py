@@ -99,9 +99,9 @@ def main():
                     # ── CAMERA ──────────────────────────────────────────
                     timer.start_stage("Camera")
                     rgb = cam.get_frame()
-                    aruco_worker.update_frame(rgb)
                     if rgb is None:
                         continue
+                    aruco_worker.update_frame(rgb)
                     timer.end_stage("Camera")
 
                     # ── INFERENCE ────────────────────────────────────────
@@ -127,8 +127,8 @@ def main():
                     timer.end_stage("Post")
 
                     # ── ARUCO DETECTIONS ─────────────────────────────────
-                    aruco_detections = aruco_worker.get_detections()
-                    print(aruco_detections)
+                    aruco_detection = aruco_worker.get_detections()
+                    print(aruco_detection)
 
                     # ── OBSTACLE TRACKER ─────────────────────────────────
                     obs_info = obs_tracker.update(detections)

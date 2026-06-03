@@ -27,7 +27,31 @@ class ArucoWorker(threading.Thread):
             self.frame = frame.copy()
 
     def get_detections(self):
+
+        """
+        Detect ArUco markers in the input frame and estimate the closest one.
+
+        Returns:
+            dict:
+                {
+                    "id": int,          # ID of the closest detected marker
+                    "distance": float   # Estimated distance in meters
+                }
+
+            If no markers are detected.
+                {
+                    "id": None,
+                    "distance": None
+                }
+        """
+        
         with self.lock:
+            if self.last_detection is None:
+                return {
+                    "id": None,
+                    "distance": None
+                }
+
             return self.last_detection.copy()
 
     def stop(self):
