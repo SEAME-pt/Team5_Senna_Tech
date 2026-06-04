@@ -124,12 +124,13 @@ extern TX_QUEUE g_rx_data_queue;
 extern TX_QUEUE g_ultrasonic_data_queue;
 extern TX_QUEUE g_ambient_data_queue;
 
-//MUTEXES
+// MUTEXES
 extern TX_MUTEX g_speed_mutex;
 extern TX_MUTEX g_dc_motor_mutex;
 extern TX_MUTEX g_servo_mutex;
 extern TX_MUTEX g_battery_mutex;
 extern TX_MUTEX g_odometer_mutex;
+extern TX_MUTEX g_i2c2_mutex;
 
 // THREAD ENTRYS
 void sensor_thread_entry2(ULONG thread_input);

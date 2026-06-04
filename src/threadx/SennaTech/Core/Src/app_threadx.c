@@ -70,6 +70,7 @@ TX_MUTEX g_dc_motor_mutex;
 TX_MUTEX g_servo_mutex;
 TX_MUTEX g_battery_mutex;
 TX_MUTEX g_odometer_mutex;
+TX_MUTEX g_i2c2_mutex;
 
 // #define QUEUE_LEN 8
 
@@ -169,6 +170,11 @@ static UINT App_CreateMutexes(void)
 		return ret;
 	}
 
+	ret = tx_mutex_create(&g_i2c2_mutex, "i2c2_mutex", TX_NO_INHERIT);
+	if (ret != TX_SUCCESS) {
+		return ret;
+	}
+
 	ret = tx_mutex_create(&spi_mutex, "spi_mutex", TX_NO_INHERIT);
 	if (ret != TX_SUCCESS) {
 		return ret;
@@ -228,7 +234,7 @@ static UINT App_CreateThreads(void)
 {
 	UINT ret;
 
-	ret = tx_thread_create(&threads[0].thread,
+	/* ret = tx_thread_create(&threads[0].thread,
 		               "Sensor Thread",
 		               sensor_thread_entry2,
 		               0,
@@ -304,7 +310,7 @@ static UINT App_CreateThreads(void)
 	if (ret != TX_SUCCESS) {
 		uart_send("Failed to create Heartbeat thread!\r\n");
 		return ret;
-	}
+	} */
 
 	ret = tx_thread_create(&threads[6].thread,
 				       "ultrasonic Thread",

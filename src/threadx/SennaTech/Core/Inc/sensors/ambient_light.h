@@ -1,7 +1,8 @@
 #ifndef AMBIENT_LIGHT_H
 #define AMBIENT_LIGHT_H
 
-#include "utils.h""
+#include "utils.h"
+#include "i2c.h"
 
 /*
  * Onboard ambient light sensor
