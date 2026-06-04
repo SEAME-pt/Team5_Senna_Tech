@@ -1,6 +1,6 @@
 #include "ssd1305.h"
 
-static UINT g_buffer[SSD1305_BUF_SIZE];
+static uint8_t g_buffer[SSD1305_BUF_SIZE];
 
 static void oled_delay_ms(uint32_t ms)
 {
@@ -37,7 +37,7 @@ static void oled_rst_high(void)
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
 }
 
-static void ssd1305_write_cmd(UINT cmd)
+static void ssd1305_write_cmd(uint8_t cmd)
 {
     oled_cs_low();
     oled_dc_cmd();
@@ -45,7 +45,7 @@ static void ssd1305_write_cmd(UINT cmd)
     oled_cs_high();
 }
 
-static void ssd1305_write_data(UINT *data, uint16_t len)
+static void ssd1305_write_data(uint8_t *data, uint16_t len)
 {
     oled_cs_low();
     oled_dc_data();
@@ -120,7 +120,7 @@ void ssd1305_clear(void)
     ssd1305_fill(0x00);
 }
 
-void ssd1305_fill(UINT value)
+void ssd1305_fill(uint8_t value)
 {
     uint16_t i;
 
@@ -134,7 +134,7 @@ void ssd1305_fill(UINT value)
 
 void ssd1305_update(void)
 {
-    UINT page = 0;
+    uint8_t page = 0;
 
     while (page < SSD1305_PAGES)
     {
@@ -148,10 +148,10 @@ void ssd1305_update(void)
     }
 }
 
-void ssd1305_draw_pixel(UINT x, UINT y, UINT color)
+void ssd1305_draw_pixel(uint8_t x, uint8_t y, uint8_t color)
 {
     uint16_t    index;
-    UINT     bit;
+    uint8_t     bit;
 
     if (x >= SSD1305_WIDTH || y >= SSD1305_HEIGHT)
         return ;
@@ -165,10 +165,10 @@ void ssd1305_draw_pixel(UINT x, UINT y, UINT color)
         g_buffer[index] &= ~bit;
 }
 
-void ssd1305_draw_line(UINT x, UINT y,
-        UINT len, UINT color)
+void ssd1305_draw_line(uint8_t x, uint8_t y,
+        uint8_t len, uint8_t color)
 {
-    UINT i;
+    uint8_t i;
 
     i = 0;
     while (i < len)
@@ -178,8 +178,8 @@ void ssd1305_draw_line(UINT x, UINT y,
     }
 }
 
-void ssd1305_fill_ellipse(UINT cx, UINT cy,
-        UINT rx, UINT ry, UINT color)
+void ssd1305_fill_ellipse(uint8_t cx, uint8_t cy,
+        uint8_t rx, uint8_t ry, uint8_t color)
 {
     int16_t x;
     int16_t y;
