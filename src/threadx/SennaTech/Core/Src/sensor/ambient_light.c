@@ -1,5 +1,4 @@
 #include "ambient_light.h"
-#include "app_threadx.h"
 
 UINT AmbientLight_Init(I2C_HandleTypeDef *hi2c, uint16_t addr)
 {
@@ -22,7 +21,7 @@ UINT AmbientLight_Init(I2C_HandleTypeDef *hi2c, uint16_t addr)
     }
     tx_mutex_put(&g_i2c2_mutex);
 
-    tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND / 10);
+    tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND / 5);
 
     return (TX_SUCCESS);
 }
