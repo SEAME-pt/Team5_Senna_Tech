@@ -53,7 +53,6 @@
 
 // --- CAN variables ---
 extern CAN_Frame rxFrame;
-extern volatile uint8_t flag_mensagem_recebida; // Flag to process in the loop
 
 // THREADS
 t_threads   threads[THREAD_COUNT];
@@ -71,8 +70,6 @@ TX_MUTEX g_servo_mutex;
 TX_MUTEX g_battery_mutex;
 TX_MUTEX g_odometer_mutex;
 TX_MUTEX g_i2c2_mutex;
-
-// #define QUEUE_LEN 8
 
 ULONG tx_queue_buffer[QUEUE_LEN * sizeof(CAN_Frame) / sizeof(ULONG)];
 ULONG rx_queue_buffer[QUEUE_LEN * sizeof(CAN_Frame) / sizeof(ULONG)];
@@ -331,7 +328,7 @@ static UINT App_CreateThreads(void)
 				       0,
 				       threads[7].mini_stack,
 				       sizeof(threads[7].mini_stack),
-				       12, 12,
+				       13, 13,
 					   TX_NO_TIME_SLICE, TX_AUTO_START);
 	if (ret != TX_SUCCESS) {
 		uart_send("Failed to create OLED thread!\r\n");
@@ -344,7 +341,7 @@ static UINT App_CreateThreads(void)
 				       0,
 				       threads[8].mini_stack,
 				       sizeof(threads[8].mini_stack),
-				       13, 13,
+				       14, 14,
 					   TX_NO_TIME_SLICE, TX_AUTO_START);
 	if (ret != TX_SUCCESS) {
 		uart_send("Failed to create Ambient thread!\r\n");
