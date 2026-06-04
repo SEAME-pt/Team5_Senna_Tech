@@ -62,6 +62,7 @@ t_threads   threads[THREAD_COUNT];
 TX_QUEUE g_tx_data_queue;
 TX_QUEUE g_rx_data_queue;
 TX_QUEUE g_ultrasonic_data_queue;
+TX_QUEUE g_ambient_data_queue;
 
 // MUTEXES
 TX_MUTEX g_speed_mutex;
@@ -69,12 +70,14 @@ TX_MUTEX g_dc_motor_mutex;
 TX_MUTEX g_servo_mutex;
 TX_MUTEX g_battery_mutex;
 TX_MUTEX g_odometer_mutex;
+TX_MUTEX g_i2c2_mutex;
 
 // #define QUEUE_LEN 8
 
 ULONG tx_queue_buffer[QUEUE_LEN * sizeof(CAN_Frame) / sizeof(ULONG)];
 ULONG rx_queue_buffer[QUEUE_LEN * sizeof(CAN_Frame) / sizeof(ULONG)];
 ULONG ultrasonic_queue_buffer[QUEUE_LEN * sizeof(t_ultrasonic_data) / sizeof(ULONG)];
+ULONG ambient_queue_buffer[QUEUE_LEN * sizeof(t_ambient_data) / sizeof(ULONG)];
 
 /* USER CODE END PV */
 
@@ -137,10 +140,10 @@ void MX_ThreadX_Init(void)
 {
   /* USER CODE BEGIN Before_Kernel_Start */
   
-  if (MCP2515_Init() != HAL_OK) {
+  /* if (MCP2515_Init() != HAL_OK) {
 	  uart_send("MCP2515 init failed!\r\n");
 	  Error_Handler();
-  }
+  } */
   
   /* USER CODE END Before_Kernel_Start */
 
@@ -163,6 +166,11 @@ static UINT App_CreateMutexes(void)
 	}
 
 	ret = tx_mutex_create(&g_battery_mutex, "battery_mutex", TX_NO_INHERIT);
+	if (ret != TX_SUCCESS) {
+		return ret;
+	}
+
+	ret = tx_mutex_create(&g_i2c2_mutex, "i2c2_mutex", TX_NO_INHERIT);
 	if (ret != TX_SUCCESS) {
 		return ret;
 	}
@@ -208,7 +216,17 @@ static UINT App_CreateQueues(void)
 		uart_send("Failed to create Ultrasonic queue!\r\n");
 		return ret;
 	}
-	
+
+	ret = tx_queue_create(&g_ambient_data_queue,
+				  "Ambient Queue",
+				  sizeof(t_ambient_data) / sizeof(ULONG),
+				  ambient_queue_buffer,
+				  sizeof(ambient_queue_buffer));
+	if (ret != TX_SUCCESS) {
+		uart_send("Failed to create Ambient queue!\r\n");
+		return ret;
+	}
+
 	return TX_SUCCESS;
 }
 
@@ -216,27 +234,27 @@ static UINT App_CreateThreads(void)
 {
 	UINT ret;
 
-	ret = tx_thread_create(&threads[0].thread,
-				       "Sensor Thread",
-				       sensor_thread_entry2,
-				       0,
-				       threads[0].stack,
-				       sizeof(threads[0].stack),
-				       14, 14, 
-					   TX_NO_TIME_SLICE, TX_AUTO_START);
+	/* ret = tx_thread_create(&threads[0].thread,
+		               "Sensor Thread",
+		               sensor_thread_entry2,
+		               0,
+		               threads[0].stack,
+		               sizeof(threads[0].stack),
+		               14, 14,
+			   TX_NO_TIME_SLICE, TX_AUTO_START);
 	if (ret != TX_SUCCESS) {
 		uart_send("Failed to create Sensor thread!\r\n");
 		return ret;
 	}
 
 	ret = tx_thread_create(&threads[1].thread,
-				       "Can TX Thread",
-				       CAN_Tx_Thread_Entry,
-				       1,
-				       threads[1].stack,
-				       sizeof(threads[1].stack),
-				       10, 10,
-					   TX_NO_TIME_SLICE, TX_AUTO_START);
+		               "Can TX Thread",
+		               CAN_Tx_Thread_Entry,
+		               1,
+		               threads[1].stack,
+		               sizeof(threads[1].stack),
+		               10, 10,
+			   TX_NO_TIME_SLICE, TX_AUTO_START);
 	if (ret != TX_SUCCESS) {
 		uart_send("Failed to create CAN TX thread!\r\n");
 		return ret;
@@ -292,7 +310,7 @@ static UINT App_CreateThreads(void)
 	if (ret != TX_SUCCESS) {
 		uart_send("Failed to create Heartbeat thread!\r\n");
 		return ret;
-	}
+	} */
 
 	ret = tx_thread_create(&threads[6].thread,
 				       "ultrasonic Thread",
@@ -304,6 +322,32 @@ static UINT App_CreateThreads(void)
 					   TX_NO_TIME_SLICE, TX_AUTO_START);
 	if (ret != TX_SUCCESS) {
 		uart_send("Failed to create ultrasonic thread!\r\n");
+		return ret;
+	}
+
+	ret = tx_thread_create(&threads[7].thread,
+				       "OLED Thread",
+				       oled_thread_entry,
+				       0,
+				       threads[7].mini_stack,
+				       sizeof(threads[7].mini_stack),
+				       12, 12,
+					   TX_NO_TIME_SLICE, TX_AUTO_START);
+	if (ret != TX_SUCCESS) {
+		uart_send("Failed to create OLED thread!\r\n");
+		return ret;
+	}
+
+	ret = tx_thread_create(&threads[8].thread,
+				       "Ambient Thread",
+				       ambient_thread_entry,
+				       0,
+				       threads[8].mini_stack,
+				       sizeof(threads[8].mini_stack),
+				       13, 13,
+					   TX_NO_TIME_SLICE, TX_AUTO_START);
+	if (ret != TX_SUCCESS) {
+		uart_send("Failed to create Ambient thread!\r\n");
 		return ret;
 	}
 
