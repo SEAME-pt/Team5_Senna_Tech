@@ -93,6 +93,11 @@ typedef struct {
     ULONG front_distance_cm;
 } t_ultrasonic_data;
 
+// struct for ambient data
+typedef struct {
+    float ambient_light_lux;
+} t_ambient_data;
+
 /* USER CODE END EFP */
 
 /* USER CODE BEGIN 1 */
@@ -107,8 +112,9 @@ Number of threads
 6 -> heartbeat_thread_entry
 7 -> ultrasonic_thread_entry
 8 -> oled_thread_entry
+9 -> ambient_thread_entry
 */
-#define THREAD_COUNT    8
+#define THREAD_COUNT    9
 
 extern t_threads threads[THREAD_COUNT];
 
@@ -116,6 +122,7 @@ extern t_threads threads[THREAD_COUNT];
 extern TX_QUEUE g_tx_data_queue;
 extern TX_QUEUE g_rx_data_queue;
 extern TX_QUEUE g_ultrasonic_data_queue;
+extern TX_QUEUE g_ambient_data_queue;
 
 //MUTEXES
 extern TX_MUTEX g_speed_mutex;
@@ -131,6 +138,7 @@ void motors_thread_entry(ULONG thread_input);
 void heartbeat_thread_entry(ULONG thread_input);
 void ultrasonic_thread_entry(ULONG thread_input);
 void oled_thread_entry(ULONG thread_input);
+void ambient_thread_entry(ULONG thread_input);
 //void sensor_thread_entry(ULONG thread_input);
 //void odometer_thread_entry(ULONG thread_input);
 
