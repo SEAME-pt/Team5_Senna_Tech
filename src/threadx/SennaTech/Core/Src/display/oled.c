@@ -15,7 +15,7 @@ static UINT oled_front_is_close(t_ultrasonic_data *ultrasonic_data)
     oled_read_ultrasonic(ultrasonic_data);
 
     if (ultrasonic_data->front_distance_cm > 0
-        && ultrasonic_data->front_distance_cm <= 5)
+        && ultrasonic_data->front_distance_cm <= 7)
         return (1);
     return (0);
 }
