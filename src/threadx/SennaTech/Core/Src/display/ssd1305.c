@@ -2,11 +2,6 @@
 
 static uint8_t g_buffer[SSD1305_BUF_SIZE];
 
-static void oled_delay_ms(uint32_t ms)
-{
-    tx_thread_sleep(ms);
-}
-
 static void oled_cs_low(void)
 {
     HAL_GPIO_WritePin(GPIOG, GPIO_PIN_12, GPIO_PIN_RESET);
@@ -56,11 +51,11 @@ static void ssd1305_write_data(uint8_t *data, uint16_t len)
 static void ssd1305_reset(void)
 {
     oled_rst_high();
-    oled_delay_ms(10);
+    tx_thread_sleep(10);
     oled_rst_low();
-    oled_delay_ms(10);
+    tx_thread_sleep(10);
     oled_rst_high();
-    oled_delay_ms(100);
+    tx_thread_sleep(100);
 }
 
 void ssd1305_init()
