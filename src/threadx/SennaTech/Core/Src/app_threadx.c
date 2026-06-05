@@ -137,10 +137,10 @@ void MX_ThreadX_Init(void)
 {
   /* USER CODE BEGIN Before_Kernel_Start */
   
-  /* if (MCP2515_Init() != HAL_OK) {
+  if (MCP2515_Init() != HAL_OK) {
 	  uart_send("MCP2515 init failed!\r\n");
 	  Error_Handler();
-  } */
+  }
   
   /* USER CODE END Before_Kernel_Start */
 
@@ -231,7 +231,7 @@ static UINT App_CreateThreads(void)
 {
 	UINT ret;
 
-	/* ret = tx_thread_create(&threads[0].thread,
+	ret = tx_thread_create(&threads[0].thread,
 		               "Sensor Thread",
 		               sensor_thread_entry2,
 		               0,
@@ -307,7 +307,7 @@ static UINT App_CreateThreads(void)
 	if (ret != TX_SUCCESS) {
 		uart_send("Failed to create Heartbeat thread!\r\n");
 		return ret;
-	} */
+	}
 
 	ret = tx_thread_create(&threads[6].thread,
 				       "ultrasonic Thread",
