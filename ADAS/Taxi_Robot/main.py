@@ -1,6 +1,9 @@
 import argparse
 import logging
 
+from track_map import parse_coord, validate_coord
+from robotaxi_mission import RobotaxiMission
+
 logging.basicConfig(level=logging.INFO)
 
 from camera import Camera
@@ -32,6 +35,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("lane",   help="Path to Lane Detection HEF model") # get lane .hef path
     parser.add_argument("object", help="Path to Object Detection HEF model")  # get object .hef path
+    parser.add_argument("--robotaxi", nargs=3, metavar=("CAR", "PICKUP", "DROPOFF"), help="Enable Taxi Robot mode. Format: row,col row,col row,col",)
     parser.add_argument("--remote",     action="store_true", help="Enable remote display streaming")
     parser.add_argument("--no-display", action="store_true", help="Disable display output")
     parser.add_argument("--virtual",    action="store_true", help="Enable virtual mode (no physical CAN commands)")  ## To not move servo motor
