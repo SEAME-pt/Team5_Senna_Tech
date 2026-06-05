@@ -1,5 +1,5 @@
 from collections import deque
-from robotaxi_map import GridPos, is_drivable
+from track_map import GridPos, is_drivable
 
 
 # Four cardinal moves on the map: up, down, left, and right.
