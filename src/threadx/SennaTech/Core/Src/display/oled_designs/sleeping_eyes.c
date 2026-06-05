@@ -39,7 +39,7 @@ void ssd1305_draw_sleep_face(UINT frame)
     ssd1305_draw_thick_hline(70, 20, 28, 1);
 
     /*
-     * Z animation inverted for your OLED orientation:
+     * Z animation inverted
      * each next Z moves visually UP.
      */
     if (phase == 0)
