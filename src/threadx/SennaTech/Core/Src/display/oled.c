@@ -32,7 +32,7 @@ static UINT oled_ambient_is_sleeping(t_ambient_data *ambient_data)
 {
     oled_read_ambient(ambient_data);
 
-    if (ambient_data->ambient_light_lux <= 10.0f)
+    if (ambient_data->ambient_light_lux <= 80.0f)
         return (1);
     return (0);
 }
