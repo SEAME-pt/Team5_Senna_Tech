@@ -68,13 +68,6 @@ HAL_StatusTypeDef MCP2515_SetBitrate(CAN_Bitrate bitrate, MCP_Clock clock)
     MCP2515_WriteByte(MCP_CNF2, 0x90); // CNF2
     MCP2515_WriteByte(MCP_CNF3, 0x02); // CNF3
 
-    // 3) Confere o que ficou gravado
-    uint8_t c1 = MCP2515_ReadByte(MCP_CNF1);
-    uint8_t c2 = MCP2515_ReadByte(MCP_CNF2);
-    uint8_t c3 = MCP2515_ReadByte(MCP_CNF3);
-
-    //log_debug("CNF1=0x%02X CNF2=0x%02X CNF3=0x%02X", c1, c2, c3);
-
     // Se por algum motivo a leitura não bate, a gente ainda mostra
     // mas retorna OK pra você conseguir testar o barramento CAN.
     return HAL_OK;
@@ -153,7 +146,6 @@ HAL_StatusTypeDef MCP2515_ReceiveMessage(CAN_Frame *frame) {
 HAL_StatusTypeDef MCP2515_Init(void)
 {
     uint8_t check_inte;
-    uint8_t check_intf;
     uint8_t final_canstat;
 
     //log_debug("Initializing MCP2515...");
@@ -188,13 +180,7 @@ HAL_StatusTypeDef MCP2515_Init(void)
 
     // Verificação final
     check_inte    = MCP2515_ReadByte(MCP_CANINTE);
-    check_intf    = MCP2515_ReadByte(MCP_CANINTF);
     final_canstat = MCP2515_ReadByte(MCP_CANSTAT);
-
-    /* log_debug(
-        "Final check - CANINTE: 0x%02X, CANINTF: 0x%02X, CANSTAT: 0x%02X",
-        check_inte, check_intf, final_canstat
-    ); */
 
     if (check_inte != 0x01) {
         //log_debug("ERROR: Interrupts not enabled! CANINTE=0x%02X", check_inte);
