@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from track_map import GridPos
-from path import find_path
+from map.track_map import GridPos
+from map.path import find_path
 
 
 class TaxiState(Enum):

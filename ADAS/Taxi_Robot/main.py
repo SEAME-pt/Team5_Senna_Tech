@@ -1,8 +1,8 @@
 import argparse
 import logging
 
-from track_map import parse_coord, validate_coord
-from robotaxi_mission import RobotaxiMission
+from map.track_map import parse_coord, validate_coord
+from decision.robotaxi_mission import RobotaxiMission
 
 logging.basicConfig(level=logging.INFO)
 
@@ -106,15 +106,6 @@ def main():
              Camera(CAM_WIDTH, CAM_HEIGHT, CAM_FPS) as cam, \
              Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, CAM_FPS, mode=display_mode) as display:
 
-            logging.info("=" * 60)
-            logging.info("ADAS Pipeline — pipeline_issue_250")
-            logging.info("  Lane model   : %s", args.lane)
-            logging.info("  Object model : %s", args.object)
-            logging.info("  Resolution   : %dx%d @ %d fps", CAM_WIDTH, CAM_HEIGHT, CAM_FPS)
-            logging.info("  Display mode : %s", display_mode)
-            logging.info("  CAN output   : %s", "virtual (disabled)" if args.virtual else "can0")
-            logging.info("=" * 60)
-
             last_valid_state = None
             # vars to avoid spamming commands when not necessary
             last_sent_throttle = None
@@ -167,9 +158,9 @@ def main():
 
                     # ── ROBOTAXI MISSION ─────────────────────────────────
                     robotaxi.update(current_grid_pos)
-                    
+
                     path = robotaxi.get_path(current_grid_pos)
-                    
+
                     logging.info(
                         "Taxi state: %s | current=%s | goal=%s | path_len=%d",
                         robotaxi.state.name,
@@ -213,7 +204,6 @@ def main():
 
                     if last_valid_state is None or current_state.value != last_valid_state:
                         last_valid_state = current_state.value
-                        logging.info("NEW MODE: %s | throttle=%s", current_state.name, throttle)
 
                     timer.end_stage("Decision")
 
@@ -233,11 +223,6 @@ def main():
                     fps = timer.get_fps()
                     cpu_temp = hw_monitor.read_temp()
                     total_cycle_time = timer.get_loop_duration()
-
-                    logging.info(
-                        "FPS: %.1f | Temp: %.1fC | Cycle: %.1fms | %s",
-                        fps, cpu_temp, total_cycle_time, timer.get_report(),
-                    )
 
             except KeyboardInterrupt:
                 logging.info("Shutting down...")

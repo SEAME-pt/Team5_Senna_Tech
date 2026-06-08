@@ -22,9 +22,6 @@ class Display:
                 f"videoconvert ! queue ! waylandsink sync=false"
             )
             self._process = subprocess.Popen(gst_cmd, stdin=subprocess.PIPE, env=gst_env, shell=True)
-            logging.info("[DISPLAY] Started local display %dx%d @ %dfps", self.width, self.height, self.fps)
-        elif self.mode == "remote":
-            logging.info("[DISPLAY] Started remote display (JPEG stdout)")
         return self
 
     def show(self, frame):
