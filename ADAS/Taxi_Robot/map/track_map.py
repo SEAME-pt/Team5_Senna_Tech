@@ -45,7 +45,7 @@ def is_drivable(pos: GridPos) -> bool:
         return False
     return TRACK_MAP[pos.row][pos.col] in (Cell.ROAD, Cell.STATION)
 
-"""Convert a string into a grid position object."""
+# Convert a string into a grid position object.
 def parse_coord(value: str) -> GridPos:
     try:
         row_str, col_str = value.split(",")
@@ -55,7 +55,7 @@ def parse_coord(value: str) -> GridPos:
             f"Invalid coordinate '{value}'. Expected format: row,col"
         ) from exc
 
-"""Validate that a coordinate is inside the map and on a drivable cell."""
+# Is inside the map and on a drivable cell.
 def validate_coord(name: str, pos: GridPos) -> None:
     if not is_inside(pos):
         raise ValueError(f"{name} {pos} is outside the map")

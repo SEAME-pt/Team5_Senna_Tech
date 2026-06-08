@@ -35,11 +35,38 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("lane",   help="Path to Lane Detection HEF model") # get lane .hef path
     parser.add_argument("object", help="Path to Object Detection HEF model")  # get object .hef path
-    parser.add_argument("--robotaxi", nargs=3, metavar=("CAR", "PICKUP", "DROPOFF"), help="Enable Taxi Robot mode. Format: row,col row,col row,col",)
+
+    parser.add_argument("car_pos", help="Initial car position. Format: row,col")
+    parser.add_argument("pickup", help="Pickup position. Format: row,col")
+    parser.add_argument("dropoff", help="Drop-off position. Format: row,col")
+
     parser.add_argument("--remote",     action="store_true", help="Enable remote display streaming")
     parser.add_argument("--no-display", action="store_true", help="Disable display output")
     parser.add_argument("--virtual",    action="store_true", help="Enable virtual mode (no physical CAN commands)")  ## To not move servo motor
+
     args = parser.parse_args()
+
+    # ── TAXI ROBOT ARGUMENTS VALIDATION ─────────────────────────────────
+    car_pos = parse_coord(args.car_pos)
+    pickup = parse_coord(args.pickup)
+    dropoff = parse_coord(args.dropoff)
+
+    validate_coord("car position", car_pos)
+    validate_coord("pickup", pickup)
+    validate_coord("dropoff", dropoff)
+
+    robotaxi = RobotaxiMission(
+        car_start=car_pos,
+        pickup=pickup,
+        dropoff=dropoff,
+    )
+
+    current_grid_pos = car_pos
+
+    logging.info("Robo Taxi enabled")
+    logging.info("Car start : %s", car_pos)
+    logging.info("Pickup    : %s", pickup)
+    logging.info("Dropoff   : %s", dropoff)
 
     decoder        = YoloSegDecoder(score_threshold=0.25)
     mask_filters   = MaskFilters()
@@ -137,6 +164,19 @@ def main():
                             planner.reset_blind_timer()
                     else:
                         planner.reset_blind_timer()
+
+                    # ── ROBOTAXI MISSION ─────────────────────────────────
+                    robotaxi.update(current_grid_pos)
+                    
+                    path = robotaxi.get_path(current_grid_pos)
+                    
+                    logging.info(
+                        "Taxi state: %s | current=%s | goal=%s | path_len=%d",
+                        robotaxi.state.name,
+                        current_grid_pos,
+                        robotaxi.get_current_goal(),
+                        len(path),
+                    )
 
                     # ── FSM DECISION ─────────────────────────────────────
                     timer.start_stage("Decision")
