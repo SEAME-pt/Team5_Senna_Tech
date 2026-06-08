@@ -11,6 +11,7 @@ from LFA import BEVTransform, SlidingWindowsLaneFitter, draw_lane_overlay
 from decision import VehicleFSM, State, AVOIDANCE_STATES, STATE_THROTTLE, PathPlanner, AdaptiveCruiseControl, PID
 from kuksa_publish import KuksaClient
 from utils import CanSender, Display, HardwareMonitor, Timer
+from localization import ArucoWorker
 
 try:
     from utils import CanSender, Display
@@ -45,6 +46,8 @@ def main():
     bev            = BEVTransform(CAM_WIDTH, CAM_HEIGHT)
     fitter         = SlidingWindowsLaneFitter(cam_height=CAM_HEIGHT)
     kuksa_channel  = KuksaClient()
+    aruco_worker = ArucoWorker(frequency_hz=5)
+    aruco_worker.start()
     checker        = CorridorChecker(bev)
     fsm            = VehicleFSM()
     planner        = PathPlanner(
@@ -98,6 +101,7 @@ def main():
                     rgb = cam.get_frame()
                     if rgb is None:
                         continue
+                    aruco_worker.update_frame(rgb)
                     timer.end_stage("Camera")
 
                     # ── INFERENCE ────────────────────────────────────────
@@ -122,6 +126,8 @@ def main():
                     rgb = detector.draw(rgb, detections)
                     timer.end_stage("Post")
 
+                    # ── ARUCO DETECTIONS ─────────────────────────────────
+                    aruco_detection = aruco_worker.get_detections()
 
                     # ── OBSTACLE TRACKER ─────────────────────────────────
                     obs_info = obs_tracker.update(detections)
@@ -199,6 +205,7 @@ def main():
                 logging.info("Shutting down...")
             finally:
                 cam.stop()
+                aruco_worker.stop()
                 can.close()
 
 
