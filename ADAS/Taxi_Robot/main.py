@@ -1,6 +1,9 @@
 import argparse
 import logging
 
+from map.track_map import parse_coord, validate_coord
+from decision.robotaxi_mission import RobotaxiMission
+
 logging.basicConfig(level=logging.INFO)
 
 from camera import Camera
@@ -33,10 +36,38 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("lane",   help="Path to Lane Detection HEF model") # get lane .hef path
     parser.add_argument("object", help="Path to Object Detection HEF model")  # get object .hef path
+
+    parser.add_argument("car_pos", help="Initial car position. Format: row,col")
+    parser.add_argument("pickup", help="Pickup position. Format: row,col")
+    parser.add_argument("dropoff", help="Drop-off position. Format: row,col")
+
     parser.add_argument("--remote",     action="store_true", help="Enable remote display streaming")
     parser.add_argument("--no-display", action="store_true", help="Disable display output")
     parser.add_argument("--virtual",    action="store_true", help="Enable virtual mode (no physical CAN commands)")  ## To not move servo motor
+
     args = parser.parse_args()
+
+    # ── TAXI ROBOT ARGUMENTS VALIDATION ─────────────────────────────────
+    car_pos = parse_coord(args.car_pos)
+    pickup = parse_coord(args.pickup)
+    dropoff = parse_coord(args.dropoff)
+
+    validate_coord("car position", car_pos)
+    validate_coord("pickup", pickup)
+    validate_coord("dropoff", dropoff)
+
+    robotaxi = RobotaxiMission(
+        car_start=car_pos,
+        pickup=pickup,
+        dropoff=dropoff,
+    )
+
+    current_grid_pos = car_pos
+
+    logging.info("Robo Taxi enabled")
+    logging.info("Car start : %s", car_pos)
+    logging.info("Pickup    : %s", pickup)
+    logging.info("Dropoff   : %s", dropoff)
 
     decoder        = YoloSegDecoder(score_threshold=0.25)
     mask_filters   = MaskFilters()
@@ -77,15 +108,6 @@ def main():
              HailoEngine(args.object, target) as engine_obj, \
              Camera(CAM_WIDTH, CAM_HEIGHT, CAM_FPS) as cam, \
              Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, CAM_FPS, mode=display_mode) as display:
-
-            logging.info("=" * 60)
-            logging.info("ADAS Pipeline — pipeline_issue_250")
-            logging.info("  Lane model   : %s", args.lane)
-            logging.info("  Object model : %s", args.object)
-            logging.info("  Resolution   : %dx%d @ %d fps", CAM_WIDTH, CAM_HEIGHT, CAM_FPS)
-            logging.info("  Display mode : %s", display_mode)
-            logging.info("  CAN output   : %s", "virtual (disabled)" if args.virtual else "can0")
-            logging.info("=" * 60)
 
             last_valid_state = None
             # vars to avoid spamming commands when not necessary
@@ -140,6 +162,19 @@ def main():
                     else:
                         planner.reset_blind_timer()
 
+                    # ── ROBOTAXI MISSION ─────────────────────────────────
+                    robotaxi.update(current_grid_pos)
+
+                    path = robotaxi.get_path(current_grid_pos)
+
+                    logging.info(
+                        "Taxi state: %s | current=%s | goal=%s | path_len=%d",
+                        robotaxi.state.name,
+                        current_grid_pos,
+                        robotaxi.get_current_goal(),
+                        len(path),
+                    )
+
                     # ── FSM DECISION ─────────────────────────────────────
                     timer.start_stage("Decision")
                     current_state = fsm.process(
@@ -175,7 +210,6 @@ def main():
 
                     if last_valid_state is None or current_state.value != last_valid_state:
                         last_valid_state = current_state.value
-                        logging.info("NEW MODE: %s | throttle=%s", current_state.name, throttle)
 
                     timer.end_stage("Decision")
 
@@ -195,11 +229,6 @@ def main():
                     fps = timer.get_fps()
                     cpu_temp = hw_monitor.read_temp()
                     total_cycle_time = timer.get_loop_duration()
-
-                    logging.info(
-                        "FPS: %.1f | Temp: %.1fC | Cycle: %.1fms | %s",
-                        fps, cpu_temp, total_cycle_time, timer.get_report(),
-                    )
 
             except KeyboardInterrupt:
                 logging.info("Shutting down...")
