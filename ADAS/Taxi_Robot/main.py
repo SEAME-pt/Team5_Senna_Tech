@@ -2,6 +2,7 @@ import argparse
 import logging
 
 from map.track_map import parse_coord, validate_coord
+from map.path import print_path_map
 from decision.robotaxi_mission import RobotaxiMission
 
 logging.basicConfig(level=logging.INFO)
@@ -110,6 +111,7 @@ def main():
              Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, CAM_FPS, mode=display_mode) as display:
 
             last_valid_state = None
+            last_route_key = None
             # vars to avoid spamming commands when not necessary
             last_sent_throttle = None
             last_sent_steering = None
@@ -166,15 +168,36 @@ def main():
                     robotaxi.update(current_grid_pos)
 
                     path = robotaxi.get_path(current_grid_pos)
+                    goal = robotaxi.get_current_goal()
 
-                    logging.info(
-                        "Taxi state: %s | current=%s | goal=%s | path_len=%d",
-                        robotaxi.state.name,
-                        current_grid_pos,
-                        robotaxi.get_current_goal(),
+                    route_key = (
+                        robotaxi.state,
+                        current_grid_pos.row,
+                        current_grid_pos.col,
+                        goal.row if goal is not None else None,
+                        goal.col if goal is not None else None,
                         len(path),
                     )
-
+                    
+                    if route_key != last_route_key:
+                        last_route_key = route_key
+                    
+                        print_path_map(
+                            path=path,
+                            current_pos=current_grid_pos,
+                            goal_pos=goal,
+                            pickup=pickup,
+                            dropoff=dropoff,
+                        )
+                    
+                        logging.info(
+                            "Taxi state: %s | current=%s | goal=%s | path_len=%d",
+                            robotaxi.state.name,
+                            current_grid_pos,
+                            goal,
+                            len(path),
+                        )
+                    
                     # ── FSM DECISION ─────────────────────────────────────
                     timer.start_stage("Decision")
                     current_state = fsm.process(
