@@ -36,6 +36,23 @@ TRACK_MAP = [
     [1, 1, 1, 1, 1, 1, 5, 0, 0, 5, 0, 0, 5, 0, 1],  # 18
 ]
 
+ARUCO_ID_BY_POS = {
+    GridPos(17, 14): 0,
+    GridPos(12, 14): 1,
+    GridPos(7, 14): 2,
+    GridPos(2, 14): 3,
+    GridPos(0, 12): 4,
+    GridPos(0, 7): 5,
+    GridPos(0, 3): 6,
+    GridPos(4, 0): 7,
+    GridPos(9, 5): 8,
+    GridPos(14, 3): 9,
+    GridPos(18, 6): 11,
+    GridPos(18, 9): 12,
+    GridPos(15, 8): 13,
+    GridPos(18, 12): 14,
+}
+
 def is_inside(pos: GridPos) -> bool:
     return (
         0 <= pos.row < len(TRACK_MAP)
@@ -46,6 +63,10 @@ def is_drivable(pos: GridPos) -> bool:
     if not is_inside(pos):
         return False
     return TRACK_MAP[pos.row][pos.col] in (Cell.ROAD, Cell.STATION, Cell.ARUCO)
+
+
+def get_aruco_id(pos: GridPos) -> int | None:
+    return ARUCO_ID_BY_POS.get(pos)
 
 # Convert a string into a grid position object.
 def parse_coord(value: str) -> GridPos:

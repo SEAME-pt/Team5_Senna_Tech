@@ -1,7 +1,7 @@
 import argparse
 import logging
 
-from map.track_map import parse_coord, validate_coord
+from map.track_map import get_aruco_id, parse_coord, validate_coord
 from map.path import print_path_map
 from decision.robotaxi_mission import RobotaxiMission
 
@@ -57,10 +57,21 @@ def main():
     validate_coord("pickup", pickup)
     validate_coord("dropoff", dropoff)
 
+    pickup_aruco_id = get_aruco_id(pickup)
+    dropoff_aruco_id = get_aruco_id(dropoff)
+
+    if pickup_aruco_id is None:
+        raise ValueError(f"pickup {pickup} must be on an ArUco marker cell")
+
+    if dropoff_aruco_id is None:
+        raise ValueError(f"dropoff {dropoff} must be on an ArUco marker cell")
+
     robotaxi = RobotaxiMission(
         car_start=car_pos,
         pickup=pickup,
         dropoff=dropoff,
+        pickup_aruco_id=pickup_aruco_id,
+        dropoff_aruco_id=dropoff_aruco_id,
     )
 
     current_grid_pos = car_pos
@@ -112,6 +123,7 @@ def main():
 
             last_valid_state = None
             last_route_key = None
+            last_mission_state = robotaxi.state
             # vars to avoid spamming commands when not necessary
             last_sent_throttle = None
             last_sent_steering = None
@@ -154,6 +166,8 @@ def main():
                     aruco_detection = aruco_worker.get_detections()
                     logging.info(aruco_detection)
 
+                    aruco_id = aruco_detection["id"] if aruco_detection else None
+
                     # ── OBSTACLE TRACKER ─────────────────────────────────
                     obs_info = obs_tracker.update(detections)
 
@@ -166,7 +180,11 @@ def main():
                         planner.reset_blind_timer()
 
                     # ── ROBOTAXI MISSION ─────────────────────────────────
-                    robotaxi.update(current_grid_pos)
+                    previous_mission_state = robotaxi.state
+                    robotaxi.update(aruco_id)
+
+                    if robotaxi.state != previous_mission_state:
+                        last_route_key = None
 
                     path = robotaxi.get_path(current_grid_pos)
                     goal = robotaxi.get_current_goal()
