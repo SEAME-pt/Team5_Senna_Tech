@@ -95,7 +95,7 @@ class ArucoWorker(threading.Thread):
             time.sleep(self.period)
 
     def current_grid(self, detection, current_grid_position):
-        if detection is None:
+        if not detection:
             return current_grid_position
 
         marker_id = detection.get("id")
@@ -104,8 +104,7 @@ class ArucoWorker(threading.Thread):
         if marker_id is None or distance is None:
             return current_grid_position
 
-        # Só considera válido se estiver suficientemente perto
-        if distance > 0.40:
+        if distance > 0.50:
             return current_grid_position
 
-        return self.ARUCO_GRID_MAP.get(marker_id)
+        return self.ARUCO_GRID_MAP.get(marker_id, current_grid_position)

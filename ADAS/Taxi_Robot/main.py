@@ -150,7 +150,8 @@ def main():
 
                     # ── ARUCO DETECTIONS ─────────────────────────────────
                     aruco_detection = aruco_worker.get_detections()
-                    current_grid_pos = aruco_worker.current_grid(aruco_detection)
+                    print(aruco_detection)
+                    current_grid_pos = aruco_worker.current_grid(aruco_detection, current_grid_pos)
 
                     # ── OBSTACLE TRACKER ─────────────────────────────────
                     obs_info = obs_tracker.update(detections)
