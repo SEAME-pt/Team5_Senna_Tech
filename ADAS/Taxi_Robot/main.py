@@ -76,7 +76,7 @@ def main():
 
     current_grid_pos = car_pos
 
-    logging.info("Robo Taxi enabled")
+    logging.info("Taxi Robot enabled")
     logging.info("Car start : %s", car_pos)
     logging.info("Pickup    : %s", pickup)
     logging.info("Dropoff   : %s", dropoff)
