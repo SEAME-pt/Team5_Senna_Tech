@@ -163,10 +163,23 @@ def main():
                     timer.end_stage("Post")
 
                     # ── ARUCO DETECTIONS ─────────────────────────────────
-                    aruco_detection = aruco_worker.get_detections()
-                    logging.info(aruco_detection)
+                    aruco_detection = aruco_worker.get_detection()
 
-                    aruco_id = aruco_detection["id"] if aruco_detection else None
+                    aruco_id = aruco_detection.get("id")
+                    aruco_distance_m = aruco_detection.get("distance_m")
+                    aruco_distance_cm = aruco_detection.get("distance_cm")
+
+                    if aruco_id is not None:
+                        logging.info(
+                            "ArUco detected | id=%s | distance=%.1f cm",
+                            aruco_id,
+                            aruco_distance_cm,
+                        )
+
+                    current_grid_pos = aruco_worker.current_grid(
+                        current_grid_pos,
+                        max_distance_m=0.50,
+                    )
 
                     # ── OBSTACLE TRACKER ─────────────────────────────────
                     obs_info = obs_tracker.update(detections)
@@ -181,11 +194,12 @@ def main():
 
                     # ── ROBOTAXI MISSION ─────────────────────────────────
                     previous_mission_state = robotaxi.state
-                    robotaxi.update(aruco_id)
 
+                    robotaxi.update(aruco_id, aruco_distance_m)
+                    
                     if robotaxi.state != previous_mission_state:
                         last_route_key = None
-
+                    
                     path = robotaxi.get_path(current_grid_pos)
                     goal = robotaxi.get_current_goal()
 
@@ -197,10 +211,10 @@ def main():
                         goal.col if goal is not None else None,
                         len(path),
                     )
-                    
+
                     if route_key != last_route_key:
                         last_route_key = route_key
-                    
+
                         print_path_map(
                             path=path,
                             current_pos=current_grid_pos,
@@ -208,7 +222,7 @@ def main():
                             pickup=pickup,
                             dropoff=dropoff,
                         )
-                    
+
                         logging.info(
                             "Taxi state: %s | current=%s | goal=%s | path_len=%d",
                             robotaxi.state.name,
@@ -216,7 +230,7 @@ def main():
                             goal,
                             len(path),
                         )
-                    
+
                     # ── FSM DECISION ─────────────────────────────────────
                     timer.start_stage("Decision")
                     current_state = fsm.process(
@@ -241,9 +255,20 @@ def main():
                     throttle = STATE_THROTTLE.get(current_state, 0)
                     if current_state == State.FOLLOW:
                         throttle = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
-
+                    
                     # ── CAN ──────────────────────────────────────────────
                     steering = round(pid_return * -1, 2)
+                    
+                    if robotaxi.should_stop():
+                        throttle = 0
+                        steering = 0
+                    
+                        logging.info(
+                            "ROBOTAXI STOP | state=%s | remaining=%.1fs",
+                            robotaxi.state.name,
+                            robotaxi.get_wait_remaining(),
+                        )
+                    
                     if not args.virtual:
                         if throttle != last_sent_throttle or steering != last_sent_steering:
                             can.send_drive_command(0x002, throttle, steering)

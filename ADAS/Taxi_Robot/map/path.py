@@ -1,6 +1,5 @@
 from collections import deque
-from map.track_map import GridPos, is_drivable, TRACK_MAP
-
+from map.track_map import GridPos, is_drivable, TRACK_MAP, Cell
 
 # Four cardinal moves on the map: up, down, left, and right.
 DIRECTIONS = [
@@ -74,6 +73,7 @@ def print_path_map(
     print("  # = blocked")
     print("  . = road")
     print("  * = path")
+    print("  A = ArUco marker")
     print("  C = car")
     print("  G = current goal")
     print("  P = pickup")
@@ -119,8 +119,10 @@ def print_path_map(
                 line += "D "
             elif is_path:
                 line += "* "
-            elif cell == 0:
+            elif cell == Cell.ROAD:
                 line += ". "
+            elif cell == Cell.ARUCO:
+                line += "A "
             else:
                 line += "# "
 
