@@ -24,7 +24,7 @@ class RobotaxiMission:
     pickup_aruco_id: int
     dropoff_aruco_id: int
     state: TaxiState = TaxiState.GOING_TO_PICKUP
-    stop_distance_m: float = 0.15
+    stop_distance_m: float = 0.50
     stop_duration_s: float = 5.0
     stop_started_at: float | None = None
 
