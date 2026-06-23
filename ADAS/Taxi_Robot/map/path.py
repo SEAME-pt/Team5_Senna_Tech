@@ -74,6 +74,7 @@ def print_path_map(
     print("  . = road")
     print("  * = path")
     print("  A = ArUco marker")
+    print("  R = crossing")
     print("  C = car")
     print("  G = current goal")
     print("  P = pickup")
@@ -121,6 +122,8 @@ def print_path_map(
                 line += "* "
             elif cell == Cell.ROAD:
                 line += ". "
+            elif cell == Cell.CROSSING:
+                line += "R "
             elif cell == Cell.ARUCO:
                 line += "A "
             else:
