@@ -1,10 +1,11 @@
 import argparse
 import logging
 
-from map.track_map import {
+from map.track_map import (
     get_aruco_id, parse_coord, validate_coord, 
     PARKING_ARUCO_ID, PARKING_POS,
-}
+)
+
 from map.path import print_path_map
 from decision.robotaxi_mission import RobotaxiMission, TaxiManeuver
 
@@ -34,7 +35,6 @@ except ImportError:
 
 CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 15
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -208,22 +208,29 @@ def main():
                     previous_mission_state = robotaxi.state
                     robotaxi.update(aruco_id, aruco_distance_m)
 
-                    taxi_maneuver = robotaxi.get_aruco_11_maneuver(
-                        aruco_id,
-                        aruco_distance_m,
-                    )
+#                    taxi_maneuver = robotaxi.get_aruco_11_maneuver(
+#                        aruco_id,
+#                        aruco_distance_m,
+#                    )
+                    taxi_maneuver = robotaxi.get_taxi_maneuver(aruco_id, aruco_distance_m)
+                    
+                    if taxi_maneuver == TaxiManeuver.PARKING_OUT_LEFT:
+                        fsm.signal_robotaxi_state(State.PARKING_OUT_LEFT, "Exiting parking zone: left bias")
+                    elif taxi_maneuver == TaxiManeuver.PARKING_OUT_RIGHT:
+                        fsm.signal_robotaxi_state(State.PARKING_OUT_RIGHT, "Exiting parking zone: right bias")
+                    elif taxi_maneuver == TaxiManeuver.CROSS_LEFT:
+                        fsm.signal_robotaxi_state(State.CROSS_LEFT, "ArUco 13: Executing cross left")
+                    elif taxi_maneuver == TaxiManeuver.CROSS_RIGHT:
+                        fsm.signal_robotaxi_state(State.CROSS_RIGHT, "ArUco 11 detected: leaving crossing at 50 cm")
+                    elif taxi_maneuver == TaxiManeuver.PARKING_IN_LEFT:
+                        fsm.signal_robotaxi_state(State.PARKING_IN_LEFT, "ArUco 11 detected: entering parking at 50 cm")
+                    elif taxi_maneuver == TaxiManeuver.PARKING_IN_RIGHT:
+                        fsm.signal_robotaxi_state(State.PARKING_IN_RIGHT, "ArUco 12: Approaching parking from right")
 
-                    if taxi_maneuver == TaxiManeuver.ENTER_STREET_LEFT:
-                        fsm.signal_robotaxi_state(
-                            State.ENTER_STREET_LEFT,
-                            "ArUco 11 detected: exiting parking at 70 cm",
-                        )
-
-                    elif taxi_maneuver == TaxiManeuver.ENTER_PARKING_LEFT:
-                        fsm.signal_robotaxi_state(
-                            State.ENTER_PARKING_LEFT,
-                            "ArUco 11 detected: entering parking at 50 cm",
-                        )
+                    #aruco its not detected anymore go to retuning state (cte = 0.00)
+                    elif fsm.state in TAXIROBOT_STATES and aruco_id is None:
+                        fsm.state = State.RETURNING
+                        planner.reset()
 
                     if robotaxi.state != previous_mission_state:
                         last_route_key = None

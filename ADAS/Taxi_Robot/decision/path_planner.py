@@ -39,6 +39,14 @@ class PathPlanner:
         self._cte_at_return: float = 0.0
         self._desvio_side:   str   = "left"
 
+        # calibration offsets for robotaxi (need to be tested!!!!!)
+        self.offset_parking_out_left  = -0.30  
+        self.offset_parking_out_right = +0.30  
+        self.offset_cross_left        = -0.90  # leaving the intersection (ArUco 13)
+        self.offset_cross_right       = +0.90  # leaving the intersection (ArUco 11)
+        self.offset_parking_in_left   = -0.65  # entering the intersection (ArUco 11)
+        self.offset_parking_in_right  = +0.65  # entering the intersection (ArUco 12)
+
     def calculate_target_cte(
         self,
         current_state,
@@ -52,7 +60,7 @@ class PathPlanner:
         """
         from decision.decision_fsm import State
 
-        # ── Active deviation ──────────────────────────────────────────
+        # ── Active deviation for obstacle avoidance ──────────────────────────────────────────
         if current_state in (State.PREPARE_AVOID, State.AVOIDING, State.BLIND_WAIT):
             self._returning = False
             # Move to the opposite side of the obstacle
@@ -62,6 +70,31 @@ class PathPlanner:
             else:
                 self._desvio_side = "right"
                 return +self.lane_offset        # CTE positive = turn right
+            
+        # ── Robotaxi Maneuver Routing ────────────────────────────────────────
+        if current_state == State.PARKING_OUT_LEFT:
+            self._returning = False; self._desvio_side = "left"
+            return self.offset_parking_out_left
+
+        if current_state == State.PARKING_OUT_RIGHT:
+            self._returning = False; self._desvio_side = "right"
+            return self.offset_parking_out_right
+
+        if current_state == State.CROSS_LEFT:
+            self._returning = False; self._desvio_side = "left"
+            return self.offset_cross_left
+
+        if current_state == State.CROSS_RIGHT:
+            self._returning = False; self._desvio_side = "right"
+            return self.offset_cross_right
+
+        if current_state == State.PARKING_IN_LEFT:
+            self._returning = False; self._desvio_side = "left"
+            return self.offset_parking_in_left
+
+        if current_state == State.PARKING_IN_RIGHT:
+            self._returning = False; self._desvio_side = "right"
+            return self.offset_parking_in_right
 
         # ── Interpolated return ────────────────────────────────────
         if current_state == State.RETURNING:

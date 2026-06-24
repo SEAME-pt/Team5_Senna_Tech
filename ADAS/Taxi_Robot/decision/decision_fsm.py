@@ -18,19 +18,27 @@ class State(Enum):
     BLIND_WAIT   = 13
     RETURNING    = 14
 
-    PARKING_STATION = 30
-    PARKING_RIGHT = 31
-    PARKING_LEFT = 32
-    ENTER_STREET_RIGHT = 33
-    ENTER_STREET_LEFT = 34
-    ENTER_PARKING_RIGHT = 35
-    ENTER_PARKING_LEFT = 36
+    PARKING_OUT_LEFT    = 30
+    PARKING_OUT_RIGHT   = 31
+    CROSS_LEFT          = 32
+    CROSS_RIGHT         = 33
+    PARKING_IN_LEFT     = 34
+    PARKING_IN_RIGHT    = 35
 
 AVOIDANCE_STATES = (
     State.PREPARE_AVOID,
     State.AVOIDING,
     State.BLIND_WAIT,
     State.RETURNING,
+)
+
+TAXIROBOT_STATES = (
+    State.PARKING_OUT_LEFT,
+    State.PARKING_OUT_RIGHT,
+    State.CROSS_LEFT,
+    State.CROSS_RIGHT,
+    State.PARKING_IN_LEFT,
+    State.PARKING_IN_RIGHT,
 )
 
 STATE_THROTTLE = {
@@ -44,6 +52,12 @@ STATE_THROTTLE = {
     State.AVOIDING:      5,
     State.BLIND_WAIT:    5,
     State.RETURNING:     5,
+    State.PARKING_OUT_LEFT:  4,
+    State.PARKING_OUT_RIGHT: 4,
+    State.CROSS_LEFT:        5,
+    State.CROSS_RIGHT:       5,
+    State.PARKING_IN_LEFT:   5,
+    State.PARKING_IN_RIGHT:  5,
 }
 
 class StopReason(Enum):
@@ -305,6 +319,7 @@ class VehicleFSM:
 
         self._transition(new_state, reason)
         return True
+
 
     def _transition(self, new_state: State, reason: str):
         if self.state != new_state:

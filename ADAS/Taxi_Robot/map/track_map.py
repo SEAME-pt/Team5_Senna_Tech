@@ -50,12 +50,11 @@ ARUCO_ID_BY_POS = {
     GridPos(4, 0): 7,
     GridPos(9, 5): 8,
     GridPos(14, 3): 9,
-    GridPos(18, 6): 11,     # ENTER_PARKING_LEFT & ENTER_STREET_LEFT
-    GridPos(18, 9): 12,     # ENTER_PARKING_RIGHT
-    GridPos(18, 11): 13,    # ENTER_STREET_RIGHT
-    GridPos(10, 8): 14,     # PARKING_STATION & PARKING_RIGHT & PARKING_LEFT
+    GridPos(18, 6): 11,     # CROSS_RIGHT & PARKING_IN_LEFT
+    GridPos(18, 9): 12,     # PARKING_IN_RIGHT
+    GridPos(18, 11): 13,    # CROSS_LEFT
+    GridPos(10, 8): 14,     # PARKING_STATION & PARKING_OUT_LEFT & PARKING_OUT_LEFT
 }
-
 
 ARUCO_POS_BY_ID = {
     aruco_id: pos
