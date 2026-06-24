@@ -38,6 +38,15 @@ STATE_THROTTLE = {
     State.RETURNING:     5,
 }
 
+TAXIROBOT_STATES = (
+    State.PARKING_RIGHT,
+    State.PARKING_LEFT,
+    State.ENTER_STREET_RIGHT,
+    State.ENTER_STREET_LEFT,
+    State.ENTER_PARKING_RIGHT,
+    State.ENTER_PARKING_LEFT,
+)
+
 class StopReason(Enum):
     NONE      = 0
     RED_LIGHT = 1
