@@ -101,7 +101,7 @@ def main():
     bev            = BEVTransform(CAM_WIDTH, CAM_HEIGHT)
     fitter         = SlidingWindowsLaneFitter(cam_height=CAM_HEIGHT)
     kuksa_channel  = KuksaClient()
-    aruco_worker = ArucoWorker(frequency_hz=5)
+    aruco_worker   = ArucoWorker(frequency_hz=5)
     aruco_worker.start()
     checker        = CorridorChecker(bev)
     fsm            = VehicleFSM()
@@ -119,6 +119,25 @@ def main():
     adaptive_cruise = AdaptiveCruiseControl()
     hw_monitor      = HardwareMonitor()
     timer           = Timer()
+
+    startup_maneuver = robotaxi.get_initial_parking_maneuver()
+    if startup_maneuver == TaxiManeuver.PARKING_LEFT:
+        fsm.signal_robotaxi_state(
+            State.PARKING_LEFT,
+            "Startup path leaves parking through ArUco 11",
+        )
+
+    elif startup_maneuver == TaxiManeuver.PARKING_RIGHT:
+        fsm.signal_robotaxi_state(
+            State.PARKING_RIGHT,
+            "Startup path leaves parking through ArUco 13",
+        )
+    
+    planner = PathPlanner(
+        lane_offset=0.80,
+        blind_wait_time=2.5,
+        return_duration_s=1.5,
+    )
 
     if args.remote:
         display_mode = "remote"
