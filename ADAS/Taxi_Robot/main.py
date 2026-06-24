@@ -12,7 +12,7 @@ from inference import HailoEngine, VDevice
 from post_processing import YoloSegDecoder, MaskFilters, ObjectDetector
 from object import CorridorChecker, build_environment_state, ObstacleTracker
 from LFA import BEVTransform, SlidingWindowsLaneFitter, draw_lane_overlay
-from decision import VehicleFSM, State, AVOIDANCE_STATES, STATE_THROTTLE, PathPlanner, AdaptiveCruiseControl, PID
+from decision import VehicleFSM, State, AVOIDANCE_STATES, STATE_THROTTLE, TAXIROBOT_STATES, PathPlanner, AdaptiveCruiseControl, PID
 from kuksa_publish import KuksaClient
 from utils import CanSender, Display, HardwareMonitor, Timer
 from localization import ArucoWorker
