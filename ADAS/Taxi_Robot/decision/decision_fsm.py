@@ -18,6 +18,14 @@ class State(Enum):
     BLIND_WAIT   = 13
     RETURNING    = 14
 
+    PARKING_STATION = 30
+    PARKING_RIGHT = 31
+    PARKING_LEFT = 32
+    ENTER_STREET_RIGHT = 33
+    ENTER_STREET_LEFT = 34
+    ENTER_PARKING_RIGHT = 35
+    ENTER_PARKING_LEFT = 36
+
 AVOIDANCE_STATES = (
     State.PREPARE_AVOID,
     State.AVOIDING,
@@ -37,16 +45,6 @@ STATE_THROTTLE = {
     State.BLIND_WAIT:    5,
     State.RETURNING:     5,
 }
-
-TAXIROBOT_STATES = (
-    State.PARKING_STATION,
-    State.PARKING_RIGHT,
-    State.PARKING_LEFT,
-    State.ENTER_STREET_RIGHT,
-    State.ENTER_STREET_LEFT,
-    State.ENTER_PARKING_RIGHT,
-    State.ENTER_PARKING_LEFT,
-)
 
 class StopReason(Enum):
     NONE      = 0
@@ -286,6 +284,27 @@ class VehicleFSM:
                     cond["follow"] = True
 
         return cond
+
+    """
+    Change to a Robotaxi maneuver state.
+    Emergency, avoidance and stop situations keep priority.
+    """
+    def signal_robotaxi_state(self, new_state: State, reason: str) -> bool:
+
+        if new_state not in TAXIROBOT_STATES:
+            return False
+
+        if self.state == State.EMERGENCY:
+            return False
+
+        if self.state == State.STOP:
+            return False
+
+        if self.state in AVOIDANCE_STATES:
+            return False
+
+        self._transition(new_state, reason)
+        return True
 
     def _transition(self, new_state: State, reason: str):
         if self.state != new_state:

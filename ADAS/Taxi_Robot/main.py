@@ -6,7 +6,7 @@ from map.track_map import {
     PARKING_ARUCO_ID, PARKING_POS,
 }
 from map.path import print_path_map
-from decision.robotaxi_mission import RobotaxiMission
+from decision.robotaxi_mission import RobotaxiMission, TaxiManeuver
 
 logging.basicConfig(level=logging.INFO)
 
@@ -54,29 +54,29 @@ def main():
     # ── TAXI ROBOT ARGUMENTS VALIDATION ─────────────────────────────────
     pickup = parse_coord(args.pickup)
     dropoff = parse_coord(args.dropoff)
-    
+
     validate_coord("pickup", pickup)
     validate_coord("dropoff", dropoff)
-    
+
     pickup_aruco_id = get_aruco_id(pickup)
     dropoff_aruco_id = get_aruco_id(dropoff)
-    
+
     if pickup_aruco_id is None:
         raise ValueError(
             f"pickup {pickup} must be on an ArUco marker cell"
         )
-    
+
     if dropoff_aruco_id is None:
         raise ValueError(
             f"dropoff {dropoff} must be on an ArUco marker cell"
         )
-    
+
     if pickup == PARKING_POS:
         raise ValueError("pickup cannot be the parking position")
-    
+
     if dropoff == PARKING_POS:
         raise ValueError("dropoff cannot be the parking position")
-    
+
     robotaxi = RobotaxiMission(
         parking=PARKING_POS,
         pickup=pickup,
@@ -86,12 +86,12 @@ def main():
         dropoff_aruco_id=dropoff_aruco_id,
     )
 
-current_grid_pos = PARKING_POS
+    current_grid_pos = PARKING_POS
 
-logging.info("Robotaxi enabled")
-logging.info("Parking    : %s", PARKING_POS)
-logging.info("Pickup     : %s", pickup)
-logging.info("Dropoff    : %s", dropoff)
+    logging.info("Robotaxi enabled")
+    logging.info("Parking    : %s", PARKING_POS)
+    logging.info("Pickup     : %s", pickup)
+    logging.info("Dropoff    : %s", dropoff)
 
     decoder        = YoloSegDecoder(score_threshold=0.25)
     mask_filters   = MaskFilters()
@@ -206,12 +206,28 @@ logging.info("Dropoff    : %s", dropoff)
 
                     # ── ROBOTAXI MISSION ─────────────────────────────────
                     previous_mission_state = robotaxi.state
-
                     robotaxi.update(aruco_id, aruco_distance_m)
-                    
+
+                    taxi_maneuver = robotaxi.get_aruco_11_maneuver(
+                        aruco_id,
+                        aruco_distance_m,
+                    )
+
+                    if taxi_maneuver == TaxiManeuver.ENTER_STREET_LEFT:
+                        fsm.signal_robotaxi_state(
+                            State.ENTER_STREET_LEFT,
+                            "ArUco 11 detected: exiting parking at 70 cm",
+                        )
+
+                    elif taxi_maneuver == TaxiManeuver.ENTER_PARKING_LEFT:
+                        fsm.signal_robotaxi_state(
+                            State.ENTER_PARKING_LEFT,
+                            "ArUco 11 detected: entering parking at 50 cm",
+                        )
+
                     if robotaxi.state != previous_mission_state:
                         last_route_key = None
-                    
+
                     path = robotaxi.get_path(current_grid_pos)
                     goal = robotaxi.get_current_goal()
 
