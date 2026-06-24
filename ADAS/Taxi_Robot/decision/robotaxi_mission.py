@@ -92,6 +92,10 @@ class RobotaxiMission:
 
         return find_path(current_pos, goal)
 
+    """
+    This method advance the mission state, is called every loop iteration with the closest
+    detected ArUco marker and its estimated distance in meters.
+    """
     def update(
         self,
         detected_aruco_id: int | None,
@@ -99,6 +103,7 @@ class RobotaxiMission:
     ) -> None:
         now = time.monotonic()
 
+        # Drive toward the pickup point.
         if self.state == TaxiState.GOING_TO_PICKUP:
             if self._target_reached(
                 detected_aruco_id,
@@ -109,12 +114,14 @@ class RobotaxiMission:
                 self.stop_started_at = now
                 print("Pickup reached. Stopping for 5 seconds.")
 
+        # Remain stopped at pickup until the waiting time ends.
         elif self.state == TaxiState.WAITING_AT_PICKUP:
             if self._stop_finished(now):
                 self.state = TaxiState.GOING_TO_DROPOFF
                 self.stop_started_at = None
                 print("Pickup stop complete. Going to dropoff.")
 
+        # Drive toward the dropoff point.
         elif self.state == TaxiState.GOING_TO_DROPOFF:
             if self._target_reached(
                 detected_aruco_id,
@@ -125,12 +132,14 @@ class RobotaxiMission:
                 self.stop_started_at = now
                 print("Dropoff reached. Stopping for 5 seconds.")
 
+        # Remain stopped at dropoff until the waiting time ends.
         elif self.state == TaxiState.WAITING_AT_DROPOFF:
             if self._stop_finished(now):
                 self.state = TaxiState.RETURNING_TO_PARKING
                 self.stop_started_at = None
                 print("Dropoff stop complete. Returning to parking.")
 
+        # Drive toward the parking point.
         elif self.state == TaxiState.RETURNING_TO_PARKING:
             if self._target_reached(
                 detected_aruco_id,
@@ -140,18 +149,17 @@ class RobotaxiMission:
                 self.state = TaxiState.COMPLETE
                 print("Parking reached. Robotaxi mission complete.")
 
+    """
+    ArUco 11 has two meanings:
+    - Leaving parking: at <= 70 cm, enter the street on the left.
+    - Outside parking: at <= 50 cm, enter parking only when
+      the mission is returning to parking.
+    """
     def get_aruco_11_maneuver(
         self,
         detected_aruco_id: int | None,
         detected_distance_m: float | None,
     ) -> TaxiManeuver:
-        """
-        ArUco 11 has two meanings:
-
-        - Leaving parking: at <= 70 cm, enter the street on the left.
-        - Outside parking: at <= 50 cm, enter parking only when
-          the mission is returning to parking.
-        """
 
         if detected_aruco_id != 11:
             self.aruco_11_armed = True
