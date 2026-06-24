@@ -27,7 +27,7 @@ TRACK_MAP = [
     [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5],  # 7
     [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],  # 8
     [1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0],  # 9
-    [1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0],  # 10
+    [1, 1, 1, 1, 1, 0, 1, 1, 2, 0, 1, 1, 1, 1, 0],  # 10
     [1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0],  # 11
     [1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 5],  # 12
     [1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0],  # 13
@@ -50,10 +50,10 @@ ARUCO_ID_BY_POS = {
     GridPos(4, 0): 7,
     GridPos(9, 5): 8,
     GridPos(14, 3): 9,
-    GridPos(18, 6): 11,
-    GridPos(18, 9): 12,
-    #GridPos(15, 8): 13,
-    GridPos(18, 11): 14,
+    GridPos(18, 6): 11,     # ENTER_PARKING_LEFT & ENTER_STREET_LEFT
+    GridPos(18, 9): 12,     # ENTER_PARKING_RIGHT
+    GridPos(18, 11): 13,    # ENTER_STREET_RIGHT
+    GridPos(10, 8): 14,     # PARKING_STATION & PARKING_RIGHT & PARKING_LEFT
 }
 
 
