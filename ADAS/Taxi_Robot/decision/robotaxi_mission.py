@@ -12,19 +12,21 @@ class TaxiState(Enum):
     WAITING_AT_PICKUP = auto()
     GOING_TO_DROPOFF = auto()
     WAITING_AT_DROPOFF = auto()
+    RETURNING_TO_PARKING = auto()
     COMPLETE = auto()
     FAULT = auto()
 
 
 @dataclass
 class RobotaxiMission:
-    car_start: GridPos
+    parking: GridPos
     pickup: GridPos
     dropoff: GridPos
+    parking_aruco_id: int
     pickup_aruco_id: int
     dropoff_aruco_id: int
     state: TaxiState = TaxiState.GOING_TO_PICKUP
-    stop_distance_m: float = 0.50
+    stop_distance_m: float = 0.40
     stop_duration_s: float = 5.0
     stop_started_at: float | None = None
 
@@ -40,6 +42,9 @@ class RobotaxiMission:
             TaxiState.WAITING_AT_DROPOFF,
         ):
             return self.dropoff
+
+        if self.state == TaxiState.RETURNING_TO_PARKING:
+            return self.parking
 
         return None
 
@@ -86,9 +91,18 @@ class RobotaxiMission:
 
         elif self.state == TaxiState.WAITING_AT_DROPOFF:
             if self._stop_finished(now):
-                self.state = TaxiState.COMPLETE
+                self.state = TaxiState.RETURNING_TO_PARKING
                 self.stop_started_at = None
-                print("Dropoff complete. Mission finished.")
+                print("Dropoff stop complete. Returning to parking.")
+
+        elif self.state == TaxiState.RETURNING_TO_PARKING:
+            if self._target_reached(
+                detected_aruco_id,
+                detected_distance_m,
+                self.parking_aruco_id,
+            ):
+                self.state = TaxiState.COMPLETE
+                print("Parking reached. Robotaxi mission complete.")
 
     def _target_reached(
         self,

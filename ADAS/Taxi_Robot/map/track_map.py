@@ -62,6 +62,9 @@ ARUCO_POS_BY_ID = {
     for pos, aruco_id in ARUCO_ID_BY_POS.items()
 }
 
+PARKING_POS = GridPos(10, 8)
+PARKING_ARUCO_ID = ARUCO_ID_BY_POS[PARKING_POS]
+
 
 def get_grid_pos_from_aruco_id(aruco_id: int) -> GridPos | None:
     return ARUCO_POS_BY_ID.get(aruco_id)
@@ -90,10 +93,7 @@ def is_drivable(pos: GridPos) -> bool:
 
 
 def is_aruco_cell(pos: GridPos) -> bool:
-    if not is_inside(pos):
-        return False
-
-    return TRACK_MAP[pos.row][pos.col] == Cell.ARUCO
+    return get_aruco_id(pos) is not None
 
 
 def parse_coord(value: str) -> GridPos:

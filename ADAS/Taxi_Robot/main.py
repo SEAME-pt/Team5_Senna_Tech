@@ -1,7 +1,10 @@
 import argparse
 import logging
 
-from map.track_map import get_aruco_id, parse_coord, validate_coord
+from map.track_map import {
+    get_aruco_id, parse_coord, validate_coord, 
+    PARKING_ARUCO_ID, PARKING_POS,
+}
 from map.path import print_path_map
 from decision.robotaxi_mission import RobotaxiMission
 
@@ -35,10 +38,10 @@ DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
 
 def main():
     parser = argparse.ArgumentParser()
+
     parser.add_argument("lane",   help="Path to Lane Detection HEF model") # get lane .hef path
     parser.add_argument("object", help="Path to Object Detection HEF model")  # get object .hef path
 
-    parser.add_argument("car_pos", help="Initial car position. Format: row,col")
     parser.add_argument("pickup", help="Pickup position. Format: row,col")
     parser.add_argument("dropoff", help="Drop-off position. Format: row,col")
 
@@ -49,37 +52,46 @@ def main():
     args = parser.parse_args()
 
     # ── TAXI ROBOT ARGUMENTS VALIDATION ─────────────────────────────────
-    car_pos = parse_coord(args.car_pos)
     pickup = parse_coord(args.pickup)
     dropoff = parse_coord(args.dropoff)
-
-    validate_coord("car position", car_pos)
+    
     validate_coord("pickup", pickup)
     validate_coord("dropoff", dropoff)
-
+    
     pickup_aruco_id = get_aruco_id(pickup)
     dropoff_aruco_id = get_aruco_id(dropoff)
-
+    
     if pickup_aruco_id is None:
-        raise ValueError(f"pickup {pickup} must be on an ArUco marker cell")
-
+        raise ValueError(
+            f"pickup {pickup} must be on an ArUco marker cell"
+        )
+    
     if dropoff_aruco_id is None:
-        raise ValueError(f"dropoff {dropoff} must be on an ArUco marker cell")
-
+        raise ValueError(
+            f"dropoff {dropoff} must be on an ArUco marker cell"
+        )
+    
+    if pickup == PARKING_POS:
+        raise ValueError("pickup cannot be the parking position")
+    
+    if dropoff == PARKING_POS:
+        raise ValueError("dropoff cannot be the parking position")
+    
     robotaxi = RobotaxiMission(
-        car_start=car_pos,
+        parking=PARKING_POS,
         pickup=pickup,
         dropoff=dropoff,
+        parking_aruco_id=PARKING_ARUCO_ID,
         pickup_aruco_id=pickup_aruco_id,
         dropoff_aruco_id=dropoff_aruco_id,
     )
 
-    current_grid_pos = car_pos
+current_grid_pos = PARKING_POS
 
-    logging.info("Taxi Robot enabled")
-    logging.info("Car start : %s", car_pos)
-    logging.info("Pickup    : %s", pickup)
-    logging.info("Dropoff   : %s", dropoff)
+logging.info("Robotaxi enabled")
+logging.info("Parking    : %s", PARKING_POS)
+logging.info("Pickup     : %s", pickup)
+logging.info("Dropoff    : %s", dropoff)
 
     decoder        = YoloSegDecoder(score_threshold=0.25)
     mask_filters   = MaskFilters()
