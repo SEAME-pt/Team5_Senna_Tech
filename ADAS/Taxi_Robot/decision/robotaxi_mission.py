@@ -157,7 +157,7 @@ class RobotaxiMission:
     - Leaving parking: at <= 70 cm, enter the street on the left.
     - Outside parking: at <= 50 cm, enter parking only when
       the mission is returning to parking.
-    """
+
     def get_aruco_11_maneuver(
         self,
         detected_aruco_id: int | None,
@@ -209,6 +209,57 @@ class RobotaxiMission:
                 "ArUco 11: staying on outside track "
                 f"at {detected_distance_m * 100:.1f} cm."
             )
+
+        return TaxiManeuver.NONE
+    """
+
+    def get_taxi_maneuver(
+        self,
+        detected_aruco_id: int | None,
+        detected_distance_m: float | None,
+        path: list = None
+    ) -> TaxiManeuver:
+
+        # initial parking exit treatment 
+        if self.parking_exit_pending:
+            self.parking_exit_pending = False
+
+            if path and len(path) > 1:
+                next_cell = path[1]
+                # Se a coluna da próxima célula for maior que a do estacionamento, vai para a direita
+                if next_cell.col < self.parking.col:
+                    print("Mission Started: Path goes RIGHT. Triggering PARKING_OUT_RIGHT.")
+                    return TaxiManeuver.PARKING_OUT_RIGHT
+                else:  
+                    print("Mission Started: Path goes LEFT. Triggering PARKING_OUT_LEFT.")
+                    return TaxiManeuver.PARKING_OUT_LEFT                
+
+        if detected_aruco_id is None or detected_distance_m is None:
+            self.aruco_armed = True
+            return TaxiManeuver.NONE
+
+        if not self.aruco_armed or detected_distance_m > self.outside_decision_distance_m:
+            return TaxiManeuver.NONE
+
+        # ── GEOGRAPHIC MAPPING OF THE ARUCOS ──────────────────────────
+        
+        # ArUco 11: Turn right onto the intersection on the way there, or turn left onto the park entrance on the way back.
+        if detected_aruco_id == 11:
+            self.aruco_armed = False
+            if self.state == TaxiState.RETURNING_TO_PARKING:
+                return TaxiManeuver.ENTER_PARKING_LEFT
+            else:
+                return TaxiManeuver.CROSS_RIGHT
+
+        # ArUco 12: Turn right onto the parking entrance on the way back.
+        if detected_aruco_id == 12 and self.state == TaxiState.RETURNING_TO_PARKING:
+            self.aruco_armed = False
+            return TaxiManeuver.ENTER_PARKING_RIGHT
+
+        # ArUco 13: Turn left onto the intersection on the way there.
+        if detected_aruco_id == 13:
+            self.aruco_armed = False
+            return TaxiManeuver.CROSS_LEFT
 
         return TaxiManeuver.NONE
 

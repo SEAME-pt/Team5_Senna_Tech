@@ -144,17 +144,17 @@ class VehicleFSM:
             self._reset_buffers()
             return self.state
 
-        avoidance_detected = (
-            obstacle_situation == ObstacleSituation.AVOIDANCE
-            or cond["obstacle_ahead"]
-        )
+        # avoidance_detected = (
+        #     obstacle_situation == ObstacleSituation.AVOIDANCE
+        #     or cond["obstacle_ahead"]
+        # )
 
-        if self._buf_avoid.update(avoidance_detected):
-            if self.state in (State.SPEED_50, State.SPEED_80, State.SPEED_SLOW):
-                self._pre_avoidance_state = self.state
-            self._transition(State.PREPARE_AVOID, "Obstacle detected ahead")
-            self._reset_buffers()
-            return self.state
+        # if self._buf_avoid.update(avoidance_detected):
+        #     if self.state in (State.SPEED_50, State.SPEED_80, State.SPEED_SLOW):
+        #         self._pre_avoidance_state = self.state
+        #     self._transition(State.PREPARE_AVOID, "Obstacle detected ahead")
+        #     self._reset_buffers()
+        #     return self.state
 
         if self.state == State.FOLLOW:
             if not cond["follow"]:
