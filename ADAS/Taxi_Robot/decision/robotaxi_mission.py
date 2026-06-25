@@ -26,15 +26,14 @@ class TaxiState(Enum):
     COMPLETE = auto()
     FAULT = auto()
 
-
 class TaxiManeuver(Enum):
     NONE = auto()
-
-    PARKING_LEFT = auto()
-    PARKING_RIGHT = auto()
-
-    ENTER_STREET_LEFT = auto()
-    ENTER_PARKING_LEFT = auto()
+    PARKING_OUT_LEFT = auto()
+    PARKING_OUT_RIGHT = auto()
+    CROSS_LEFT = auto()
+    CROSS_RIGHT = auto()
+    PARKING_IN_LEFT = auto()
+    PARKING_IN_RIGHT = auto()
 
 
 @dataclass
@@ -204,7 +203,7 @@ class RobotaxiMission:
 
     """
     ArUco 11 has two meanings:
-    - Leaving parking: at <= 70 cm, enter the street on the left.
+    - Leaving parking: at <= 70 cm, enter the street on the right.
     - Outside parking: at <= 50 cm, enter parking only when
       the mission is returning to parking.
     """
@@ -237,7 +236,11 @@ class RobotaxiMission:
                 f"at {detected_distance_m * 100:.1f} cm."
             )
 
-            return TaxiManeuver.ENTER_STREET_LEFT
+            # aqui retornava TaxiManeuver.ENTER_STREET_LEFT mas aqui
+            # nao é logo quando ele sai do estacionamento? ou é mesmo
+            # na saída do cruzamento? e se ele esta a ver o numero 11 e é saída do cruzamento
+            # nao era para ser virar a direita?
+            return TaxiManeuver.CROSS_RIGHT
 
         # Normal approach from outside the parking area.
         if detected_distance_m <= self.outside_decision_distance_m:
@@ -249,7 +252,7 @@ class RobotaxiMission:
                     f"at {detected_distance_m * 100:.1f} cm."
                 )
 
-                return TaxiManeuver.ENTER_PARKING_LEFT
+                return TaxiManeuver.PARKING_IN_LEFT
 
             print(
                 "ArUco 11: staying on outside track "
