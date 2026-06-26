@@ -40,12 +40,22 @@ class PathPlanner:
         self._desvio_side:   str   = "left"
 
         # calibration offsets for robotaxi (need to be tested!!!!!)
+        self.maneuver_delay_s = 2.0
+        self._maneuver_start_time = None
+        self._last_state = None
+        self.parking_out_duration_s = 5.0
         self.offset_parking_out_left  = -0.30  
         self.offset_parking_out_right = +0.30  
         self.offset_cross_left        = -0.90  # leaving the intersection (ArUco 13)
         self.offset_cross_right       = +0.90  # leaving the intersection (ArUco 11)
         self.offset_parking_in_left   = -0.65  # entering the intersection (ArUco 11)
         self.offset_parking_in_right  = +0.65  # entering the intersection (ArUco 12)
+    
+    def parking_out_complete(self) -> bool:
+        """Retorna True se o tempo total estimado para a saída do parque expirou."""
+        if self._maneuver_start_time is not None:
+            return (time.perf_counter() - self._maneuver_start_time) >= self.parking_out_duration_s
+        return False
 
     def calculate_target_cte(
         self,
@@ -58,7 +68,13 @@ class PathPlanner:
         current_state : State of the FSM
         obstacle_side : side of the obstacle in BEV (from ObstacleTracker)
         """
-        from decision.decision_fsm import State
+        from decision.decision_fsm import State, TAXIROBOT_STATES
+
+        if current_state in (State.PARKING_OUT_LEFT, State.PARKING_OUT_RIGHT):
+            if self._maneuver_start_time is None:
+                self._maneuver_start_time = time.perf_counter()
+        else:
+            self._maneuver_start_time = None
 
         # ── Active deviation for obstacle avoidance ──────────────────────────────────────────
         if current_state in (State.PREPARE_AVOID, State.AVOIDING, State.BLIND_WAIT):
