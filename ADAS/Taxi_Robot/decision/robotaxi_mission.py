@@ -89,47 +89,6 @@ class RobotaxiMission:
 
         return find_path(current_pos, goal)
 
-    """Legacy startup route helper (currently not used by main loop)."""
-    def get_initial_parking_maneuver(self) -> TaxiManeuver:
-
-        # At startup, the active goal must be the pickup point.
-        if self.state != TaxiState.GOING_TO_PICKUP:
-            return TaxiManeuver.NONE
-    
-        path = find_path(self.parking, self.pickup)
-    
-        if not path:
-            self.state = TaxiState.FAULT
-            print("Robotaxi fault: no path from parking to pickup.")
-            return TaxiManeuver.NONE
-    
-        for pos in path[1:]:
-            aruco_id = get_aruco_id(pos)
-    
-            # ArUco 11 is the left-side route out of parking.
-            if aruco_id == 11:
-                print(
-                    "Startup route selected: "
-                    "parking -> ArUco 11 -> PARKING_OUT_LEFT"
-                )
-                return TaxiManeuver.PARKING_OUT_LEFT
-    
-            # ArUco 13 is the right-side route out of parking.
-            if aruco_id == 13:
-                print(
-                    "Startup route selected: "
-                    "parking -> ArUco 13 -> PARKING_OUT_RIGHT"
-                )
-                return TaxiManeuver.PARKING_OUT_RIGHT
-    
-        self.state = TaxiState.FAULT
-        print(
-            "Robotaxi fault: path from parking to pickup "
-            "does not pass through ArUco 11 or ArUco 13."
-        )
-    
-        return TaxiManeuver.NONE
-
     """
     This method advance the mission state, is called every loop iteration with the closest
     detected ArUco marker and its estimated distance in meters.
