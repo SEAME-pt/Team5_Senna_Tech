@@ -15,9 +15,9 @@ logging.basicConfig(level=logging.INFO)
 from camera import Camera
 from inference import HailoEngine, VDevice
 from post_processing import YoloSegDecoder, MaskFilters, ObjectDetector
-from object import CorridorChecker, build_environment_state, ObstacleTracker
+from object import CorridorChecker, build_environment_state
 from LFA import BEVTransform, SlidingWindowsLaneFitter, draw_lane_overlay
-from decision import VehicleFSM, State, AVOIDANCE_STATES, STATE_THROTTLE, TAXIROBOT_STATES, PathPlanner, AdaptiveCruiseControl, PID
+from decision import VehicleFSM, State, STATE_THROTTLE, PathPlanner, AdaptiveCruiseControl, PID
 from kuksa_publish import KuksaClient
 from utils import CanSender, Display, HardwareMonitor, Timer
 from localization import ArucoWorker
@@ -108,14 +108,7 @@ def main():
     fsm            = VehicleFSM()
     planner        = PathPlanner(
         lane_offset       = 0.80,   # ~65 px in 170 px road width
-        blind_wait_time   = 2.5,    # seconds in BLIND_WAIT
         return_duration_s = 1.5,    # return interpolation duration
-    )
-    obs_tracker    = ObstacleTracker(
-        area_brake_threshold = 0.060,   # area delta in a frame that triggers BRAKE
-        area_avoidance_min   = 0.010,   # minimum area to consider for avoidance
-        frames_to_confirm    = 4,       # frames in tracker before reporting AVOIDANCE
-        frame_width_bev      = CAM_WIDTH,
     )
     adaptive_cruise = AdaptiveCruiseControl()
     hw_monitor      = HardwareMonitor()
@@ -123,7 +116,6 @@ def main():
 
     planner = PathPlanner(
         lane_offset=0.80,
-        blind_wait_time=2.5,
         return_duration_s=1.5,
     )
 
@@ -205,17 +197,6 @@ def main():
                         max_distance_m=0.50,
                     )
 
-                    # ── OBSTACLE TRACKER ─────────────────────────────────
-                    obs_info = obs_tracker.update(detections)
-
-                    # ── BLIND WAIT TIMER ─────────────────────────────────
-                    if fsm.state == State.BLIND_WAIT:
-                        if planner.check_blind_wait_timeout():
-                            fsm.signal_blind_wait_timeout()
-                            planner.reset_blind_timer()
-                    else:
-                        planner.reset_blind_timer()
-
                     previous_mission_state = robotaxi.state
                     # ── ROBOTAXI MISSION ─────────────────────────────────
                     if (time.time() - pipeline_start_time) > 1.5:
@@ -291,18 +272,12 @@ def main():
                     timer.start_stage("Decision")
                     current_state = fsm.process(
                         env_state,
-                        obstacle_situation      = obs_info.situation,
                         planner_return_complete = planner.return_complete(),
                     )
-                    if current_state not in AVOIDANCE_STATES:
-                        obs_tracker.reset()
 
                     # ── PID + CTE ────────────────────────────────────────
                     cte_actual = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0
-                    target_cte = planner.calculate_target_cte(
-                        current_state,
-                        obstacle_side = obs_info.side,
-                    )
+                    target_cte = planner.calculate_target_cte(current_state)
 
                     # Real dt from Timer for accurate PID control
                     dt = timer.get_loop_duration() / 1000.0
