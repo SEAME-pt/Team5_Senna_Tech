@@ -18,17 +18,17 @@ class PathPlanner:
         self._cte_at_return: float = 0.0
         self._desvio_side:   str   = "left"
 
-        # calibration offsets for robotaxi (need to be tested!!!!!)
+        # Time gate for parking-out completion logic used by main.
         self.maneuver_delay_s = 2.0
         self._maneuver_start_time = None
         self._last_state = None
         self.parking_out_duration_s = 5.0
-        self.offset_parking_out_left  = -0.30  
-        self.offset_parking_out_right = +0.30  
-        self.offset_cross_left        = -0.90  # leaving the intersection (ArUco 13)
-        self.offset_cross_right       = +0.90  # leaving the intersection (ArUco 11)
-        self.offset_parking_in_left   = -0.65  # entering the intersection (ArUco 11)
-        self.offset_parking_in_right  = +0.65  # entering the intersection (ArUco 12)
+
+        # Add new states here as needed !!!!
+        # For now, only PARKING_OUT_LEFT uses a light left bias.
+        self.maneuver_cte_by_state = {
+            "PARKING_OUT_LEFT": -0.32,
+        }
     
     def parking_out_complete(self) -> bool:
         """Retorna True se o tempo total estimado para a saída do parque expirou."""
@@ -44,9 +44,8 @@ class PathPlanner:
         Returns the target CTE to be passed to the PID in this frame.
 
         current_state : State of the FSM
-        obstacle_side : unused in current non-avoidance mode
         """
-        from decision.decision_fsm import State, TAXIROBOT_STATES
+        from decision.decision_fsm import State
 
         if current_state in (State.PARKING_OUT_LEFT, State.PARKING_OUT_RIGHT):
             if self._maneuver_start_time is None:
@@ -54,30 +53,11 @@ class PathPlanner:
         else:
             self._maneuver_start_time = None
 
-        # ── Robotaxi Maneuver Routing ────────────────────────────────────────
-        if current_state == State.PARKING_OUT_LEFT:
-            self._returning = False; self._desvio_side = "left"
-            return self.offset_parking_out_left
-
-        if current_state == State.PARKING_OUT_RIGHT:
-            self._returning = False; self._desvio_side = "right"
-            return self.offset_parking_out_right
-
-        if current_state == State.CROSS_LEFT:
-            self._returning = False; self._desvio_side = "left"
-            return self.offset_cross_left
-
-        if current_state == State.CROSS_RIGHT:
-            self._returning = False; self._desvio_side = "right"
-            return self.offset_cross_right
-
-        if current_state == State.PARKING_IN_LEFT:
-            self._returning = False; self._desvio_side = "left"
-            return self.offset_parking_in_left
-
-        if current_state == State.PARKING_IN_RIGHT:
-            self._returning = False; self._desvio_side = "right"
-            return self.offset_parking_in_right
+        maneuver_cte = self.maneuver_cte_by_state.get(current_state.name)
+        if maneuver_cte is not None:
+            self._returning = False
+            self._desvio_side = "left" if maneuver_cte < 0.0 else "right"
+            return maneuver_cte
 
         # ── Interpolated return ────────────────────────────────────
         if current_state == State.RETURNING:
