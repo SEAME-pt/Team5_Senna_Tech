@@ -206,23 +206,28 @@ def main():
                         goal = robotaxi.get_current_goal()
 
                         taxi_maneuver = robotaxi.get_taxi_maneuver(aruco_id, aruco_distance_m, path=path)
-                        
-                        if taxi_maneuver == TaxiManeuver.PARKING_OUT_LEFT:
-                            fsm.signal_robotaxi_state(State.PARKING_OUT_LEFT, "Exiting parking zone: left bias")
-                        elif taxi_maneuver == TaxiManeuver.PARKING_OUT_RIGHT:
-                            fsm.signal_robotaxi_state(State.PARKING_OUT_RIGHT, "Exiting parking zone: right bias")
-                        elif taxi_maneuver == TaxiManeuver.CROSS_LEFT:
-                            fsm.signal_robotaxi_state(State.CROSS_LEFT, "ArUco 13: Executing cross left")
-                        elif taxi_maneuver == TaxiManeuver.CROSS_RIGHT:
-                            fsm.signal_robotaxi_state(State.CROSS_RIGHT, "ArUco 11 detected: leaving crossing")
-                        elif taxi_maneuver == TaxiManeuver.PARKING_IN_LEFT:
-                            fsm.signal_robotaxi_state(State.PARKING_IN_LEFT, "ArUco 11 detected: entering parking")
-                        elif taxi_maneuver == TaxiManeuver.PARKING_IN_RIGHT:
-                            fsm.signal_robotaxi_state(State.PARKING_IN_RIGHT, "ArUco 12: Approaching parking from right")
 
-                        elif fsm.state in (State.PARKING_IN_LEFT, State.PARKING_IN_RIGHT) and aruco_id is None:
-                            fsm.state = State.RETURNING
-                            planner.reset()
+                        forced_maneuver_active = planner.is_forced_maneuver_active()
+                        
+                        if not forced_maneuver_active:
+                            if taxi_maneuver == TaxiManeuver.PARKING_OUT_LEFT:
+                                changed = fsm.signal_robotaxi_state(State.PARKING_OUT_LEFT, "Exiting parking zone: left bias")
+                                if changed:
+                                    planner.start_forced_maneuver("PARKING_OUT_LEFT")
+                            elif taxi_maneuver == TaxiManeuver.PARKING_OUT_RIGHT:
+                                fsm.signal_robotaxi_state(State.PARKING_OUT_RIGHT, "Exiting parking zone: right bias")
+                            elif taxi_maneuver == TaxiManeuver.CROSS_LEFT:
+                                fsm.signal_robotaxi_state(State.CROSS_LEFT, "ArUco 13: Executing cross left")
+                            elif taxi_maneuver == TaxiManeuver.CROSS_RIGHT:
+                                fsm.signal_robotaxi_state(State.CROSS_RIGHT, "ArUco 11 detected: leaving crossing")
+                            elif taxi_maneuver == TaxiManeuver.PARKING_IN_LEFT:
+                                fsm.signal_robotaxi_state(State.PARKING_IN_LEFT, "ArUco 11 detected: entering parking")
+                            elif taxi_maneuver == TaxiManeuver.PARKING_IN_RIGHT:
+                                fsm.signal_robotaxi_state(State.PARKING_IN_RIGHT, "ArUco 12: Approaching parking from right")
+
+                            elif fsm.state in (State.PARKING_IN_LEFT, State.PARKING_IN_RIGHT) and aruco_id is None:
+                                fsm.state = State.RETURNING
+                                planner.reset()
                         
                         elif fsm.state in (State.PARKING_OUT_LEFT, State.PARKING_OUT_RIGHT) and planner.parking_out_complete():
                             if planner.parking_out_complete():
@@ -270,10 +275,13 @@ def main():
 
                     # ── FSM DECISION ─────────────────────────────────────
                     timer.start_stage("Decision")
-                    current_state = fsm.process(
-                        env_state,
-                        planner_return_complete = planner.return_complete(),
-                    )
+                    if planner.is_forced_maneuver_active():
+                        current_state = State.PARKING_OUT_LEFT
+                    else:
+                        current_state = fsm.process(
+                            env_state,
+                            planner_return_complete = planner.return_complete(),
+                        )
 
                     # ── PID + CTE ────────────────────────────────────────
                     cte_actual = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0

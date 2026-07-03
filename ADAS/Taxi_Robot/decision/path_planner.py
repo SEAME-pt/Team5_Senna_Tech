@@ -23,12 +23,42 @@ class PathPlanner:
         self._maneuver_start_time = None
         self._last_state = None
         self.parking_out_duration_s = 5.0
+        self.forced_maneuver_duration_s = 8.0
+        self._forced_maneuver_state_name: str | None = None
+        self._forced_maneuver_started_at: float | None = None
 
         # Add new states here as needed !!!!
         # For now, only PARKING_OUT_LEFT uses a light left bias.
         self.maneuver_cte_by_state = {
-            "PARKING_OUT_LEFT": -0.32,
+            "PARKING_OUT_LEFT": -1.0,
         }
+
+    def start_forced_maneuver(self, state_name: str) -> None:
+        if state_name not in self.maneuver_cte_by_state:
+            return
+
+        self._forced_maneuver_state_name = state_name
+        self._forced_maneuver_started_at = time.perf_counter()
+
+    def is_forced_maneuver_active(self) -> bool:
+        if (
+            self._forced_maneuver_state_name is None
+            or self._forced_maneuver_started_at is None
+        ):
+            return False
+
+        elapsed = time.perf_counter() - self._forced_maneuver_started_at
+        if elapsed < self.forced_maneuver_duration_s:
+            return True
+
+        self._forced_maneuver_state_name = None
+        self._forced_maneuver_started_at = None
+        return False
+
+    def forced_maneuver_state_name(self) -> str | None:
+        if self.is_forced_maneuver_active():
+            return self._forced_maneuver_state_name
+        return None
     
     def parking_out_complete(self) -> bool:
         """Retorna True se o tempo total estimado para a saída do parque expirou."""
@@ -52,6 +82,13 @@ class PathPlanner:
                 self._maneuver_start_time = time.perf_counter()
         else:
             self._maneuver_start_time = None
+
+        forced_state_name = self.forced_maneuver_state_name()
+        if forced_state_name is not None:
+            maneuver_cte = self.maneuver_cte_by_state[forced_state_name]
+            self._returning = False
+            self._desvio_side = "left" if maneuver_cte < 0.0 else "right"
+            return maneuver_cte
 
         maneuver_cte = self.maneuver_cte_by_state.get(current_state.name)
         if maneuver_cte is not None:
@@ -86,6 +123,8 @@ class PathPlanner:
         self._returning         = False
         self._return_start      = 0.0
         self._cte_at_return     = 0.0
+        self._forced_maneuver_state_name = None
+        self._forced_maneuver_started_at = None
 
 
 def _lerp(a: float, b: float, t: float) -> float:
