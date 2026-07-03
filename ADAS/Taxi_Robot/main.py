@@ -121,19 +121,6 @@ def main():
     hw_monitor      = HardwareMonitor()
     timer           = Timer()
 
-    startup_maneuver = robotaxi.get_initial_parking_maneuver()
-    if startup_maneuver == TaxiManeuver.PARKING_LEFT:
-        fsm.signal_robotaxi_state(
-            State.PARKING_LEFT,
-            "Startup path leaves parking through ArUco 11",
-        )
-
-    elif startup_maneuver == TaxiManeuver.PARKING_RIGHT:
-        fsm.signal_robotaxi_state(
-            State.PARKING_RIGHT,
-            "Startup path leaves parking through ArUco 13",
-        )
-    
     planner = PathPlanner(
         lane_offset=0.80,
         blind_wait_time=2.5,
@@ -153,7 +140,7 @@ def main():
              Camera(CAM_WIDTH, CAM_HEIGHT, CAM_FPS) as cam, \
              Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, CAM_FPS, mode=display_mode) as display:
 
-            last_valid_state = None
+            last_fsm_state = fsm.state
             last_route_key = None
             last_mission_state = robotaxi.state
             # vars to avoid spamming commands when not necessary
@@ -252,7 +239,7 @@ def main():
                         elif taxi_maneuver == TaxiManeuver.PARKING_IN_RIGHT:
                             fsm.signal_robotaxi_state(State.PARKING_IN_RIGHT, "ArUco 12: Approaching parking from right")
 
-                        elif fsm.state in (State.CROSS_LEFT, State.CROSS_RIGHT, State.PARKING_IN_LEFT, State.PARKING_IN_RIGHT) and aruco_id is None:
+                        elif fsm.state in (State.PARKING_IN_LEFT, State.PARKING_IN_RIGHT) and aruco_id is None:
                             fsm.state = State.RETURNING
                             planner.reset()
                         
@@ -265,6 +252,11 @@ def main():
                         goal = robotaxi.get_current_goal()
 
                     if robotaxi.state != previous_mission_state:
+                        logging.info(
+                            "Mission state changed: %s -> %s",
+                            previous_mission_state.name,
+                            robotaxi.state.name,
+                        )
                         last_route_key = None
 
                     route_key = (
@@ -339,8 +331,13 @@ def main():
                             last_sent_throttle = throttle
                             last_sent_steering = steering
 
-                    if last_valid_state is None or current_state.value != last_valid_state:
-                        last_valid_state = current_state.value
+                    if current_state != last_fsm_state:
+                        logging.info(
+                            "FSM state changed: %s -> %s",
+                            last_fsm_state.name,
+                            current_state.name,
+                        )
+                        last_fsm_state = current_state
 
                     timer.end_stage("Decision")
 
@@ -371,3 +368,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# python3 /home/run_robotaxi.py --pipeline_robotaxi 17,14 12,14

@@ -5,16 +5,6 @@ import time
 from map.track_map import GridPos, get_aruco_id
 from map.path import find_path
 
-# High-level mission states for the Robo Taxi.
-#
-# The normal mission flow is:
-#
-# GOING_TO_PICKUP
-# -> WAITING_AT_PICKUP
-# -> GOING_TO_DROPOFF
-# -> WAITING_AT_DROPOFF
-# -> RETURNING_TO_PARKING
-# -> COMPLETE
 
 class TaxiState(Enum):
     DISABLED = auto()
@@ -59,15 +49,18 @@ class RobotaxiMission:
     stop_duration_s: float = 5.0
     stop_started_at: float | None = None
 
-    # ArUco 11 thresholds.
+    # ArUco-based decision thresholds.
     exit_parking_distance_m: float = 0.70
-    outside_decision_distance_m: float = 0.50
+    outside_decision_distance_m: float = 0.80
+    startup_decision_aruco_id: int = 14
+    parking_station_stop_distance_m: float = 0.30
 
     # True only at the start of the mission.
     parking_exit_pending: bool = True
+    expected_start_cross_aruco_id: int | None = None
 
     # Prevents repeating the same action every frame.
-    aruco_11_armed: bool = True
+    aruco_armed: bool = True
 
     def get_current_goal(self) -> GridPos | None:
         if self.state in (
@@ -87,6 +80,7 @@ class RobotaxiMission:
 
         return None
 
+    # Return the route from the current position to the mission goal.
     def get_path(self, current_pos: GridPos) -> list[GridPos]:
         goal = self.get_current_goal()
 
@@ -95,15 +89,7 @@ class RobotaxiMission:
 
         return find_path(current_pos, goal)
 
-    """
-    Decide the initial parking maneuver before the car starts moving.
-
-    The first special exit marker found in the path determines which
-    side of the parking station the car must use:
-
-    ArUco 11 -> PARKING_LEFT
-    ArUco 13 -> PARKING_RIGHT
-    """
+    """Legacy startup route helper (currently not used by main loop)."""
     def get_initial_parking_maneuver(self) -> TaxiManeuver:
 
         # At startup, the active goal must be the pickup point.
@@ -124,17 +110,17 @@ class RobotaxiMission:
             if aruco_id == 11:
                 print(
                     "Startup route selected: "
-                    "parking -> ArUco 11 -> PARKING_LEFT"
+                    "parking -> ArUco 11 -> PARKING_OUT_LEFT"
                 )
-                return TaxiManeuver.PARKING_LEFT
+                return TaxiManeuver.PARKING_OUT_LEFT
     
             # ArUco 13 is the right-side route out of parking.
             if aruco_id == 13:
                 print(
                     "Startup route selected: "
-                    "parking -> ArUco 13 -> PARKING_RIGHT"
+                    "parking -> ArUco 13 -> PARKING_OUT_RIGHT"
                 )
-                return TaxiManeuver.PARKING_RIGHT
+                return TaxiManeuver.PARKING_OUT_RIGHT
     
         self.state = TaxiState.FAULT
         print(
@@ -197,70 +183,10 @@ class RobotaxiMission:
                 detected_aruco_id,
                 detected_distance_m,
                 self.parking_aruco_id,
+                self.parking_station_stop_distance_m,
             ):
                 self.state = TaxiState.COMPLETE
                 print("Parking reached. Robotaxi mission complete.")
-
-    """
-    ArUco 11 has two meanings:
-    - Leaving parking: at <= 70 cm, enter the street on the right.
-    - Outside parking: at <= 50 cm, enter parking only when
-      the mission is returning to parking.
-
-    def get_aruco_11_maneuver(
-        self,
-        detected_aruco_id: int | None,
-        detected_distance_m: float | None,
-    ) -> TaxiManeuver:
-
-        if detected_aruco_id != 11:
-            self.aruco_11_armed = True
-            return TaxiManeuver.NONE
-
-        if detected_distance_m is None:
-            return TaxiManeuver.NONE
-
-        if not self.aruco_11_armed:
-            return TaxiManeuver.NONE
-
-        # Initial departure from parking.
-        if (
-            self.parking_exit_pending
-            and detected_distance_m <= self.exit_parking_distance_m
-        ):
-            self.parking_exit_pending = False
-            self.aruco_11_armed = False
-
-            print(
-                "ArUco 11: leaving parking "
-                f"at {detected_distance_m * 100:.1f} cm."
-            )
-
-            # aqui retornava TaxiManeuver.ENTER_STREET_LEFT mas aqui
-            # nao é logo quando ele sai do estacionamento? ou é mesmo
-            # na saída do cruzamento? e se ele esta a ver o numero 11 e é saída do cruzamento
-            # nao era para ser virar a direita?
-            return TaxiManeuver.CROSS_RIGHT
-
-        # Normal approach from outside the parking area.
-        if detected_distance_m <= self.outside_decision_distance_m:
-            self.aruco_11_armed = False
-
-            if self.state == TaxiState.RETURNING_TO_PARKING:
-                print(
-                    "ArUco 11: returning to parking "
-                    f"at {detected_distance_m * 100:.1f} cm."
-                )
-
-                return TaxiManeuver.PARKING_IN_LEFT
-
-            print(
-                "ArUco 11: staying on outside track "
-                f"at {detected_distance_m * 100:.1f} cm."
-            )
-
-        return TaxiManeuver.NONE
-    """
 
     def get_taxi_maneuver(
         self,
@@ -269,19 +195,29 @@ class RobotaxiMission:
         path: list = None
     ) -> TaxiManeuver:
 
-        # initial parking exit treatment 
+        # The first left/right decision only happens when ArUco 14 is seen close enough.
         if self.parking_exit_pending:
+            if (
+                detected_aruco_id != self.startup_decision_aruco_id
+                or detected_distance_m is None
+                or detected_distance_m > self.outside_decision_distance_m
+            ):
+                return TaxiManeuver.NONE
+
             self.parking_exit_pending = False
 
-            if path and len(path) > 1:
-                next_cell = path[1]
-                # Se a coluna da próxima célula for maior que a do estacionamento, vai para a direita
-                if next_cell.col < self.parking.col:
-                    print("Mission Started: Path goes RIGHT. Triggering PARKING_OUT_RIGHT.")
-                    return TaxiManeuver.PARKING_OUT_RIGHT
-                else:  
-                    print("Mission Started: Path goes LEFT. Triggering PARKING_OUT_LEFT.")
-                    return TaxiManeuver.PARKING_OUT_LEFT                
+            if not path or len(path) <= 1:
+                return TaxiManeuver.NONE
+
+            next_cell = path[1]
+            if next_cell.col < self.parking.col:
+                self.expected_start_cross_aruco_id = 11
+                print("Startup ArUco 14 detected: path goes RIGHT.")
+                return TaxiManeuver.PARKING_OUT_RIGHT
+
+            self.expected_start_cross_aruco_id = 13
+            print("Startup ArUco 14 detected: path goes LEFT.")
+            return TaxiManeuver.PARKING_OUT_LEFT
 
         if detected_aruco_id is None or detected_distance_m is None:
             self.aruco_armed = True
@@ -290,20 +226,28 @@ class RobotaxiMission:
         if not self.aruco_armed or detected_distance_m > self.outside_decision_distance_m:
             return TaxiManeuver.NONE
 
+        # After leaving parking, only accept the crossing marker that matches
+        # the direction chosen at ArUco 14.
+        if self.expected_start_cross_aruco_id is not None:
+            if detected_aruco_id != self.expected_start_cross_aruco_id:
+                return TaxiManeuver.NONE
+
+            self.expected_start_cross_aruco_id = None
+
         # ── GEOGRAPHIC MAPPING OF THE ARUCOS ──────────────────────────
         
         # ArUco 11: Turn right onto the intersection on the way there, or turn left onto the park entrance on the way back.
         if detected_aruco_id == 11:
             self.aruco_armed = False
             if self.state == TaxiState.RETURNING_TO_PARKING:
-                return TaxiManeuver.ENTER_PARKING_LEFT
+                return TaxiManeuver.PARKING_IN_LEFT
             else:
                 return TaxiManeuver.CROSS_RIGHT
 
         # ArUco 12: Turn right onto the parking entrance on the way back.
         if detected_aruco_id == 12 and self.state == TaxiState.RETURNING_TO_PARKING:
             self.aruco_armed = False
-            return TaxiManeuver.ENTER_PARKING_RIGHT
+            return TaxiManeuver.PARKING_IN_RIGHT
 
         # ArUco 13: Turn left onto the intersection on the way there.
         if detected_aruco_id == 13:
@@ -317,13 +261,17 @@ class RobotaxiMission:
         detected_aruco_id: int | None,
         detected_distance_m: float | None,
         target_aruco_id: int,
+        max_distance_m: float | None = None,
     ) -> bool:
         if detected_aruco_id is None or detected_distance_m is None:
             return False
 
+        if max_distance_m is None:
+            max_distance_m = self.stop_distance_m
+
         return (
             detected_aruco_id == target_aruco_id
-            and detected_distance_m <= self.stop_distance_m
+            and detected_distance_m <= max_distance_m
         )
 
     def _stop_finished(self, now: float) -> bool:
