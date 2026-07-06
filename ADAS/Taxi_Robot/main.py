@@ -36,6 +36,7 @@ except ImportError:
 
 CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 15
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
+CROSS_LEFT_FORCED_TRIGGER_M = 0.788
 
 def main():
     parser = argparse.ArgumentParser()
@@ -138,6 +139,7 @@ def main():
             # vars to avoid spamming commands when not necessary
             last_sent_throttle = None
             last_sent_steering = None
+            last_forced_maneuver_active = False
 
             frame_count = 0
             pipeline_start_time = time.time()
@@ -217,7 +219,14 @@ def main():
                             elif taxi_maneuver == TaxiManeuver.PARKING_OUT_RIGHT:
                                 fsm.signal_robotaxi_state(State.PARKING_OUT_RIGHT, "Exiting parking zone: right bias")
                             elif taxi_maneuver == TaxiManeuver.CROSS_LEFT:
-                                fsm.signal_robotaxi_state(State.CROSS_LEFT, "ArUco 13: Executing cross left")
+                                changed = fsm.signal_robotaxi_state(State.CROSS_LEFT, "ArUco 13: Executing cross left")
+                                if (
+                                    changed
+                                    and aruco_id == 13
+                                    and aruco_distance_m is not None
+                                    and aruco_distance_m <= CROSS_LEFT_FORCED_TRIGGER_M
+                                ):
+                                    planner.start_forced_maneuver("CROSS_LEFT")
                             elif taxi_maneuver == TaxiManeuver.CROSS_RIGHT:
                                 fsm.signal_robotaxi_state(State.CROSS_RIGHT, "ArUco 11 detected: leaving crossing")
                             elif taxi_maneuver == TaxiManeuver.PARKING_IN_LEFT:
@@ -228,11 +237,18 @@ def main():
                             elif fsm.state in (State.PARKING_IN_LEFT, State.PARKING_IN_RIGHT) and aruco_id is None:
                                 fsm.state = State.RETURNING
                                 planner.reset()
-                        
-                        elif fsm.state in (State.PARKING_OUT_LEFT, State.PARKING_OUT_RIGHT) and planner.parking_out_complete():
-                            if planner.parking_out_complete():
-                                fsm.state = State.RETURNING
-                                planner.reset()
+
+                        if (
+                            not forced_maneuver_active
+                            and last_forced_maneuver_active
+                            and fsm.state in (State.PARKING_OUT_LEFT, State.PARKING_OUT_RIGHT)
+                        ):
+                            fsm.state = State.RETURNING
+                            planner.reset()
+
+                        if fsm.state in (State.PARKING_OUT_LEFT, State.PARKING_OUT_RIGHT) and planner.parking_out_complete():
+                            fsm.state = State.RETURNING
+                            planner.reset()
                     else:
                         path = robotaxi.get_path(current_grid_pos)
                         goal = robotaxi.get_current_goal()
@@ -275,8 +291,16 @@ def main():
 
                     # ── FSM DECISION ─────────────────────────────────────
                     timer.start_stage("Decision")
-                    if planner.is_forced_maneuver_active():
-                        current_state = State.PARKING_OUT_LEFT
+                    forced_maneuver_active = planner.is_forced_maneuver_active()
+
+                    if forced_maneuver_active != last_forced_maneuver_active:
+                        pid.reset()
+                        last_forced_maneuver_active = forced_maneuver_active
+
+                    if forced_maneuver_active:
+                        forced_state_name = planner.forced_maneuver_state_name()
+                        forced_state = getattr(State, forced_state_name, None) if forced_state_name else None
+                        current_state = forced_state if forced_state is not None else State.PARKING_OUT_LEFT
                     else:
                         current_state = fsm.process(
                             env_state,
@@ -297,11 +321,15 @@ def main():
                     
                     # ── CAN ──────────────────────────────────────────────
                     steering = round(pid_return * -1, 2)
+
+                    forced_steering = planner.forced_steering_override()
+                    if forced_steering is not None:
+                        steering = forced_steering
                     
                     if robotaxi.should_stop():
                         throttle = 0
                         steering = 0
-                    
+
                         logging.info(
                             "ROBOTAXI STOP | state=%s | remaining=%.1fs",
                             robotaxi.state.name,

@@ -19,18 +19,35 @@ class PathPlanner:
         self._desvio_side:   str   = "left"
 
         # Time gate for parking-out completion logic used by main.
-        self.maneuver_delay_s = 2.0
         self._maneuver_start_time = None
         self._last_state = None
+
+        # Time duration for parking-out maneuver to be considered complete.
         self.parking_out_duration_s = 5.0
-        self.forced_maneuver_duration_s = 8.0
+
+        # Blindly force CTE for a fixed duration
+        self.forced_maneuver_duration_s = 5.0
+
         self._forced_maneuver_state_name: str | None = None
         self._forced_maneuver_started_at: float | None = None
 
         # Add new states here as needed !!!!
-        # For now, only PARKING_OUT_LEFT uses a light left bias.
+        # Keep forced CTE values by maneuver-state name.
         self.maneuver_cte_by_state = {
             "PARKING_OUT_LEFT": -1.0,
+            "CROSS_LEFT": -1.0,
+        }
+
+        # States whose CTE bias must only be active during forced window.
+        self.cte_only_during_forced_states = {
+            "PARKING_OUT_LEFT",
+            "CROSS_LEFT",
+        }
+
+        # Optional direct steering override while a forced maneuver is active.
+        self.forced_steering_by_state = {
+            "PARKING_OUT_LEFT": 1.0,
+            "CROSS_LEFT": 1.0,
         }
 
     def start_forced_maneuver(self, state_name: str) -> None:
@@ -59,7 +76,13 @@ class PathPlanner:
         if self.is_forced_maneuver_active():
             return self._forced_maneuver_state_name
         return None
-    
+
+    def forced_steering_override(self) -> float | None:
+        state_name = self.forced_maneuver_state_name()
+        if state_name is None:
+            return None
+        return self.forced_steering_by_state.get(state_name)
+
     def parking_out_complete(self) -> bool:
         """Retorna True se o tempo total estimado para a saída do parque expirou."""
         if self._maneuver_start_time is not None:
@@ -90,7 +113,11 @@ class PathPlanner:
             self._desvio_side = "left" if maneuver_cte < 0.0 else "right"
             return maneuver_cte
 
-        maneuver_cte = self.maneuver_cte_by_state.get(current_state.name)
+        if current_state.name in self.cte_only_during_forced_states:
+            maneuver_cte = None
+        else:
+            maneuver_cte = self.maneuver_cte_by_state.get(current_state.name)
+
         if maneuver_cte is not None:
             self._returning = False
             self._desvio_side = "left" if maneuver_cte < 0.0 else "right"
