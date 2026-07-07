@@ -7,6 +7,7 @@ class PathPlanner:
 
     def __init__(
         self,
+        # Variables for RETURNING interpolation
         lane_offset:       float = 0.80,
         return_duration_s: float = 1.5,
     ):
@@ -16,7 +17,7 @@ class PathPlanner:
         self._returning:     bool  = False
         self._return_start:  float = 0.0
         self._cte_at_return: float = 0.0
-        self._desvio_side:   str   = "left"
+        self._deviation_side: str  = "left"
 
         # Time gate for parking-out completion logic used by main.
         self._maneuver_start_time = None
@@ -27,6 +28,7 @@ class PathPlanner:
 
         # Blindly force CTE for a fixed duration
         self.forced_maneuver_duration_s = 5.0
+        self._active_forced_maneuver_duration_s = self.forced_maneuver_duration_s
 
         self._forced_maneuver_state_name: str | None = None
         self._forced_maneuver_started_at: float | None = None
@@ -36,26 +38,33 @@ class PathPlanner:
         self.maneuver_cte_by_state = {
             "PARKING_OUT_LEFT": -1.0,
             "CROSS_LEFT": -1.0,
+            "CROSS_RIGHT": 1.0,
         }
 
         # States whose CTE bias must only be active during forced window.
         self.cte_only_during_forced_states = {
             "PARKING_OUT_LEFT",
             "CROSS_LEFT",
+            "CROSS_RIGHT",
         }
 
         # Optional direct steering override while a forced maneuver is active.
         self.forced_steering_by_state = {
             "PARKING_OUT_LEFT": 1.0,
             "CROSS_LEFT": 1.0,
+            "CROSS_RIGHT": -1.0,
         }
 
-    def start_forced_maneuver(self, state_name: str) -> None:
+    def start_forced_maneuver(self, state_name: str, duration_s: float | None = None) -> None:
         if state_name not in self.maneuver_cte_by_state:
             return
 
         self._forced_maneuver_state_name = state_name
         self._forced_maneuver_started_at = time.perf_counter()
+        if duration_s is None:
+            self._active_forced_maneuver_duration_s = self.forced_maneuver_duration_s
+        else:
+            self._active_forced_maneuver_duration_s = duration_s
 
     def is_forced_maneuver_active(self) -> bool:
         if (
@@ -65,11 +74,12 @@ class PathPlanner:
             return False
 
         elapsed = time.perf_counter() - self._forced_maneuver_started_at
-        if elapsed < self.forced_maneuver_duration_s:
+        if elapsed < self._active_forced_maneuver_duration_s:
             return True
 
         self._forced_maneuver_state_name = None
         self._forced_maneuver_started_at = None
+        self._active_forced_maneuver_duration_s = self.forced_maneuver_duration_s
         return False
 
     def forced_maneuver_state_name(self) -> str | None:
@@ -110,7 +120,7 @@ class PathPlanner:
         if forced_state_name is not None:
             maneuver_cte = self.maneuver_cte_by_state[forced_state_name]
             self._returning = False
-            self._desvio_side = "left" if maneuver_cte < 0.0 else "right"
+            self._deviation_side = "left" if maneuver_cte < 0.0 else "right"
             return maneuver_cte
 
         if current_state.name in self.cte_only_during_forced_states:
@@ -120,7 +130,7 @@ class PathPlanner:
 
         if maneuver_cte is not None:
             self._returning = False
-            self._desvio_side = "left" if maneuver_cte < 0.0 else "right"
+            self._deviation_side = "left" if maneuver_cte < 0.0 else "right"
             return maneuver_cte
 
         # ── Interpolated return ────────────────────────────────────
@@ -129,7 +139,7 @@ class PathPlanner:
                 self._returning     = True
                 self._return_start  = time.perf_counter()
                 self._cte_at_return = (
-                    -self.lane_offset if self._desvio_side == "left" else +self.lane_offset
+                    -self.lane_offset if self._deviation_side == "left" else +self.lane_offset
                 )
 
             elapsed  = time.perf_counter() - self._return_start
@@ -152,6 +162,7 @@ class PathPlanner:
         self._cte_at_return     = 0.0
         self._forced_maneuver_state_name = None
         self._forced_maneuver_started_at = None
+        self._active_forced_maneuver_duration_s = self.forced_maneuver_duration_s
 
 
 def _lerp(a: float, b: float, t: float) -> float:

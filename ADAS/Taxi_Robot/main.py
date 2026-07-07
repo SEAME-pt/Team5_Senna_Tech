@@ -37,6 +37,7 @@ except ImportError:
 CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 15
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
 CROSS_LEFT_FORCED_TRIGGER_M = 0.788
+CROSS_RIGHT_FORCED_DURATION_S = 7.0
 
 def main():
     parser = argparse.ArgumentParser()
@@ -228,7 +229,9 @@ def main():
                                 ):
                                     planner.start_forced_maneuver("CROSS_LEFT")
                             elif taxi_maneuver == TaxiManeuver.CROSS_RIGHT:
-                                fsm.signal_robotaxi_state(State.CROSS_RIGHT, "ArUco 11 detected: leaving crossing")
+                                changed = fsm.signal_robotaxi_state(State.CROSS_RIGHT, "ArUco 11 detected: leaving crossing")
+                                if changed and aruco_id == 11:
+                                    planner.start_forced_maneuver("CROSS_RIGHT", duration_s=CROSS_RIGHT_FORCED_DURATION_S)
                             elif taxi_maneuver == TaxiManeuver.PARKING_IN_LEFT:
                                 fsm.signal_robotaxi_state(State.PARKING_IN_LEFT, "ArUco 11 detected: entering parking")
                             elif taxi_maneuver == TaxiManeuver.PARKING_IN_RIGHT:
