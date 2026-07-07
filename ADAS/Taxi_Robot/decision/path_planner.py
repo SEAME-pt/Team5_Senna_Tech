@@ -52,7 +52,7 @@ class PathPlanner:
         self.forced_steering_by_state = {
             "PARKING_OUT_LEFT": 1.0,
             "CROSS_LEFT": 1.0,
-            "CROSS_RIGHT": -1.0,
+            "CROSS_RIGHT": -0.85,
         }
 
     def start_forced_maneuver(self, state_name: str, duration_s: float | None = None) -> None:

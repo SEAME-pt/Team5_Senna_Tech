@@ -50,10 +50,9 @@ class RobotaxiMission:
     stop_started_at: float | None = None
 
     # ArUco-based decision thresholds.
-    exit_parking_distance_m: float = 0.80
-    outside_decision_distance_m: float = 1.30
+    outside_decision_distance_m: float = 1.20
     startup_decision_aruco_id: int = 14
-    parking_station_stop_distance_m: float = 0.30
+    parking_station_stop_distance_m: float = 0.20
 
     # True only at the start of the mission.
     parking_exit_pending: bool = True
