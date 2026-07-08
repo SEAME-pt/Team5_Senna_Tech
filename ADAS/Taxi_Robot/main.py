@@ -8,7 +8,7 @@ from map.track_map import (
 )
 
 from map.path import print_path_map
-from decision.robotaxi_mission import RobotaxiMission, TaxiManeuver
+from decision.robotaxi_mission import RobotaxiMission
 
 logging.basicConfig(level=logging.INFO)
 
@@ -17,7 +17,7 @@ from inference import HailoEngine, VDevice
 from post_processing import YoloSegDecoder, MaskFilters, ObjectDetector
 from object import CorridorChecker, build_environment_state
 from LFA import BEVTransform, SlidingWindowsLaneFitter, draw_lane_overlay
-from decision import VehicleFSM, State, STATE_THROTTLE, PathPlanner, AdaptiveCruiseControl, PID
+from decision import VehicleFSM, State, STATE_THROTTLE, TaxiRobotCTEController, AdaptiveCruiseControl, PID
 from kuksa_publish import KuksaClient
 from utils import CanSender, Display, HardwareMonitor, Timer
 from localization import ArucoWorker
@@ -36,9 +36,6 @@ except ImportError:
 
 CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 15
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
-CROSS_LEFT_FORCED_TRIGGER_M = 0.788
-CROSS_RIGHT_FORCED_TRIGGER_M = 0.688
-CROSS_RIGHT_FORCED_DURATION_S = 12.0
 
 def main():
     parser = argparse.ArgumentParser()
@@ -109,18 +106,13 @@ def main():
     aruco_worker.start()
     checker        = CorridorChecker(bev)
     fsm            = VehicleFSM()
-    planner        = PathPlanner(
+    cte_controller = TaxiRobotCTEController(
         lane_offset       = 0.80,   # ~65 px in 170 px road width
         return_duration_s = 1.5,    # return interpolation duration
     )
     adaptive_cruise = AdaptiveCruiseControl()
     hw_monitor      = HardwareMonitor()
     timer           = Timer()
-
-    planner = PathPlanner(
-        lane_offset=0.80,
-        return_duration_s=1.5,
-    )
 
     if args.remote:
         display_mode = "remote"
@@ -137,11 +129,9 @@ def main():
 
             last_fsm_state = fsm.state
             last_route_key = None
-            last_mission_state = robotaxi.state
             # vars to avoid spamming commands when not necessary
             last_sent_throttle = None
             last_sent_steering = None
-            last_forced_maneuver_active = False
 
             frame_count = 0
             pipeline_start_time = time.time()
@@ -210,54 +200,12 @@ def main():
                         goal = robotaxi.get_current_goal()
 
                         taxi_maneuver = robotaxi.get_taxi_maneuver(aruco_id, aruco_distance_m, path=path)
-
-                        forced_maneuver_active = planner.is_forced_maneuver_active()
-                        
-                        if not forced_maneuver_active:
-                            if taxi_maneuver == TaxiManeuver.PARKING_OUT_LEFT:
-                                changed = fsm.signal_robotaxi_state(State.PARKING_OUT_LEFT, "Exiting parking zone: left bias")
-                                if changed:
-                                    planner.start_forced_maneuver("PARKING_OUT_LEFT")
-                            elif taxi_maneuver == TaxiManeuver.PARKING_OUT_RIGHT:
-                                fsm.signal_robotaxi_state(State.PARKING_OUT_RIGHT, "Exiting parking zone: right bias")
-                            elif taxi_maneuver == TaxiManeuver.CROSS_LEFT:
-                                changed = fsm.signal_robotaxi_state(State.CROSS_LEFT, "ArUco 13: Executing cross left")
-                                if (
-                                    changed
-                                    and aruco_id == 13
-                                    and aruco_distance_m is not None
-                                    and aruco_distance_m <= CROSS_LEFT_FORCED_TRIGGER_M
-                                ):
-                                    planner.start_forced_maneuver("CROSS_LEFT")
-                            elif taxi_maneuver == TaxiManeuver.CROSS_RIGHT:
-                                changed = fsm.signal_robotaxi_state(State.CROSS_RIGHT, "ArUco 11 detected: leaving crossing")
-                                if (
-                                    changed
-                                    and aruco_id == 11
-                                    and aruco_distance_m is not None
-                                    and aruco_distance_m <= CROSS_RIGHT_FORCED_TRIGGER_M
-                                ):
-                                    planner.start_forced_maneuver("CROSS_RIGHT", duration_s=CROSS_RIGHT_FORCED_DURATION_S)
-                            elif taxi_maneuver == TaxiManeuver.PARKING_IN_LEFT:
-                                fsm.signal_robotaxi_state(State.PARKING_IN_LEFT, "ArUco 11 detected: entering parking")
-                            elif taxi_maneuver == TaxiManeuver.PARKING_IN_RIGHT:
-                                fsm.signal_robotaxi_state(State.PARKING_IN_RIGHT, "ArUco 12: Approaching parking from right")
-
-                            elif fsm.state in (State.PARKING_IN_LEFT, State.PARKING_IN_RIGHT) and aruco_id is None:
-                                fsm.state = State.RETURNING
-                                planner.reset()
-
-                        if (
-                            not forced_maneuver_active
-                            and last_forced_maneuver_active
-                            and fsm.state in (State.PARKING_OUT_LEFT, State.PARKING_OUT_RIGHT)
-                        ):
-                            fsm.state = State.RETURNING
-                            planner.reset()
-
-                        if fsm.state in (State.PARKING_OUT_LEFT, State.PARKING_OUT_RIGHT) and planner.parking_out_complete():
-                            fsm.state = State.RETURNING
-                            planner.reset()
+                        cte_controller.update_maneuver_state(
+                            fsm=fsm,
+                            taxi_maneuver=taxi_maneuver,
+                            aruco_id=aruco_id,
+                            aruco_distance_m=aruco_distance_m,
+                        )
                     else:
                         path = robotaxi.get_path(current_grid_pos)
                         goal = robotaxi.get_current_goal()
@@ -300,25 +248,13 @@ def main():
 
                     # ── FSM DECISION ─────────────────────────────────────
                     timer.start_stage("Decision")
-                    forced_maneuver_active = planner.is_forced_maneuver_active()
-
-                    if forced_maneuver_active != last_forced_maneuver_active:
+                    current_state, pid_reset_needed = cte_controller.resolve_drive_state(fsm, env_state)
+                    if pid_reset_needed:
                         pid.reset()
-                        last_forced_maneuver_active = forced_maneuver_active
-
-                    if forced_maneuver_active:
-                        forced_state_name = planner.forced_maneuver_state_name()
-                        forced_state = getattr(State, forced_state_name, None) if forced_state_name else None
-                        current_state = forced_state if forced_state is not None else State.PARKING_OUT_LEFT
-                    else:
-                        current_state = fsm.process(
-                            env_state,
-                            planner_return_complete = planner.return_complete(),
-                        )
 
                     # ── PID + CTE ────────────────────────────────────────
                     cte_actual = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0
-                    target_cte = planner.calculate_target_cte(current_state)
+                    target_cte = cte_controller.calculate_target_cte(current_state)
 
                     # Real dt from Timer for accurate PID control
                     dt = timer.get_loop_duration() / 1000.0
@@ -331,7 +267,7 @@ def main():
                     # ── CAN ──────────────────────────────────────────────
                     steering = round(pid_return * -1, 2)
 
-                    forced_steering = planner.forced_steering_override()
+                    forced_steering = cte_controller.forced_steering_override()
                     if forced_steering is not None:
                         steering = forced_steering
                     
