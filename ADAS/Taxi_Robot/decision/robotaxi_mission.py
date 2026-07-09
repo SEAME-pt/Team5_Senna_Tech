@@ -167,8 +167,13 @@ class RobotaxiMission:
             if not path or len(path) <= 1:
                 return TaxiManeuver.NONE
 
-            next_cell = path[1]
-            if next_cell.col < self.parking.col:
+            # The first path cells may keep the same parking column before the split.
+            # Decide startup side from the first horizontal deviation in the route.
+            startup_col = _first_col_deviation(path=path, base_col=self.parking.col)
+            if startup_col is None:
+                return TaxiManeuver.NONE
+
+            if startup_col < self.parking.col:
                 self.expected_start_cross_aruco_id = 11
                 print("Startup ArUco 14 detected: path goes RIGHT.")
                 return TaxiManeuver.PARKING_OUT_RIGHT
@@ -257,3 +262,10 @@ class RobotaxiMission:
             return 0.0
 
         return remaining
+
+
+def _first_col_deviation(path: list[GridPos], base_col: int) -> int | None:
+    for pos in path[1:]:
+        if pos.col != base_col:
+            return pos.col
+    return None
