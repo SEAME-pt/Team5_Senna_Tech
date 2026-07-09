@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 import time
 
+from decision.decision_fsm import State
 from map.track_map import GridPos, get_aruco_id
 from map.path import find_path
 
@@ -218,6 +219,38 @@ class RobotaxiMission:
             return TaxiManeuver.CROSS_LEFT
 
         return TaxiManeuver.NONE
+
+    def orchestrate_maneuver(
+        self,
+        fsm,
+        taxi_maneuver: TaxiManeuver,
+        aruco_id: int | None,
+    ) -> None:
+        """Apply non-startup maneuver transitions to the FSM.
+
+        Startup parking-out left/right decision (ArUco 14 event) is handled by
+        parking_intersection controller, as requested by architecture split.
+        """
+        if taxi_maneuver == TaxiManeuver.CROSS_LEFT:
+            fsm.signal_robotaxi_state(State.CROSS_LEFT, "ArUco 13: Executing cross left")
+            return
+
+        if taxi_maneuver == TaxiManeuver.CROSS_RIGHT:
+            fsm.signal_robotaxi_state(State.CROSS_RIGHT, "ArUco 11 detected: leaving crossing")
+            return
+
+        if taxi_maneuver == TaxiManeuver.PARKING_IN_LEFT:
+            fsm.signal_robotaxi_state(State.PARKING_IN_LEFT, "ArUco 11 detected: entering parking")
+            return
+
+        if taxi_maneuver == TaxiManeuver.PARKING_IN_RIGHT:
+            fsm.signal_robotaxi_state(State.PARKING_IN_RIGHT, "ArUco 12: Approaching parking from right")
+            return
+
+        # Keep this parking-in completion rule here, because this file is the
+        # maneuver orchestrator and owns marker-driven progression semantics.
+        if fsm.state in (State.PARKING_IN_LEFT, State.PARKING_IN_RIGHT) and aruco_id is None:
+            fsm.state = State.RETURNING
 
     def _target_reached(
         self,

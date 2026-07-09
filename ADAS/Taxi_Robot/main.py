@@ -8,7 +8,7 @@ from map.track_map import (
 )
 
 from map.path import print_path_map
-from decision.robotaxi_mission import RobotaxiMission
+from decision.taxirobot_cte_manipulation.robotaxi_mission import RobotaxiMission
 
 logging.basicConfig(level=logging.INFO)
 
@@ -200,11 +200,14 @@ def main():
                         goal = robotaxi.get_current_goal()
 
                         taxi_maneuver = robotaxi.get_taxi_maneuver(aruco_id, aruco_distance_m, path=path)
-                        cte_controller.update_maneuver_state(
+                        robotaxi.orchestrate_maneuver(
                             fsm=fsm,
                             taxi_maneuver=taxi_maneuver,
                             aruco_id=aruco_id,
-                            aruco_distance_m=aruco_distance_m,
+                        )
+                        cte_controller.update_startup_parking_decision(
+                            fsm=fsm,
+                            taxi_maneuver=taxi_maneuver,
                         )
                     else:
                         path = robotaxi.get_path(current_grid_pos)
