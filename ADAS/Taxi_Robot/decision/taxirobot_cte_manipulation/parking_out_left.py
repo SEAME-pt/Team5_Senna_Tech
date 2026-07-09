@@ -24,26 +24,6 @@ class ForcedManeuverWindow:
 			"CROSS_LEFT": 1.0,
 		}
 
-
-class ParkingOutLeftPolicy:
-	"""Encapsulates parking-out-left specific ArUco decisions."""
-
-	def apply_cross_left_transition(
-		self,
-		fsm,
-		aruco_id: int | None,
-		aruco_distance_m: float | None,
-		cross_left_forced_trigger_m: float,
-	) -> bool:
-		"""Switch to CROSS_LEFT and tell caller whether forced window should start."""
-		changed = fsm.signal_robotaxi_state(State.CROSS_LEFT, "ArUco 13: Executing cross left")
-		return (
-			changed
-			and aruco_id == 13
-			and aruco_distance_m is not None
-			and aruco_distance_m <= cross_left_forced_trigger_m
-		)
-
 	def start(self, state_name: str, duration_s: float | None = None) -> None:
 		if state_name not in self.maneuver_cte_by_state:
 			return
@@ -85,6 +65,26 @@ class ParkingOutLeftPolicy:
 		self._state_name = None
 		self._started_at = None
 		self._active_duration_s = self.default_duration_s
+
+
+class ParkingOutLeftPolicy:
+	"""Encapsulates parking-out-left specific ArUco decisions."""
+
+	def apply_cross_left_transition(
+		self,
+		fsm,
+		aruco_id: int | None,
+		aruco_distance_m: float | None,
+		cross_left_forced_trigger_m: float,
+	) -> bool:
+		"""Switch to CROSS_LEFT and tell caller whether forced window should start."""
+		changed = fsm.signal_robotaxi_state(State.CROSS_LEFT, "ArUco 13: Executing cross left")
+		return (
+			changed
+			and aruco_id == 13
+			and aruco_distance_m is not None
+			and aruco_distance_m <= cross_left_forced_trigger_m
+		)
 
 
 class ParkingOutTimer:
