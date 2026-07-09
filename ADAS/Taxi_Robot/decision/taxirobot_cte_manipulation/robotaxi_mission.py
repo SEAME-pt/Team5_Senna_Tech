@@ -52,6 +52,7 @@ class RobotaxiMission:
 
     # ArUco-based decision thresholds.
     outside_decision_distance_m: float = 1.30
+    cross_left_trigger_distance_m: float = 0.65
     startup_decision_aruco_id: int = 14
     parking_station_stop_distance_m: float = 0.20
 
@@ -213,8 +214,11 @@ class RobotaxiMission:
             self.aruco_armed = False
             return TaxiManeuver.PARKING_IN_RIGHT
 
-        # ArUco 13: Turn left onto the intersection on the way there.
-        if detected_aruco_id == 13:
+        # ArUco 13: Turn left only when close enough to the marker.
+        if (
+            detected_aruco_id == 13
+            and detected_distance_m <= self.cross_left_trigger_distance_m
+        ):
             self.aruco_armed = False
             return TaxiManeuver.CROSS_LEFT
 
@@ -228,8 +232,7 @@ class RobotaxiMission:
     ) -> None:
         """Apply non-startup maneuver transitions to the FSM.
 
-        Startup parking-out left/right decision (ArUco 14 event) is handled by
-        parking_intersection controller, as requested by architecture split.
+        Startup parking-out left/right decision (ArUco 14 event)
         """
         if taxi_maneuver == TaxiManeuver.CROSS_LEFT:
             fsm.signal_robotaxi_state(State.CROSS_LEFT, "ArUco 13: Executing cross left")
@@ -247,10 +250,8 @@ class RobotaxiMission:
             fsm.signal_robotaxi_state(State.PARKING_IN_RIGHT, "ArUco 12: Approaching parking from right")
             return
 
-        # Keep this parking-in completion rule here, because this file is the
-        # maneuver orchestrator and owns marker-driven progression semantics.
         if fsm.state in (State.PARKING_IN_LEFT, State.PARKING_IN_RIGHT) and aruco_id is None:
-            fsm.state = State.RETURNING
+            fsm.state = State.SPEED_50
 
     def _target_reached(
         self,

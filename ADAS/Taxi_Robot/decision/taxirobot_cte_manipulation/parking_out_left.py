@@ -16,7 +16,7 @@ class ForcedManeuverWindow:
 
 		self.maneuver_cte_by_state = {
 			"PARKING_OUT_LEFT": -1.0,
-			"CROSS_LEFT": -1.0,
+			"CROSS_LEFT": -0.60,
 		}
 
 		self.forced_steering_by_state = {
