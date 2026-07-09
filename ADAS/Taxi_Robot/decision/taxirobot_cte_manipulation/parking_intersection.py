@@ -25,9 +25,6 @@ class TaxiRobotCTEController:
 		self,
 		lane_offset: float = 0.80,  # lateral CTE offset magnitude during biased maneuvers
 		return_duration_s: float = 1.5,  # seconds to interpolate back to lane center
-		cross_left_forced_trigger_m: float = 0.788,  # reserved threshold for startup left profile tuning
-		cross_right_forced_trigger_m: float = 0.688,  # reserved threshold for startup keep-lane tuning
-		cross_right_forced_duration_s: float = 12.0,  # reserved duration for startup keep-lane profile
 	):
 		# Forced windows lock the controller into a maneuver for a fixed time,
 		# independent of noisy frame-by-frame detections.
@@ -39,9 +36,6 @@ class TaxiRobotCTEController:
 			lane_offset=lane_offset,
 			return_duration_s=return_duration_s,
 		)
-		self.cross_left_forced_trigger_m = cross_left_forced_trigger_m
-		self.cross_right_forced_trigger_m = cross_right_forced_trigger_m
-		self.cross_right_forced_duration_s = cross_right_forced_duration_s
 
 		self._cte_only_during_forced_states = {
 			"PARKING_OUT_LEFT",

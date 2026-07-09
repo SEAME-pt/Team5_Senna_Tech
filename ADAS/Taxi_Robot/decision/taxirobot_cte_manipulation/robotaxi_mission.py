@@ -3,7 +3,7 @@ from enum import Enum, auto
 import time
 
 from decision.decision_fsm import State
-from map.track_map import GridPos, get_aruco_id
+from map.track_map import GridPos
 from map.path import find_path
 
 
