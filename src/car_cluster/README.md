@@ -126,6 +126,14 @@ The Qt backend:
 - Updates QML bindings
 - Triggers warning states when thresholds are exceeded
 
+### 🤖 Robotaxi Mission State
+
+Robotaxi mission state now follows a separate path so the original cluster can stay untouched:
+
+**Taxi Robot mission enum → KUKSA Databroker → Qt Backend → Robotaxi cluster UI**
+
+The robotaxi UI is loaded only when `ROBOTAXI_CLUSTER=1` is set before launching the cluster. The default launch still opens `Main.qml`.
+
 ### 📏 Autonomy (Range) Calculation
 
 Calculated inside the Qt backend based on:
@@ -147,6 +155,7 @@ Calculated inside the Qt backend based on:
 .
 ├── CMakeLists.txt
 ├── Main.qml
+├── MainRobotaxi.qml
 ├── README.md
 ├── main.cpp
 ├── vehicleData.hpp
@@ -155,6 +164,7 @@ Calculated inside the Qt backend based on:
 │   ├── BatteryPanel.qml
 │   ├── Footer.qml
 │   ├── GearSelector.qml
+│   ├── RobotaxiStatePanel.qml
 │   ├── Header.qml
 │   ├── SpeedPanel.qml
 │   ├── TrafficSign.qml

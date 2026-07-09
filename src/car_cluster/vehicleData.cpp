@@ -36,6 +36,8 @@ TRAFFIC_SIGN vehicleData::getTrafficSign() const{ return trafficSign;}
 
 SPEED_SIGN vehicleData::getSpeedSign() const{ return speedSign;}
 
+int vehicleData::getRobotaxiState() const{ return robotaxiState;}
+
 QString vehicleData::getGear() const{ return gear;}
 
 
@@ -88,6 +90,13 @@ void    vehicleData::setSpeedSign(SPEED_SIGN newSpeedSign){
         return ;
     this->speedSign = newSpeedSign;
     emit speedSignChanged();
+}
+
+void    vehicleData::setRobotaxiState(int newRobotaxiState){
+    if (this->robotaxiState == newRobotaxiState)
+        return ;
+    this->robotaxiState = newRobotaxiState;
+    emit robotaxiStateChanged();
 }
 
 void    vehicleData::setGear(QString newGear){
@@ -208,6 +217,7 @@ void vehicleData::kuksaLoop() {
     request.add_signal_paths("Vehicle.Powertrain.ElectricMotor.Power");
     request.add_signal_paths("Vehicle.ADAS.TrafficSign");
     request.add_signal_paths("Vehicle.ADAS.SpeedLimitSign");
+    request.add_signal_paths("Vehicle.ADAS.Robotaxi.State");
 
     std::unique_ptr<grpc::ClientReader<SubscribeResponse>> reader(
         stub->Subscribe(&context, request));
@@ -257,6 +267,11 @@ void vehicleData::kuksaLoop() {
                 else if (path == "Vehicle.ADAS.SpeedLimitSign") {
                     if (value.has_uint32()) {
                         setSpeedSign((SPEED_SIGN)value.uint32());
+                    }
+                }
+                else if (path == "Vehicle.ADAS.Robotaxi.State") {
+                    if (value.has_uint32()) {
+                        setRobotaxiState(static_cast<int>(value.uint32()));
                     }
                 }
             }

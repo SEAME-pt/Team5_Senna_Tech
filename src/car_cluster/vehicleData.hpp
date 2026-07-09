@@ -42,6 +42,17 @@ enum class SPEED_SIGN {
     SIGNAL_80 = 12,
 };
 
+enum class ROBOTAXI_STATE {
+    DISABLED = 0,
+    GOING_TO_PICKUP = 1,
+    WAITING_AT_PICKUP = 2,
+    GOING_TO_DROPOFF = 3,
+    WAITING_AT_DROPOFF = 4,
+    RETURNING_TO_PARKING = 5,
+    COMPLETE = 6,
+    FAULT = 7,
+};
+
 class vehicleData : public QObject
 {
     Q_OBJECT
@@ -51,6 +62,7 @@ class vehicleData : public QObject
     Q_PROPERTY(uint16_t odometer READ getOdometer NOTIFY odometerChanged)
     Q_PROPERTY(TRAFFIC_SIGN trafficSign READ getTrafficSign NOTIFY trafficSignChanged)
     Q_PROPERTY(SPEED_SIGN speedSign READ getSpeedSign NOTIFY speedSignChanged)
+    Q_PROPERTY(int robotaxiState READ getRobotaxiState NOTIFY robotaxiStateChanged)
     Q_PROPERTY(QString gear READ getGear NOTIFY gearChanged)
 
     public:
@@ -63,6 +75,7 @@ class vehicleData : public QObject
         uint16_t        getOdometer() const;
         TRAFFIC_SIGN    getTrafficSign() const;
         SPEED_SIGN      getSpeedSign() const;
+        int             getRobotaxiState() const;
         QString         getGear() const;
 
     signals:
@@ -72,6 +85,7 @@ class vehicleData : public QObject
         void    odometerChanged();
         void    trafficSignChanged();
         void    speedSignChanged();
+        void    robotaxiStateChanged();
         void    gearChanged();
 
     public slots: // mudam os atributos e chamam os respectivos sinais
@@ -81,6 +95,7 @@ class vehicleData : public QObject
         void    setOdometer(uint16_t newOdometer);
         void    setTrafficSign(TRAFFIC_SIGN newTrafficSign);
         void    setSpeedSign(SPEED_SIGN newSpeedSign);
+        void    setRobotaxiState(int newRobotaxiState);
         void    setGear(QString newGear);
 
         //SIMULATION
@@ -103,6 +118,7 @@ class vehicleData : public QObject
         uint16_t      odometer;
         TRAFFIC_SIGN  trafficSign = TRAFFIC_SIGN::NONE;
         SPEED_SIGN    speedSign = SPEED_SIGN::NONE;
+        int           robotaxiState = static_cast<int>(ROBOTAXI_STATE::DISABLED);
         QString       gear;
 
         // Thread para o gRPC
