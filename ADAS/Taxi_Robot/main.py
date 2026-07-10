@@ -19,7 +19,7 @@ from object import CorridorChecker, build_environment_state
 from LFA import BEVTransform, SlidingWindowsLaneFitter, draw_lane_overlay
 from decision import VehicleFSM, State, STATE_THROTTLE, TaxiRobotCTEController, AdaptiveCruiseControl, PID
 from kuksa_publish import KuksaClient
-from utils import CanSender, Display, HardwareMonitor, Timer
+from utils import HardwareMonitor, Timer
 from localization import ArucoWorker
 
 try:
@@ -140,7 +140,6 @@ def main():
                 while True:
                     timer.start_loop()
                     frame_count += 1
-                    timer.start_loop()
 
                     # ── CAMERA ──────────────────────────────────────────
                     timer.start_stage("Camera")
@@ -318,9 +317,6 @@ def main():
                     timer.end_stage("Display")
 
                     timer.end_loop()
-                    fps = timer.get_fps()
-                    cpu_temp = hw_monitor.read_temp()
-                    total_cycle_time = timer.get_loop_duration()
 
             except KeyboardInterrupt:
                 logging.info("Shutting down...")

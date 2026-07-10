@@ -96,7 +96,7 @@ class TaxiRobotCTEController:
 			return
 
 		if aruco_distance_m <= 0.70 and not self._forced.is_active():
-			self._forced.start("CROSS_LEFT", duration_s=5.0)
+			self._forced.start("CROSS_LEFT", duration_s=2.5)
 
 	def resolve_drive_state(self, fsm, env_state):
 		# Drive state source is either:

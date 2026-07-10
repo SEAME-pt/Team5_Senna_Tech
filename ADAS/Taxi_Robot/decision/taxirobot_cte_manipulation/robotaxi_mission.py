@@ -54,7 +54,7 @@ class RobotaxiMission:
     outside_decision_distance_m: float = 1.30
     cross_left_trigger_distance_m: float = 0.65
     startup_decision_aruco_id: int = 14
-    parking_station_stop_distance_m: float = 0.20
+    parking_station_stop_distance_m: float = 0.25
 
     # True only at the start of the mission.
     parking_exit_pending: bool = True
