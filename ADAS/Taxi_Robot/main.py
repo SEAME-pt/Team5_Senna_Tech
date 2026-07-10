@@ -209,6 +209,11 @@ def main():
                             aruco_id=aruco_id,
                             aruco_distance_m=aruco_distance_m,
                         )
+                        cte_controller.update_parking_in_right_forced_decision(
+                            taxi_maneuver=taxi_maneuver,
+                            aruco_id=aruco_id,
+                            aruco_distance_m=aruco_distance_m,
+                        )
                         cte_controller.update_startup_parking_decision(
                             fsm=fsm,
                             taxi_maneuver=taxi_maneuver,

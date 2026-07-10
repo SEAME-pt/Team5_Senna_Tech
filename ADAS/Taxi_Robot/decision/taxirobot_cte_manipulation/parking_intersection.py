@@ -4,6 +4,7 @@ import logging
 
 from decision.decision_fsm import State
 from .robotaxi_mission import TaxiManeuver
+from .parking_in_left import ParkingInPolicy, PARKING_IN_RIGHT_FORCED_DURATION_S
 
 from .parking_out_left import (
 	ForcedManeuverWindow,
@@ -36,6 +37,7 @@ class TaxiRobotCTEController:
 			lane_offset=lane_offset,
 			return_duration_s=return_duration_s,
 		)
+		self._parking_in_policy = ParkingInPolicy()
 
 		self._cte_only_during_forced_states = {
 			"PARKING_OUT_LEFT",
@@ -97,6 +99,20 @@ class TaxiRobotCTEController:
 
 		if aruco_distance_m <= 0.70 and not self._forced.is_active():
 			self._forced.start("CROSS_LEFT", duration_s=2.5)
+
+	def update_parking_in_right_forced_decision(
+		self,
+		taxi_maneuver: TaxiManeuver,
+		aruco_id: int | None,
+		aruco_distance_m: float | None,
+	) -> None:
+		"""Trigger blind right turn into parking when ArUco 12 is close enough."""
+		if self._parking_in_policy.should_start_parking_in_right_forced(
+			taxi_maneuver=taxi_maneuver,
+			aruco_id=aruco_id,
+			aruco_distance_m=aruco_distance_m,
+		) and not self._forced.is_active():
+			self._forced.start("PARKING_IN_RIGHT", duration_s=PARKING_IN_RIGHT_FORCED_DURATION_S)
 
 	def resolve_drive_state(self, fsm, env_state):
 		# Drive state source is either:

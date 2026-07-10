@@ -14,14 +14,17 @@ class ForcedManeuverWindow:
 		self._state_name = None
 		self._started_at = None
 
+		# forced maneuver CTE and steering overrides by state name.
 		self.maneuver_cte_by_state = {
 			"PARKING_OUT_LEFT": -1.0,
 			"CROSS_LEFT": -0.60,
+			"PARKING_IN_RIGHT": -0.80,
 		}
 
 		self.forced_steering_by_state = {
 			"PARKING_OUT_LEFT": 1.0,
 			"CROSS_LEFT": 1.0,
+			"PARKING_IN_RIGHT": -0.80,
 		}
 
 	def start(self, state_name: str, duration_s: float | None = None) -> None:
