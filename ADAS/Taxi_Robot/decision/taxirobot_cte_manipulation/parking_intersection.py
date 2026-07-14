@@ -24,14 +24,14 @@ class TaxiRobotCTEController:
 
 	def __init__(
 		self,
-		lane_offset: float = 0.80,  # lateral CTE offset magnitude during biased maneuvers
+		lane_offset: float = 0.70,  # lateral CTE offset magnitude during biased maneuvers
 		return_duration_s: float = 1.5,  # seconds to interpolate back to lane center
 	):
 		# Forced windows lock the controller into a maneuver for a fixed time,
 		# independent of noisy frame-by-frame detections.
 		self._forced = ForcedManeuverWindow()
 		# Separate timer used to detect when parking-out should end.
-		self._parking_out_timer = ParkingOutTimer(duration_s=4.0)
+		self._parking_out_timer = ParkingOutTimer(duration_s=3.5)
 		# Smooth interpolation profile to come back from lateral offset to center.
 		self._returning = ReturningProfile(
 			lane_offset=lane_offset,

@@ -9,7 +9,7 @@ class ForcedManeuverWindow:
 	"""Tracks fixed-duration forced maneuver windows and optional steering overrides."""
 
 	def __init__(self):
-		self.default_duration_s = 4.0
+		self.default_duration_s = 3.5
 		self._active_duration_s = self.default_duration_s
 		self._state_name = None
 		self._started_at = None
@@ -18,13 +18,13 @@ class ForcedManeuverWindow:
 		self.maneuver_cte_by_state = {
 			"PARKING_OUT_LEFT": -1.0,
 			"CROSS_LEFT": -0.60,
-			"PARKING_IN_RIGHT": -0.80,
+			"PARKING_IN_RIGHT": -0.70,
 		}
 
 		self.forced_steering_by_state = {
 			"PARKING_OUT_LEFT": 1.0,
 			"CROSS_LEFT": 1.0,
-			"PARKING_IN_RIGHT": -0.80,
+			"PARKING_IN_RIGHT": -0.70,
 		}
 
 	def start(self, state_name: str, duration_s: float | None = None) -> None:
@@ -93,7 +93,7 @@ class ParkingOutLeftPolicy:
 class ParkingOutTimer:
 	"""Tracks parking-out elapsed time so main does not carry this logic."""
 
-	def __init__(self, duration_s: float = 5.0):
+	def __init__(self, duration_s: float = 4.0):
 		self.duration_s = duration_s
 		self._start_time = None
 
@@ -116,7 +116,7 @@ class ParkingOutTimer:
 class ReturningProfile:
 	"""Provides smooth interpolation from maneuver CTE back to lane center."""
 
-	def __init__(self, lane_offset: float = 0.80, return_duration_s: float = 1.5):
+	def __init__(self, lane_offset: float = 0.70, return_duration_s: float = 1.5):
 		self.lane_offset = lane_offset
 		self.return_duration_s = return_duration_s
 

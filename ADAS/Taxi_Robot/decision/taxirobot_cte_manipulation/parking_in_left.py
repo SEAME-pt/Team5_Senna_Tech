@@ -4,8 +4,8 @@ from .robotaxi_mission import TaxiManeuver
 
 
 # ArUco 12 trigger for parking-in-right blind maneuver.
-PARKING_IN_RIGHT_TRIGGER_DISTANCE_M = 0.80
-PARKING_IN_RIGHT_FORCED_DURATION_S = 7.0
+PARKING_IN_RIGHT_TRIGGER_DISTANCE_M = 0.75
+PARKING_IN_RIGHT_FORCED_DURATION_S = 6.0
 
 
 class ParkingInPolicy:
