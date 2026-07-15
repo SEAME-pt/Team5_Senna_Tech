@@ -209,6 +209,18 @@ def main():
                             aruco_id=aruco_id,
                             aruco_distance_m=aruco_distance_m,
                         )
+                        cte_controller.update_cross_right_forced_decision(
+                            fsm=fsm,
+                            taxi_state=robotaxi.state,
+                            aruco_id=aruco_id,
+                            aruco_distance_m=aruco_distance_m,
+                        )
+                        cte_controller.update_parking_in_left_forced_decision(
+                            fsm=fsm,
+                            taxi_state=robotaxi.state,
+                            aruco_id=aruco_id,
+                            aruco_distance_m=aruco_distance_m,
+                        )
                         cte_controller.update_parking_in_right_forced_decision(
                             taxi_maneuver=taxi_maneuver,
                             aruco_id=aruco_id,
