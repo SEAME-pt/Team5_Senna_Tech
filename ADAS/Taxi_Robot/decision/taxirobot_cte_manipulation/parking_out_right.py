@@ -20,7 +20,7 @@ TRIGGER_TAXI_STATES = {TaxiState.GOING_TO_PICKUP}
 TRIGGER_DISTANCE_M = 0.60
 
 # Duracao da curva cega. Com o throttle fixo, isto e o raio da curva.
-FORCED_DURATION_S = 14.0
+FORCED_DURATION_S = 7.0
 
 # CTE alvo durante a manobra. Positivo = desvio para a DIREITA.
 FORCED_CTE = 0.70
