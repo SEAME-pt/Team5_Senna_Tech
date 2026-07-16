@@ -47,7 +47,7 @@ ARUCO_ID_BY_POS = {
     GridPos(0, 12): 4,
     GridPos(0, 7): 5,
     GridPos(0, 3): 6,
-    GridPos(4, 0): 7,
+    GridPos(2, 0): 7,
     GridPos(9, 5): 8,
     GridPos(14, 3): 9,
     GridPos(18, 6): 11,     # CROSS_RIGHT & PARKING_IN_LEFT
