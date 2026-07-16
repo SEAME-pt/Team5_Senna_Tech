@@ -307,7 +307,7 @@ def main():
 
                     # ── KUKSA ────────────────────────────────────────────
                     timer.start_stage("Kuksa")
-                    kuksa_channel.send(env_state.detections)
+                    kuksa_channel.send(env_state.detections, robotaxi_state=robotaxi.state.value)
                     timer.end_stage("Kuksa")
 
                     # ── DISPLAY ──────────────────────────────────────────

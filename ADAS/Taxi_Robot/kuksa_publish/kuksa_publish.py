@@ -59,30 +59,41 @@ class KuksaClient:
     # ---------------------------
     # Send correct signal to Kuksa
     # ---------------------------
-    def send(self, detections):
+    def send(self, detections, robotaxi_state=None):
         speed_signal, traffic_signal = self._select_signals(detections)
 
         speed = self.detect_speed_signal(speed_signal.class_id)
         traffic = self.detect_traffic_signal(traffic_signal.class_id)
 
-        request = val_v1.SetRequest(
-            updates=[
-                val_v1.EntryUpdate(
-                    entry=types_v1.DataEntry(
-                        path="Vehicle.ADAS.SpeedLimitSign",
-                        value=types_v1.Datapoint(uint32=speed)
-                    ),
-                    fields=[types_v1.Field.Value("FIELD_VALUE")]
+        updates = [
+            val_v1.EntryUpdate(
+                entry=types_v1.DataEntry(
+                    path="Vehicle.ADAS.SpeedLimitSign",
+                    value=types_v1.Datapoint(uint32=speed)
                 ),
+                fields=[types_v1.Field.Value("FIELD_VALUE")]
+            ),
+            val_v1.EntryUpdate(
+                entry=types_v1.DataEntry(
+                    path="Vehicle.ADAS.TrafficSign",
+                    value=types_v1.Datapoint(uint32=traffic)
+                ),
+                fields=[types_v1.Field.Value("FIELD_VALUE")]
+            )
+        ]
+
+        if robotaxi_state is not None:
+            updates.append(
                 val_v1.EntryUpdate(
                     entry=types_v1.DataEntry(
-                        path="Vehicle.ADAS.TrafficSign",
-                        value=types_v1.Datapoint(uint32=traffic)
+                        path="Vehicle.ADAS.Robotaxi.State",
+                        value=types_v1.Datapoint(uint32=int(robotaxi_state))
                     ),
                     fields=[types_v1.Field.Value("FIELD_VALUE")]
                 )
-            ]
-        )
+            )
+
+        request = val_v1.SetRequest(updates=updates)
 
         response = self.stub.Set(request)
 
