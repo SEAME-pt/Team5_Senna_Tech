@@ -90,25 +90,3 @@ def is_drivable(pos: GridPos) -> bool:
         Cell.CROSSING,
         Cell.ARUCO,
     )
-
-
-def is_aruco_cell(pos: GridPos) -> bool:
-    return get_aruco_id(pos) is not None
-
-
-def parse_coord(value: str) -> GridPos:
-    try:
-        row_str, col_str = value.split(",")
-        return GridPos(int(row_str), int(col_str))
-    except ValueError as exc:
-        raise ValueError(
-            f"Invalid coordinate '{value}'. Expected format: row,col"
-        ) from exc
-
-
-def validate_coord(name: str, pos: GridPos) -> None:
-    if not is_inside(pos):
-        raise ValueError(f"{name} {pos} is outside the map")
-
-    if not is_drivable(pos):
-        raise ValueError(f"{name} {pos} is not on a drivable cell")
