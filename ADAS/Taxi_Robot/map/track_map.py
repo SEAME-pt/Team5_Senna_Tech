@@ -19,9 +19,9 @@ TRACK_MAP = [
 #    0  1  2  3  4  5  6  7  8  9  10 11 12 13 14
     [1, 1, 1, 5, 0, 0, 0, 5, 0, 0, 0, 0, 5, 0, 1],  # 0
     [1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],  # 1
-    [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5],  # 2
+    [5, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5],  # 2
     [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],  # 3
-    [5, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],  # 4
+    [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],  # 4
     [1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],  # 5
     [1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],  # 6
     [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5],  # 7
@@ -47,7 +47,7 @@ ARUCO_ID_BY_POS = {
     GridPos(0, 12): 4,
     GridPos(0, 7): 5,
     GridPos(0, 3): 6,
-    GridPos(4, 0): 7,
+    GridPos(2, 0): 7,
     GridPos(9, 5): 8,
     GridPos(14, 3): 9,
     GridPos(18, 6): 11,     # CROSS_RIGHT & PARKING_IN_LEFT
@@ -90,25 +90,3 @@ def is_drivable(pos: GridPos) -> bool:
         Cell.CROSSING,
         Cell.ARUCO,
     )
-
-
-def is_aruco_cell(pos: GridPos) -> bool:
-    return get_aruco_id(pos) is not None
-
-
-def parse_coord(value: str) -> GridPos:
-    try:
-        row_str, col_str = value.split(",")
-        return GridPos(int(row_str), int(col_str))
-    except ValueError as exc:
-        raise ValueError(
-            f"Invalid coordinate '{value}'. Expected format: row,col"
-        ) from exc
-
-
-def validate_coord(name: str, pos: GridPos) -> None:
-    if not is_inside(pos):
-        raise ValueError(f"{name} {pos} is outside the map")
-
-    if not is_drivable(pos):
-        raise ValueError(f"{name} {pos} is not on a drivable cell")

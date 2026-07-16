@@ -4,6 +4,10 @@ import logging
 
 from decision.decision_fsm import State
 from .robotaxi_mission import TaxiManeuver
+from .parking_in_left import ParkingInPolicy, ParkingInPolicy, PARKING_IN_RIGHT_FORCED_DURATION_S
+
+from . import parking_out_right as cross_right_cfg      # ParkingOutRightPolicy → CROSS_RIGHT
+from . import parking_in_right  as parking_in_left_cfg  # ParkingInRightPolicy  → PARKING_IN_LEFT
 
 from .parking_out_left import (
 	ForcedManeuverWindow,
@@ -12,7 +16,6 @@ from .parking_out_left import (
 )
 
 log = logging.getLogger("TaxiRobotCTEController")
-
 
 class TaxiRobotCTEController:
 	"""Owns parking-intersection CTE behavior.
@@ -23,20 +26,30 @@ class TaxiRobotCTEController:
 
 	def __init__(
 		self,
-		lane_offset: float = 0.80,  # lateral CTE offset magnitude during biased maneuvers
+		lane_offset: float = 0.70,  # lateral CTE offset magnitude during biased maneuvers
 		return_duration_s: float = 1.5,  # seconds to interpolate back to lane center
 	):
 		# Forced windows lock the controller into a maneuver for a fixed time,
 		# independent of noisy frame-by-frame detections.
 		self._forced = ForcedManeuverWindow()
 		# Separate timer used to detect when parking-out should end.
-		self._parking_out_timer = ParkingOutTimer(duration_s=4.0)
+		self._parking_out_timer = ParkingOutTimer(duration_s=3.5)
 		# Smooth interpolation profile to come back from lateral offset to center.
 		self._returning = ReturningProfile(
 			lane_offset=lane_offset,
 			return_duration_s=return_duration_s,
 		)
+		self._parking_in_policy = ParkingInPolicy()
 
+		# ArUco 11 policies. Their tuning lives entirely in their own modules and
+		# is registered here into the forced-window tables.
+		self._cross_right_policy = cross_right_cfg.ParkingOutRightPolicy()
+		self._parking_in_left_policy = parking_in_left_cfg.ParkingInRightPolicy()
+ 
+		for cfg in (cross_right_cfg, parking_in_left_cfg):
+			self._forced.maneuver_cte_by_state[cfg.STATE_NAME] = cfg.FORCED_CTE
+			self._forced.forced_steering_by_state[cfg.STATE_NAME] = cfg.FORCED_STEERING
+			
 		self._cte_only_during_forced_states = {
 			"PARKING_OUT_LEFT",
 			"CROSS_LEFT",
@@ -96,7 +109,65 @@ class TaxiRobotCTEController:
 			return
 
 		if aruco_distance_m <= 0.70 and not self._forced.is_active():
-			self._forced.start("CROSS_LEFT", duration_s=5.0)
+			self._forced.start("CROSS_LEFT", duration_s=2.5)
+
+	def update_cross_right_forced_decision(
+		self,
+		fsm,
+		taxi_state,
+		aruco_id: int | None,
+		aruco_distance_m: float | None,
+	) -> None:
+		"""ArUco 11 + GOING_TO_PICKUP: start the blind right turn."""
+		if self._forced.is_active():
+			return
+
+		if self._cross_right_policy.should_start_forced(
+			fsm_state=fsm.state,
+			taxi_state=taxi_state,
+			aruco_id=aruco_id,
+			aruco_distance_m=aruco_distance_m,
+		):
+			self._forced.start(
+				cross_right_cfg.STATE_NAME,
+				duration_s=cross_right_cfg.FORCED_DURATION_S,
+			)
+	
+	def update_parking_in_left_forced_decision(
+		self,
+		fsm,
+		taxi_state,
+		aruco_id: int | None,
+		aruco_distance_m: float | None,
+	) -> None:
+		"""ArUco 11 + RETURNING_TO_PARKING: start the blind left turn into parking."""
+		if self._forced.is_active():
+			return
+
+		if self._parking_in_left_policy.should_start_forced(
+			fsm_state=fsm.state,
+			taxi_state=taxi_state,
+			aruco_id=aruco_id,
+			aruco_distance_m=aruco_distance_m,
+		):
+			self._forced.start(
+				parking_in_left_cfg.STATE_NAME,
+				duration_s=parking_in_left_cfg.FORCED_DURATION_S,
+			)
+			
+	def update_parking_in_right_forced_decision(
+		self,
+		taxi_maneuver: TaxiManeuver,
+		aruco_id: int | None,
+		aruco_distance_m: float | None,
+	) -> None:
+		"""Trigger blind right turn into parking when ArUco 12 is close enough."""
+		if self._parking_in_policy.should_start_parking_in_right_forced(
+			taxi_maneuver=taxi_maneuver,
+			aruco_id=aruco_id,
+			aruco_distance_m=aruco_distance_m,
+		) and not self._forced.is_active():
+			self._forced.start("PARKING_IN_RIGHT", duration_s=PARKING_IN_RIGHT_FORCED_DURATION_S)
 
 	def resolve_drive_state(self, fsm, env_state):
 		# Drive state source is either:

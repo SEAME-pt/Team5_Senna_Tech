@@ -45,16 +45,16 @@ class RobotaxiMission:
 
     # Distance from a target ArUco marker at which the car
     # considers that it has reached the target and should stop.
-    stop_distance_m: float = 0.25
+    stop_distance_m: float = 0.35
 
-    stop_duration_s: float = 5.0
+    stop_duration_s: float = 3.5
     stop_started_at: float | None = None
 
     # ArUco-based decision thresholds.
     outside_decision_distance_m: float = 1.30
     cross_left_trigger_distance_m: float = 0.65
     startup_decision_aruco_id: int = 14
-    parking_station_stop_distance_m: float = 0.20
+    parking_station_stop_distance_m: float = 0.35
 
     # True only at the start of the mission.
     parking_exit_pending: bool = True
@@ -110,7 +110,7 @@ class RobotaxiMission:
             ):
                 self.state = TaxiState.WAITING_AT_PICKUP
                 self.stop_started_at = now
-                print("Pickup reached. Stopping for 5 seconds.")
+                print("Pickup reached. Stopping for 3 seconds.")
 
         # Remain stopped at pickup until the waiting time ends.
         elif self.state == TaxiState.WAITING_AT_PICKUP:
@@ -128,7 +128,7 @@ class RobotaxiMission:
             ):
                 self.state = TaxiState.WAITING_AT_DROPOFF
                 self.stop_started_at = now
-                print("Dropoff reached. Stopping for 5 seconds.")
+                print("Dropoff reached. Stopping for 3 seconds.")
 
         # Remain stopped at dropoff until the waiting time ends.
         elif self.state == TaxiState.WAITING_AT_DROPOFF:
