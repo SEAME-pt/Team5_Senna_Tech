@@ -18,13 +18,13 @@ TRIGGER_TAXI_STATES = {TaxiState.RETURNING_TO_PARKING}
 TRIGGER_DISTANCE_M = 0.75
 
 # Duracao da curva cega.
-FORCED_DURATION_S = 3.0
+FORCED_DURATION_S = 10.0
 
 # CTE alvo durante a manobra. Negativo = desvio para a ESQUERDA.
-FORCED_CTE = -0.70
+FORCED_CTE = -0.90
 
 # Comando directo de volante. Positivo = virar a ESQUERDA.
-FORCED_STEERING = 0.70
+FORCED_STEERING = 0.90
 # =====================================================================
 
 STATE_NAME = State.PARKING_IN_LEFT.name

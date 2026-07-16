@@ -17,7 +17,7 @@ TRIGGER_TAXI_STATES = {TaxiState.GOING_TO_PICKUP}
 # Distance to ArUco 11 at which the blind turn starts.
 # Maior  -> comeca a virar mais cedo (corta a curva).
 # Menor  -> comeca a virar mais tarde (passa ao largo).
-TRIGGER_DISTANCE_M = 0.60
+TRIGGER_DISTANCE_M = 0.67
 
 # Duracao da curva cega. Com o throttle fixo, isto e o raio da curva.
 FORCED_DURATION_S = 7.0

@@ -45,7 +45,7 @@ class RobotaxiMission:
 
     # Distance from a target ArUco marker at which the car
     # considers that it has reached the target and should stop.
-    stop_distance_m: float = 0.25
+    stop_distance_m: float = 0.35
 
     stop_duration_s: float = 3.5
     stop_started_at: float | None = None
@@ -54,7 +54,7 @@ class RobotaxiMission:
     outside_decision_distance_m: float = 1.30
     cross_left_trigger_distance_m: float = 0.65
     startup_decision_aruco_id: int = 14
-    parking_station_stop_distance_m: float = 0.25
+    parking_station_stop_distance_m: float = 0.35
 
     # True only at the start of the mission.
     parking_exit_pending: bool = True

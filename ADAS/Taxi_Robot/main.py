@@ -350,4 +350,4 @@ if __name__ == "__main__":
 # python3 /home/run_robotaxi.py --pipeline_robotaxi 17,14 12,14
 
 # right command test
-# python3 /home/run_robotaxi.py --pipeline_robotaxi 14,3 12,14
+# python3 /home/run_robotaxi.py --pipeline_robotaxi 14,3 9,5
