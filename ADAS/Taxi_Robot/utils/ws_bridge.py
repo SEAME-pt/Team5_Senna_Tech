@@ -23,6 +23,7 @@ class RobotaxiWebSocketBridge:
         self._stop_event = threading.Event()
         self._lock = threading.Lock()
         self._latest_payload: Optional[Dict[str, Any]] = None
+        self._pending_commands: list[Dict[str, Any]] = []
         self._is_connected = False
 
     @property
@@ -73,6 +74,12 @@ class RobotaxiWebSocketBridge:
     def _run_thread(self) -> None:
         asyncio.run(self._run_loop())
 
+    def get_next_command(self) -> Optional[Dict[str, Any]]:
+        with self._lock:
+            if not self._pending_commands:
+                return None
+            return self._pending_commands.pop(0)
+
     async def _run_loop(self) -> None:
         reconnect_delay_s = 2.0
         send_interval_s = 1.0 / self.publish_hz
@@ -94,6 +101,11 @@ class RobotaxiWebSocketBridge:
                         if payload is not None:
                             await ws.send(json.dumps(payload))
 
+                        command = await self._try_receive_command(ws)
+                        if command is not None:
+                            with self._lock:
+                                self._pending_commands.append(command)
+
                         await asyncio.sleep(send_interval_s)
 
             except Exception as exc:
@@ -109,3 +121,21 @@ class RobotaxiWebSocketBridge:
             payload = self._latest_payload
             self._latest_payload = None
         return payload
+
+    async def _try_receive_command(self, ws) -> Optional[Dict[str, Any]]:
+        try:
+            raw = await asyncio.wait_for(ws.recv(), timeout=0.01)
+        except asyncio.TimeoutError:
+            return None
+        except Exception:
+            return None
+
+        try:
+            message = json.loads(raw)
+        except Exception:
+            return None
+
+        if message.get("type") != "command":
+            return None
+
+        return message
