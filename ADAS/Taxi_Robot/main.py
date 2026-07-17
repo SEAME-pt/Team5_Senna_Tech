@@ -488,3 +488,6 @@ if __name__ == "__main__":
 
 # right command test
 # python3 /home/run_robotaxi.py --pipeline_robotaxi 9 8
+
+# remote command test
+# python3 /home/run_robotaxi.py --pipeline_robotaxi --control-mode remote --ws-server ws://IP_DO_SERVIDOR:8000/ws/robotaxi
