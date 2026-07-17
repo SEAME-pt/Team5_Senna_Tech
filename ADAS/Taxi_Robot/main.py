@@ -69,6 +69,9 @@ def main():
     if args.control_mode == "remote" and ((args.pickup is None) != (args.dropoff is None)):
         parser.error("remote mode awaits for both pickup and dropoff to be provided")
 
+    if args.control_mode == "remote" and not args.ws_server:
+        parser.error("remote mode requires --ws-server")
+
     # ── TAXI ROBOT ARGUMENTS VALIDATION ─────────────────────────────────
     if args.pickup is not None and args.dropoff is not None:
         mission_args = resolve_mission_aruco_args(
@@ -258,6 +261,10 @@ def main():
 
                     previous_mission_state = robotaxi.state
 
+                    remote_disconnected_hold = (
+                        args.control_mode == "remote" and not ws_bridge.is_connected
+                    )
+
                     remote_hold_for_update = (
                         args.control_mode == "remote"
                         and mission_active
@@ -280,7 +287,7 @@ def main():
                         remote_hold_logged = False
 
                     # ── ROBOTAXI MISSION ─────────────────────────────────
-                    if mission_active and not remote_hold_for_update and (time.time() - pipeline_start_time) > 1.5:
+                    if mission_active and not remote_disconnected_hold and not remote_hold_for_update and (time.time() - pipeline_start_time) > 1.5:
                         robotaxi.update(aruco_id, aruco_distance_m)
 
                         path = robotaxi.get_path(current_grid_pos)
@@ -400,6 +407,10 @@ def main():
                         throttle = 0
                         steering = 0
 
+                    if remote_disconnected_hold:
+                        throttle = 0
+                        steering = 0
+
                     if remote_hold_for_update:
                         throttle = 0
                         steering = 0
@@ -438,8 +449,10 @@ def main():
                     ws_bridge.update(
                         {
                             "control_mode": args.control_mode,
+                            "ws_connected": ws_bridge.is_connected,
                             "mission_active": mission_active,
                             "remote_update_received": remote_mission_update_received,
+                            "remote_disconnected_hold": remote_disconnected_hold,
                             "remote_hold_for_update": remote_hold_for_update,
                             "fsm_state": current_state.name,
                             "mission_state": robotaxi.state.name,
