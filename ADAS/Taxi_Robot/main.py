@@ -18,7 +18,7 @@ from object import CorridorChecker, build_environment_state
 from LFA import BEVTransform, SlidingWindowsLaneFitter, draw_lane_overlay
 from decision import VehicleFSM, State, STATE_THROTTLE, TaxiRobotCTEController, AdaptiveCruiseControl, PID
 from kuksa_publish import KuksaClient
-from utils import HardwareMonitor, Timer
+from utils import HardwareMonitor, Timer, RobotaxiWebSocketBridge
 from localization import ArucoWorker
 from localization.aruco_args import resolve_mission_aruco_args
 
@@ -36,6 +36,7 @@ except ImportError:
 
 CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 15
 DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
+WS_PUBLISH_HZ = 1.0
 
 def main():
     parser = argparse.ArgumentParser()
@@ -43,12 +44,17 @@ def main():
     parser.add_argument("lane",   help="Path to Lane Detection HEF model") # get lane .hef path
     parser.add_argument("object", help="Path to Object Detection HEF model")  # get object .hef path
 
+    # ── TAXI ROBOT MISSION ARGUMENTS ─────────────────────────────
     parser.add_argument("pickup", type=int, help="Pickup ArUco ID")
     parser.add_argument("dropoff", type=int, help="Drop-off ArUco ID")
 
+    # ── DISPLAY ARGUMENTS ─────────────────────────────
     parser.add_argument("--remote",     action="store_true", help="Enable remote display streaming")
     parser.add_argument("--no-display", action="store_true", help="Disable display output")
     parser.add_argument("--virtual",    action="store_true", help="Enable virtual mode (no physical CAN commands)")  ## servo lock
+
+    # ── WEBSOCKET ARGUMENTS ─────────────────────────────
+    parser.add_argument("--ws-server", default="", help="WebSocket server URL (example: ws://192.168.1.20:8000/ws/robotaxi)")
 
     args = parser.parse_args()
 
@@ -97,6 +103,11 @@ def main():
     adaptive_cruise = AdaptiveCruiseControl()
     hw_monitor      = HardwareMonitor()
     timer           = Timer()
+    ws_bridge       = RobotaxiWebSocketBridge(
+        server_url=args.ws_server,
+        publish_hz=WS_PUBLISH_HZ,
+    )
+    ws_bridge.start()
 
     if args.remote:
         display_mode = "remote"
@@ -319,11 +330,30 @@ def main():
 
                     timer.end_loop()
 
+                    # ── WEBSOCKET ────────────────────────────────────────
+                    ws_bridge.update(
+                        {
+                            "fsm_state": current_state.name,
+                            "mission_state": robotaxi.state.name,
+                            "current_grid": {
+                                "row": current_grid_pos.row,
+                                "col": current_grid_pos.col,
+                            },
+                            "goal_grid": None if goal is None else {"row": goal.row, "col": goal.col},
+                            "path_length": len(path),
+                            "aruco": {
+                                "id": aruco_id,
+                                "distance_cm": aruco_distance_cm,
+                            },
+                        }
+                    )
+
             except KeyboardInterrupt:
                 logging.info("Shutting down...")
             finally:
                 cam.stop()
                 aruco_worker.stop()
+                ws_bridge.stop()
                 can.close()
 
 
