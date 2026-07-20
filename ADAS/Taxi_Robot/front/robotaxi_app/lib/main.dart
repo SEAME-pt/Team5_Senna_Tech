@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
-// 1. Criamos a classe MyApp que o arquivo de teste (test/widget_test.dart) estava procurando
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      debugShowCheckedModeBanner: false, // Remove a faixa de debug do canto da tela
+      debugShowCheckedModeBanner: false,
       home: RobotaxiPrettyMap(),
     );
   }
@@ -23,67 +23,102 @@ class RobotaxiPrettyMap extends StatefulWidget {
 }
 
 class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
-  // Sua matriz exata para validação dos cliques
   final List<List<int>> mapGrid = [
-    [1, 1, 1, 5, 0, 0, 0, 5, 0, 0, 0, 0, 5, 0, 1],
-    [1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
-    [5, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5],
-    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5],
-    [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [1, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-    [1, 1, 1, 1, 1, 0, 1, 1, 5, 0, 1, 1, 1, 1, 0],
-    [1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0],
-    [1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 5],
-    [1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0],
-    [1, 1, 1, 5, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0],
-    [1, 1, 1, 0, 0, 1, 1, 0, 2, 0, 1, 1, 1, 1, 0],
-    [1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0],
-    [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 5],
-    [1, 1, 1, 1, 1, 1, 2, 0, 0, 2, 0, 2, 0, 0, 1],
+    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1], // Linha 0 (Apenas 2 ArUcos do topo: Col 3 e Col 12)
+    [1, 0, 0, 0, 1, 5, 1, 1, 1, 5, 1, 1, 1, 0, 0], // Linha 1 (ArUcos do norte agora estão na Linha 1, Col 5 e Col 9)
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Linha 2
+    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], // Linha 3
+    [1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 0], // Linha 4 (Prédio Roxo Col 1, Café Azul Col 13)
+    [1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], // Linha 5
+    [1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], // Linha 6
+    [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Linha 7
+    [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0], // Linha 8
+    [1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 0], // Linha 9 (Prédio Brisa Col 2)
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0], // Linha 10 (Sea Me Col 13)
+    [1, 1, 1, 1, 0, 0, 5, 1, 0, 0, 5, 1, 1, 1, 0], // Linha 11 (Residencial Verde Col 6, Bombeiros Col 10)
+    [1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1], // Linha 12
+    [1, 5, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0], // Linha 13
+    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 5, 1, 1, 5, 0], // Linha 14 (42 Porto Col 13)
+    [1, 1, 1, 0, 0, 5, 1, 0, 2, 0, 1, 1, 1, 1, 0], // Linha 15 (RS Col 1, Mercado24h Col 5, CasaModerna Col 10)
+    [1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0], // Linha 16
+    [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1], // Linha 17
+    [1, 1, 1, 1, 1, 1, 2, 0, 0, 2, 0, 2, 0, 0, 1], // Linha 18
   ];
+
+  final Map<Offset, String> buildingNames = {
+    const Offset(5, 1): "Climbing",
+    const Offset(9, 1): "Padle",
+    const Offset(1, 4): "Bank",
+    const Offset(13, 4): "Gelato",
+    const Offset(2, 9): "Grupo Brisa",
+    const Offset(13, 9): "Sea:Me",
+    const Offset(13, 14): "42 Porto",
+    const Offset(1, 13): "Hospital",
+  };
 
   Offset? pickupPoint;
   Offset? dropoffPoint;
-  Offset? carPosition = const Offset(4, 0); // Carro começa na pista (linha 0, col 4)
+  Offset? carPosition = const Offset(5, 0); // Posição inicial no norte da pista
 
   void handleTap(TapUpDetails details, double cellSize) {
-    int col = (details.localPosition.dx / cellSize).floor();
-    int row = (details.localPosition.dy / cellSize).floor();
+    double tappedCol = details.localPosition.dx / cellSize;
+    double tappedRow = details.localPosition.dy / cellSize;
 
-    if (row >= 0 && row < 19 && col >= 0 && col < 15) {
-      if (mapGrid[row][col] == 5) { 
-        setState(() {
-          if (pickupPoint == null) {
-            pickupPoint = Offset(col.toDouble(), row.toDouble());
-          } else if (dropoffPoint == null) {
-            dropoffPoint = Offset(col.toDouble(), row.toDouble());
-          } else {
-            pickupPoint = Offset(col.toDouble(), row.toDouble());
-            dropoffPoint = null;
+    double minDistance = double.infinity;
+    Offset? closestBuilding;
+
+    // Busca o ArUco (5) mais próximo na nova matriz
+    for (int r = 0; r < 19; r++) {
+      for (int c = 0; c < 15; c++) {
+        if (mapGrid[r][c] == 5) {
+          double distance = sqrt(pow(tappedCol - c, 2) + pow(tappedRow - r, 2));
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestBuilding = Offset(c.toDouble(), r.toDouble());
           }
-        });
+        }
       }
     }
+
+    // Se o clique foi próximo (raio de 2.2 blocos), atrai a seleção para ele!
+    if (closestBuilding != null && minDistance <= 2.2) {
+      setState(() {
+        if (pickupPoint == null) {
+          pickupPoint = closestBuilding;
+        } else if (dropoffPoint == null) {
+          if (closestBuilding != pickupPoint) {
+            dropoffPoint = closestBuilding;
+          }
+        } else {
+          pickupPoint = closestBuilding;
+          dropoffPoint = null;
+        }
+      });
+    }
+  }
+
+  String _getBuildingName(Offset? point) {
+    if (point == null) return "Pendente";
+    return buildingNames[point] ?? "Edifício [${point.dx.toInt()},${point.dy.toInt()}]";
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth > 500) screenWidth = 400; // Mantém proporção compacta no PC
+    if (screenWidth > 500) screenWidth = 400; // Preserva visual mobile no computador
     
     double cellSize = (screenWidth - 32) / 15;
     double mapHeight = cellSize * 19;
     double mapWidth = cellSize * 15;
 
+    // Tamanho customizado dos pins e ícones
+    double pinSize = cellSize * 1.5;
+
     return Scaffold(
       backgroundColor: const Color(0xFF121214),
       appBar: AppBar(
-        title: const Text('Robotáxi Prototipador', style: TextStyle(fontSize: 18)),
-        backgroundColor: Colors.black26, // Correção do black24 para black26
+        title: const Text('Robotáxi Prototipador', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.black26,
         centerTitle: true,
       ),
       body: Center(
@@ -101,54 +136,86 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                     width: mapWidth,
                     height: mapHeight,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.white12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
                     ),
+                    clipBehavior: Clip.hardEdge,
                     child: Stack(
                       children: [
-                        Image.network(
-                          'https://placehold.co/1500x1900/1e1e24/1e1e24',
+                        // Camada de Fundo do Canva
+                        Image.asset(
+                          'assets/mapa.png',
                           width: mapWidth,
                           height: mapHeight,
                           fit: BoxFit.fill,
                         ),
 
+                        // Camada de Debug (Garante o brilho ao redor de quem foi selecionado)
                         Positioned.fill(
                           child: CustomPaint(
-                            painter: DebugGridPainter(matrix: mapGrid, cellSize: cellSize),
+                            painter: DebugGridPainter(
+                              matrix: mapGrid, 
+                              cellSize: cellSize,
+                              pickup: pickupPoint,
+                              dropoff: dropoffPoint,
+                            ),
                           ),
                         ),
 
+                        // Marcador de Coleta (Pickup) ampliado e centralizado
                         if (pickupPoint != null)
                           Positioned(
-                            left: pickupPoint!.dx * cellSize,
-                            top: pickupPoint!.dy * cellSize,
+                            left: (pickupPoint!.dx * cellSize) + (cellSize - pinSize) / 2,
+                            top: (pickupPoint!.dy * cellSize) - (pinSize) + (cellSize / 2),
                             child: SizedBox(
-                              width: cellSize,
-                              height: cellSize,
-                              child: const Icon(Icons.location_on, color: Colors.greenAccent, size: 22),
+                              width: pinSize,
+                              height: pinSize,
+                              child: const Icon(
+                                Icons.location_on, 
+                                color: Colors.greenAccent, 
+                                size: 38,
+                                shadows: [Shadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 3))],
+                              ),
                             ),
                           ),
                           
+                        // Marcador de Destino (Dropoff) ampliado e centralizado
                         if (dropoffPoint != null)
                           Positioned(
-                            left: dropoffPoint!.dx * cellSize,
-                            top: dropoffPoint!.dy * cellSize,
+                            left: (dropoffPoint!.dx * cellSize) + (cellSize - pinSize) / 2,
+                            top: (dropoffPoint!.dy * cellSize) - (pinSize) + (cellSize / 2),
                             child: SizedBox(
-                              width: cellSize,
-                              height: cellSize,
-                              child: const Icon(Icons.flag, color: Colors.redAccent, size: 22),
+                              width: pinSize,
+                              height: pinSize,
+                              child: const Icon(
+                                Icons.flag, 
+                                color: Colors.redAccent, 
+                                size: 38,
+                                shadows: [Shadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 3))],
+                              ),
                             ),
                           ),
 
+                        // Carrinho customizado
                         if (carPosition != null)
                           Positioned(
                             left: carPosition!.dx * cellSize,
                             top: carPosition!.dy * cellSize,
-                            child: SizedBox(
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
                               width: cellSize,
                               height: cellSize,
-                              child: const Icon(Icons.directions_car, color: Colors.cyanAccent, size: 20),
+                              child: Image.asset(
+                                'assets/carro.png',
+                                fit: BoxFit.contain,
+                              ),
                             ),
                           ),
                       ],
@@ -164,7 +231,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                     });
                   },
                   icon: const Icon(Icons.refresh, color: Colors.grey),
-                  label: const Text('Resetar Pontos', style: TextStyle(color: Colors.grey)),
+                  label: const Text('Resetar Seleções', style: TextStyle(color: Colors.grey)),
                 )
               ],
             ),
@@ -175,23 +242,50 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
   }
 
   Widget _buildStatusPanel() {
-    // Correção: Atualizado de .withOpacity() para o novo padrão .withValues()
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05), 
-        borderRadius: BorderRadius.circular(8),
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      child: Column(
         children: [
-          Text(
-            'Coleta (5): ${pickupPoint != null ? "[${pickupPoint!.dx.toInt()},${pickupPoint!.dy.toInt()}]" : "Pendente"}',
-            style: TextStyle(color: pickupPoint != null ? Colors.greenAccent : Colors.white60, fontSize: 13),
+          Row(
+            children: [
+              const Icon(Icons.location_on, color: Colors.greenAccent, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Coleta: ${_getBuildingName(pickupPoint)}',
+                  style: TextStyle(
+                    color: pickupPoint != null ? Colors.greenAccent : Colors.white60, 
+                    fontSize: 13,
+                    fontWeight: pickupPoint != null ? FontWeight.bold : FontWeight.normal,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
-          Text(
-            'Destino (5): ${dropoffPoint != null ? "[${dropoffPoint!.dx.toInt()},${dropoffPoint!.dy.toInt()}]" : "Pendente"}',
-            style: TextStyle(color: dropoffPoint != null ? Colors.redAccent : Colors.white60, fontSize: 13),
+          const Divider(color: Colors.white10, height: 16),
+          Row(
+            children: [
+              const Icon(Icons.flag, color: Colors.redAccent, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Destino: ${_getBuildingName(dropoffPoint)}',
+                  style: TextStyle(
+                    color: dropoffPoint != null ? Colors.redAccent : Colors.white60, 
+                    fontSize: 13,
+                    fontWeight: dropoffPoint != null ? FontWeight.bold : FontWeight.normal,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -202,41 +296,60 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
 class DebugGridPainter extends CustomPainter {
   final List<List<int>> matrix;
   final double cellSize;
+  final Offset? pickup;
+  final Offset? dropoff;
 
-  DebugGridPainter({required this.matrix, required this.cellSize});
+  DebugGridPainter({
+    required this.matrix, 
+    required this.cellSize,
+    this.pickup,
+    this.dropoff,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..style = PaintingStyle.fill;
-    
-    // Correção: Substituído .withOpacity() por .withValues() em todos os pincéis
-    final strokePaint = Paint()
+    final borderPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..color = Colors.white.withValues(alpha: 0.05)
-      ..strokeWidth = 0.5;
+      ..strokeWidth = 2.0;
 
     for (int r = 0; r < 19; r++) {
       for (int c = 0; c < 15; c++) {
         Rect rect = Rect.fromLTWH(c * cellSize, r * cellSize, cellSize, cellSize);
 
-        if (matrix[r][c] == 0 || matrix[r][c] == 2) {
-          paint.color = Colors.white.withValues(alpha: 0.08);
-          canvas.drawRect(rect, paint);
-        } else if (matrix[r][c] == 5) {
-          paint.color = Colors.orange.withValues(alpha: 0.25);
+        // Se este prédio específico for o ponto de COLETA, desenha um neon verde brilhante ao redor dele
+        if (pickup != null && pickup!.dx.toInt() == c && pickup!.dy.toInt() == r) {
+          paint.color = Colors.greenAccent.withValues(alpha: 0.15);
           canvas.drawRect(rect, paint);
           
-          paint.color = Colors.orange.withValues(alpha: 0.6);
-          paint.style = PaintingStyle.stroke;
+          borderPaint.color = Colors.greenAccent;
+          canvas.drawRect(rect, borderPaint);
+        } 
+        // Se for o ponto de DESTINO, desenha um neon vermelho brilhante
+        else if (dropoff != null && dropoff!.dx.toInt() == c && dropoff!.dy.toInt() == r) {
+          paint.color = Colors.redAccent.withValues(alpha: 0.15);
           canvas.drawRect(rect, paint);
-          paint.style = PaintingStyle.fill;
+          
+          borderPaint.color = Colors.redAccent;
+          canvas.drawRect(rect, borderPaint);
         }
-
-        canvas.drawRect(rect, strokePaint);
+        // Prédios comuns não-selecionados (mostra apenas uma borda laranja discreta como guia)
+        else if (matrix[r][c] == 5) {
+          paint.color = Colors.orange.withValues(alpha: 0.05);
+          canvas.drawRect(rect, paint);
+          
+          final guidePaint = Paint()
+            ..style = PaintingStyle.stroke
+            ..color = Colors.orange.withValues(alpha: 0.3)
+            ..strokeWidth = 1.0;
+          canvas.drawRect(rect, guidePaint);
+        }
       }
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant DebugGridPainter oldDelegate) {
+    return oldDelegate.pickup != pickup || oldDelegate.dropoff != dropoff;
+  }
 }
