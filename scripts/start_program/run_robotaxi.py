@@ -62,7 +62,7 @@ def send_stop_command():
     send_can_native(DRIVE_COMMAND_CAN_ID, data, CAN_INTERFACE)
 
 
-# --- Argumentos ---
+# --- Arguments ---
 if len(sys.argv) < 4:
     print("Usage:")
     print("  python3 /home/run_robotaxi.py --<directory> <pickup> <dropoff>")
