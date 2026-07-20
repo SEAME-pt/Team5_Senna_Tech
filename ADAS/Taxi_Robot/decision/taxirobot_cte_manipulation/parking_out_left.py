@@ -112,7 +112,9 @@ class ParkingOutTimer:
 	def reset(self) -> None:
 		self._start_time = None
 
-
+"""
+After servo is replaced, return to this function to avaliate if this class can be removed
+"""
 class ReturningProfile:
 	"""Provides smooth interpolation from maneuver CTE back to lane center."""
 
