@@ -491,3 +491,51 @@ if __name__ == "__main__":
 
 # remote command test
 # python3 /home/run_robotaxi.py --pipeline_robotaxi --control-mode remote --ws-server ws://IP_DO_SERVIDOR:8000/ws/robotaxi
+
+
+"""
+Start mission:
+{
+"type": "command",
+"command": "start_mission",
+"pickup": 0,
+"dropoff": 1
+}
+Stop mission:
+{
+"type": "command",
+"command": "stop_mission"
+}
+
+
+
+{
+"type": "hello",
+"sent_at": 1753000000.123
+}
+
+Telemetria periódica (1 vez por segundo):
+{
+"type": "telemetry",
+"sent_at": 1753000001.456,
+"telemetry": {
+"control_mode": "remote",
+"ws_connected": true,
+"mission_active": true,
+"remote_update_received": true,
+"remote_disconnected_hold": false,
+"remote_hold_for_update": false,
+"fsm_state": "FOLLOW",
+"mission_state": "GOING_TO_PICKUP",
+"pickup_aruco_id": 0,
+"dropoff_aruco_id": 1,
+"current_grid": { "row": 10, "col": 8 },
+"goal_grid": { "row": 17, "col": 14 },
+"path_length": 23,
+"aruco": {
+"id": 14,
+"distance_cm": 87.4
+}
+}
+}
+"""
