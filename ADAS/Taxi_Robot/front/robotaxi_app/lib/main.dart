@@ -26,29 +26,31 @@ class RobotaxiPrettyMap extends StatefulWidget {
 }
 
 class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
+  // Matriz lógica do circuito (19 linhas x 15 colunas)
   final List<List<int>> mapGrid = [
    //0  1  2  3  4  5  6  7  8  9  10 11 12 13 14
-    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1], // Linha 0 (Apenas 2 ArUcos do topo: Col 3 e Col 12)
-    [1, 0, 0, 0, 1, 5, 1, 1, 1, 5, 1, 1, 1, 0, 0], // Linha 1 (ArUcos do norte agora estão na Linha 1, Col 5 e Col 9)
+    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1], // Linha 0
+    [1, 0, 0, 0, 1, 5, 1, 1, 1, 5, 1, 1, 1, 0, 0], // Linha 1 (Climbing Col 5, Padle Col 9)
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Linha 2
     [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], // Linha 3
-    [1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 0], // Linha 4 (Prédio Roxo Col 1, Café Azul Col 13)
+    [1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 0], // Linha 4 (Bank Col 1, Gelato Col 13)
     [1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], // Linha 5
     [1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], // Linha 6
     [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Linha 7
     [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0], // Linha 8
-    [1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 0], // Linha 9 (Prédio Brisa Col 2)
-    [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0], // Linha 10 (Sea Me Col 13)
-    [1, 1, 1, 1, 0, 0, 5, 1, 0, 0, 5, 1, 1, 1, 0], // Linha 11 (Residencial Verde Col 6, Bombeiros Col 10)
+    [1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 0], // Linha 9 (Grupo Brisa Col 2)
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0], // Linha 10 (Sea:Me Col 13)
+    [1, 1, 1, 1, 0, 0, 5, 1, 0, 0, 5, 1, 1, 1, 0], // Linha 11
     [1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1], // Linha 12
     [1, 5, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0], // Linha 13
     [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 5, 1, 1, 5, 0], // Linha 14 (42 Porto Col 13)
-    [1, 1, 1, 0, 0, 5, 1, 0, 2, 0, 1, 1, 1, 1, 0], // Linha 15 (RS Col 1, Mercado24h Col 5, CasaModerna Col 10)
+    [1, 1, 1, 0, 0, 5, 1, 0, 2, 0, 1, 1, 1, 1, 0], // Linha 15 (Hospital Col 1)
     [1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0], // Linha 16
     [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1], // Linha 17
     [1, 1, 1, 1, 1, 1, 2, 0, 0, 2, 0, 2, 0, 0, 1], // Linha 18
   ];
 
+  // Nomes dos edifícios mapeados por coordenada
   final Map<Offset, String> buildingNames = {
     const Offset(5, 1): "Climbing",
     const Offset(9, 1): "Padle",
@@ -60,7 +62,43 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
     const Offset(1, 13): "Hospital",
   };
 
-  // Mapeamento dos edifícios físicos para os IDs de ArUco esperados pelo Python
+  // Mapeamento das imagens PNG na pasta assets/
+  final Map<Offset, String> buildingAssets = {
+    const Offset(5, 1): "assets/climbing.png",
+    const Offset(9, 1): "assets/padle.png",
+    const Offset(1, 4): "assets/bank.png",
+    const Offset(13, 4): "assets/gelado.png",
+    const Offset(2, 9): "assets/brisa.png",
+    const Offset(13, 9): "assets/seame.png",
+    const Offset(13, 14): "assets/42porto.png",
+    const Offset(1, 13): "assets/hospital.png",
+  };
+
+  // Ajustes individuais de deslocamento em células (dx, dy) para calibrar posição do PNG caso precise
+  final Map<Offset, Offset> buildingCustomOffsets = {
+    const Offset(5, 1): const Offset(-0.5, -0.5),//climbing
+    const Offset(9, 1): const Offset(0.3, -0.3),//padle
+    const Offset(1, 4): const Offset(-0.5, -0.2),//bank
+    const Offset(13, 4): const Offset(0.0, 0.0),//gelado
+    const Offset(2, 9): const Offset(-0.6, -0.2),//brisa
+    const Offset(13, 9): const Offset(0.0, 0.0),//seame
+    const Offset(13, 14): const Offset(0.2, -1),//42porto
+    const Offset(1, 13): const Offset(0.0, 0.0),//hospital
+  };
+
+  // Multiplicador de escala individual do tamanho do PNG
+  final Map<Offset, double> buildingSizes = {
+    const Offset(5, 1): 2.8,//climbing
+    const Offset(9, 1): 4.2,//padle
+    const Offset(1, 4): 2.8,//bank
+    const Offset(13, 4): 2.8,//gelado
+    const Offset(2, 9): 3.3,//brisa
+    const Offset(13, 9): 3.0,//seame
+    const Offset(13, 14): 3.2,//42porto
+    const Offset(1, 13): 2.8,//hospital
+  };
+
+  // IDs dos ArUcos físicos esperados pelo servidor Python
   final Map<Offset, int> buildingArucoIds = {
     const Offset(5, 1): 6,
     const Offset(9, 1): 4,
@@ -75,13 +113,13 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
   Offset? pickupPoint;
   Offset? dropoffPoint;
   
-  // Variáveis de posição e orientação do veículo
+  // Posição e orientação direcional do veículo
   Offset? carPosition = const Offset(7.5, 8); 
   double carAngle = 0.0; 
   Offset? _lastCarPosition;
 
-  // Gerenciamento de Conexão com o Back-end
-  String serverIp = "10.21.220.182:8000"; // Modifique aqui ou use o painel no app
+  // Gerenciamento da comunicação de rede
+  String serverIp = "10.21.220.182:8000";
   WebSocket? _webSocket;
   bool isConnected = false;
   String robotStatus = "Desconectado";
@@ -100,7 +138,6 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
     super.dispose();
   }
 
-  // Tratamento da URL para prevenir caminhos duplicados (como o erro 404)
   String _getSanitizedIp() {
     String clean = serverIp.trim();
     clean = clean.replaceAll(RegExp(r'^(https?://|ws://)'), '');
@@ -173,7 +210,6 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
             final double newRow = (currentGrid["row"] as num).toDouble();
             final Offset newPos = Offset(newCol, newRow);
 
-            // Calcula o ângulo de rotação com base no deslocamento
             if (_lastCarPosition != null && _lastCarPosition != newPos) {
               double dx = newPos.dx - _lastCarPosition!.dx;
               double dy = newPos.dy - _lastCarPosition!.dy;
@@ -204,7 +240,6 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
     };
     final payloadJson = jsonEncode(payload);
 
-    // Exibe o payload no console do VS Code / Terminal
     print("📤 [PAYLOAD ENVIADO AO BACK-END]: $payloadJson");
 
     try {
@@ -333,7 +368,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                     clipBehavior: Clip.hardEdge,
                     child: Stack(
                       children: [
-                        // Camada de fundo com o desenho do Canva
+                        // Camada 1: Imagem de fundo completa do mapa
                         Image.asset(
                           'assets/mapa.png',
                           width: mapWidth,
@@ -341,19 +376,101 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                           fit: BoxFit.fill,
                         ),
 
-                        // Camada de destaque neon direto na ilustração do prédio
-                        Positioned.fill(
-                          child: CustomPaint(
-                            painter: DebugGridPainter(
-                              matrix: mapGrid, 
-                              cellSize: cellSize,
-                              pickup: pickupPoint,
-                              dropoff: dropoffPoint,
-                            ),
-                          ),
-                        ),
+                        // Camada 2: Renderização limpa apenas do Prédio SELECIONADO (Com contorno justo e sem miniaturas)
+                        ...buildingAssets.entries.map((entry) {
+                          final Offset pos = entry.key;
+                          final String assetPath = entry.value;
 
-                        // Carrinho com transição animada e rotação inteligente
+                          final bool isPickup = pickupPoint == pos;
+                          final bool isDropoff = dropoffPoint == pos;
+                          final bool isSelected = isPickup || isDropoff;
+
+                          // Se não estiver selecionado, não renderiza nada (evita duplicar imagem sobre o mapa)
+                          if (!isSelected) return const SizedBox.shrink();
+
+                          final Offset customOffset = buildingCustomOffsets[pos] ?? const Offset(0, 0);
+                          final double scaleMultiplier = buildingSizes[pos] ?? 2.2;
+
+                          final double buildingWidth = cellSize * scaleMultiplier;
+                          final double buildingHeight = cellSize * scaleMultiplier;
+
+                          final double posX = ((pos.dx + customOffset.dx) * cellSize) - (buildingWidth - cellSize) / 2;
+                          final double posY = ((pos.dy + customOffset.dy) * cellSize) - (buildingHeight - cellSize) / 2;
+
+                          final Color accentColor = isPickup ? Colors.greenAccent : Colors.redAccent;
+                          
+                          // Distância reduzida para 1.2px: cria um contorno (outline) perfeito em volta do PNG sem parecer miniatura duplicada
+                          const double strokeOffset = 1.2;
+
+                          return Positioned(
+                            left: posX,
+                            top: posY,
+                            child: IgnorePointer(
+                              child: AnimatedScale(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOutBack,
+                                scale: 1.3, // Expande suavemente em 3D sobre o prédio do mapa
+                                child: SizedBox(
+                                  width: buildingWidth,
+                                  height: buildingHeight,
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      // 1. Sombra de profundidade que cobre o prédio do mapa para evitar transparência/imagem dupla
+                                      Container(
+                                        width: buildingWidth * 0.65,
+                                        height: buildingHeight * 0.65,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: accentColor.withValues(alpha: 0.5),
+                                              blurRadius: 18,
+                                              spreadRadius: 4,
+                                            ),
+                                            BoxShadow(
+                                              color: Colors.black.withValues(alpha: 0.4),
+                                              blurRadius: 8,
+                                              spreadRadius: 2,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      // 2. Réplicas justas (1.2px) nas 8 direções para criar o contorno (outline) perfeito
+                                      for (double dx = -strokeOffset; dx <= strokeOffset; dx += strokeOffset)
+                                        for (double dy = -strokeOffset; dy <= strokeOffset; dy += strokeOffset)
+                                          if (dx != 0 || dy != 0)
+                                            Positioned(
+                                              left: dx,
+                                              top: dy,
+                                              child: ColorFiltered(
+                                                colorFilter: ColorFilter.mode(accentColor, BlendMode.srcIn),
+                                                child: Image.asset(
+                                                  assetPath,
+                                                  fit: BoxFit.contain,
+                                                  width: buildingWidth,
+                                                  height: buildingHeight,
+                                                ),
+                                              ),
+                                            ),
+
+                                      // 3. Foto original do prédio perfeitamente nítida por cima
+                                      Image.asset(
+                                        assetPath,
+                                        fit: BoxFit.contain,
+                                        width: buildingWidth,
+                                        height: buildingHeight,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+
+                        // Camada 3: Carrinho animado com rotação
                         if (carPosition != null)
                           AnimatedPositioned(
                             duration: const Duration(milliseconds: 350),
@@ -530,64 +647,5 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
         );
       },
     );
-  }
-}
-
-class DebugGridPainter extends CustomPainter {
-  final List<List<int>> matrix;
-  final double cellSize;
-  final Offset? pickup;
-  final Offset? dropoff;
-
-  DebugGridPainter({
-    required this.matrix, 
-    required this.cellSize,
-    this.pickup,
-    this.dropoff,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-    final borderPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0;
-
-    for (int r = 0; r < 19; r++) {
-      for (int c = 0; c < 15; c++) {
-        double padding = 2.0;
-        RRect buildingRRect = RRect.fromRectAndRadius(
-          Rect.fromLTWH(
-            c * cellSize - padding, 
-            r * cellSize - padding, 
-            cellSize + (padding * 2), 
-            cellSize + (padding * 2),
-          ),
-          const Radius.circular(8),
-        );
-
-        // Se este prédio for a COLETA -> Realce Neon Verde direto na ilustração
-        if (pickup != null && pickup!.dx.toInt() == c && pickup!.dy.toInt() == r) {
-          paint.color = Colors.greenAccent.withValues(alpha: 0.35);
-          canvas.drawRRect(buildingRRect, paint);
-          
-          borderPaint.color = Colors.greenAccent;
-          canvas.drawRRect(buildingRRect, borderPaint);
-        } 
-        // Se for o DESTINO -> Realce Neon Vermelho direto na ilustração
-        else if (dropoff != null && dropoff!.dx.toInt() == c && dropoff!.dy.toInt() == r) {
-          paint.color = Colors.redAccent.withValues(alpha: 0.35);
-          canvas.drawRRect(buildingRRect, paint);
-          
-          borderPaint.color = Colors.redAccent;
-          canvas.drawRRect(buildingRRect, borderPaint);
-        }
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant DebugGridPainter oldDelegate) {
-    return oldDelegate.pickup != pickup || oldDelegate.dropoff != dropoff;
   }
 }

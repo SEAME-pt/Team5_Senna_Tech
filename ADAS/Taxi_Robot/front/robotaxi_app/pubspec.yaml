@@ -59,6 +59,14 @@ flutter:
   assets:
     - assets/mapa.png
     - assets/carro.png
+    - assets/42porto.png
+    - assets/seame.png
+    - assets/gelado.png
+    - assets/brisa.png
+    - assets/bank.png
+    - assets/hospital.png
+    - assets/climbing.png
+    - assets/padle.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
