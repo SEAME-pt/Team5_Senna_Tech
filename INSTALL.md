@@ -4,7 +4,7 @@ This guide explains how to install and run the **complete Team5 SennaTech system
 
 ---
 
-## Table of Contents
+## Table of Contentsdocs/robotaxi
 
 - [System Overview](#system-overview)
 - [Bill of Materials](#bill-of-materials)
@@ -613,7 +613,7 @@ While `gamepad_control` is running, the ShanWan gamepad drives the car:
 | Right stick X | Steering (left/right) |
 | **Button A** | Switch to **AUTO** mode (pipeline drives) |
 | **Button B** | Switch to **DEBUG** mode |
-| **Button L1** | **PARKING** mode |
+| **Button Y** | **PARKING** mode |
 | Move either stick | Instant override → **MANUAL** (exits AUTO) |
 
 > In AUTO mode the gamepad stays silent and the ADAS pipeline's throttle/steering CAN frames are used. Touching the stick immediately reclaims manual control — a safety feature.

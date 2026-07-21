@@ -5,6 +5,7 @@
 - [Work Overview](#-work-overview)
 - [System Objectives](#-system-objectives)
 - [Repository Structure](#️-repository-structure)
+- [Installation & Run Guide](#-installation--run-guide)
 - [Guidelines](#-guidelines)
 - [Documentation](#-documentation)
 - [Agile & Scrum Workflow](#-agile--scrum-workflow)
@@ -160,6 +161,20 @@ Building a autonomous vehicle (PiRacer) powered by Raspberry Pi 5, STM32 microco
 │   ├── unit/
 │   └── tests/
 ```
+
+## 📥 Installation & Run Guide
+
+A complete, step‑by‑step guide to install and run the **entire system on a brand‑new car** with the same components — from hardware assembly and STM32 flashing, through AGL/Hailo setup, to launching the autonomous pipeline — is available in **[INSTALL.md](INSTALL.md)**.
+
+It covers:
+- Bill of materials & PiRacer / STM32 hardware assembly
+- Building & flashing the STM32 ThreadX firmware
+- Building & flashing the AGL image (Raspberry Pi 5) with Hailo + camera + custom layers
+- Hailo‑8 PCIe fix, CAN interface, camera setup
+- Docker cross‑compilation of the Qt cluster & gamepad control
+- ADAS pipeline Python deps, Hailo model conversion, and deployment
+- Kuksa middleware (Databroker + CAN Provider)
+- Running the standard Lane Following Assist and the Robotaxi mission, with a quick‑start checklist and troubleshooting
 
 ## 🧭 Guidelines
 All guidelines were developed by the entire team to ensure the best standard for work efficiency. All information can be found at [git_guidelines.md](docs/git_guidelines.md)
