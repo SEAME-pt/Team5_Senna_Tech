@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:async';
 
 void main() => runApp(const MyApp());
 
@@ -24,6 +27,7 @@ class RobotaxiPrettyMap extends StatefulWidget {
 
 class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
   final List<List<int>> mapGrid = [
+   //0  1  2  3  4  5  6  7  8  9  10 11 12 13 14
     [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1], // Linha 0 (Apenas 2 ArUcos do topo: Col 3 e Col 12)
     [1, 0, 0, 0, 1, 5, 1, 1, 1, 5, 1, 1, 1, 0, 0], // Linha 1 (ArUcos do norte agora estão na Linha 1, Col 5 e Col 9)
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Linha 2
@@ -56,9 +60,186 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
     const Offset(1, 13): "Hospital",
   };
 
+  // Mapeamento dos edifícios físicos para os IDs de ArUco esperados pelo Python
+  final Map<Offset, int> buildingArucoIds = {
+    const Offset(5, 1): 6,
+    const Offset(9, 1): 4,
+    const Offset(1, 4): 7,
+    const Offset(13, 4): 3,
+    const Offset(2, 9): 8,
+    const Offset(13, 9): 1,
+    const Offset(13, 14): 0,
+    const Offset(1, 13): 9,
+  };
+
   Offset? pickupPoint;
   Offset? dropoffPoint;
-  Offset? carPosition = const Offset(5, 0); // Posição inicial no norte da pista
+  
+  // Variáveis de posição e orientação do veículo
+  Offset? carPosition = const Offset(7.5, 8); 
+  double carAngle = 0.0; 
+  Offset? _lastCarPosition;
+
+  // Gerenciamento de Conexão com o Back-end
+  String serverIp = "10.21.220.182:8000"; // Modifique aqui ou use o painel no app
+  WebSocket? _webSocket;
+  bool isConnected = false;
+  String robotStatus = "Desconectado";
+  String missionState = "Nenhuma";
+  String lastArUcoDetected = "Nenhum";
+
+  @override
+  void initState() {
+    super.initState();
+    _connectWebSocket();
+  }
+
+  @override
+  void dispose() {
+    _webSocket?.close();
+    super.dispose();
+  }
+
+  // Tratamento da URL para prevenir caminhos duplicados (como o erro 404)
+  String _getSanitizedIp() {
+    String clean = serverIp.trim();
+    clean = clean.replaceAll(RegExp(r'^(https?://|ws://)'), '');
+    if (clean.endsWith('/')) {
+      clean = clean.substring(0, clean.length - 1);
+    }
+    if (clean.endsWith('/ws/robotaxi')) {
+      clean = clean.replaceAll('/ws/robotaxi', '');
+    }
+    return clean;
+  }
+
+  Future<void> _connectWebSocket() async {
+    _webSocket?.close();
+    setState(() {
+      isConnected = false;
+      robotStatus = "Conectando...";
+    });
+
+    try {
+      final cleanIp = _getSanitizedIp();
+      final wsUrl = "ws://$cleanIp/ws/robotaxi";
+      _webSocket = await WebSocket.connect(wsUrl).timeout(const Duration(seconds: 4));
+      
+      setState(() {
+        isConnected = true;
+        robotStatus = "Conectado";
+      });
+
+      _webSocket!.listen(
+        (data) {
+          final decoded = jsonDecode(data);
+          _handleWebSocketMessage(decoded);
+        },
+        onError: (err) => _handleDisconnect(),
+        onDone: () => _handleDisconnect(),
+      );
+    } catch (e) {
+      _handleDisconnect();
+    }
+  }
+
+  void _handleDisconnect() {
+    if (mounted) {
+      setState(() {
+        isConnected = false;
+        robotStatus = "Desconectado";
+        missionState = "Desconhecido";
+      });
+    }
+  }
+
+  void _handleWebSocketMessage(Map<String, dynamic> message) {
+    if (message["type"] == "telemetry") {
+      final telemetry = message["telemetry"];
+      if (telemetry != null) {
+        setState(() {
+          missionState = telemetry["mission_state"] ?? "Inativa";
+          
+          final arucoData = telemetry["aruco"];
+          if (arucoData != null && arucoData["id"] != null) {
+            lastArUcoDetected = "ID ${arucoData["id"]} (${arucoData["distance_cm"]} cm)";
+          } else {
+            lastArUcoDetected = "Nenhum";
+          }
+
+          final currentGrid = telemetry["current_grid"];
+          if (currentGrid != null) {
+            final double newCol = (currentGrid["col"] as num).toDouble();
+            final double newRow = (currentGrid["row"] as num).toDouble();
+            final Offset newPos = Offset(newCol, newRow);
+
+            // Calcula o ângulo de rotação com base no deslocamento
+            if (_lastCarPosition != null && _lastCarPosition != newPos) {
+              double dx = newPos.dx - _lastCarPosition!.dx;
+              double dy = newPos.dy - _lastCarPosition!.dy;
+              if (dx != 0 || dy != 0) {
+                carAngle = atan2(dy, dx);
+              }
+            }
+            _lastCarPosition = carPosition;
+            carPosition = newPos;
+          }
+        });
+      }
+    }
+  }
+
+  Future<void> _sendStartMission() async {
+    if (pickupPoint == null || dropoffPoint == null) return;
+
+    final pickupId = buildingArucoIds[pickupPoint];
+    final dropoffId = buildingArucoIds[dropoffPoint];
+
+    if (pickupId == null || dropoffId == null) return;
+
+    final payload = {
+      "command": "start_mission",
+      "pickup": pickupId,
+      "dropoff": dropoffId,
+    };
+    final payloadJson = jsonEncode(payload);
+
+    // Exibe o payload no console do VS Code / Terminal
+    print("📤 [PAYLOAD ENVIADO AO BACK-END]: $payloadJson");
+
+    try {
+      final cleanIp = _getSanitizedIp();
+      final client = HttpClient();
+      final uri = Uri.parse("http://$cleanIp/mission/command");
+      final request = await client.postUrl(uri);
+      
+      request.headers.contentType = ContentType.json;
+      request.write(payloadJson);
+
+      final response = await request.close();
+      if (!mounted) return;
+      
+      if (response.statusCode == 202) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Enviado: $payloadJson"),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      } else {
+        throw Exception("Código HTTP ${response.statusCode}");
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Falha ao enviar ($payloadJson): $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   void handleTap(TapUpDetails details, double cellSize) {
     double tappedCol = details.localPosition.dx / cellSize;
@@ -67,7 +248,6 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
     double minDistance = double.infinity;
     Offset? closestBuilding;
 
-    // Busca o ArUco (5) mais próximo na nova matriz
     for (int r = 0; r < 19; r++) {
       for (int c = 0; c < 15; c++) {
         if (mapGrid[r][c] == 5) {
@@ -80,7 +260,6 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
       }
     }
 
-    // Se o clique foi próximo (raio de 2.2 blocos), atrai a seleção para ele!
     if (closestBuilding != null && minDistance <= 2.2) {
       setState(() {
         if (pickupPoint == null) {
@@ -105,14 +284,11 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth > 500) screenWidth = 400; // Preserva visual mobile no computador
+    if (screenWidth > 500) screenWidth = 400; 
     
     double cellSize = (screenWidth - 32) / 15;
     double mapHeight = cellSize * 19;
     double mapWidth = cellSize * 15;
-
-    // Tamanho customizado dos pins e ícones
-    double pinSize = cellSize * 1.5;
 
     return Scaffold(
       backgroundColor: const Color(0xFF121214),
@@ -120,6 +296,12 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
         title: const Text('Robotáxi Prototipador', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black26,
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings, color: isConnected ? Colors.greenAccent : Colors.redAccent),
+            onPressed: () => _showSettingsDialog(),
+          ),
+        ],
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -127,6 +309,8 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                _buildTelemetryPanel(),
+                const SizedBox(height: 12),
                 _buildStatusPanel(),
                 const SizedBox(height: 12),
                 
@@ -149,7 +333,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                     clipBehavior: Clip.hardEdge,
                     child: Stack(
                       children: [
-                        // Camada de Fundo do Canva
+                        // Camada de fundo com o desenho do Canva
                         Image.asset(
                           'assets/mapa.png',
                           width: mapWidth,
@@ -157,7 +341,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                           fit: BoxFit.fill,
                         ),
 
-                        // Camada de Debug (Garante o brilho ao redor de quem foi selecionado)
+                        // Camada de destaque neon direto na ilustração do prédio
                         Positioned.fill(
                           child: CustomPaint(
                             painter: DebugGridPainter(
@@ -169,52 +353,23 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                           ),
                         ),
 
-                        // Marcador de Coleta (Pickup) ampliado e centralizado
-                        if (pickupPoint != null)
-                          Positioned(
-                            left: (pickupPoint!.dx * cellSize) + (cellSize - pinSize) / 2,
-                            top: (pickupPoint!.dy * cellSize) - (pinSize) + (cellSize / 2),
-                            child: SizedBox(
-                              width: pinSize,
-                              height: pinSize,
-                              child: const Icon(
-                                Icons.location_on, 
-                                color: Colors.greenAccent, 
-                                size: 38,
-                                shadows: [Shadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 3))],
-                              ),
-                            ),
-                          ),
-                          
-                        // Marcador de Destino (Dropoff) ampliado e centralizado
-                        if (dropoffPoint != null)
-                          Positioned(
-                            left: (dropoffPoint!.dx * cellSize) + (cellSize - pinSize) / 2,
-                            top: (dropoffPoint!.dy * cellSize) - (pinSize) + (cellSize / 2),
-                            child: SizedBox(
-                              width: pinSize,
-                              height: pinSize,
-                              child: const Icon(
-                                Icons.flag, 
-                                color: Colors.redAccent, 
-                                size: 38,
-                                shadows: [Shadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 3))],
-                              ),
-                            ),
-                          ),
-
-                        // Carrinho customizado
+                        // Carrinho com transição animada e rotação inteligente
                         if (carPosition != null)
-                          Positioned(
+                          AnimatedPositioned(
+                            duration: const Duration(milliseconds: 350),
+                            curve: Curves.easeInOut,
                             left: carPosition!.dx * cellSize,
                             top: carPosition!.dy * cellSize,
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              width: cellSize,
-                              height: cellSize,
-                              child: Image.asset(
-                                'assets/carro.png',
-                                fit: BoxFit.contain,
+                            child: Transform.rotate(
+                              angle: carAngle,
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                width: cellSize,
+                                height: cellSize,
+                                child: Image.asset(
+                                  'assets/carro.png',
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             ),
                           ),
@@ -222,7 +377,22 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                     ),
                   ),
                 ),
+                
                 const SizedBox(height: 12),
+                if (pickupPoint != null && dropoffPoint != null)
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.greenAccent.withValues(alpha: 0.15),
+                      foregroundColor: Colors.greenAccent,
+                      side: const BorderSide(color: Colors.greenAccent, width: 1.5),
+                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: _sendStartMission,
+                    icon: const Icon(Icons.play_arrow),
+                    label: const Text('Iniciar Viagem', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  ),
+                const SizedBox(height: 8),
                 TextButton.icon(
                   onPressed: () {
                     setState(() {
@@ -237,6 +407,38 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTelemetryPanel() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blueGrey.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: isConnected ? Colors.green.withValues(alpha: 0.2) : Colors.red.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Status do Back-end: $robotStatus", style: TextStyle(color: isConnected ? Colors.greenAccent : Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+              Icon(Icons.wifi, color: isConnected ? Colors.greenAccent : Colors.red, size: 16),
+            ],
+          ),
+          const Divider(color: Colors.white10, height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Missão: $missionState", style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              Text("Último ArUco: $lastArUcoDetected", style: const TextStyle(color: Colors.white54, fontSize: 12)),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -291,6 +493,44 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
       ),
     );
   }
+
+  void _showSettingsDialog() {
+    final controller = TextEditingController(text: serverIp);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1E1E24),
+          title: const Text("Configurações de IP", style: TextStyle(color: Colors.white)),
+          content: TextField(
+            controller: controller,
+            style: const TextStyle(color: Colors.white),
+            decoration: const InputDecoration(
+              labelText: "IP e Porta do Servidor (ex: 192.168.1.20:8000)",
+              labelStyle: TextStyle(color: Colors.white60),
+              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancelar", style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  serverIp = controller.text;
+                });
+                Navigator.pop(context);
+                _connectWebSocket();
+              },
+              child: const Text("Salvar e Conectar"),
+            )
+          ],
+        );
+      },
+    );
+  }
 }
 
 class DebugGridPainter extends CustomPainter {
@@ -311,38 +551,36 @@ class DebugGridPainter extends CustomPainter {
     final paint = Paint()..style = PaintingStyle.fill;
     final borderPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+      ..strokeWidth = 3.0;
 
     for (int r = 0; r < 19; r++) {
       for (int c = 0; c < 15; c++) {
-        Rect rect = Rect.fromLTWH(c * cellSize, r * cellSize, cellSize, cellSize);
+        double padding = 2.0;
+        RRect buildingRRect = RRect.fromRectAndRadius(
+          Rect.fromLTWH(
+            c * cellSize - padding, 
+            r * cellSize - padding, 
+            cellSize + (padding * 2), 
+            cellSize + (padding * 2),
+          ),
+          const Radius.circular(8),
+        );
 
-        // Se este prédio específico for o ponto de COLETA, desenha um neon verde brilhante ao redor dele
+        // Se este prédio for a COLETA -> Realce Neon Verde direto na ilustração
         if (pickup != null && pickup!.dx.toInt() == c && pickup!.dy.toInt() == r) {
-          paint.color = Colors.greenAccent.withValues(alpha: 0.15);
-          canvas.drawRect(rect, paint);
+          paint.color = Colors.greenAccent.withValues(alpha: 0.35);
+          canvas.drawRRect(buildingRRect, paint);
           
           borderPaint.color = Colors.greenAccent;
-          canvas.drawRect(rect, borderPaint);
+          canvas.drawRRect(buildingRRect, borderPaint);
         } 
-        // Se for o ponto de DESTINO, desenha um neon vermelho brilhante
+        // Se for o DESTINO -> Realce Neon Vermelho direto na ilustração
         else if (dropoff != null && dropoff!.dx.toInt() == c && dropoff!.dy.toInt() == r) {
-          paint.color = Colors.redAccent.withValues(alpha: 0.15);
-          canvas.drawRect(rect, paint);
+          paint.color = Colors.redAccent.withValues(alpha: 0.35);
+          canvas.drawRRect(buildingRRect, paint);
           
           borderPaint.color = Colors.redAccent;
-          canvas.drawRect(rect, borderPaint);
-        }
-        // Prédios comuns não-selecionados (mostra apenas uma borda laranja discreta como guia)
-        else if (matrix[r][c] == 5) {
-          paint.color = Colors.orange.withValues(alpha: 0.05);
-          canvas.drawRect(rect, paint);
-          
-          final guidePaint = Paint()
-            ..style = PaintingStyle.stroke
-            ..color = Colors.orange.withValues(alpha: 0.3)
-            ..strokeWidth = 1.0;
-          canvas.drawRect(rect, guidePaint);
+          canvas.drawRRect(buildingRRect, borderPaint);
         }
       }
     }
