@@ -143,8 +143,8 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
     if (clean.endsWith('/')) {
       clean = clean.substring(0, clean.length - 1);
     }
-    if (clean.endsWith('/ws/robotaxi')) {
-      clean = clean.replaceAll('/ws/robotaxi', '');
+    if (clean.endsWith('/ws/frontend')) {
+      clean = clean.replaceAll('/ws/frontend', '');
     }
     return clean;
   }
@@ -158,7 +158,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
 
     try {
       final cleanIp = _getSanitizedIp();
-      final wsUrl = "ws://$cleanIp/ws/robotaxi";
+      final wsUrl = "ws://$cleanIp/ws/frontend";
       _webSocket = await WebSocket.connect(wsUrl).timeout(const Duration(seconds: 4));
       
       setState(() {
