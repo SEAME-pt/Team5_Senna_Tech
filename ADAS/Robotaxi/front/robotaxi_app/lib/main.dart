@@ -54,25 +54,25 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
   Offset carGlobalOffset = const Offset(0.0, 0.0);
 
   // Tamanho em cm de cada célula da grade (para converter distance_cm em células)
-  double cmPerCell = 20.0; 
+  double cmPerCell = 30.0; 
 
   // MAPEAMENTO DOS 16 ARUCOS NA PISTA (IDs 0 a 15)
   final Map<int, Offset> allArucoLocations = {
-    0: const Offset(12, 14.5), // 42 Porto
-    1: const Offset(13, 10.6),  // Sea:Me
-    2: const Offset(12, 6.5),
-    3: const Offset(13, 4),  // Gelato
-    4: const Offset(9, 1),   // Padle
-    5: const Offset(7, 1),
-    6: const Offset(5, 1),   // Climbing
-    7: const Offset(1, 4),   // Bank
-    8: const Offset(3.3, 9),   // Grupo Brisa
-    9: const Offset(1, 14),  // Hospital
-    10: const Offset(3.5, 17),
-    11: const Offset(5.5, 17),
-    12: const Offset(8, 17),
-    13: const Offset(10, 17),
-    14: const Offset(8, 15),
+    0: const Offset(11, 14.5), // 42 Porto
+    1: const Offset(12, 11),  // Sea:Me
+    2: const Offset(11, 6.5),
+    3: const Offset(12, 4),  // Gelato
+    4: const Offset(9, 2),   // Padle
+    5: const Offset(7, 2),
+    6: const Offset(4.5, 2),   // Climbing
+    7: const Offset(2, 4),   // Bank
+    8: const Offset(4.2, 9),   // Grupo Brisa
+    9: const Offset(2, 13),  // Hospital
+    10: const Offset(3.5, 15.2),
+    11: const Offset(5.5, 16),
+    12: const Offset(7.5, 15.8),
+    13: const Offset(10, 15.8),
+    14: const Offset(8, 14.5),
     15: const Offset(7.5, 8.5),
   };
 
