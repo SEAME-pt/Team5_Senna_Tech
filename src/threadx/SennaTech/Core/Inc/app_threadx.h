@@ -113,8 +113,9 @@ Number of threads
 7 -> ultrasonic_thread_entry
 8 -> oled_thread_entry
 9 -> ambient_thread_entry
+10 -> microfone_thread_entry
 */
-#define THREAD_COUNT    9
+#define THREAD_COUNT    10
 
 extern t_threads threads[THREAD_COUNT];
 
@@ -140,8 +141,8 @@ void heartbeat_thread_entry(ULONG thread_input);
 void ultrasonic_thread_entry(ULONG thread_input);
 void oled_thread_entry(ULONG thread_input);
 void ambient_thread_entry(ULONG thread_input);
-//void sensor_thread_entry(ULONG thread_input);
-//void odometer_thread_entry(ULONG thread_input);
+void microfone_thread_entry(ULONG thread_input);
+
 
 /* USER CODE END 1 */
 
