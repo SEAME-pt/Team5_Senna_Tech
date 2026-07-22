@@ -48,6 +48,21 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
     [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1], // Linha 17
     [1, 1, 1, 1, 1, 1, 2, 0, 0, 2, 0, 2, 0, 0, 1], // Linha 18
   ];
+  bool showDebugArUcos = true;
+  double carSizeMultiplier = 1.3;
+  Offset carGlobalOffset = const Offset(0.0, 0.0);
+
+    // Ajustes finos de deslocamento específicos por ArUco (dx, dy em fração de célula)
+  final Map<int, Offset> arucoCustomOffsets = {
+    0: const Offset(-0.95, 0.0), // 42 Porto
+    1: const Offset(-0.95, 0.0), // Sea:Me
+    3: const Offset(-0.95, 0.0), // Gelato
+    4: const Offset(0.0, 0.2), // Padle
+    6: const Offset(0.0, 0.2), // Climbing
+    7: const Offset(0.2, 0.0), // Bank
+    8: const Offset(1.3, 0.0), // Grupo Brisa
+    9: const Offset(0.8, 0.0), // Hospital
+  };
 
   // Nomes dos edifícios mapeados por coordenada
   final Map<Offset, String> buildingNames = {
@@ -116,6 +131,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
   Offset? carPosition = const Offset(7.5, 8); 
   double carAngle = 0.0; 
   Offset? _lastCarPosition;
+  int? currentArucoId;
 
   // Gerenciamento da comunicação de rede
   String serverIp = "10.21.220.182:8000";
@@ -324,6 +340,24 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
     double mapHeight = cellSize * 19;
     double mapWidth = cellSize * 15;
 
+    // Dimensões e posicionamento calibrado do carrinho
+    double carWidth = cellSize * carSizeMultiplier;
+    double carHeight = cellSize * carSizeMultiplier;
+    Offset arucoOffset = (currentArucoId != null && arucoCustomOffsets.containsKey(currentArucoId))
+        ? arucoCustomOffsets[currentArucoId]!
+        : const Offset(0, 0);
+
+    double carLeft = 0;
+    double carTop = 0;
+
+    if (carPosition != null) {
+      double effectiveCol = carPosition!.dx + carGlobalOffset.dx + arucoOffset.dx;
+      double effectiveRow = carPosition!.dy + carGlobalOffset.dy + arucoOffset.dy;
+
+      carLeft = (effectiveCol * cellSize) - (carWidth - cellSize) / 2;
+      carTop = (effectiveRow * cellSize) - (carHeight - cellSize) / 2;
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF121214),
       appBar: AppBar(
@@ -331,6 +365,11 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
         backgroundColor: Colors.black26,
         centerTitle: true,
         actions: [
+          IconButton(
+            tooltip: "Modo Calibração ArUco",
+            icon: Icon(Icons.bug_report, color: showDebugArUcos ? Colors.blueAccent : Colors.grey),
+            onPressed: () => setState(() => showDebugArUcos = !showDebugArUcos),
+          ),
           IconButton(
             icon: Icon(Icons.settings, color: isConnected ? Colors.greenAccent : Colors.redAccent),
             onPressed: () => _showSettingsDialog(),
@@ -375,7 +414,45 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                           fit: BoxFit.fill,
                         ),
 
-                        // Camada 2: Renderização limpa apenas do Prédio SELECIONADO (Com contorno justo e sem miniaturas)
+                        // Camada 1.5: Caixas azuis de depuração para calibração dos ArUcos
+                        if (showDebugArUcos)
+                          ...buildingArucoIds.entries.map((entry) {
+                            final Offset pos = entry.key;
+                            final int id = entry.value;
+                            final Offset offset = arucoCustomOffsets[id] ?? const Offset(0, 0);
+
+                            final double effectiveCol = pos.dx + offset.dx;
+                            final double effectiveRow = pos.dy + offset.dy;
+
+                            final double boxLeft = effectiveCol * cellSize;
+                            final double boxTop = effectiveRow * cellSize;
+
+                            return Positioned(
+                              left: boxLeft,
+                              top: boxTop,
+                              child: Container(
+                                width: cellSize,
+                                height: cellSize,
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withValues(alpha: 0.6),
+                                  border: Border.all(color: Colors.white, width: 1.5),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "ID $id",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
+
+                        // Camada 2: Renderização limpa apenas do Prédio SELECIONADO
                         ...buildingAssets.entries.map((entry) {
                           final Offset pos = entry.key;
                           final String assetPath = entry.value;
@@ -384,7 +461,6 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                           final bool isDropoff = dropoffPoint == pos;
                           final bool isSelected = isPickup || isDropoff;
 
-                          // Se não estiver selecionado, não renderiza nada (evita duplicar imagem sobre o mapa)
                           if (!isSelected) return const SizedBox.shrink();
 
                           final Offset customOffset = buildingCustomOffsets[pos] ?? const Offset(0, 0);
@@ -397,8 +473,6 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                           final double posY = ((pos.dy + customOffset.dy) * cellSize) - (buildingHeight - cellSize) / 2;
 
                           final Color accentColor = isPickup ? Colors.greenAccent : Colors.redAccent;
-                          
-                          // Distância reduzida para 1.2px: cria um contorno (outline) perfeito em volta do PNG sem parecer miniatura duplicada
                           const double strokeOffset = 1.2;
 
                           return Positioned(
@@ -408,14 +482,14 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                               child: AnimatedScale(
                                 duration: const Duration(milliseconds: 300),
                                 curve: Curves.easeOutBack,
-                                scale: 1.3, // Expande suavemente em 3D sobre o prédio do mapa
+                                scale: 1.3,
                                 child: SizedBox(
                                   width: buildingWidth,
                                   height: buildingHeight,
                                   child: Stack(
                                     alignment: Alignment.center,
                                     children: [
-                                      // 1. Sombra de profundidade que cobre o prédio do mapa para evitar transparência/imagem dupla
+                                      // Sombra de profundidade
                                       Container(
                                         width: buildingWidth * 0.65,
                                         height: buildingHeight * 0.65,
@@ -436,7 +510,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                                         ),
                                       ),
 
-                                      // 2. Réplicas justas (1.2px) nas 8 direções para criar o contorno (outline) perfeito
+                                      // Contorno justo de 1.2px nas 8 direções
                                       for (double dx = -strokeOffset; dx <= strokeOffset; dx += strokeOffset)
                                         for (double dy = -strokeOffset; dy <= strokeOffset; dy += strokeOffset)
                                           if (dx != 0 || dy != 0)
@@ -454,7 +528,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                                               ),
                                             ),
 
-                                      // 3. Foto original do prédio perfeitamente nítida por cima
+                                      // Imagem PNG nítida por cima
                                       Image.asset(
                                         assetPath,
                                         fit: BoxFit.contain,
@@ -469,19 +543,18 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                           );
                         }),
 
-                        // Camada 3: Carrinho animado com rotação
+                        // Camada 3: Carrinho animado com rotação e calibração fina
                         if (carPosition != null)
                           AnimatedPositioned(
                             duration: const Duration(milliseconds: 350),
                             curve: Curves.easeInOut,
-                            left: carPosition!.dx * cellSize,
-                            top: carPosition!.dy * cellSize,
+                            left: carLeft,
+                            top: carTop,
                             child: Transform.rotate(
                               angle: carAngle,
-                              child: Container(
-                                padding: const EdgeInsets.all(2),
-                                width: cellSize,
-                                height: cellSize,
+                              child: SizedBox(
+                                width: carWidth,
+                                height: carHeight,
                                 child: Image.asset(
                                   'assets/carro.png',
                                   fit: BoxFit.contain,
@@ -493,7 +566,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 12),
                 if (pickupPoint != null && dropoffPoint != null)
                   ElevatedButton.icon(
@@ -506,7 +579,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                     ),
                     onPressed: _sendStartMission,
                     icon: const Icon(Icons.play_arrow),
-                    label: const Text('Start', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    label: const Text('Iniciar Viagem', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   ),
                 const SizedBox(height: 8),
                 TextButton.icon(
@@ -517,7 +590,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                     });
                   },
                   icon: const Icon(Icons.refresh, color: Colors.grey),
-                  label: const Text('Reset Selections', style: TextStyle(color: Colors.grey)),
+                  label: const Text('Resetar Seleções', style: TextStyle(color: Colors.grey)),
                 )
               ],
             ),
@@ -542,7 +615,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Back-end status: $robotStatus", style: TextStyle(color: isConnected ? Colors.greenAccent : Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text("Status do Back-end: $robotStatus", style: TextStyle(color: isConnected ? Colors.greenAccent : Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
               Icon(Icons.wifi, color: isConnected ? Colors.greenAccent : Colors.red, size: 16),
             ],
           ),
@@ -550,8 +623,8 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Mission: $missionState", style: const TextStyle(color: Colors.white70, fontSize: 12)),
-              Text("Last ArUco: $lastArUcoDetected", style: const TextStyle(color: Colors.white54, fontSize: 12)),
+              Text("Missão: $missionState", style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              Text("Último ArUco: $lastArUcoDetected", style: const TextStyle(color: Colors.white54, fontSize: 12)),
             ],
           ),
         ],
@@ -576,7 +649,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Pickup: ${_getBuildingName(pickupPoint)}',
+                  'Coleta: ${_getBuildingName(pickupPoint)}',
                   style: TextStyle(
                     color: pickupPoint != null ? Colors.greenAccent : Colors.white60, 
                     fontSize: 13,
@@ -594,7 +667,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Drop-off: ${_getBuildingName(dropoffPoint)}',
+                  'Destino: ${_getBuildingName(dropoffPoint)}',
                   style: TextStyle(
                     color: dropoffPoint != null ? Colors.redAccent : Colors.white60, 
                     fontSize: 13,
@@ -617,12 +690,12 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: const Color(0xFF1E1E24),
-          title: const Text("IP Settings", style: TextStyle(color: Colors.white)),
+          title: const Text("Configurações de IP", style: TextStyle(color: Colors.white)),
           content: TextField(
             controller: controller,
             style: const TextStyle(color: Colors.white),
             decoration: const InputDecoration(
-              labelText: "Server IP and Port (e.g., 192.168.1.20:8000)",
+              labelText: "IP e Porta do Servidor (ex: 192.168.1.20:8000)",
               labelStyle: TextStyle(color: Colors.white60),
               enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
             ),
@@ -630,7 +703,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+              child: const Text("Cancelar", style: TextStyle(color: Colors.grey)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -640,7 +713,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                 Navigator.pop(context);
                 _connectWebSocket();
               },
-              child: const Text("Save and Connect"),
+              child: const Text("Salvar e Conectar"),
             )
           ],
         );
