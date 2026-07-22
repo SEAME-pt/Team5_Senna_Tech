@@ -85,6 +85,7 @@ graph.svg
 
 
 # Python Virtual Environment
+.venv/
 venv/
 local_metrics/
 
@@ -116,5 +117,3 @@ convert_hailo/shared_with_docker/*
 # script
 pipeline.sh
 
-.venv/
-venv/
