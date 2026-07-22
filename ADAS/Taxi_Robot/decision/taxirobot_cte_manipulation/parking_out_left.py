@@ -9,7 +9,7 @@ class ForcedManeuverWindow:
 	"""Tracks fixed-duration forced maneuver windows and optional steering overrides."""
 
 	def __init__(self):
-		self.default_duration_s = 3.5
+		self.default_duration_s = 3.0
 		self._active_duration_s = self.default_duration_s
 		self._state_name = None
 		self._started_at = None
@@ -93,7 +93,7 @@ class ParkingOutLeftPolicy:
 class ParkingOutTimer:
 	"""Tracks parking-out elapsed time so main does not carry this logic."""
 
-	def __init__(self, duration_s: float = 4.0):
+	def __init__(self, duration_s: float = 3.5):
 		self.duration_s = duration_s
 		self._start_time = None
 
@@ -112,9 +112,6 @@ class ParkingOutTimer:
 	def reset(self) -> None:
 		self._start_time = None
 
-"""
-After servo is replaced, return to this function to avaliate if this class can be removed
-"""
 class ReturningProfile:
 	"""Provides smooth interpolation from maneuver CTE back to lane center."""
 
