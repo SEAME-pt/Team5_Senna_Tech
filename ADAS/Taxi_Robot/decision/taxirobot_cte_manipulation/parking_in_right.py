@@ -34,9 +34,6 @@ class ParkingInRightPolicy:
 		aruco_id: int | None,
 		aruco_distance_m: float | None,
 	) -> bool:
-		# Keyed on fsm_state, not on TaxiManeuver: the mission emits the maneuver
-		# once (at outside_decision_distance_m = 1.30 m) and disarms the marker,
-		# so the enum is already NONE at TRIGGER_DISTANCE_M. The FSM state persists.
 		return (
 			fsm_state == State.PARKING_IN_LEFT
 			and taxi_state in TRIGGER_TAXI_STATES
