@@ -117,4 +117,3 @@ convert_hailo/shared_with_docker/*
 # script
 pipeline.sh
 
-.venv
