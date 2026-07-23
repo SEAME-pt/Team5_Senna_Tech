@@ -4,7 +4,7 @@ import websockets
 async def main():
     async with websockets.connect("ws://localhost:8000/ws/robotaxi") as ws:
         await ws.send(json.dumps({"type": "hello"}))
-        print("robot:", await ws.recv())  # deve dar {"type":"ack","status":"ready"}
+        print("robot:", await ws.recv())  # must be {"type":"ack","status":"ready"}
 
         for i in range(5):
             telemetry = {
