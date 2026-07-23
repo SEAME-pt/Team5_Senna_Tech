@@ -13,6 +13,7 @@ typedef struct {
 	float min_peak;
 	float min_rms;
 	ULONG refractory_ms;
+	ULONG warmup_blocks;
 } MicrophoneConfig_t;
 
 typedef struct {
@@ -20,7 +21,13 @@ typedef struct {
 	float noise_floor;
 	float dc_estimate;
 	ULONG last_clap_ms;
+	ULONG processed_blocks;
 	bool initialized;
+
+	/* debug */
+    float last_peak_abs;
+    float last_avg_abs;
+    float last_threshold;
 } MicrophoneState_t;
 
 /*
@@ -41,5 +48,10 @@ bool Microphone_ProcessBlock(MicrophoneState_t *state,
 							const int16_t *samples,
 							size_t sample_count,
 							ULONG now_ms);
+
+/*
+ * Print current detector readings over UART (peak, avg, floor, threshold).
+ */
+void Microphone_PrintDebug(const MicrophoneState_t *state);
 
 #endif /* SENSORS_MICROPHONE_H_ */

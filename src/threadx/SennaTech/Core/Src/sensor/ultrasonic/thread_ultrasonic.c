@@ -9,7 +9,7 @@ void ultrasonic_thread_entry(ULONG thread_input)
 
     while (1)
     {
-        read_back_ultrasonic_distance_cm(&ultrasonic_data.back_distance_cm);
+        //read_back_ultrasonic_distance_cm(&ultrasonic_data.back_distance_cm);
         read_front_ultrasonic_distance_cm(&ultrasonic_data.front_distance_cm);
 
         tx_queue_flush(&g_ultrasonic_data_queue);
