@@ -1,7 +1,7 @@
 #MicroXplorer Configuration settings - do not modify
 ADF1.IPParameters=MDF_COMPARAM_ActivationOutputClock,MDF_DFLT0_Decimation,MDF_DFLT0_DiscardSamples,MDF_COMPARAM_Divider
 ADF1.MDF_COMPARAM_ActivationOutputClock=ENABLE
-ADF1.MDF_COMPARAM_Divider=8
+ADF1.MDF_COMPARAM_Divider=12
 ADF1.MDF_DFLT0_Decimation=64
 ADF1.MDF_DFLT0_DiscardSamples=16
 CAD.formats=

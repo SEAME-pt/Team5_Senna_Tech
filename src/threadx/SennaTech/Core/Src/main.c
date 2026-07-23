@@ -268,7 +268,7 @@ static void MX_ADF1_Init(void)
   AdfHandle0.Init.CommonParam.ProcClockDivider = 1;
   AdfHandle0.Init.CommonParam.OutputClock.Activation = ENABLE;
   AdfHandle0.Init.CommonParam.OutputClock.Pins = MDF_OUTPUT_CLOCK_0;
-  AdfHandle0.Init.CommonParam.OutputClock.Divider = 8;
+  AdfHandle0.Init.CommonParam.OutputClock.Divider = 12;
   AdfHandle0.Init.CommonParam.OutputClock.Trigger.Activation = DISABLE;
   AdfHandle0.Init.SerialInterface.Activation = ENABLE;
   AdfHandle0.Init.SerialInterface.Mode = MDF_SITF_LF_MASTER_SPI_MODE;

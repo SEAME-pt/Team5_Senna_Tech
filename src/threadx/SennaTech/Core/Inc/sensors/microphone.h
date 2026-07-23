@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "utils.h"
+#include "can_manager.h"
 
 typedef struct {
 	float noise_alpha;
@@ -14,6 +15,7 @@ typedef struct {
 	float min_rms;
 	ULONG refractory_ms;
 	ULONG warmup_blocks;
+	float rearm_ratio; /* fração do threshold abaixo da qual volta a armar */
 } MicrophoneConfig_t;
 
 typedef struct {
@@ -23,11 +25,12 @@ typedef struct {
 	ULONG last_clap_ms;
 	ULONG processed_blocks;
 	bool initialized;
+	bool armed; /* false logo após uma palma, até o som sossegar */
 
 	/* debug */
-    float last_peak_abs;
-    float last_avg_abs;
-    float last_threshold;
+	float last_peak_abs;
+	float last_avg_abs;
+	float last_threshold;
 } MicrophoneState_t;
 
 /*
