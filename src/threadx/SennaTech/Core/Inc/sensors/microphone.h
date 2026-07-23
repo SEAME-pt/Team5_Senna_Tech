@@ -1,0 +1,45 @@
+#ifndef SENSORS_MICROPHONE_H_
+#define SENSORS_MICROPHONE_H_
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "utils.h"
+
+typedef struct {
+	float noise_alpha;
+	float dc_alpha;
+	float threshold_factor;
+	float min_peak;
+	float min_rms;
+	ULONG refractory_ms;
+} MicrophoneConfig_t;
+
+typedef struct {
+	MicrophoneConfig_t cfg;
+	float noise_floor;
+	float dc_estimate;
+	ULONG last_clap_ms;
+	bool initialized;
+} MicrophoneState_t;
+
+/*
+ * Configure default thresholds to start clap detection tests.
+ */
+void Microphone_DefaultConfig(MicrophoneConfig_t *cfg);
+
+/*
+ * Initialize detector internal state.
+ */
+void Microphone_Init(MicrophoneState_t *state, const MicrophoneConfig_t *cfg);
+
+/*
+ * Process a 16-bit PCM block and return true when a clap is detected.
+ * now_ms can come from HAL_GetTick().
+ */
+bool Microphone_ProcessBlock(MicrophoneState_t *state,
+							const int16_t *samples,
+							size_t sample_count,
+							ULONG now_ms);
+
+#endif /* SENSORS_MICROPHONE_H_ */

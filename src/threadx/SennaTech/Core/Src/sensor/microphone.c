@@ -1,11 +1,11 @@
-#include "sensors/microfone.h"
+#include "sensors/microphone.h"
 
-static float microfone_absf(float v)
+static float microphone_absf(float v)
 {
 	return (v < 0.0f) ? -v : v;
 }
 
-void Microfone_DefaultConfig(MicrofoneConfig_t *cfg)
+void Microphone_DefaultConfig(MicrophoneConfig_t *cfg)
 {
 	if (cfg == (void *)0) {
 		return;
@@ -19,20 +19,18 @@ void Microfone_DefaultConfig(MicrofoneConfig_t *cfg)
 	cfg->refractory_ms = 180U;
 }
 
-void Microfone_Init(MicrofoneState_t *state, const MicrofoneConfig_t *cfg)
+void Microphone_Init(MicrophoneState_t *state, const MicrophoneConfig_t *cfg)
 {
-	MicrofoneConfig_t local_cfg;
+	MicrophoneConfig_t local_cfg;
 
-	if (state == (void *)0) {
-		return;
-	}
+	if (state == (void *)0)
+		return ;
 
 	if (cfg == (void *)0) {
-		Microfone_DefaultConfig(&local_cfg);
+		Microphone_DefaultConfig(&local_cfg);
 		state->cfg = local_cfg;
-	} else {
+	} else
 		state->cfg = *cfg;
-	}
 
 	state->noise_floor = state->cfg.min_rms;
 	state->dc_estimate = 0.0f;
@@ -40,7 +38,7 @@ void Microfone_Init(MicrofoneState_t *state, const MicrofoneConfig_t *cfg)
 	state->initialized = true;
 }
 
-bool Microfone_ProcessBlock(MicrofoneState_t *state,
+bool Microphone_ProcessBlock(MicrophoneState_t *state,
 							const int16_t *samples,
 							size_t sample_count,
 							ULONG now_ms)
@@ -53,9 +51,8 @@ bool Microfone_ProcessBlock(MicrofoneState_t *state,
 	float hp;
 	size_t i;
 
-	if (state == (void *)0 || samples == (void *)0 || sample_count == 0U || !state->initialized) {
+	if (state == (void *)0 || samples == (void *)0 || sample_count == 0U || !state->initialized)
 		return false;
-	}
 
 	for (i = 0U; i < sample_count; i++) {
 		x = (float)samples[i];
@@ -64,11 +61,11 @@ bool Microfone_ProcessBlock(MicrofoneState_t *state,
 							 ((1.0f - state->cfg.dc_alpha) * x);
 		hp = x - state->dc_estimate;
 
-		hp = microfone_absf(hp);
+		hp = microphone_absf(hp);
 		sum_abs += hp;
-		if (hp > peak_abs) {
+
+		if (hp > peak_abs)
 			peak_abs = hp;
-		}
 	}
 
 	avg_abs = sum_abs / (float)sample_count;
@@ -77,39 +74,37 @@ bool Microfone_ProcessBlock(MicrofoneState_t *state,
 						 ((1.0f - state->cfg.noise_alpha) * avg_abs);
 
 	dynamic_threshold = state->noise_floor * state->cfg.threshold_factor;
-	if (dynamic_threshold < state->cfg.min_peak) {
+	if (dynamic_threshold < state->cfg.min_peak)
 		dynamic_threshold = state->cfg.min_peak;
-	}
 
-	if ((now_ms - state->last_clap_ms) < state->cfg.refractory_ms) {
+	if ((now_ms - state->last_clap_ms) < state->cfg.refractory_ms)
 		return false;
-	}
 
 	if (peak_abs >= dynamic_threshold && avg_abs >= state->cfg.min_rms) {
 		state->last_clap_ms = now_ms;
-		uart_send("Palma detectada!\r\n");
+		uart_send("Clap detected!\r\n");
 		return true;
 	}
 
 	return false;
 }
 
-void microfone_thread_entry(ULONG thread_input)
+void microphone_thread_entry(ULONG thread_input)
 {
-	MicrofoneState_t mic_state;
-	MicrofoneConfig_t mic_cfg;
+	MicrophoneState_t mic_state;
+	MicrophoneConfig_t mic_cfg;
 
 	(void)thread_input;
 
-	Microfone_DefaultConfig(&mic_cfg);
-	Microfone_Init(&mic_state, &mic_cfg);
+	Microphone_DefaultConfig(&mic_cfg);
+	Microphone_Init(&mic_state, &mic_cfg);
 
-	uart_send("Microfone thread started\r\n");
+	uart_send("Microphone thread started\r\n");
 
 	while (1) {
 		/*
-		 * TODO: integrar captura real de audio (PCM) e chamar
-		 * Microfone_ProcessBlock(&mic_state, samples, sample_count, HAL_GetTick()).
+		 * TODO: integrate real audio capture (PCM) and call
+		 * Microphone_ProcessBlock(&mic_state, samples, sample_count, HAL_GetTick()).
 		 */
 		tx_thread_sleep(10);
 	}

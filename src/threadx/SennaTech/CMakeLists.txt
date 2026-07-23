@@ -69,7 +69,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/sensor/ultrasonic/front_ultrasonic.c
     Core/Src/sensor/ultrasonic/back_ultrasonic.c
     Core/Src/sensor/ambient_light.c
-    Core/Src/sensor/microfone.c
+    Core/Src/sensor/microphone.c
     Core/Src/sensor/odometer.c
     Core/Src/sensor/speedsensor.c
     Core/Src/utils/debug_utils.c
