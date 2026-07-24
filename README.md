@@ -1,11 +1,6 @@
-<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td height="4" bgcolor="#009c3b"></td></tr></table>
-
 <h3 align="center">Team5_Senna_Tech 🏎️💨</h3>
 <p align="center"><sub>SennaRacer</sub></p>
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td height="4" bgcolor="#ffdf00"></td></tr></table>
-
-</br>
 An autonomous 1/10-scale vehicle built on a **PiRacer chassis**, combining a **Raspberry Pi 5 + Hailo-8 AI accelerator** for perception and decision-making with an **STM32 microcontroller (ThreadX RTOS)** for real-time motor and sensor control — connected over CAN bus and Eclipse KUKSA middleware, with a Qt/QML instrument cluster as the driver-facing display.
 
 Built by **Team 5 – SennaTech** during the **SEA:ME Portugal** program (Software Engineering in Automotive and Mobility Ecosystems). This repository is shared as an open-source reference of the full stack we built, from firmware to computer vision to UI.
