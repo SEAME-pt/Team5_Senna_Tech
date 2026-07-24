@@ -3,19 +3,24 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
 #include "utils.h"
 #include "can_manager.h"
 
+#define MICROPHONE_BLOCK_SAMPLES 160U
+#define MICROPHONE_DEBUG_PERIOD_MS 1000U
+
+extern MDF_HandleTypeDef AdfHandle0;
+extern MDF_FilterConfigTypeDef AdfFilterConfig0;
+
 typedef struct {
-	float noise_alpha;
-	float dc_alpha;
-	float threshold_factor;
-	float min_peak;
-	float min_rms;
-	ULONG refractory_ms;
-	ULONG warmup_blocks;
-	float rearm_ratio; /* fração do threshold abaixo da qual volta a armar */
+	float noise_alpha; // Smoothing for the "noise floor"
+	float dc_alpha; // Smoothing for the filter estimating DC offset (silence/average level)
+	float threshold_factor; // How far above background noise a sound must be to count as a peak
+	float min_peak; // Absolute minimum threshold, even if background noise is very low
+	float min_rms; // Minimum noise floor (avoids becoming too sensitive in total silence)
+	ULONG refractory_ms; // Minimum time between two detections (avoids re-triggering on the same sound)
+	ULONG warmup_blocks; // Number of initial blocks ignored, so the filters stabilize before detecting
+	float rearm_ratio; // Factor used to "re-arm" detection after it fires
 } MicrophoneConfig_t;
 
 typedef struct {
@@ -26,11 +31,6 @@ typedef struct {
 	ULONG processed_blocks;
 	bool initialized;
 	bool armed; /* false logo após uma palma, até o som sossegar */
-
-	/* debug */
-	float last_peak_abs;
-	float last_avg_abs;
-	float last_threshold;
 } MicrophoneState_t;
 
 /*
@@ -51,10 +51,5 @@ bool Microphone_ProcessBlock(MicrophoneState_t *state,
 							const int16_t *samples,
 							size_t sample_count,
 							ULONG now_ms);
-
-/*
- * Print current detector readings over UART (peak, avg, floor, threshold).
- */
-void Microphone_PrintDebug(const MicrophoneState_t *state);
 
 #endif /* SENSORS_MICROPHONE_H_ */

@@ -1,11 +1,5 @@
 #include "sensors/microphone.h"
 
-#define MICROPHONE_BLOCK_SAMPLES 160U
-#define MICROPHONE_DEBUG_PERIOD_MS 1000U
-
-extern MDF_HandleTypeDef AdfHandle0;
-extern MDF_FilterConfigTypeDef AdfFilterConfig0;
-
 static int16_t microphone_raw_to_pcm16(int32_t raw)
 {
 	int32_t shifted;
@@ -34,14 +28,14 @@ void Microphone_DefaultConfig(MicrophoneConfig_t *cfg)
 	if (cfg == (void *)0)
 		return ;
 
-	cfg->noise_alpha = 0.98f;
-	cfg->dc_alpha = 0.995f;
-	cfg->threshold_factor = 2.2f;
-	cfg->min_peak = 700.0f;
-	cfg->min_rms = 120.0f;
-	cfg->refractory_ms = 90U;
-	cfg->warmup_blocks = 4U;
-	cfg->rearm_ratio = 0.6f;
+	cfg->noise_alpha		= 0.98f;
+	cfg->dc_alpha 			= 0.995f;
+	cfg->threshold_factor	= 2.2f;
+	cfg->min_peak 			= 700.0f;
+	cfg->min_rms 			= 120.0f;
+	cfg->refractory_ms 		= 90U;
+	cfg->warmup_blocks 		= 4U;
+	cfg->rearm_ratio 		= 0.6f;
 }
 
 void Microphone_Init(MicrophoneState_t *state, const MicrophoneConfig_t *cfg)
@@ -51,10 +45,12 @@ void Microphone_Init(MicrophoneState_t *state, const MicrophoneConfig_t *cfg)
 	if (state == (void *)0)
 		return ;
 
-	if (cfg == (void *)0) {
+	if (cfg == (void *)0) 
+	{
 		Microphone_DefaultConfig(&local_cfg);
 		state->cfg = local_cfg;
-	} else
+	} 
+	else
 		state->cfg = *cfg;
 
 	state->noise_floor = state->cfg.min_rms;
@@ -65,23 +61,22 @@ void Microphone_Init(MicrophoneState_t *state, const MicrophoneConfig_t *cfg)
 	state->armed = true;
 }
 
-bool Microphone_ProcessBlock(MicrophoneState_t *state,
-							const int16_t *samples,
-							size_t sample_count,
-							ULONG now_ms)
+bool Microphone_ProcessBlock(MicrophoneState_t *state, const int16_t *samples,
+							size_t sample_count, ULONG now_ms)
 {
-	float sum_abs = 0.0f;
-	float peak_abs = 0.0f;
-	float avg_abs;
-	float dynamic_threshold;
-	float x;
-	float hp;
-	size_t i;
+	float	sum_abs = 0.0f;
+	float	peak_abs = 0.0f;
+	float	avg_abs;
+	float	dynamic_threshold;
+	float	x;
+	float	hp;
+	size_t	i;
 
 	if (state == (void *)0 || samples == (void *)0 || sample_count == 0U || !state->initialized)
 		return false;
 
-	for (i = 0U; i < sample_count; i++) {
+	for (i = 0U; i < sample_count; i++) 
+	{
 		x = (float)samples[i];
 
 		state->dc_estimate = (state->cfg.dc_alpha * state->dc_estimate) +
@@ -107,16 +102,14 @@ bool Microphone_ProcessBlock(MicrophoneState_t *state,
 	if (dynamic_threshold < state->cfg.min_peak)
 		dynamic_threshold = state->cfg.min_peak;
 
-	state->last_peak_abs  = peak_abs;
-	state->last_avg_abs   = avg_abs;
-	state->last_threshold = dynamic_threshold;
-
-	if (state->processed_blocks < state->cfg.warmup_blocks) {
+	if (state->processed_blocks < state->cfg.warmup_blocks) 
+	{
 		state->processed_blocks++;
 		return false;
 	}
 
-	if (!state->armed) {
+	if (!state->armed) 
+	{
 		/* ainda em cooldown: só volta a armar quando o som sossegar */
 		if (peak_abs < (dynamic_threshold * state->cfg.rearm_ratio))
 			state->armed = true;
@@ -126,7 +119,8 @@ bool Microphone_ProcessBlock(MicrophoneState_t *state,
 	if ((now_ms - state->last_clap_ms) < state->cfg.refractory_ms)
 		return false;
 
-	if (peak_abs >= dynamic_threshold && avg_abs >= state->cfg.min_rms) {
+	if (peak_abs >= dynamic_threshold && avg_abs >= state->cfg.min_rms) 
+	{
 		state->last_clap_ms = now_ms;
 		state->armed = false;
 		uart_send("Clap detected!\r\n");
@@ -136,52 +130,29 @@ bool Microphone_ProcessBlock(MicrophoneState_t *state,
 	return false;
 }
 
-void Microphone_PrintDebug(const MicrophoneState_t *state)
-{
-	if (state == (void *)0 || !state->initialized)
-		return ;
-
-	uart_send("peak=");
-	uart_send_int((ULONG)state->last_peak_abs);
-	uart_send(" avg=");
-	uart_send_int((ULONG)state->last_avg_abs);
-	uart_send(" floor=");
-	uart_send_int((ULONG)state->noise_floor);
-	uart_send(" thr=");
-	uart_send_int((ULONG)state->last_threshold);
-	uart_send("\r\n");
-}
-
 void microphone_thread_entry(ULONG thread_input)
 {
-	MicrophoneState_t mic_state;
-	MicrophoneConfig_t mic_cfg;
-	int16_t sample_block[MICROPHONE_BLOCK_SAMPLES];
-	ULONG sample_index = 0U;
-	int32_t raw_sample = 0;
-	int16_t pcm_sample;
-	HAL_StatusTypeDef status;
+	MicrophoneState_t	mic_state;
+	MicrophoneConfig_t	mic_cfg;
+	int16_t				sample_block[MICROPHONE_BLOCK_SAMPLES];
+	ULONG				sample_index = 0U;
+	int32_t				raw_sample = 0;
+	int16_t				pcm_sample;
+	HAL_StatusTypeDef	status;
+	CAN_Frame			frame;
 
-	CAN_Frame frame;
 	frame.id = CAN_ID_MODE_MOVEMENT;
 	frame.data[0] = 0;
-
-	(void)thread_input;
 
 	Microphone_DefaultConfig(&mic_cfg);
 	Microphone_Init(&mic_state, &mic_cfg);
 
-	uart_send("Microphone thread started\r\n");
-
 	status = HAL_MDF_AcqStart(&AdfHandle0, &AdfFilterConfig0);
-	if (status != HAL_OK) {
-		uart_send("ADF acquisition start failed\r\n");
-		while (1) {
-			tx_thread_sleep(100);
-		}
-	}
-	uart_send("ADF acquisition started\r\n");
 
+	if (status != HAL_OK)
+		uart_send("ADF acquisition start failed\r\n");
+
+	uart_send("Microphone thread started\r\n");
 	while (1) {
 		status = HAL_MDF_PollForAcq(&AdfHandle0, 0U);
 		if (status == HAL_OK) {
