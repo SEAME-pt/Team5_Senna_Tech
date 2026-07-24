@@ -1,11 +1,9 @@
-<div style="width:100%; height:2px; background:#009c3b;"></div>
+<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td height="4" bgcolor="#009c3b"></td></tr></table>
 
-<p align="center" style="font-size:2em; font-weight:600; margin:0.67em 0 0 0;">
-  <span style="position:relative; display:inline-block;"><span style="position:absolute; right:100%; top:0; margin-right:8px; white-space:nowrap;">🏎️</span>Team5_Senna_Tech</span> 💨
-</p>
-<p align="center" style="font-size:1.3em; font-weight:400; margin:0 0 0.67em 0; color:gray;">SennaRacer</p>
+<h3 align="center">Team5_Senna_Tech 🏎️💨</h3>
+<p align="center"><sub>SennaRacer</sub></p>
 
-<div style="width:100%; height:2px; background:#ffdf00;"></div>
+<table width="100%" border="0" cellpadding="0" cellspacing="0"><tr><td height="4" bgcolor="#ffdf00"></td></tr></table>
 
 </br>
 An autonomous 1/10-scale vehicle built on a **PiRacer chassis**, combining a **Raspberry Pi 5 + Hailo-8 AI accelerator** for perception and decision-making with an **STM32 microcontroller (ThreadX RTOS)** for real-time motor and sensor control — connected over CAN bus and Eclipse KUKSA middleware, with a Qt/QML instrument cluster as the driver-facing display.
@@ -30,19 +28,18 @@ Built by **Team 5 – SennaTech** during the **SEA:ME Portugal** program (Softwa
 <table>
 <tr>
 <td width="50%" valign="top">
-<h4 style="font-family: Georgia, 'Times New Roman', serif; font-size:1.3em;">🛣️ Lane Following Assist (LFA)</h4>
+<h4>🛣️ Lane Following Assist (LFA)</h4>
 <p>Real-time lane segmentation on the Hailo-8 NPU, BEV transform, sliding-window lane fit, and PID steering feeding the CAN bus.</p>
 <p align="center">
   <img src="docs/assets/lfa_demo.gif" alt="Lane Following Assist demo" width="100%">
 </p>
 </td>
 <td width="50%" valign="top">
-<h4 style="font-family: Georgia, 'Times New Roman', serif; font-size:1.3em;">🚸 Traffic sign & obstacle detection</h4>
+<h4>🚸 Traffic sign & obstacle detection</h4>
 <p>A second YOLO model runs in parallel on the same Hailo device to detect signs, traffic lights, crosswalks and obstacles, driving braking/avoidance behavior.</p>
 <p align="center">
   <img src="docs/assets/sign_obstacle_detection_demo.gif" alt="Sign and obstacle detection demo" width="100%">
 </p>
-
 </td>
 </tr>
 </table>
@@ -50,14 +47,14 @@ Built by **Team 5 – SennaTech** during the **SEA:ME Portugal** program (Softwa
 <table>
 <tr>
 <td width="50%" valign="top">
-<h4 style="font-family: Georgia, 'Times New Roman', serif; font-size:1.3em;">📊 Instrument cluster</h4>
+<h4>📊 Instrument cluster</h4>
 <p>A Qt/QML dashboard (<code>src/car_cluster/</code>) showing live speed, battery, temperature, gear and warnings, driven by real vehicle signals over KUKSA.</p>
 <p align="center">
   <img src="docs/assets/car_cluster_demo.gif" alt="Instrument cluster demo" width="100%">
 </p>
 </td>
 <td width="50%" valign="top">
-<h4 style="font-family: Georgia, 'Times New Roman', serif; font-size:1.3em;">🚧 Obstacle avoidance</h4>
+<h4>🚧 Obstacle avoidance</h4>
 <p>When an obstacle is detected inside the lane corridor, the FSM shifts the trajectory reference sideways (normalized CTE offset) while the obstacle stays ahead, then smoothly returns to lane center after a wait period — with no driver intervention.</p>
 <p align="center">
   <img src="docs/assets/obstacle_avoidance_demo.gif" alt="Obstacle avoidance demo" width="100%">
@@ -69,14 +66,14 @@ Built by **Team 5 – SennaTech** during the **SEA:ME Portugal** program (Softwa
 <table>
 <tr>
 <td width="50%" valign="top">
-<h4 style="font-family: Georgia, 'Times New Roman', serif; font-size:1.3em;">🚗 Adaptive Cruise Control (ACC)</h4>
+<h4>🚗 Adaptive Cruise Control (ACC)</h4>
 <p>Adaptive speed control that adjusts throttle based on the detected lead car's bounding-box area, keeping a safe following distance in the FOLLOW state with no driver intervention.</p>
 <p align="center">
   <img src="docs/assets/cruise_control_demo.gif" alt="Adaptive Cruise Control demo" width="100%">
 </p>
 </td>
 <td width="50%" valign="top">
-<h4 style="font-family: Georgia, 'Times New Roman', serif; font-size:1.3em;">🚕 Robotaxi mission (<code>ADAS/Taxi_Robot/</code>)</h4>
+<h4>🚕 Robotaxi mission (<code>ADAS/Taxi_Robot/</code>)</h4>
 <p>An extended version of the LFA pipeline that adds a decision FSM, ArUco-marker-based localization, a track map, and automatic parking maneuvers, so the car can run a full pick-up/drop-off mission instead of just following a lane.</p>
 <p align="center">
   <img src="docs/assets/robotaxi_demo.gif" alt="Robotaxi mission demo" width="100%">
@@ -164,29 +161,31 @@ The branching strategy, commit message conventions and pull request process the 
 
 ## 👥 Team
 
-<p align="center">
-  <span style="display:inline-block; text-align:center; margin:20px; max-width:30%;">
-    <a href="https://github.com/yasminefontenele"><img src="https://github.com/yasminefontenele.png" alt="Yasmine" width="100" style="border-radius:50%; border:3px solid #2ea44f; height:auto; max-width:100%;"></a>
-    <br><sub><b>Yasmine</b></sub>
-  </span>
-  <span style="display:inline-block; text-align:center; margin:20px; max-width:30%;">
-    <a href="https://github.com/vivaccar"><img src="https://github.com/vivaccar.png" alt="Vinicius" width="100" style="border-radius:50%; border:3px solid #2ea44f; height:auto; max-width:100%;"></a>
-    <br><sub><b>Vinicius</b></sub>
-  </span>
-  <span style="display:inline-block; text-align:center; margin:20px; max-width:30%;">
-    <a href="https://github.com/jose5556"><img src="https://github.com/jose5556.png" alt="Jose" width="100" style="border-radius:50%; border:3px solid #2ea44f; height:auto; max-width:100%;"></a>
-    <br><sub><b>Jose</b></sub>
-  </span>
-  <span style="display:inline-block; text-align:center; margin:20px; max-width:30%;">
-    <a href="https://github.com/marcelofassbinder"><img src="https://github.com/marcelofassbinder.png" alt="Marcelo" width="100" style="border-radius:50%; border:3px solid #2ea44f; height:auto; max-width:100%;"></a>
-    <br><sub><b>Marcelo</b></sub>
-  </span>
-  <span style="display:inline-block; text-align:center; margin:20px; max-width:30%;">
-    <a href="https://github.com/nicoleoliveiraa"><img src="https://github.com/nicoleoliveiraa.png" alt="Nicole" width="100" style="border-radius:50%; border:3px solid #2ea44f; height:auto; max-width:100%;"></a>
-    <br><sub><b>Nicole</b></sub>
-  </span>
-  <span style="display:inline-block; text-align:center; margin:20px; max-width:30%;">
-    <a href="https://github.com/Hellom-World"><img src="https://github.com/Hellom-World.png" alt="Hellom" width="100" style="border-radius:50%; border:3px solid #2ea44f; height:auto; max-width:100%;"></a>
-    <br><sub><b>Hellom</b></sub>
-  </span>
-</p>
+<table>
+<tr>
+<td align="center">
+  <a href="https://github.com/yasminefontenele"><img src="https://github.com/yasminefontenele.png" alt="Yasmine" width="100" height="100"></a>
+  <br><sub><b>Yasmine</b></sub>
+</td>
+<td align="center">
+  <a href="https://github.com/vivaccar"><img src="https://github.com/vivaccar.png" alt="Vinicius" width="100" height="100"></a>
+  <br><sub><b>Vinicius</b></sub>
+</td>
+<td align="center">
+  <a href="https://github.com/jose5556"><img src="https://github.com/jose5556.png" alt="Jose" width="100" height="100"></a>
+  <br><sub><b>Jose</b></sub>
+</td>
+<td align="center">
+  <a href="https://github.com/marcelofassbinder"><img src="https://github.com/marcelofassbinder.png" alt="Marcelo" width="100" height="100"></a>
+  <br><sub><b>Marcelo</b></sub>
+</td>
+<td align="center">
+  <a href="https://github.com/nicoleoliveiraa"><img src="https://github.com/nicoleoliveiraa.png" alt="Nicole" width="100" height="100"></a>
+  <br><sub><b>Nicole</b></sub>
+</td>
+<td align="center">
+  <a href="https://github.com/Hellom-World"><img src="https://github.com/Hellom-World.png" alt="Hellom" width="100" height="100"></a>
+  <br><sub><b>Hellom</b></sub>
+</td>
+</tr>
+</table>
