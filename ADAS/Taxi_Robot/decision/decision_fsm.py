@@ -9,7 +9,7 @@ log = logging.getLogger("FSM")
 class State(Enum):
     STOP         = 0
     SPEED_SLOW   = 5
-    SPEED_50     = 10
+    SPEED_50     = 9
     SPEED_80     = 12
     FOLLOW       = 4
     RETURNING    = 14
@@ -33,7 +33,7 @@ TAXIROBOT_STATES = (
 STATE_THROTTLE = {
     State.STOP:          0,
     State.SPEED_SLOW:    5,
-    State.SPEED_50:      10,
+    State.SPEED_50:      9,
     State.SPEED_80:      12,
     State.FOLLOW:        0,
     State.RETURNING:     5,
