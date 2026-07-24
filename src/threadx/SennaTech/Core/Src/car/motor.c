@@ -40,6 +40,14 @@ static void decode_drive_frame(CAN_Frame *frame, float *throttle_target, float *
     if (*steering_target < -1.0f) *steering_target = -1.0f;
 }
 
+static void autonomous_mode_help(car_t *car, float throttle_target)
+{
+    car_set_throttle_percent(car, 0.3, 0);
+    uart_send("Autonomous mode: moving forward for 1 second to help AI\r\n");
+    tx_thread_sleep(50);
+    car_set_throttle_percent(car, 0.1, 0);
+}
+
 void motors_thread_entry(ULONG thread_input)
 {
     uart_send("Motor Thread Entry\r\n");
@@ -50,7 +58,7 @@ void motors_thread_entry(ULONG thread_input)
     car_init(&car, &hi2c1);
 
     pid_t throttle_pid;
-    pid_init(&throttle_pid, 1.42f, 1.11f, 0.01f);
+    pid_init(&throttle_pid, 2.0f, 1.3f, 0.008f);
 
     // normalized [-1, 1]
     float throttle_target = 0.0f, steering_target = 0.0f;
@@ -58,6 +66,8 @@ void motors_thread_entry(ULONG thread_input)
     ULONG last_tick = tx_time_get();
     UINT brake = 0;
     e_car_mode mode = MODE_MANUAL;
+
+    int first_time_autonomous = 1;
 
     while (1)
     {
@@ -75,6 +85,12 @@ void motors_thread_entry(ULONG thread_input)
             if (frame.id == CAN_ID_AI_MOVEMENT && mode == MODE_AUTONOMOUS)
             {
                 decode_drive_frame(&frame, &throttle_target, &steering_target);
+                if (first_time_autonomous)
+                {
+                    pid_reset(&throttle_pid);
+                    autonomous_mode_help(&car, throttle_target);
+                    first_time_autonomous = 0;
+                }
                 continue ;
             }
             else if (frame.id == CAN_ID_JOY_MOVEMENT)
@@ -90,10 +106,14 @@ void motors_thread_entry(ULONG thread_input)
                         pid_reset(&throttle_pid);
                         throttle_target = joy_throttle;
                         steering_target = joy_steering;
+                        first_time_autonomous = 1;
                     }
                 }
                 else if (mode == MODE_MANUAL)
+                {
                     decode_drive_frame(&frame, &throttle_target, &steering_target);
+                    first_time_autonomous = 1;
+                }
                 continue ;
             }
 
