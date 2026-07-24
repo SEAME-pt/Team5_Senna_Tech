@@ -12,7 +12,24 @@ Check the version:
 python3 --version
 ```
 
-## 2. Create and activate a virtual environment
+## 2. Run with Make
+
+The Makefile automates virtual-environment creation, activation, dependency installation, and server startup. From the repository root, run:
+
+```bash
+make -C ADAS/Taxi_Robot_Server run
+```
+
+Alternatively, go to the server folder first and run `make run`:
+
+```bash
+cd ADAS/Taxi_Robot_Server
+make run
+```
+
+The server starts at `http://127.0.0.1:8000`. Press `Ctrl + C` to stop it.
+
+## 3. If you wnato to Create and activate a virtual environment step-by-step
 
 From the repository root, go to the server folder:
 
@@ -34,7 +51,7 @@ source .venv/bin/activate
 
 If you are using a different shell, the activation command may vary, but the virtual environment will be created in the `.venv` folder inside this directory.
 
-## 3. Install the Python dependencies
+## 4. Install the Python dependencies
 
 With the virtual environment activated, install the required packages:
 
@@ -43,7 +60,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## 4. Run the server
+## 5. Run the server
 
 Start the FastAPI application with Uvicorn:
 
@@ -57,7 +74,7 @@ You can also use:
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-## 5. Verify that the server is running
+## 6. Verify that the server is running
 
 Open the following URL in your browser or with curl:
 
@@ -71,13 +88,13 @@ Expected response:
 {"status": "ok"}
 ```
 
-## 6. Useful endpoints
+## 7. Useful endpoints
 
 - Health check: `GET /health`
 - Mission command: `POST /mission/command`
 - Status: `GET /status`
 - WebSocket endpoint: `WS /ws/robotaxi`
 
-## 7. Stop the server
+## 8. Stop the server
 
 Press `Ctrl + C` in the terminal where the server is running.

@@ -1,3 +1,7 @@
+"
+na raiz do repositorio:
+/home/team5/qt-everywhere-src-6.8.3/qt-host-build/bin/qmlscene /home/team5/Documents/yasmine/Team5_Senna_Tech/src/car_cluster/RobotaxiPreview.qml
+"
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import "components"
