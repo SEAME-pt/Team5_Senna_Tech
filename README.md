@@ -1,206 +1,192 @@
-# 🏎️ Team5_Senna_Tech  🏎️
+<div style="width:100%; height:2px; background:#009c3b;"></div>
+
+<p align="center" style="font-size:2em; font-weight:600; margin:0.67em 0 0 0;">
+  <span style="position:relative; display:inline-block;"><span style="position:absolute; right:100%; top:0; margin-right:8px; white-space:nowrap;">🏎️</span>Team5_Senna_Tech</span> 💨
+</p>
+<p align="center" style="font-size:1.3em; font-weight:400; margin:0 0 0.67em 0; color:gray;">SennaRacer</p>
+
+<div style="width:100%; height:2px; background:#ffdf00;"></div>
+
+</br>
+An autonomous 1/10-scale vehicle built on a **PiRacer chassis**, combining a **Raspberry Pi 5 + Hailo-8 AI accelerator** for perception and decision-making with an **STM32 microcontroller (ThreadX RTOS)** for real-time motor and sensor control — connected over CAN bus and Eclipse KUKSA middleware, with a Qt/QML instrument cluster as the driver-facing display.
+
+Built by **Team 5 – SennaTech** during the **SEA:ME Portugal** program (Software Engineering in Automotive and Mobility Ecosystems). This repository is shared as an open-source reference of the full stack we built, from firmware to computer vision to UI.
+
+<p align="center">
+  <img src="docs/assets/car_demo.gif" alt="PiRacer running autonomously" width="1000">
+</p>
 
 ## 📑 Index
-- [Context](#-context)
-- [Work Overview](#-work-overview)
-- [System Objectives](#-system-objectives)
-- [Repository Structure](#️-repository-structure)
-- [Installation & Run Guide](#-installation--run-guide)
-- [Guidelines](#-guidelines)
+- [What the car can do](#-what-the-car-can-do)
+- [Software and Hardware Architecture](#-software-and-hardware-architecture)
+- [Repository structure](#️-repository-structure)
+- [Getting started](#-getting-started)
 - [Documentation](#-documentation)
-- [Agile & Scrum Workflow](#-agile--scrum-workflow)
-- [Sprint Status](#️-sprint-status)
+- [Contributing guidelines](#-contributing-guidelines)
+- [Team](#-team)
 
-## 🌐 Context
+## 🚦 What the car can do
 
-This repository hosts the work of **Team 5 – SennaTech** as part of the **SEA:ME Portugal (Software Engineering in Automotive and Mobility Ecosystems)** program.
+<table>
+<tr>
+<td width="50%" valign="top">
+<h4 style="font-family: Georgia, 'Times New Roman', serif; font-size:1.3em;">🛣️ Lane Following Assist (LFA)</h4>
+<p>Real-time lane segmentation on the Hailo-8 NPU, BEV transform, sliding-window lane fit, and PID steering feeding the CAN bus.</p>
+<p align="center">
+  <img src="docs/assets/lfa_demo.gif" alt="Lane Following Assist demo" width="100%">
+</p>
+</td>
+<td width="50%" valign="top">
+<h4 style="font-family: Georgia, 'Times New Roman', serif; font-size:1.3em;">🚸 Traffic sign & obstacle detection</h4>
+<p>A second YOLO model runs in parallel on the same Hailo device to detect signs, traffic lights, crosswalks and obstacles, driving braking/avoidance behavior.</p>
+<p align="center">
+  <img src="docs/assets/sign_obstacle_detection_demo.gif" alt="Sign and obstacle detection demo" width="100%">
+</p>
 
-Our development focuses on **autonomous driving systems**, **embedded programming** and **reliable software processes** using **agile methodologies**.
+</td>
+</tr>
+</table>
 
-## 🎯 Work Overview
+<table>
+<tr>
+<td width="50%" valign="top">
+<h4 style="font-family: Georgia, 'Times New Roman', serif; font-size:1.3em;">📊 Instrument cluster</h4>
+<p>A Qt/QML dashboard (<code>src/car_cluster/</code>) showing live speed, battery, temperature, gear and warnings, driven by real vehicle signals over KUKSA.</p>
+<p align="center">
+  <img src="docs/assets/car_cluster_demo.gif" alt="Instrument cluster demo" width="100%">
+</p>
+</td>
+<td width="50%" valign="top">
+<h4 style="font-family: Georgia, 'Times New Roman', serif; font-size:1.3em;">🚧 Obstacle avoidance</h4>
+<p>When an obstacle is detected inside the lane corridor, the FSM shifts the trajectory reference sideways (normalized CTE offset) while the obstacle stays ahead, then smoothly returns to lane center after a wait period — with no driver intervention.</p>
+<p align="center">
+  <img src="docs/assets/obstacle_avoidance_demo.gif" alt="Obstacle avoidance demo" width="100%">
+</p>
+</td>
+</tr>
+</table>
 
-### 🚗 Theme
-Building a autonomous vehicle (PiRacer) powered by Raspberry Pi 5, STM32 microcontroller, sensors, HAILO AI.
+<table>
+<tr>
+<td width="50%" valign="top">
+<h4 style="font-family: Georgia, 'Times New Roman', serif; font-size:1.3em;">🚗 Adaptive Cruise Control (ACC)</h4>
+<p>Adaptive speed control that adjusts throttle based on the detected lead car's bounding-box area, keeping a safe following distance in the FOLLOW state with no driver intervention.</p>
+<p align="center">
+  <img src="docs/assets/cruise_control_demo.gif" alt="Adaptive Cruise Control demo" width="100%">
+</p>
+</td>
+<td width="50%" valign="top">
+<h4 style="font-family: Georgia, 'Times New Roman', serif; font-size:1.3em;">🚕 Robotaxi mission (<code>ADAS/Taxi_Robot/</code>)</h4>
+<p>An extended version of the LFA pipeline that adds a decision FSM, ArUco-marker-based localization, a track map, and automatic parking maneuvers, so the car can run a full pick-up/drop-off mission instead of just following a lane.</p>
+<p align="center">
+  <img src="docs/assets/robotaxi_demo.gif" alt="Robotaxi mission demo" width="100%">
+</p>
+</td>
+</tr>
+</table>
 
-### 🧩 Learning Goals
+## 🧭 Software and Hardware Architecture
 
-1. **Hardware Familiarization**
-   - Raspberry Pi 5 setup
-   - HAILO AI Hat assembly
-   - Servo and DC motor configuration
-   - Camera and display integration
-   - Sensor integration and calibration
+<table>
+<tr>
+<td width="50%" valign="top">
+<pre>
+Camera ──┐
+         ├─► ADAS pipeline (Hailo-8 NPU)
+Gamepad ─┘        │  lane segmentation + object detection
+                   ▼
+          Post-processing (BEV, sliding windows, decision FSM)
+                   │
+                   ▼
+             PID steering / throttle
+                   │  CAN bus
+                   ▼
+    STM32 (ThreadX) ──► motors / servos, wheel speed, ultrasonic
+                   │  CAN bus
+                   ▼
+         KUKSA CAN Provider ──► KUKSA Databroker (VSS)
+                   │  gRPC subscribe
+                   ▼
+         Qt/QML instrument cluster (car_cluster)
+</pre>
+</td>
+<td width="50%" valign="top">
+<p align="center">
+  <img src="docs/assets/diagram_cirkit.jpg" alt="Electrical diagram" width="100%">
+</p>
+</td>
+</tr>
+</table>
 
-2. **Embedded Systems & RTOS**
-   - RTOS concepts and multitasking
-   - ThreadX development and scheduling
-   - CAN communication
-   - Embedded real-time software development
-   - STM32 microcontroller integration
+`ADAS/pipeline/` is the standalone LFA pipeline (lane following + object avoidance only). `ADAS/Taxi_Robot/` builds on the same camera/inference/post-processing modules but adds `decision/`, `localization/` and `map/` to run a complete autonomous robotaxi mission — think of it as the pipeline's superset, used for the parking/pickup demo rather than plain lane-following.
 
-3. **Autonomous Driving & ADAS**
-   - Lane Following Assist (LFA)
-   - Lane Keeping Assist (LKA)
-   - PID steering control
-   - Obstacle avoidance
-   - Traffic sign and object detection
-   - Decision-making pipelines
+## 🗂️ Repository structure
 
-4. **Machine Learning & Computer Vision**
-   - Training lane detection models
-   - Training object detection models
-   - YOLO-based perception systems
-   - Dataset preparation and validation
-   - HAILO model conversion and optimization
-
-5. **Simulation & Validation**
-   - CARLA Simulator integration
-   - Autonomous driving scenario testing
-   - ROI calibration and validation pipelines
-
-6. **Qt GUI Development**
-   - Embedded Qt/QML graphical interface
-   - Instrument cluster development
-   - Vehicle telemetry visualization
-
-7. **Automotive Middleware & Communication**
-   - KUKSA integration
-   - Vehicle Signal Specification (VSS)
-   - uProtocol experimentation
-
-8. **Agile (Scrum) Practices**
-   - Sprint planning and retrospectives
-   - Backlog management
-   - GitHub Projects as Scrum board
-
-9. **Version Control (Git & GitHub)**
-   - Branching strategy
-   - Pull request workflow
-   - Code review & CI/CD pipelines
-
-10. **Trustable Software Framework (TSF)**
-   - Requirement definition
-   - Architecture Decision Records (ADR)
-   - Traceability between requirements, design, and tests
-
-11. **GenAI Pair Programming**
-   - Use of generative AI tools for pair programming
-   - AI-assisted debugging and documentation
-
-## 📈 System Objectives
-- Display a functional Qt-based instrument cluster
-- Configure driving systems (Throotle and steering)
-- Implement Lane Following Assist (LFA)
-- Implement Traffic Sign & Object Detection
-- Develop obstacle avoidance strategies
-- Integrate PID steering control with perception models
-- Enable CAN-based communication between modules
-- Support RTOS-based sensor and task management
-- Maintain traceable and documented software requirements
-- Follow Scrum principles with documented sprints
-
-## 🗂️ Repository Structure
 ```
-├── ADAS/                                # Autonomous driving and AI pipelines
-│   ├── CARLA-Simulator/                 # CARLA simulator environment and tests
-│   ├── LFA/                             # Lane Following Assist models and datasets
-│   ├── Object_Detection/                # Object detection training and inference
-│   └── pipeline/                        # Integrated ADAS processing pipeline
-│
-├── convert_hailo/                       # HAILO model conversion and deployment
-│   ├── convert_flow/                    # Automated conversion pipeline
-│   ├── docs/                            # Conversion documentation
-│   ├── object-detection/                # Object detection conversion flow
-│   ├── shared_with_docker/              # Shared Docker resources
-│   └── yolo26_seg/                      # YOLO segmentation conversion tools
-│
-├── docker/                              # Docker environment and cross-compilation
-│
-├── docs/                                # Project documentation
-│   ├── ADAS/                            # ADAS system documentation
-│   ├── ADR/                             # Architecture Decision Records
-│   ├── AGL/                             # Automotive Grade Linux documentation
-│   ├── CARLA-Simulator/                 # CARLA setup and usage
-│   ├── car_control/                     # Vehicle control documentation
-│   ├── COVESA/                          # VSS and automotive standards
-│   ├── cross_compilation/               # Cross-compilation setup
-│   ├── energy/                          # Power and energy analysis
-│   ├── GITHUB/                          # Git workflow and contribution guides
-│   ├── hardware/                        # Hardware integration and wiring
-│   ├── KUKSA/                           # KUKSA integration documentation
-│   ├── MPC/                             # Model Predictive Control research
-│   ├── odometer/                        # Odometer implementation
-│   ├── OTA/                             # OTA and cluster documentation
-│   ├── Parking/                         # Parking assistance system
-│   ├── PID/                             # PID controller documentation
-│   ├── pictures/                        # Images and diagrams
-│   ├── piracer/                         # PiRacer setup and guides
-│   ├── raspberry-pi-5/                  # Raspberry Pi configuration
-│   ├── Servo_MG996R/                    # Servo motor documentation
-│   ├── sprints/                         # Sprint reports and planning
-│   ├── Tests/                           # Testing documentation
-│   ├── ThreadX/                         # RTOS and ThreadX documentation
-│   ├── trustable/                       # Trustable software reports
-│   ├── TSF/                             # Trustable Software Framework
-│   ├── uProtocol/                       # uProtocol experiments
-│   └── VPN/                             # VPN setup and usage
-│
-├── scripts/                             # Utility scripts
-│   ├── ci-cd/                           # CI/CD scripts
-│   └── system/                          # System monitoring scripts
-│
-├── src/                                 # Main source code
-│   ├── car_cluster/                     # Qt/QML instrument cluster
-│   ├── car-control/                     # Vehicle control software
-│   ├── Kuksa/                           # KUKSA integration and CAN mapping
-│   ├── pid_control/                     # PID controller implementation
-│   └── threadx/                         # ThreadX RTOS applications
-│
-├── tests/                               # Unit, integration and system tests
-│   ├── integration-tests/
-│   ├── unit/
-│   └── tests/
+ADAS/
+├── CARLA-Simulator/     # Closed-loop sim: dataset generation, model comparison, pre-hardware validation
+├── convert_hailo/       # .pt → ONNX → .hef conversion flow for the Hailo-8
+├── LFA/                 # PyTorch reference lane-detection / CTE pipeline + trained models
+├── Object_Detection/    # Standalone production object detection on Hailo-8
+├── pipeline/            # Production Lane Following Assist pipeline (RPi5 + Hailo-8)
+├── Taxi_Robot/          # Full robotaxi mission: LFA + decision FSM + ArUco localization + parking
+└── Taxi_Robot_Server/   # Backend server for the Taxi Robot mission
+
+docker/                  # AGL cross-compilation toolchain and Docker image for the Qt cluster
+docs/                    # Project documentation (hardware, ADR, git workflow, TSF, sprints, ...)
+scripts/                 # CI/CD, system monitoring, and deployment scripts
+src/
+├── car_cluster/         # Qt/QML instrument cluster (dashboard)
+├── car-control/         # Gamepad/joystick control over CAN
+├── Kuksa/               # VSS mappings, CAN decoding, KUKSA docker-compose
+└── threadx/             # STM32U585 firmware (ThreadX RTOS)
+tests/                   # Unit, integration and system tests
+INSTALL.md               # Full hardware + software build guide, from bare board to running car
 ```
 
-## 📥 Installation & Run Guide
+## 🚀 Getting started
 
-A complete, step‑by‑step guide to install and run the **entire system on a brand‑new car** with the same components — from hardware assembly and STM32 flashing, through AGL/Hailo setup, to launching the autonomous pipeline — is available in **[INSTALL.md](INSTALL.md)**.
+The complete, step-by-step guide to build and run the system on a car with the same components — hardware assembly, STM32 firmware flashing, AGL/Hailo image setup, Docker cross-compilation, ADAS pipeline dependencies, KUKSA middleware, and finally running the LFA or Robotaxi mission — is in **[INSTALL.md](INSTALL.md)**.
 
-It covers:
-- Bill of materials & PiRacer / STM32 hardware assembly
-- Building & flashing the STM32 ThreadX firmware
-- Building & flashing the AGL image (Raspberry Pi 5) with Hailo + camera + custom layers
-- Hailo‑8 PCIe fix, CAN interface, camera setup
-- Docker cross‑compilation of the Qt cluster & gamepad control
-- ADAS pipeline Python deps, Hailo model conversion, and deployment
-- Kuksa middleware (Databroker + CAN Provider)
-- Running the standard Lane Following Assist and the Robotaxi mission, with a quick‑start checklist and troubleshooting
-
-## 🧭 Guidelines
-All guidelines were developed by the entire team to ensure the best standard for work efficiency. All information can be found at [git_guidelines.md](docs/git_guidelines.md)
-
+For a quick look at individual pieces, see:
+- [`ADAS/pipeline/README.md`](ADAS/pipeline/README.md) — how the LFA pipeline is structured and run
+- [`ADAS/README.md`](ADAS/README.md) — overview of every ADAS module (simulator, conversion, detection, pipeline)
+- [`src/car_cluster/README.md`](src/car_cluster/README.md) — instrument cluster architecture and data flow
+- [`docker/README.md`](docker/README.md) — cross-compilation environment for the Qt cluster
 
 ## 🧾 Documentation
-All documentation is kept inside the [docs/](docs/) folder.
 
-## 🧱 Agile & Scrum Workflow
-- **Methodology:** Scrum
-- **Sprints:** 2-week sprints
-- **Tools:** GitHub Projects + Issues
+All technical and process documentation lives in [`docs/`](docs/), including hardware wiring guides, Architecture Decision Records, the Trustable Software Framework (TSF) traceability, and per-topic write-ups (KUKSA, CARLA, MPC, energy, etc.). Start at [`docs/README.md`](docs/README.md) for the full index.
 
-👥 Team
-| Name            | Responsibilities                                 |
-|-----------------|--------------------------------------------------|
-| Hellom          | Execution pipeline refactoring                   |
-| Vinicius        | Object detection refinement                      |
-| Jose            | Adaptive Cruise Control (ACC) implementation     |
-| Yasmine         | Obstacle Avoidance implementation                |
-| Marcelo         | ---                                              |
+## 🧭 Contributing guidelines
 
-All progress can be seen in [Projects](https://github.com/orgs/SEAME-pt/projects/83)
+The branching strategy, commit message conventions and pull request process the team followed are documented in [`docs/GITHUB/git_guidelines.md`](docs/GITHUB/git_guidelines.md).
 
-## 🗓️ Sprint Status
-- **Current sprint**: Sprint 13
-- **Period**: May 11 to May 22, 2026  [11/05/2026] → [22/11/2026]
-- **Current Status**: Finished
-- **Goals**: Finish the ADAS Module
+## 👥 Team
+
+<p align="center">
+  <span style="display:inline-block; text-align:center; margin:20px; max-width:30%;">
+    <a href="https://github.com/yasminefontenele"><img src="https://github.com/yasminefontenele.png" alt="Yasmine" width="100" style="border-radius:50%; border:3px solid #2ea44f; height:auto; max-width:100%;"></a>
+    <br><sub><b>Yasmine</b></sub>
+  </span>
+  <span style="display:inline-block; text-align:center; margin:20px; max-width:30%;">
+    <a href="https://github.com/vivaccar"><img src="https://github.com/vivaccar.png" alt="Vinicius" width="100" style="border-radius:50%; border:3px solid #2ea44f; height:auto; max-width:100%;"></a>
+    <br><sub><b>Vinicius</b></sub>
+  </span>
+  <span style="display:inline-block; text-align:center; margin:20px; max-width:30%;">
+    <a href="https://github.com/jose5556"><img src="https://github.com/jose5556.png" alt="Jose" width="100" style="border-radius:50%; border:3px solid #2ea44f; height:auto; max-width:100%;"></a>
+    <br><sub><b>Jose</b></sub>
+  </span>
+  <span style="display:inline-block; text-align:center; margin:20px; max-width:30%;">
+    <a href="https://github.com/marcelofassbinder"><img src="https://github.com/marcelofassbinder.png" alt="Marcelo" width="100" style="border-radius:50%; border:3px solid #2ea44f; height:auto; max-width:100%;"></a>
+    <br><sub><b>Marcelo</b></sub>
+  </span>
+  <span style="display:inline-block; text-align:center; margin:20px; max-width:30%;">
+    <a href="https://github.com/nicoleoliveiraa"><img src="https://github.com/nicoleoliveiraa.png" alt="Nicole" width="100" style="border-radius:50%; border:3px solid #2ea44f; height:auto; max-width:100%;"></a>
+    <br><sub><b>Nicole</b></sub>
+  </span>
+  <span style="display:inline-block; text-align:center; margin:20px; max-width:30%;">
+    <a href="https://github.com/Hellom-World"><img src="https://github.com/Hellom-World.png" alt="Hellom" width="100" style="border-radius:50%; border:3px solid #2ea44f; height:auto; max-width:100%;"></a>
+    <br><sub><b>Hellom</b></sub>
+  </span>
+</p>
