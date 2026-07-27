@@ -1,4 +1,13 @@
-<h2 align="center">🏎️ Team5_Senna_Tech 💨 </br> <p align="center"><sub>SennaRacer</sub></p> </h2>
+<p align="center">
+  <img src="docs/assets/logoTeam.svg" alt="Team5_Senna_Tech" width="1000">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/github/actions/workflow/status/SEAME-pt/Team5_Senna_Tech/tests.yml?branch=main&label=CI" alt="CI status">
+  <img src="https://img.shields.io/github/license/SEAME-pt/Team5_Senna_Tech" alt="License">
+  <img src="https://img.shields.io/github/stars/SEAME-pt/Team5_Senna_Tech" alt="GitHub stars">
+  <img src="https://komarev.com/ghpvc/?username=SEAME-pt-Team5-Senna-Tech&label=Repo+Views&color=blue&style=flat" alt="Repo views">
+</p>
 
 An autonomous 1/10-scale vehicle built on a **PiRacer chassis**, combining a **Raspberry Pi 5 + Hailo-8 AI accelerator** for perception and decision-making with an **STM32 microcontroller (ThreadX RTOS)** for real-time motor and sensor control, connected over CAN bus and Eclipse KUKSA middleware, with a Qt/QML instrument cluster as the driver-facing display.
 
