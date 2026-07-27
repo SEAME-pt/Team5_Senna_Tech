@@ -1,7 +1,6 @@
-<h3 align="center">Team5_Senna_Tech 🏎️💨</h3>
-<p align="center"><sub>SennaRacer</sub></p>
+<h2 align="center">🏎️ Team5_Senna_Tech 💨 </br> <p align="center"><sub>SennaRacer</sub></p> </h2>
 
-An autonomous 1/10-scale vehicle built on a **PiRacer chassis**, combining a **Raspberry Pi 5 + Hailo-8 AI accelerator** for perception and decision-making with an **STM32 microcontroller (ThreadX RTOS)** for real-time motor and sensor control — connected over CAN bus and Eclipse KUKSA middleware, with a Qt/QML instrument cluster as the driver-facing display.
+An autonomous 1/10-scale vehicle built on a **PiRacer chassis**, combining a **Raspberry Pi 5 + Hailo-8 AI accelerator** for perception and decision-making with an **STM32 microcontroller (ThreadX RTOS)** for real-time motor and sensor control, connected over CAN bus and Eclipse KUKSA middleware, with a Qt/QML instrument cluster as the driver-facing display.
 
 Built by **Team 5 – SennaTech** during the **SEA:ME Portugal** program (Software Engineering in Automotive and Mobility Ecosystems). This repository is shared as an open-source reference of the full stack we built, from firmware to computer vision to UI.
 
@@ -20,72 +19,48 @@ Built by **Team 5 – SennaTech** during the **SEA:ME Portugal** program (Softwa
 
 ## 🚦 What the car can do
 
-<table>
-<tr>
-<td width="50%" valign="top">
-<h4>🛣️ Lane Following Assist (LFA)</h4>
-<p>Real-time lane segmentation on the Hailo-8 NPU, BEV transform, sliding-window lane fit, and PID steering feeding the CAN bus.</p>
-<p align="center">
-  <img src="docs/assets/lfa_demo.gif" alt="Lane Following Assist demo" width="100%">
-</p>
-</td>
-<td width="50%" valign="top">
-<h4>🚸 Traffic sign & obstacle detection</h4>
-<p>A second YOLO model runs in parallel on the same Hailo device to detect signs, traffic lights, crosswalks and obstacles, driving braking/avoidance behavior.</p>
-<p align="center">
-  <img src="docs/assets/sign_obstacle_detection_demo.gif" alt="Sign and obstacle detection demo" width="100%">
-</p>
-</td>
-</tr>
-</table>
+### 🛣️ Lane Following Assist (LFA)
 
-<table>
-<tr>
-<td width="50%" valign="top">
-<h4>📊 Instrument cluster</h4>
-<p>A Qt/QML dashboard (<code>src/car_cluster/</code>) showing live speed, battery, temperature, gear and warnings, driven by real vehicle signals over KUKSA.</p>
-<p align="center">
-  <img src="docs/assets/car_cluster_demo.gif" alt="Instrument cluster demo" width="100%">
-</p>
-</td>
-<td width="50%" valign="top">
-<h4>🚧 Obstacle avoidance</h4>
-<p>When an obstacle is detected inside the lane corridor, the FSM shifts the trajectory reference sideways (normalized CTE offset) while the obstacle stays ahead, then smoothly returns to lane center after a wait period — with no driver intervention.</p>
-<p align="center">
-  <img src="docs/assets/obstacle_avoidance_demo.gif" alt="Obstacle avoidance demo" width="100%">
-</p>
-</td>
-</tr>
-</table>
+Real-time lane segmentation on the Hailo-8 NPU, BEV transform, sliding-window lane fit, and PID steering feeding the CAN bus.
 
-<table>
-<tr>
-<td width="50%" valign="top">
-<h4>🚗 Adaptive Cruise Control (ACC)</h4>
-<p>Adaptive speed control that adjusts throttle based on the detected lead car's bounding-box area, keeping a safe following distance in the FOLLOW state with no driver intervention.</p>
-<p align="center">
-  <img src="docs/assets/cruise_control_demo.gif" alt="Adaptive Cruise Control demo" width="100%">
-</p>
-</td>
-<td width="50%" valign="top">
-<h4>🚕 Robotaxi mission (<code>ADAS/Taxi_Robot/</code>)</h4>
-<p>An extended version of the LFA pipeline that adds a decision FSM, ArUco-marker-based localization, a track map, and automatic parking maneuvers, so the car can run a full pick-up/drop-off mission instead of just following a lane.</p>
-<p align="center">
-  <img src="docs/assets/robotaxi_demo.gif" alt="Robotaxi mission demo" width="100%">
-</p>
-</td>
-</tr>
-</table>
+![Lane Following Assist demo](docs/assets/lfa_demo.gif)
+
+### 🚸 Traffic sign & obstacle detection
+
+A second YOLO model runs in parallel on the same Hailo device to detect signs, traffic lights, crosswalks and obstacles, driving braking/avoidance behavior.
+
+![Sign and obstacle detection demo](docs/assets/sign_obstacle_detection_demo.gif)
+
+### 📊 Instrument cluster
+
+A Qt/QML dashboard (`src/car_cluster/`) showing live speed, battery, temperature, gear and warnings, driven by real vehicle signals over KUKSA.
+
+![Instrument cluster demo](docs/assets/car_cluster_demo.gif)
+
+### 🚧 Obstacle avoidance
+
+When an obstacle is detected inside the lane corridor, the FSM (finite state machine) shifts the trajectory reference sideways (normalized CTE offset) while the obstacle stays ahead, then smoothly returns to lane center after a wait period — with no driver intervention.
+
+![Obstacle avoidance demo](docs/assets/obstacle_avoidance_demo.gif)
+
+### 🚗 Adaptive Cruise Control (ACC)
+
+Adaptive speed control that adjusts throttle based on the detected lead car's bounding-box area, keeping a safe following distance in the FOLLOW state with no driver intervention.
+
+![Adaptive Cruise Control demo](docs/assets/cruise_control_demo.gif)
+
+### 🚕 Robotaxi mission (`ADAS/Taxi_Robot/`)
+
+An extended version of the LFA pipeline that adds a decision FSM (finite state machine), ArUco-marker-based localization, a track map, and automatic parking maneuvers, so the car can run a full pick-up/drop-off mission instead of just following a lane.
+
+![Robotaxi mission demo](docs/assets/robotaxi_demo.gif)
 
 ## 🧭 Software and Hardware Architecture
 
-<table>
-<tr>
-<td width="50%" valign="top">
-<pre>
+```
 Camera ──┐
          ├─► ADAS pipeline (Hailo-8 NPU)
-Gamepad ─┘        │  lane segmentation + object detection
+Joystick ┘         │  lane segmentation + object detection
                    ▼
           Post-processing (BEV, sliding windows, decision FSM)
                    │
@@ -100,17 +75,11 @@ Gamepad ─┘        │  lane segmentation + object detection
                    │  gRPC subscribe
                    ▼
          Qt/QML instrument cluster (car_cluster)
-</pre>
-</td>
-<td width="50%" valign="top">
-<p align="center">
-  <img src="docs/assets/diagram_cirkit.jpg" alt="Electrical diagram" width="100%">
-</p>
-</td>
-</tr>
-</table>
+```
 
-`ADAS/pipeline/` is the standalone LFA pipeline (lane following + object avoidance only). `ADAS/Taxi_Robot/` builds on the same camera/inference/post-processing modules but adds `decision/`, `localization/` and `map/` to run a complete autonomous robotaxi mission — think of it as the pipeline's superset, used for the parking/pickup demo rather than plain lane-following.
+![Electrical diagram](docs/assets/diagram_cirkit.jpg)
+
+`ADAS/pipeline/` is the standalone LFA pipeline (lane following + object avoidance only). `ADAS/Taxi_Robot/` builds on the same camera/inference/post-processing modules but adds `decision/`, `localization/` and `map/` to run a complete autonomous robotaxi mission, think of it as the pipeline's superset, used for the parking/pickup demo rather than plain lane-following.
 
 ## 🗂️ Repository structure
 
@@ -138,7 +107,7 @@ INSTALL.md               # Full hardware + software build guide, from bare board
 
 ## 🚀 Getting started
 
-The complete, step-by-step guide to build and run the system on a car with the same components — hardware assembly, STM32 firmware flashing, AGL/Hailo image setup, Docker cross-compilation, ADAS pipeline dependencies, KUKSA middleware, and finally running the LFA or Robotaxi mission — is in **[INSTALL.md](INSTALL.md)**.
+The complete, step-by-step guide to build and run the system on a car with the same components, hardware assembly, STM32 firmware flashing, AGL/Hailo image setup, Docker cross-compilation, ADAS pipeline dependencies, KUKSA middleware, and finally running the LFA or Robotaxi mission. It is in **[INSTALL.md](INSTALL.md)**.
 
 For a quick look at individual pieces, see:
 - [`ADAS/pipeline/README.md`](ADAS/pipeline/README.md) — how the LFA pipeline is structured and run
