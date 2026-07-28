@@ -9,7 +9,7 @@ class ForcedManeuverWindow:
 	"""Tracks fixed-duration forced maneuver windows and optional steering overrides."""
 
 	def __init__(self):
-		self.default_duration_s = 3.0
+		self.default_duration_s = 3.5
 		self._active_duration_s = self.default_duration_s
 		self._state_name = None
 		self._started_at = None
