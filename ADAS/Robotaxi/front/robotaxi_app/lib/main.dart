@@ -631,7 +631,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                     });
                   },
                   icon: const Icon(Icons.refresh, color: Colors.grey),
-                  label: const Text('Resetar Seleções', style: TextStyle(color: Colors.grey)),
+                  label: const Text('Reset Selections', style: TextStyle(color: Colors.grey)),
                 )
               ],
             ),
@@ -656,7 +656,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Status do Back-end: $robotStatus", style: TextStyle(color: isConnected ? Colors.greenAccent : Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+              Text("Backend Status: $robotStatus", style: TextStyle(color: isConnected ? Colors.greenAccent : Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold)),
               Icon(Icons.wifi, color: isConnected ? Colors.greenAccent : Colors.red, size: 16),
             ],
           ),
@@ -664,8 +664,8 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Missão: $missionState", style: const TextStyle(color: Colors.white70, fontSize: 12)),
-              Text("Último ArUco: $lastArUcoDetected", style: const TextStyle(color: Colors.white54, fontSize: 12)),
+              Text("Mission: $missionState", style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              Text("Last ArUco: $lastArUcoDetected", style: const TextStyle(color: Colors.white54, fontSize: 12)),
             ],
           ),
         ],
@@ -690,7 +690,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Coleta: ${_getBuildingName(pickupPoint)}',
+                  'Pickup: ${_getBuildingName(pickupPoint)}',
                   style: TextStyle(
                     color: pickupPoint != null ? Colors.greenAccent : Colors.white60, 
                     fontSize: 13,
@@ -708,7 +708,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Destino: ${_getBuildingName(dropoffPoint)}',
+                  'Dropoff: ${_getBuildingName(dropoffPoint)}',
                   style: TextStyle(
                     color: dropoffPoint != null ? Colors.redAccent : Colors.white60, 
                     fontSize: 13,
@@ -731,12 +731,12 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: const Color(0xFF1E1E24),
-          title: const Text("Configurações de IP", style: TextStyle(color: Colors.white)),
+          title: const Text("IP Settings", style: TextStyle(color: Colors.white)),
           content: TextField(
             controller: controller,
             style: const TextStyle(color: Colors.white),
             decoration: const InputDecoration(
-              labelText: "IP e Porta do Servidor (ex: 192.168.1.20:8000)",
+              labelText: "Server IP and Port (e.g., 192.168.1.20:8000)",
               labelStyle: TextStyle(color: Colors.white60),
               enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
             ),
