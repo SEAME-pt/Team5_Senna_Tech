@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
 
 void main() => runApp(const MyApp());
 
@@ -26,77 +25,74 @@ class RobotaxiPrettyMap extends StatefulWidget {
 }
 
 class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
+  // Grid layout (19 rows, 15 columns)
   final List<List<int>> mapGrid = [
-   //0  1  2  3  4  5  6  7  8  9  10 11 12 13 14
-    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1], // Linha 0
-    [1, 0, 0, 0, 1, 5, 1, 1, 1, 5, 1, 1, 1, 0, 0], // Linha 1 (Climbing Col 5, Padle Col 9)
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Linha 2
-    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], // Linha 3
-    [1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 0], // Linha 4 (Bank Col 1, Gelato Col 13)
-    [1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], // Linha 5
-    [1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], // Linha 6
-    [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // Linha 7
-    [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0], // Linha 8
-    [1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 0], // Linha 9 (Grupo Brisa Col 2)
-    [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0], // Linha 10 (Sea:Me Col 13)
-    [1, 1, 1, 1, 0, 0, 5, 1, 0, 0, 5, 1, 1, 1, 0], // Linha 11
-    [1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1], // Linha 12
-    [1, 5, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0], // Linha 13
-    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 5, 1, 1, 5, 0], // Linha 14 (42 Porto Col 13)
-    [1, 1, 1, 0, 0, 5, 1, 0, 2, 0, 1, 1, 1, 1, 0], // Linha 15 (Hospital Col 1)
-    [1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0], // Linha 16
-    [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1], // Linha 17
-    [1, 1, 1, 1, 1, 1, 2, 0, 0, 2, 0, 2, 0, 0, 1], // Linha 18
+    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+    [1, 0, 0, 0, 1, 5, 1, 1, 1, 5, 1, 1, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 0],
+    [1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 0],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0],
+    [1, 1, 1, 1, 0, 0, 5, 1, 0, 0, 5, 1, 1, 1, 0],
+    [1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+    [1, 5, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0],
+    [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 5, 1, 1, 5, 0],
+    [1, 1, 1, 0, 0, 5, 1, 0, 2, 0, 1, 1, 1, 1, 0],
+    [1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0],
+    [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1],
+    [1, 1, 1, 1, 1, 1, 2, 0, 0, 2, 0, 2, 0, 0, 1],
   ];
 
-  bool showDebugArUcos = true;
+  bool showDebugArUcos = false;
   double carSizeMultiplier = 1.3;
   Offset carGlobalOffset = const Offset(0.0, 0.0);
 
-  // Tamanho em cm de cada célula da grade (para converter distance_cm em células)
-  double cmPerCell = 30.0; 
-
-  // MAPEAMENTO DOS 16 ARUCOS NA PISTA (IDs 0 a 15)
+  // BASE LOCATIONS FOR ALL 16 ARUCOS (Col, Row)
   final Map<int, Offset> allArucoLocations = {
-    0: const Offset(11, 14.5), // 42 Porto
-    1: const Offset(12, 11),  // Sea:Me
-    2: const Offset(11, 6.5),
-    3: const Offset(12, 4),  // Gelato
-    4: const Offset(9, 2),   // Padle
-    5: const Offset(7, 2),
-    6: const Offset(4.5, 2),   // Climbing
-    7: const Offset(2, 4),   // Bank
-    8: const Offset(4.2, 9),   // Grupo Brisa
-    9: const Offset(2, 13),  // Hospital
-    10: const Offset(3.5, 15.2),
-    11: const Offset(5.5, 16),
-    12: const Offset(7.5, 15.8),
-    13: const Offset(10, 15.8),
-    14: const Offset(8, 14.5),
-    15: const Offset(7.5, 8.5),
+    0: const Offset(11, 14.5),   // 42 Porto
+    1: const Offset(12, 11),     // Sea:Me
+    2: const Offset(11, 6.5),    // Intersection
+    3: const Offset(12, 4),      // Gelato
+    4: const Offset(9, 2),       // Padle
+    5: const Offset(7, 2),       // Upper Track
+    6: const Offset(4.5, 2),     // Climbing
+    7: const Offset(2, 4),       // Bank
+    8: const Offset(4.2, 9),     // Grupo Brisa
+    9: const Offset(2, 13),      // Hospital
+    10: const Offset(3.5, 15.2), // Track
+    11: const Offset(5.5, 16),   // Track
+    12: const Offset(7.5, 15.8), // Track
+    13: const Offset(10, 15.8),  // Track
+    14: const Offset(8, 14.5),   // Track
+    15: const Offset(7.5, 8),   // Parking / Start Position (Bottom)
   };
 
-  // Ajustes finos individuais de posição para cada um dos 16 ArUcos (dx, dy em células)
+  // FINE-TUNE OFFSETS FOR ARUCOS (fractions of a cell)
   final Map<int, Offset> arucoCustomOffsets = {
-    0: const Offset(0.0, 0.0), // 42 Porto
+    0: const Offset(0.0, 0.0),    // 42 Porto
     1: const Offset(-0.95, -0.9), // Sea:Me
-    2: const Offset(0.0, 0.0),   // Interseção
-    3: const Offset(-0.95, 0.0), // Gelato
-    4: const Offset(0.6, 0.2),   // Padle
-    5: const Offset(-0.2, 0.2),   // Pista
+    2: const Offset(0.0, 0.0),    // Intersection
+    3: const Offset(-0.95, 0.0),  // Gelato
+    4: const Offset(0.6, 0.2),    // Padle
+    5: const Offset(-0.2, 0.2),   // Upper Track
     6: const Offset(-0.8, 0.2),   // Climbing
-    7: const Offset(0.2, 0.0),   // Bank
-    8: const Offset(0.0, 0.0),   // Grupo Brisa
-    9: const Offset(0.8, 0.0),   // Hospital
-    10: const Offset(0.0, 0.0),  // Pista
-    11: const Offset(0.0, 0.0),  // Pista
-    12: const Offset(0.0, 0.0),  // Pista
-    13: const Offset(0.0, 0.0),  // Pista
-    14: const Offset(-0.5, 0.0),  // Pista
-    15: const Offset(0.0, 0.0),  // Pista
+    7: const Offset(0.2, 0.0),    // Bank
+    8: const Offset(0.0, 0.0),    // Grupo Brisa
+    9: const Offset(0.8, 0.0),    // Hospital
+    10: const Offset(0.0, 0.0),   // Track
+    11: const Offset(0.0, 0.0),   // Track
+    12: const Offset(0.0, 0.0),   // Track
+    13: const Offset(0.0, 0.0),   // Track
+    14: const Offset(-0.5, 0.0),  // Track
+    15: const Offset(0.0, 0.0),   // Parking Spot
   };
 
-  // Nomes dos edifícios mapeados por coordenada
+  // BUILDING DATA
   final Map<Offset, String> buildingNames = {
     const Offset(5, 1): "Climbing",
     const Offset(9, 1): "Padle",
@@ -108,7 +104,6 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
     const Offset(1, 13): "Hospital",
   };
 
-  // Mapeamento das imagens PNG
   final Map<Offset, String> buildingAssets = {
     const Offset(5, 1): "assets/climbing.png",
     const Offset(9, 1): "assets/padle.png",
@@ -156,24 +151,29 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
   Offset? pickupPoint;
   Offset? dropoffPoint;
   
-  // Posição e orientação direcional do veículo
-  Offset? carPosition = const Offset(7.5, 8.5); 
+  // STATE VARIABLES
+  // Car explicitly starts at ArUco 15 Parking Spot
+  late Offset carPosition;
   double carAngle = 0.0; 
   Offset? _lastCarPosition;
-  int? currentArucoId = 15;
-  double currentArucoDistanceCm = 0.0;
+  
+  int activeCarArucoId = 15;
+  int lastDetectedArucoId = 15;
+  double lastDetectedDistanceCm = 999.0;
 
-  // Gerenciamento de rede
-  String serverIp = "10.21.220.182:8000";
+  // NETWORK SETTINGS
+  String serverIp = "10.21.100.5:8000";
   WebSocket? _webSocket;
   bool isConnected = false;
-  String robotStatus = "Desconected";
-  String missionState = "None";
+  String robotStatus = "Disconnected";
+  String missionState = "Unknown";
   String lastArUcoDetected = "None";
 
   @override
   void initState() {
     super.initState();
+    // Initialize car strictly at Parking (ArUco 15)
+    carPosition = allArucoLocations[15]!;
     _connectWebSocket();
   }
 
@@ -199,7 +199,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
     _webSocket?.close();
     setState(() {
       isConnected = false;
-      robotStatus = "Conectando...";
+      robotStatus = "Connecting...";
     });
 
     try {
@@ -209,7 +209,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
       
       setState(() {
         isConnected = true;
-        robotStatus = "Conectado";
+        robotStatus = "Connected";
       });
 
       _webSocket!.listen(
@@ -229,7 +229,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
     if (mounted) {
       setState(() {
         isConnected = false;
-        robotStatus = "Desconected";
+        robotStatus = "Disconnected";
         missionState = "Unknown";
       });
     }
@@ -244,44 +244,44 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
           
           final arucoData = telemetry["aruco"];
           if (arucoData != null && arucoData["id"] != null) {
-            currentArucoId = (arucoData["id"] as num).toInt();
-            currentArucoDistanceCm = (arucoData["distance_cm"] as num?)?.toDouble() ?? 0.0;
-            lastArUcoDetected = "ID $currentArucoId (${currentArucoDistanceCm.toStringAsFixed(1)} cm)";
-          } else {
-            currentArucoId = null;
-            currentArucoDistanceCm = 0.0;
-            lastArUcoDetected = "None";
-          }
+            final int detectedId = (arucoData["id"] as num).toInt();
+            final double distCm = (arucoData["distance_cm"] as num?)?.toDouble() ?? 999.0;
 
-          final currentGrid = telemetry["current_grid"];
-          if (currentGrid != null) {
-            final double newCol = (currentGrid["col"] as num).toDouble();
-            final double newRow = (currentGrid["row"] as num).toDouble();
-            
-            // Ajuste fino de distância do ArUco para o movimento não dar pulos bruscos
-            double distanceCellOffset = 0.0;
-            if (currentArucoDistanceCm > 0) {
-              distanceCellOffset = (currentArucoDistanceCm / cmPerCell).clamp(0.0, 1.5);
+            lastDetectedArucoId = detectedId;
+            lastDetectedDistanceCm = distCm;
+            lastArUcoDetected = "ID $detectedId (${distCm.toStringAsFixed(1)} cm)";
+
+            final pickupArucoId = pickupPoint != null ? buildingArucoIds[pickupPoint] : null;
+            final dropoffArucoId = dropoffPoint != null ? buildingArucoIds[dropoffPoint] : null;
+
+            // STRICT FILTERING: Car position ONLY updates if:
+            // 1. ArUco 15 (Parking) is detected
+            // 2. Pickup ArUco is detected AND distance <= 35cm
+            // 3. Dropoff ArUco is detected AND distance <= 35cm
+            bool shouldUpdateCarPos = false;
+
+            if (detectedId == 15) {
+              shouldUpdateCarPos = true;
+            } else if (pickupArucoId != null && detectedId == pickupArucoId && distCm <= 35.0) {
+              shouldUpdateCarPos = true;
+            } else if (dropoffArucoId != null && detectedId == dropoffArucoId && distCm <= 35.0) {
+              shouldUpdateCarPos = true;
             }
 
-            // Desloca o carro gradualmente na direção da trajetória baseada na distância
-            double targetCol = newCol;
-            double targetRow = newRow;
-
-            if (_lastCarPosition != null) {
-              double dx = newCol - _lastCarPosition!.dx;
-              double dy = newRow - _lastCarPosition!.dy;
-              if (dx != 0 || dy != 0) {
-                carAngle = atan2(dy, dx);
-                // Subtrai a distância do ArUco na direção do vetor de movimento
-                targetCol -= cos(carAngle) * distanceCellOffset;
-                targetRow -= sin(carAngle) * distanceCellOffset;
+            if (shouldUpdateCarPos && allArucoLocations.containsKey(detectedId)) {
+              activeCarArucoId = detectedId;
+              Offset newPos = allArucoLocations[detectedId]!;
+              
+              if (_lastCarPosition != null && _lastCarPosition != newPos) {
+                double dx = newPos.dx - _lastCarPosition!.dx;
+                double dy = newPos.dy - _lastCarPosition!.dy;
+                if (dx != 0 || dy != 0) {
+                  carAngle = atan2(dy, dx);
+                }
               }
+              _lastCarPosition = carPosition;
+              carPosition = newPos;
             }
-
-            final Offset newPos = Offset(targetCol, targetRow);
-            _lastCarPosition = carPosition;
-            carPosition = newPos;
           }
         });
       }
@@ -318,7 +318,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
       if (response.statusCode == 202) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Enviado: $payloadJson"),
+            content: Text("Sent: $payloadJson"),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 4),
           ),
@@ -330,7 +330,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Falha ao enviar ($payloadJson): $e"),
+          content: Text("Failed to send ($payloadJson): $e"),
           backgroundColor: Colors.red,
         ),
       );
@@ -389,34 +389,28 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
     double carWidth = cellSize * carSizeMultiplier;
     double carHeight = cellSize * carSizeMultiplier;
 
-    Offset arucoOffset = (currentArucoId != null && arucoCustomOffsets.containsKey(currentArucoId))
-        ? arucoCustomOffsets[currentArucoId]!
-        : const Offset(0, 0);
+    Offset arucoOffset = arucoCustomOffsets[activeCarArucoId] ?? const Offset(0, 0);
 
-    double carLeft = 0;
-    double carTop = 0;
+    double effectiveCol = carPosition.dx + carGlobalOffset.dx + arucoOffset.dx;
+    double effectiveRow = carPosition.dy + carGlobalOffset.dy + arucoOffset.dy;
 
-    if (carPosition != null) {
-      double effectiveCol = carPosition!.dx + carGlobalOffset.dx + arucoOffset.dx;
-      double effectiveRow = carPosition!.dy + carGlobalOffset.dy + arucoOffset.dy;
-
-      carLeft = (effectiveCol * cellSize) - (carWidth - cellSize) / 2;
-      carTop = (effectiveRow * cellSize) - (carHeight - cellSize) / 2;
-    }
+    double carLeft = (effectiveCol * cellSize) - (carWidth - cellSize) / 2;
+    double carTop = (effectiveRow * cellSize) - (carHeight - cellSize) / 2;
 
     return Scaffold(
       backgroundColor: const Color(0xFF121214),
       appBar: AppBar(
-        title: const Text('Robotáxi Prototipador', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        title: const Text('Robotaxi Navigator', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.black26,
         centerTitle: true,
         actions: [
           IconButton(
-            tooltip: "Modo Calibração ArUco",
+            tooltip: "ArUco Calibration Mode",
             icon: Icon(Icons.bug_report, color: showDebugArUcos ? Colors.blueAccent : Colors.grey),
             onPressed: () => setState(() => showDebugArUcos = !showDebugArUcos),
           ),
           IconButton(
+            tooltip: "IP Settings",
             icon: Icon(Icons.settings, color: isConnected ? Colors.greenAccent : Colors.redAccent),
             onPressed: () => _showSettingsDialog(),
           ),
@@ -452,7 +446,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                     clipBehavior: Clip.hardEdge,
                     child: Stack(
                       children: [
-                        // Camada 1: Imagem do mapa
+                        // Layer 1: Background Map
                         Image.asset(
                           'assets/mapa.png',
                           width: mapWidth,
@@ -460,7 +454,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                           fit: BoxFit.fill,
                         ),
 
-                        // Camada 1.5: Caixas azuis de depuração para TODOS OS 16 ARUCOS
+                        // Layer 1.5: Debug Blue Boxes for ALL 16 ARUCOS
                         if (showDebugArUcos)
                           ...allArucoLocations.entries.map((entry) {
                             final int id = entry.key;
@@ -498,7 +492,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                             );
                           }),
 
-                        // Camada 2: Renderização dos edifícios selecionados
+                        // Layer 2: Render selected buildings
                         ...buildingAssets.entries.map((entry) {
                           final Offset pos = entry.key;
                           final String assetPath = entry.value;
@@ -584,25 +578,24 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                           );
                         }),
 
-                        // Camada 3: Carrinho animado com deslize de 800ms suave
-                        if (carPosition != null)
-                          AnimatedPositioned(
-                            duration: const Duration(milliseconds: 800),
-                            curve: Curves.easeInOut,
-                            left: carLeft,
-                            top: carTop,
-                            child: Transform.rotate(
-                              angle: carAngle,
-                              child: SizedBox(
-                                width: carWidth,
-                                height: carHeight,
-                                child: Image.asset(
-                                  'assets/carro.png',
-                                  fit: BoxFit.contain,
-                                ),
+                        // Layer 3: Animated Car (Slides to Parking / Pickup / Dropoff)
+                        AnimatedPositioned(
+                          duration: const Duration(milliseconds: 1000),
+                          curve: Curves.easeInOutBack,
+                          left: carLeft,
+                          top: carTop,
+                          child: Transform.rotate(
+                            angle: carAngle,
+                            child: SizedBox(
+                              width: carWidth,
+                              height: carHeight,
+                              child: Image.asset(
+                                'assets/carro.png',
+                                fit: BoxFit.contain,
                               ),
                             ),
                           ),
+                        ),
                       ],
                     ),
                   ),
@@ -628,6 +621,11 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                     setState(() {
                       pickupPoint = null;
                       dropoffPoint = null;
+                      // Reset car position back to Parking (ArUco 15)
+                      activeCarArucoId = 15;
+                      lastDetectedArucoId = 15;
+                      lastDetectedDistanceCm = 999.0;
+                      carPosition = allArucoLocations[15]!;
                     });
                   },
                   icon: const Icon(Icons.refresh, color: Colors.grey),
@@ -674,16 +672,49 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
   }
 
   Widget _buildStatusPanel() {
+    // Arrival logic check: MUST match ArUco ID AND be <= 35cm distance
+    final pickupArucoId = pickupPoint != null ? buildingArucoIds[pickupPoint] : null;
+    final dropoffArucoId = dropoffPoint != null ? buildingArucoIds[dropoffPoint] : null;
+
+    bool hasArrivedAtPickup = pickupArucoId != null &&
+        lastDetectedArucoId == pickupArucoId &&
+        lastDetectedDistanceCm <= 35.0;
+
+    bool hasArrivedAtDropoff = dropoffArucoId != null &&
+        lastDetectedArucoId == dropoffArucoId &&
+        lastDetectedDistanceCm <= 35.0;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.05),
+        color: hasArrivedAtPickup 
+            ? Colors.greenAccent.withValues(alpha: 0.15)
+            : hasArrivedAtDropoff
+                ? Colors.redAccent.withValues(alpha: 0.15)
+                : Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(
+          color: hasArrivedAtPickup 
+              ? Colors.greenAccent.withValues(alpha: 0.5)
+              : hasArrivedAtDropoff
+                  ? Colors.redAccent.withValues(alpha: 0.5)
+                  : Colors.white.withValues(alpha: 0.05),
+        ),
       ),
       child: Column(
         children: [
+          if (hasArrivedAtPickup)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8.0),
+              child: Text("📍 ARRIVED AT PICKUP!", style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+            ),
+          if (hasArrivedAtDropoff)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8.0),
+              child: Text("🏁 ARRIVED AT DROPOFF!", style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+            ),
+            
           Row(
             children: [
               const Icon(Icons.location_on, color: Colors.greenAccent, size: 18),
@@ -736,7 +767,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
             controller: controller,
             style: const TextStyle(color: Colors.white),
             decoration: const InputDecoration(
-              labelText: "Server IP and Port (e.g., 192.168.1.20:8000)",
+              labelText: "Server IP and Port (e.g., 10.21.100.5:8000)",
               labelStyle: TextStyle(color: Colors.white60),
               enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
             ),
@@ -744,7 +775,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancelar", style: TextStyle(color: Colors.grey)),
+              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -754,7 +785,7 @@ class _RobotaxiPrettyMapState extends State<RobotaxiPrettyMap> {
                 Navigator.pop(context);
                 _connectWebSocket();
               },
-              child: const Text("Salvar e Conectar"),
+              child: const Text("Save and Connect"),
             )
           ],
         );
