@@ -348,6 +348,19 @@ static UINT App_CreateThreads(void)
 		return ret;
 	}
 
+	/* ret = tx_thread_create(&threads[9].thread,
+				       "Microphone Thread",
+				       microphone_thread_entry,
+				       0,
+				       threads[9].mini_stack,
+				       sizeof(threads[9].mini_stack),
+				       15, 15,
+					   TX_NO_TIME_SLICE, TX_AUTO_START);
+	if (ret != TX_SUCCESS) {
+		uart_send("Failed to create Microphone thread!\r\n");
+		return ret;
+	} */
+
 	return TX_SUCCESS;
 }
 

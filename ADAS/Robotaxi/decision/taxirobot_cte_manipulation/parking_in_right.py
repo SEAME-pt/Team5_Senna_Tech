@@ -16,14 +16,8 @@ TRIGGER_TAXI_STATES = {TaxiState.RETURNING_TO_PARKING}
 
 # Distance to ArUco 11 at which the blind turn starts.
 TRIGGER_DISTANCE_M = 0.75
-
-# Duracao da curva cega.
-FORCED_DURATION_S = 10.0
-
-# CTE alvo durante a manobra. Negativo = desvio para a ESQUERDA.
+FORCED_DURATION_S = 11.1
 FORCED_CTE = -0.90
-
-# Comando directo de volante. Positivo = virar a ESQUERDA.
 FORCED_STEERING = 0.90
 # =====================================================================
 
@@ -40,9 +34,6 @@ class ParkingInRightPolicy:
 		aruco_id: int | None,
 		aruco_distance_m: float | None,
 	) -> bool:
-		# Keyed on fsm_state, not on TaxiManeuver: the mission emits the maneuver
-		# once (at outside_decision_distance_m = 1.30 m) and disarms the marker,
-		# so the enum is already NONE at TRIGGER_DISTANCE_M. The FSM state persists.
 		return (
 			fsm_state == State.PARKING_IN_LEFT
 			and taxi_state in TRIGGER_TAXI_STATES

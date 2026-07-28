@@ -94,6 +94,7 @@ void motors_thread_entry(ULONG thread_input)
                 }
                 else if (mode == MODE_MANUAL)
                     decode_drive_frame(&frame, &throttle_target, &steering_target);
+
                 continue ;
             }
 

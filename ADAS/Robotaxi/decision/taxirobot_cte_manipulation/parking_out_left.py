@@ -93,7 +93,7 @@ class ParkingOutLeftPolicy:
 class ParkingOutTimer:
 	"""Tracks parking-out elapsed time so main does not carry this logic."""
 
-	def __init__(self, duration_s: float = 4.0):
+	def __init__(self, duration_s: float = 3.5):
 		self.duration_s = duration_s
 		self._start_time = None
 
@@ -111,7 +111,6 @@ class ParkingOutTimer:
 
 	def reset(self) -> None:
 		self._start_time = None
-
 
 class ReturningProfile:
 	"""Provides smooth interpolation from maneuver CTE back to lane center."""

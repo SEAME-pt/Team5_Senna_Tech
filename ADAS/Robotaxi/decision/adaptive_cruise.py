@@ -14,7 +14,7 @@ class AdaptiveCruiseControl:
     def __init__(self):
         self.stop_area    = 0.05   # security area
         self.follow_area  = 0.02   # area to start following
-        self.max_throttle = 8      # max throttle to apply in follow
+        self.max_throttle = 9      # max throttle to apply in follow
 
     def compute_follow_error(self, lead_car_area: float) -> int:
         if lead_car_area >= self.stop_area:

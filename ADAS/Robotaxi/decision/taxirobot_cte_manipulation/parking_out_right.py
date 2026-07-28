@@ -8,24 +8,24 @@ from decision.decision_fsm import State
 from .robotaxi_mission import TaxiState
 
 
-# ================= TUNING (teste real) ===============================
+# ================= TUNING (real-world test) ==========================
 ARUCO_ID = 11
 
 # Mission states in which ArUco 11 means "turn right at the crossing".
 TRIGGER_TAXI_STATES = {TaxiState.GOING_TO_PICKUP}
 
 # Distance to ArUco 11 at which the blind turn starts.
-# Maior  -> comeca a virar mais cedo (corta a curva).
-# Menor  -> comeca a virar mais tarde (passa ao largo).
+# Larger -> starts turning earlier (cuts the corner).
+# Smaller -> starts turning later (goes wide).
 TRIGGER_DISTANCE_M = 0.67
 
-# Duracao da curva cega. Com o throttle fixo, isto e o raio da curva.
+# Duration of the blind turn. With fixed throttle, this defines the turn radius.
 FORCED_DURATION_S = 7.0
 
-# CTE alvo durante a manobra. Positivo = desvio para a DIREITA.
+# Target CTE during the maneuver. Positive = offset to the RIGHT.
 FORCED_CTE = 0.70
 
-# Comando directo de volante. Negativo = virar a DIREITA.
+# Direct steering command. Negative = turn RIGHT.
 FORCED_STEERING = -1.0
 # =====================================================================
 
