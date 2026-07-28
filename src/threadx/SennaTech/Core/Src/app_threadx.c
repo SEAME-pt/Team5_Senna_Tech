@@ -348,7 +348,7 @@ static UINT App_CreateThreads(void)
 		return ret;
 	}
 
-	ret = tx_thread_create(&threads[9].thread,
+	/* ret = tx_thread_create(&threads[9].thread,
 				       "Microphone Thread",
 				       microphone_thread_entry,
 				       0,
@@ -359,7 +359,7 @@ static UINT App_CreateThreads(void)
 	if (ret != TX_SUCCESS) {
 		uart_send("Failed to create Microphone thread!\r\n");
 		return ret;
-	}
+	} */
 
 	return TX_SUCCESS;
 }
