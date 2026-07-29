@@ -12,6 +12,19 @@
         "type": "branch",
         "description": "ADAS traffic signals from object detection",
         "children": {
+          "Robotaxi": {
+            "type": "branch",
+            "description": "Robotaxi mission state",
+            "children": {
+              "State": {
+                "datatype": "uint8",
+                "type": "sensor",
+                "description": "Robotaxi mission state enum",
+                "min": 0,
+                "max": 255
+              }
+            }
+          },
           "TrafficSign": {
             "datatype": "uint8",
             "type": "sensor",

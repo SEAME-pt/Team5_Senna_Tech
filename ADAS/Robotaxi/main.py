@@ -1,0 +1,487 @@
+import argparse
+import logging
+import time
+
+from map.track_map import (
+    PARKING_ARUCO_ID, PARKING_POS,
+)
+
+from map.path import print_path_map
+from decision.taxirobot_cte_manipulation.robotaxi_mission import RobotaxiMission
+
+logging.basicConfig(level=logging.INFO)
+
+from camera import Camera
+from inference import HailoEngine, VDevice
+from post_processing import YoloSegDecoder, MaskFilters, ObjectDetector
+from object import CorridorChecker, build_environment_state
+from LFA import BEVTransform, SlidingWindowsLaneFitter, draw_lane_overlay
+from decision import VehicleFSM, State, STATE_THROTTLE, TaxiRobotCTEController, AdaptiveCruiseControl, PID
+from kuksa_publish import KuksaClient
+from utils import HardwareMonitor, Timer, RobotaxiWebSocketBridge
+from localization import ArucoWorker
+from localization.aruco_args import resolve_mission_aruco_args
+
+try:
+    from utils import CanSender, Display
+except ImportError:
+    class CanSender:
+        def send_drive_command(self, *args): pass
+        def close(self): pass
+    class Display:
+        def __init__(self, *args, **kwargs): pass
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def show(self, frame): pass
+
+CAM_WIDTH, CAM_HEIGHT, CAM_FPS = 640, 360, 15
+DISPLAY_WIDTH, DISPLAY_HEIGHT = 1260, 400
+WS_PUBLISH_HZ = 1.0
+REMOTE_HOLD_ARUCO_ID = 14
+REMOTE_HOLD_DISTANCE_M = 0.90
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("lane",   help="Path to Lane Detection HEF model") # get lane .hef path
+    parser.add_argument("object", help="Path to Object Detection HEF model")  # get object .hef path
+
+    # ── TAXI ROBOT MISSION ARGUMENTS ─────────────────────────────
+    parser.add_argument("pickup", type=int, nargs="?", help="Pickup ArUco ID")
+    parser.add_argument("dropoff", type=int, nargs="?", help="Drop-off ArUco ID")
+    parser.add_argument("--control-mode", choices=("local", "remote"), default="local",
+        help="local=mission from args, remote=mission from websocket commands",
+    )
+
+    # ── DISPLAY ARGUMENTS ─────────────────────────────
+    parser.add_argument("--remote",     action="store_true", help="Enable remote display streaming")
+    parser.add_argument("--no-display", action="store_true", help="Disable display output")
+    parser.add_argument("--virtual",    action="store_true", help="Enable virtual mode (no physical CAN commands)")  ## servo lock
+
+    # ── WEBSOCKET ARGUMENTS ─────────────────────────────
+    parser.add_argument("--ws-server", default="", help="WebSocket server URL (example: ws://192.168.1.20:8000/ws/robotaxi)")
+
+    args = parser.parse_args()
+
+    if args.control_mode == "local" and (args.pickup is None or args.dropoff is None):
+        parser.error("local mode requires pickup and dropoff positional arguments")
+
+    if args.control_mode == "remote" and ((args.pickup is None) != (args.dropoff is None)):
+        parser.error("remote mode awaits for both pickup and dropoff to be provided")
+
+    if args.control_mode == "remote" and not args.ws_server:
+        parser.error("remote mode requires --ws-server")
+
+    # ── TAXI ROBOT ARGUMENTS VALIDATION ─────────────────────────────────
+    if args.pickup is not None and args.dropoff is not None:
+        mission_args = resolve_mission_aruco_args(
+            pickup_aruco_id=args.pickup,
+            dropoff_aruco_id=args.dropoff,
+        )
+        pickup_aruco_id = mission_args.pickup_aruco_id
+        dropoff_aruco_id = mission_args.dropoff_aruco_id
+        pickup = mission_args.pickup
+        dropoff = mission_args.dropoff
+        mission_active = True
+    else:
+        # Remote mode starts idle and waits for websocket start_mission command.
+        pickup_aruco_id = None
+        dropoff_aruco_id = None
+        pickup = PARKING_POS
+        dropoff = PARKING_POS
+        mission_active = False
+
+    remote_mission_update_received = args.control_mode == "local"
+    remote_hold_logged = False
+
+    robotaxi = RobotaxiMission(
+        parking=PARKING_POS,
+        pickup=pickup,
+        dropoff=dropoff,
+        parking_aruco_id=PARKING_ARUCO_ID,
+        pickup_aruco_id=pickup_aruco_id if pickup_aruco_id is not None else PARKING_ARUCO_ID,
+        dropoff_aruco_id=dropoff_aruco_id if dropoff_aruco_id is not None else PARKING_ARUCO_ID,
+    )
+
+    current_grid_pos = PARKING_POS
+
+    logging.info("Robotaxi enabled")
+    logging.info("Control mode: %s", args.control_mode)
+    logging.info("Parking    : id=%s pos=%s", PARKING_ARUCO_ID, PARKING_POS)
+    logging.info("Pickup     : id=%s pos=%s", pickup_aruco_id, pickup)
+    logging.info("Dropoff    : id=%s pos=%s", dropoff_aruco_id, dropoff)
+    logging.info("Mission active at startup: %s", mission_active)
+
+    decoder        = YoloSegDecoder(score_threshold=0.25)
+    mask_filters   = MaskFilters()
+    detector       = ObjectDetector()
+    pid            = PID(1.3, 0.1, 0.1)
+    can            = CanSender(channel="can0")
+    bev            = BEVTransform(CAM_WIDTH, CAM_HEIGHT)
+    fitter         = SlidingWindowsLaneFitter(cam_height=CAM_HEIGHT)
+    kuksa_channel  = KuksaClient()
+    aruco_worker   = ArucoWorker(frequency_hz=5)
+    aruco_worker.start()
+    checker        = CorridorChecker(bev)
+    fsm            = VehicleFSM()
+    cte_controller = TaxiRobotCTEController(
+        lane_offset       = 0.80,   # ~65 px in 170 px road width
+        return_duration_s = 1.5,    # return interpolation duration
+    )
+    adaptive_cruise = AdaptiveCruiseControl()
+    hw_monitor      = HardwareMonitor()
+    timer           = Timer()
+    ws_bridge       = RobotaxiWebSocketBridge(
+        server_url=args.ws_server,
+        publish_hz=WS_PUBLISH_HZ,
+    )
+    ws_bridge.start()
+
+    if args.remote:
+        display_mode = "remote"
+    elif args.no_display:
+        display_mode = "none"
+    else:
+        display_mode = "local"
+
+    with VDevice() as target:   # Get Hailo Device and define as 'target'
+        with HailoEngine(args.lane, target) as engine_lane, \
+             HailoEngine(args.object, target) as engine_obj, \
+             Camera(CAM_WIDTH, CAM_HEIGHT, CAM_FPS) as cam, \
+             Display(DISPLAY_WIDTH, DISPLAY_HEIGHT, CAM_FPS, mode=display_mode) as display:
+
+            last_fsm_state = fsm.state
+            last_route_key = None
+
+            frame_count = 0
+            pipeline_start_time = time.time()
+
+            try:
+                while True:
+                    timer.start_loop()
+                    frame_count += 1
+
+                    # ── CAMERA ──────────────────────────────────────────
+                    timer.start_stage("Camera")
+                    rgb = cam.get_frame()
+                    if rgb is None:
+                        continue
+                    aruco_worker.update_frame(rgb)
+                    timer.end_stage("Camera")
+
+                    # ── INFERENCE ────────────────────────────────────────
+                    timer.start_stage("Inf_Lane")
+                    outputs_lane = engine_lane.infer(rgb)
+                    timer.end_stage("Inf_Lane")
+
+                    timer.start_stage("Inf_Obj")
+                    outputs_obj  = engine_obj.infer(rgb)
+                    timer.end_stage("Inf_Obj")
+
+                    # ── LANE POST-PROCESSING ─────────────────────────────
+                    timer.start_stage("Post")
+                    binary_mask = decoder.decode_to_mask(outputs_lane, CAM_HEIGHT, CAM_WIDTH)
+                    clean_mask  = mask_filters.process(binary_mask)
+                    bev_mask    = bev.warp(clean_mask)
+                    fit_result  = fitter.fit(bev_mask)
+
+                    # ── OBJECT DETECTION ─────────────────────────────────
+                    detections = detector.process(outputs_obj, rgb.shape)
+                    env_state  = build_environment_state(detections, fit_result, checker, rgb.shape)
+                    rgb = detector.draw(rgb, detections)
+                    timer.end_stage("Post")
+
+                    # ── ARUCO DETECTIONS ─────────────────────────────────
+                    aruco_detection = aruco_worker.get_detection()
+
+                    aruco_id = aruco_detection.get("id")
+                    aruco_distance_m = aruco_detection.get("distance_m")
+                    aruco_distance_cm = aruco_detection.get("distance_cm")
+
+                    if aruco_id is not None:
+                        logging.info(
+                            "ArUco detected | id=%s | distance=%.1f cm",
+                            aruco_id,
+                            aruco_distance_cm,
+                        )
+
+                    current_grid_pos = aruco_worker.current_grid(
+                        current_grid_pos,
+                        max_distance_m=0.50,
+                    )
+
+                    command = ws_bridge.get_next_command()
+                    if command is not None:
+                        command_name = command.get("command")
+
+                        if command_name == "start_mission":
+                            try:
+                                mission_args = resolve_mission_aruco_args(
+                                    pickup_aruco_id=int(command.get("pickup")),
+                                    dropoff_aruco_id=int(command.get("dropoff")),
+                                )
+                            except Exception as exc:
+                                logging.warning("Invalid start_mission command: %s", exc)
+                            else:
+                                pickup_aruco_id = mission_args.pickup_aruco_id
+                                dropoff_aruco_id = mission_args.dropoff_aruco_id
+                                pickup = mission_args.pickup
+                                dropoff = mission_args.dropoff
+                                robotaxi = RobotaxiMission(
+                                    parking=PARKING_POS,
+                                    pickup=pickup,
+                                    dropoff=dropoff,
+                                    parking_aruco_id=PARKING_ARUCO_ID,
+                                    pickup_aruco_id=pickup_aruco_id,
+                                    dropoff_aruco_id=dropoff_aruco_id,
+                                )
+                                mission_active = True
+                                remote_mission_update_received = True
+                                remote_hold_logged = False
+                                pipeline_start_time = time.time()
+                                last_route_key = None
+                                logging.info(
+                                    "Mission started via websocket | pickup=%s dropoff=%s",
+                                    pickup_aruco_id,
+                                    dropoff_aruco_id,
+                                )
+
+                        elif command_name == "stop_mission":
+                            mission_active = False
+                            remote_mission_update_received = False
+                            remote_hold_logged = False
+                            last_route_key = None
+                            logging.info("Mission stopped via websocket")
+
+                        else:
+                            logging.info("Ignoring unsupported command: %s", command_name)
+
+                    previous_mission_state = robotaxi.state
+
+                    remote_disconnected_hold = (
+                        args.control_mode == "remote" and not ws_bridge.is_connected
+                    )
+
+                    remote_hold_for_update = (
+                        args.control_mode == "remote"
+                        and mission_active
+                        and not remote_mission_update_received
+                        and robotaxi.parking_exit_pending
+                        and aruco_id == REMOTE_HOLD_ARUCO_ID
+                        and aruco_distance_m is not None
+                        and aruco_distance_m <= REMOTE_HOLD_DISTANCE_M
+                    )
+
+                    if remote_hold_for_update and not remote_hold_logged:
+                        logging.info(
+                            "REMOTE HOLD | waiting mission update at ArUco %s (distance=%.2fm)",
+                            REMOTE_HOLD_ARUCO_ID,
+                            aruco_distance_m,
+                        )
+                        remote_hold_logged = True
+                    elif not remote_hold_for_update and remote_hold_logged:
+                        logging.info("REMOTE HOLD released")
+                        remote_hold_logged = False
+
+                    # ── ROBOTAXI MISSION ─────────────────────────────────
+                    if mission_active and not remote_disconnected_hold and not remote_hold_for_update and (time.time() - pipeline_start_time) > 1.5:
+                        robotaxi.update(aruco_id, aruco_distance_m)
+
+                        path = robotaxi.get_path(current_grid_pos)
+                        goal = robotaxi.get_current_goal()
+
+                        taxi_maneuver = robotaxi.get_taxi_maneuver(aruco_id, aruco_distance_m, path=path)
+                        robotaxi.orchestrate_maneuver(
+                            fsm=fsm,
+                            taxi_maneuver=taxi_maneuver,
+                            aruco_id=aruco_id,
+                        )
+                        cte_controller.update_cross_left_forced_decision(
+                            taxi_maneuver=taxi_maneuver,
+                            aruco_id=aruco_id,
+                            aruco_distance_m=aruco_distance_m,
+                        )
+                        cte_controller.update_cross_right_forced_decision(
+                            fsm=fsm,
+                            taxi_state=robotaxi.state,
+                            aruco_id=aruco_id,
+                            aruco_distance_m=aruco_distance_m,
+                        )
+                        cte_controller.update_parking_in_left_forced_decision(
+                            fsm=fsm,
+                            taxi_state=robotaxi.state,
+                            aruco_id=aruco_id,
+                            aruco_distance_m=aruco_distance_m,
+                        )
+                        cte_controller.update_parking_in_right_forced_decision(
+                            taxi_maneuver=taxi_maneuver,
+                            aruco_id=aruco_id,
+                            aruco_distance_m=aruco_distance_m,
+                        )
+                        cte_controller.update_startup_parking_decision(
+                            fsm=fsm,
+                            taxi_maneuver=taxi_maneuver,
+                        )
+                    elif mission_active:
+                        path = robotaxi.get_path(current_grid_pos)
+                        goal = robotaxi.get_current_goal()
+                    else:
+                        path = []
+                        goal = None
+
+                    if robotaxi.state != previous_mission_state:
+                        logging.info(
+                            "Mission state changed: %s -> %s",
+                            previous_mission_state.name,
+                            robotaxi.state.name,
+                        )
+                        last_route_key = None
+
+                    route_key = (
+                        robotaxi.state,
+                        current_grid_pos.row,
+                        current_grid_pos.col,
+                        goal.row if goal is not None else None,
+                        goal.col if goal is not None else None,
+                        len(path),
+                    )
+
+                    if route_key != last_route_key:
+                        last_route_key = route_key
+
+                        print_path_map(
+                            path=path,
+                            current_pos=current_grid_pos,
+                            goal_pos=goal,
+                            pickup=pickup,
+                            dropoff=dropoff,
+                        )
+
+                        logging.info(
+                            "Taxi state: %s | current=%s | goal=%s | path_len=%d",
+                            robotaxi.state.name,
+                            current_grid_pos,
+                            goal,
+                            len(path),
+                        )
+
+                    # ── FSM DECISION ─────────────────────────────────────
+                    timer.start_stage("Decision")
+                    current_state, pid_reset_needed = cte_controller.resolve_drive_state(fsm, env_state)
+                    if pid_reset_needed:
+                        pid.reset()
+
+                    # ── PID + CTE ────────────────────────────────────────
+                    cte_actual = fit_result.cte_norm if fit_result.cte_norm is not None else 0.0
+                    target_cte = cte_controller.calculate_target_cte(current_state)
+
+                    # Real dt from Timer for accurate PID control
+                    dt = timer.get_loop_duration() / 1000.0
+                    pid_return = round(pid.update(target_cte, cte_actual, dt), 2)
+
+                    throttle = STATE_THROTTLE.get(current_state, 0)
+                    if current_state == State.FOLLOW:
+                        throttle = adaptive_cruise.compute_follow_error(env_state.lead_car_area)
+                    
+                    # ── CAN ──────────────────────────────────────────────
+                    steering = round(pid_return * -1, 2)
+
+                    forced_steering = cte_controller.forced_steering_override()
+                    if forced_steering is not None:
+                        steering = forced_steering
+                    
+                    if robotaxi.should_stop():
+                        throttle = 0
+                        steering = 0
+
+                        logging.info(
+                            "ROBOTAXI STOP | state=%s | remaining=%.1fs",
+                            robotaxi.state.name,
+                            robotaxi.get_wait_remaining(),
+                        )
+
+                    if not mission_active:
+                        throttle = 0
+                        steering = 0
+
+                    if remote_disconnected_hold:
+                        throttle = 0
+                        steering = 0
+
+                    if remote_hold_for_update:
+                        throttle = 0
+                        steering = 0
+                    
+                    if not args.virtual:
+                        can.send_drive_command(0x002, throttle, steering)
+
+                    if current_state != last_fsm_state:
+                        logging.info(
+                            "FSM state changed: %s -> %s",
+                            last_fsm_state.name,
+                            current_state.name,
+                        )
+                        last_fsm_state = current_state
+
+                    timer.end_stage("Decision")
+
+                    # ── KUKSA ────────────────────────────────────────────
+                    timer.start_stage("Kuksa")
+                    kuksa_channel.send(env_state.detections, robotaxi_state=robotaxi.state.value)
+                    timer.end_stage("Kuksa")
+
+                    # ── DISPLAY ──────────────────────────────────────────
+                    timer.start_stage("Display")
+                    if display_mode != "none":
+                        res = draw_lane_overlay(rgb, fit_result, bev)
+                        display.show(res)
+                    timer.end_stage("Display")
+
+                    timer.end_loop()
+
+                    # ── WEBSOCKET ────────────────────────────────────────
+                    ws_bridge.update(
+                        {
+                            "control_mode": args.control_mode,
+                            "ws_connected": ws_bridge.is_connected,
+                            "mission_active": mission_active,
+                            "remote_update_received": remote_mission_update_received,
+                            "remote_disconnected_hold": remote_disconnected_hold,
+                            "remote_hold_for_update": remote_hold_for_update,
+                            "fsm_state": current_state.name,
+                            "mission_state": robotaxi.state.name,
+                            "pickup_aruco_id": pickup_aruco_id,
+                            "dropoff_aruco_id": dropoff_aruco_id,
+                            "current_grid": {
+                                "row": current_grid_pos.row,
+                                "col": current_grid_pos.col,
+                            },
+                            "goal_grid": None if goal is None else {"row": goal.row, "col": goal.col},
+                            "path_length": len(path),
+                            "aruco": {
+                                "id": aruco_id,
+                                "distance_cm": aruco_distance_cm,
+                            },
+                        }
+                    )
+
+            except KeyboardInterrupt:
+                logging.info("Shutting down...")
+            finally:
+                cam.stop()
+                aruco_worker.stop()
+                ws_bridge.stop()
+                can.close()
+
+
+if __name__ == "__main__":
+    main()
+
+# left command test
+# python3 /home/run_robotaxi.py --pipeline_robotaxi 0 1
+
+# right command test
+# python3 /home/run_robotaxi.py --pipeline_robotaxi 9 8
+
+# remote command test
+# python3 /home/run_robotaxi.py --pipeline_robotaxi --control-mode remote --ws-server ws://IP_DO_SERVIDOR:8000/ws/robotaxi

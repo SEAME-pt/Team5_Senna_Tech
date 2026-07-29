@@ -1,0 +1,11 @@
+module Team5_Senna_Tech
+Main 1.0 src/car_cluster/Main.qml
+MainRobotaxi 1.0 src/car_cluster/MainRobotaxi.qml
+BatteryPanel 1.0 src/car_cluster/components/BatteryPanel.qml
+Footer 1.0 src/car_cluster/components/Footer.qml
+GearSelector 1.0 src/car_cluster/components/GearSelector.qml
+Header 1.0 src/car_cluster/components/Header.qml
+RobotaxiStatePanel 1.0 src/car_cluster/components/RobotaxiStatePanel.qml
+SpeedPanel 1.0 src/car_cluster/components/SpeedPanel.qml
+TrafficSign 1.0 src/car_cluster/components/TrafficSign.qml
+Warning 1.0 src/car_cluster/components/Warning.qml

@@ -94,12 +94,14 @@ qt_add_qml_module(appcar_cluster
     VERSION 1.0
     QML_FILES
         Main.qml
+        MainRobotaxi.qml
         components/SpeedPanel.qml
         components/BatteryPanel.qml
         components/GearSelector.qml
         components/Footer.qml
         components/Header.qml
         components/TrafficSign.qml
+        components/RobotaxiStatePanel.qml
         components/Warning.qml
     RESOURCES
         resources.qrc

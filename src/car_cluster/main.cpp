@@ -3,6 +3,7 @@
 #include <QQmlContext>
 #include "vehicleData.hpp"
 #include <QQuickStyle>
+#include <QProcessEnvironment>
 
 
 int main(int argc, char *argv[])
@@ -18,7 +19,13 @@ int main(int argc, char *argv[])
 
      engine.rootContext()->setContextProperty("vehicle", vehicle);
 
-    const QUrl url(QStringLiteral("qrc:/car_cluster/Main.qml"));
+    const bool previewRobotaxi = QProcessEnvironment::systemEnvironment().value("ROBOTAXI_PREVIEW") == "1";
+    engine.rootContext()->setContextProperty("robotaxiPreviewEnabled", previewRobotaxi);
+
+    const bool useRobotaxiUi = QProcessEnvironment::systemEnvironment().value("ROBOTAXI_CLUSTER") == "1";
+    const QUrl url(useRobotaxiUi
+        ? QUrl(QStringLiteral("qrc:/car_cluster/MainRobotaxi.qml"))
+        : QUrl(QStringLiteral("qrc:/car_cluster/Main.qml")));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
                          if (!obj && url == objUrl)
@@ -36,7 +43,9 @@ int main(int argc, char *argv[])
     //vehicle->startSpeedSimulation();
     //vehicle->startTrafficSignSimulation();
 
-    vehicle->startKuksaSubscriber();
+    if (!previewRobotaxi) {
+        vehicle->startKuksaSubscriber();
+    }
 
     return app.exec();
 }

@@ -93,6 +93,11 @@ typedef struct {
     ULONG front_distance_cm;
 } t_ultrasonic_data;
 
+// struct for ambient data
+typedef struct {
+    float ambient_light_lux;
+} t_ambient_data;
+
 /* USER CODE END EFP */
 
 /* USER CODE BEGIN 1 */
@@ -106,8 +111,11 @@ Number of threads
 5 -> CAN_Rx_Thread_Entry
 6 -> heartbeat_thread_entry
 7 -> ultrasonic_thread_entry
+8 -> oled_thread_entry
+9 -> ambient_thread_entry
+10 -> microphone_thread_entry
 */
-#define THREAD_COUNT    7
+#define THREAD_COUNT    10
 
 extern t_threads threads[THREAD_COUNT];
 
@@ -115,13 +123,15 @@ extern t_threads threads[THREAD_COUNT];
 extern TX_QUEUE g_tx_data_queue;
 extern TX_QUEUE g_rx_data_queue;
 extern TX_QUEUE g_ultrasonic_data_queue;
+extern TX_QUEUE g_ambient_data_queue;
 
-//MUTEXES
+// MUTEXES
 extern TX_MUTEX g_speed_mutex;
 extern TX_MUTEX g_dc_motor_mutex;
 extern TX_MUTEX g_servo_mutex;
 extern TX_MUTEX g_battery_mutex;
 extern TX_MUTEX g_odometer_mutex;
+extern TX_MUTEX g_i2c2_mutex;
 
 // THREAD ENTRYS
 void sensor_thread_entry2(ULONG thread_input);
@@ -129,8 +139,10 @@ void battery_thread_entry(ULONG thread_input);
 void motors_thread_entry(ULONG thread_input);
 void heartbeat_thread_entry(ULONG thread_input);
 void ultrasonic_thread_entry(ULONG thread_input);
-//void sensor_thread_entry(ULONG thread_input);
-//void odometer_thread_entry(ULONG thread_input);
+void oled_thread_entry(ULONG thread_input);
+void ambient_thread_entry(ULONG thread_input);
+void microphone_thread_entry(ULONG thread_input);
+
 
 /* USER CODE END 1 */
 
